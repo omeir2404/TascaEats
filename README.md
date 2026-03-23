@@ -97,3 +97,14 @@ Esta entrega corresponde a **35% da nota do projeto**. Segue uma lista de crité
 - Implementação da REST API com os *endpoints* adequados e boas práticas (status codes, verbos HTTP corretos).
 - Uso correto de anotações JPA, herança e relações de cardinalidade.
 - Inclusão de testes unitários e de integração que validem a lógica de negócio e os cenários de exceção.
+
+
+## GIT ORGANIZATION
+
+| Goal | Command | What happens? | Works offline? |
+| --- | --- | --- | --- |
+| Save work locally | `git commit -m "msg"` | Saves a snapshot to your laptop. | Yes |
+| Push to BOTH | `git push origin` | Tries GitLab first, then GitHub. | Partial (GitHub succeeds, GitLab times out) |
+| Check status | `git remote -v` | Shows your current push/fetch URLs. | Yes |
+| Get latest code | `git pull origin` | Downloads updates from GitLab. | No (needs Uni network) |
+| See hidden history | `git log --oneline` | Shows all commits you've made (even if not pushed). | Yes |
