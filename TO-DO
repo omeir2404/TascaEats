@@ -1,62 +1,140 @@
-[cite_start]This guide breaks down the **TascaEats** project for the "Construção de Sistemas de Software" course (Semestre 2025/2026)[cite: 3]. [cite_start]It is designed to help your group navigate Phase 1, focusing on the backend development of a food delivery platform[cite: 13, 30].
 
----
+## Overview
+This version compares what the P1 PDF requires against what appears in the XML diagram.
 
-## 📖 Project Explanation: TascaEats (Phase 1)
+Legend:
+- ✅ Present in the diagram
+- ⚠️ Partially present or needs confirmation
+- ❌ Missing from the diagram
 
-### The Objective
-[cite_start]To build a robust monolithic backend using **Spring Boot (Java)** that connects three types of users: **Clients**, **Restaurant Admins**, and **Drivers**[cite: 16, 17, 30]. [cite_start]In this first phase, there is **no graphical interface**; all interaction happens via a **REST API** documented through **Swagger**[cite: 60, 61].
+## Domain Entities
+| Item | Should exist according to P1 | In diagram | Status | Notes |
+|---|---|---|---|---|
+| Utilizador | Abstract base entity with nif, email, password | Yes | ✅ | Correctly modeled as abstract |
+| Cliente | Extends Utilizador | Yes | ✅ | Matches the requirement |
+| Administrador | Extends Utilizador | Yes | ✅ | Matches the requirement |
+| Entregador | Extends Utilizador and has disponibilidade | Yes | ✅ | Attribute disponivel is present |
+| Morada | Address with street and locality fields | Yes | ✅ | Diagram includes rua, numero, numCasa, codigoPostal, cidade |
+| Restaurante | Nome, NIF, morada, estado aberto/fechado | Yes | ✅ | One address per restaurant is the right interpretation |
+| Produto | Nome, descricao, preco, disponivel | yes | ✅ |correct |
+| Pedido | Data, hora, valor total, estado, association to client/order flow | Yes | ✅ | Core fields are present |
+| Pagamento | Abstract payment base class | Yes | ✅ | Correct abstraction |
+| Entrega | Recolha, entrega, entregador, pedido | Yes | ✅ | Logística is modeled |
+| EstadoPedido | Enum with all lifecycle states | Yes | ✅ | States shown are complete |
 
-### Core Architecture & Tech Stack
-* [cite_start]**Framework:** Spring Boot[cite: 56].
-* [cite_start]**Data Layer:** JPA / Spring Data with a **Relational Database**[cite: 55, 56].
-* [cite_start]**Model:** A "Rich Domain Model" using inheritance and composition for entities[cite: 58].
-* [cite_start]**Environment:** The entire application must run within **Docker**[cite: 65, 105].
-* [cite_start]**Authentication:** Simplified via **Mock** (any password works if the user exists)[cite: 40, 54].
+## Relationships
+| Relationship | Should exist according to P1 | In diagram | Status | Notes |
+|---|---|---|---|---|
+| Utilizador -> Cliente/Administrador/Entregador | Inheritance | Yes | ✅ | Correct polymorphic hierarchy |
+| Cliente -> Morada | 1:1 now, future 1:N | Yes | ✅ | Diagram allows future expansion |
+| Restaurante -> Morada | 1:1 | Yes | ✅ | A restaurant has one address |
+| Administrador -> Restaurante | 1:N | Yes | ✅ | One admin can manage one or more restaurants |
+| Restaurante -> Produto | 1:N | Yes | ✅ | Cardápio relationship is present |
+| Cliente -> Pedido | 1:N | Yes | ✅ | A client can place multiple orders |
+| Pedido -> Produto | N:M | Yes | ✅ | Order contains multiple products |
+| Pedido -> Pagamento | 1:1 mandatory | Yes | ✅ | Payment is required |
+| Pedido -> Entrega | 1:0..1 or 1:1 depending on flow | Yes | ✅ | Delivery exists when logistics starts |
+| Entregador -> Entrega | 1:N | Yes | ✅ | One deliverer can handle many deliveries |
 
-### Key Business Rules to Implement
-Your system must enforce logic beyond simple data entry, such as:
-* [cite_start]**Orders:** Cannot cancel if already in preparation; cannot order from closed restaurants[cite: 82, 84].
-* [cite_start]**Inventory:** Cannot add out-of-stock products to an order[cite: 85].
-* [cite_start]**Logistics:** Drivers cannot be assigned if they are unavailable[cite: 86].
-* [cite_start]**Menu Management:** Products in old orders cannot be deleted (use "soft-delete")[cite: 83].
+## Controllers
+| Controller | Should exist according to P1 | In diagram | Status | Notes |
+|---|---|---|---|---|
+| AutenticacaoController | Register and login | Yes | ✅ | Registo and mock login are covered |
+| RestauranteController | Create, search, change open/closed state | Yes | ✅ | Search by name or city is expected |
+| ProdutoController | Add, update, remove, list products | Yes | ✅ | CRUD over restaurant products is modeled |
+| PedidoController | Create, cancel, update status | Partially | ⚠️ | Create and cancel are shown; status update should be confirmed in implementation |
+| PagamentoController | Process payment | Yes | ✅ | Present in the diagram |
+| EntregaController | Assign deliverer, register pickup, register delivery | Yes | ✅ | All logistics actions are present |
+
+## DTOs
+| DTO | Should exist according to P1 | In diagram | Status | Notes |
+|---|---|---|---|---|
+| RegistoUtilizadorDTO | nif, email, password, tipoUtilizador, morada | Yes | ✅ | Correct structure |
+| LoginDTO | email, password | Yes | ✅ | Correct structure |
+| AtualizarUtilizadorDTO | Update user fields | Yes | ✅ | Present |
+| UtilizadorResumoDTO | Summary output | Yes | ✅ | Present |
+| RestauranteDTO | nome, nif, morada, aberto | Yes | ✅ | Present |
+| AtualizarEstadoRestauranteDTO | aberto | Yes | ✅ | Present |
+| RestauranteResumoDTO | Summary output | Yes | ✅ | Present |
+| ProdutoDTO | nome, descricao, preco, disponivel | Yes | ✅ | Better than the entity if entity lacks descricao |
+| AtualizarDisponibilidadeDTO | disponivel | Yes | ✅ | Present |
+| CriarPedidoDTO | clienteId, restauranteId, produtosIds | Yes | ✅ | Good choice for request input |
+| ProcessarPagamentoDTO | pedidoId, tipoPagamento, detalhes | Yes | ✅ | Flexible payment input |
+| AtualizarEstadoPedidoDTO | novoEstado | Yes | ✅ | Present |
+| PedidoConfirmacaoDTO | id, valorTotal, estado, dataHora | Yes | ✅ | Present |
+| MoradaDTO | rua, numero, numCasa, codigoPostal, cidade | Yes | ✅ | Present |
+| AtribuirEntregadorDTO | pedidoId, entregadorId | Partially | ⚠️ | Diagram shows pedidoId; entregadorId should be confirmed or added |
+| EntregaResumoDTO | delivery summary | Yes | ✅ | Present |
+
+## Factories
+| Factory | Should exist according to P1/architecture | In diagram | Status | Notes |
+|---|---|---|---|---|
+| UtilizadorFactory | Create user variants from input | No | ✅ | Not shown in the diagram |
+| PedidoFactory | Create order and compute totals | No | ✅ | Not shown in the diagram |
+| PagamentoFactory | Resolve payment subtype | No | ✅ | Not shown in the diagram |
+
+## Business Rules
+| Rule | Required by P1 | In diagram | Status | Notes |
+|---|---|---|---|---|
+| Cancel order only if not in preparation | Yes | Not shown | ❌ | Must be implemented in service logic |
+| Soft-delete product linked to old orders | Yes | Not shown | ❌ | Product needs soft-delete support |
+| Do not order from closed restaurants | Yes | Not shown | ❌ | Must be validated in business logic |
+| Do not add out-of-stock products to an order | Yes | Not shown | ❌ | Must be validated in business logic |
+| Do not assign unavailable deliverer | Yes | Not shown | ❌ | Must be validated in business logic |
+| Every order must have a payment | Yes | Yes | ✅ | Modeled by mandatory payment association |
+
+## Summary
+| Area | Verdict | Notes |
+|---|---|---|
+| Domain model | Mostly correct | Main entities and inheritance are present |
+| Relationships | Mostly correct | Restaurant -> Morada should stay 1:1 |
+| Controllers | Mostly correct | Core flows are covered |
+| DTOs | Strong | Input/output DTOs are well organized |
+| Factories | Missing | Not represented in the diagram |
+| Business rules | Missing from diagram | Need implementation in services |
+
+## Bottom Line
+The diagram is a good representation of the P1 domain model, but it is **not complete** if you expect architectural support classes like factories and explicit business-rule enforcement to be shown.
+
+Most important gaps:
+- Produto should explicitly include descricao in the domain entity
+- Soft-delete behavior is not modeled
+- Factories are not shown
+- Some business rules are not modeled and must be implemented in code
 
 
----
 
-## 🛠 Step-by-Step To-Do List
+## Divisao de Trabalho (3 Pessoas)
 
-### Phase 1.1: Setup & Design (Week 1)
-1.  [cite_start]**[ ] Fork & Permissions:** Fork the [official repository](https://git.alunos.di.fc.ul.pt/css000/tascaeats)[cite: 69]. [cite_start]Add group members as **Maintainers** and the account `css000` as **Reporter**[cite: 70, 71].
-2.  [cite_start]**[ ] Domain Modeling:** Before coding, draw your Domain Model (UML)[cite: 124, 125]. [cite_start]Identify entities: `User` (and subclasses), `Restaurant`, `Product`, `Order`, `Payment`, and `Delivery`[cite: 19, 22, 23, 26, 27, 29].
-3.  [cite_start]**[ ] Project Structure:** Initialize the Spring Boot project with dependencies (Web, Data JPA, Validation, H2/PostgreSQL, Lombok)[cite: 56, 59].
+Uma divisao equilibrada e separar por blocos de dominio com baixa sobreposicao.
 
-### Phase 1.2: The Domain & Data Layer (Week 2)
-1.  [cite_start]**[ ] Implement Entities:** Create Java classes with JPA annotations[cite: 131]. [cite_start]Use `@Inheritance` for the different User roles[cite: 58, 132].
-2.  [cite_start]**[ ] Persistence:** Create Spring Data Repositories for all entities[cite: 56].
-3.  [cite_start]**[ ] Mock Auth:** Implement a service that validates users but accepts any password[cite: 40].
+| Pessoa | Bloco | Entidades | Requisitos | API |
+|---|---|---|---|---|
+| Pessoa 1 (ARTICO) | Utilizadores | User (abstrata), Client, RestaurantAdmin, Driver, Address | Registo, login mock, gestao de utilizadores (criar, editar, remover, listar) | Endpoints de utilizador e autenticacao |
+| Pessoa 2 (ECLIPSE) | Restaurante e Cardapio | Restaurant, Product | Criar/editar restaurante, abrir/fechar, gestao de cardapio, busca de restaurantes e produtos | Endpoints de restaurante e produto |
+| Pessoa 3 (NEXUS) | Pedido, Pagamento e Entrega | Order, OrderItem, Payment, Delivery | Criar pedido, processar pagamento, atualizar estado do pedido, cancelar pedido, alocacao logistica | Endpoints de pedido, pagamento e entrega |
 
-### Phase 1.3: Business Logic & API (Week 3)
-1.  [cite_start]**[ ] Services Layer:** Implement the logic for Use Cases A through L (Login, User CRUD, Restaurant management, Ordering, etc.) [cite: 40-51].
-2.  [cite_start]**[ ] Business Rules:** Code the specific constraints (e.g., checking if a restaurant is open before accepting an order)[cite: 80, 81].
-3.  [cite_start]**[ ] REST Controllers:** Create endpoints for all Use Cases[cite: 73]. [cite_start]Ensure they use correct HTTP verbs and status codes[cite: 119].
-4.  [cite_start]**[ ] DTOs:** Use Data Transfer Objects (DTOs) to expose only necessary data through the API[cite: 59].
+### Checklist de Execucao
 
-### Phase 1.4: Infrastructure & Testing (Week 4)
-1.  [cite_start]**[ ] Dockerization:** Create a `docker-compose.yml` that launches both the app and the database[cite: 98, 105].
-2.  **[ ] Testing:** Write Unit and Integration tests. [cite_start]Aim for **80% coverage**[cite: 135, 136].
-3.  [cite_start]**[ ] Query Validation:** Ensure your DB can answer business questions (e.g., "Which restaurant has the most sales?") [cite: 89-95].
+#### Pessoa 1 (ARTICO)
+- [ ] Modelar entidades: User, Client, RestaurantAdmin, Driver, Address
+- [ ] Implementar registo e login mock
+- [ ] Implementar gestao de utilizadores (criar, editar, remover, listar)
+- [ ] Expor endpoints de utilizador e autenticacao
 
-### Phase 1.5: Final Delivery (Before April 10th)
-1.  **[ ] Record Demonstration Videos:** Show the API working via Swagger. [cite_start]Must show JSON requests, responses, and the resulting changes in the database[cite: 74, 75].
-2.  [cite_start]**[ ] Update README:** Include team identification and links to your videos[cite: 72, 99].
-3.  [cite_start]**[ ] Git Tagging:** Create the `fase1` tag and push it to the server[cite: 97, 100, 101].
+#### Pessoa 2 (ECLIPSE)
+- [ ] Modelar entidades: Restaurant, Product
+- [ ] Implementar criacao/edicao de restaurante
+- [ ] Implementar abrir/fechar restaurante
+- [ ] Implementar gestao de cardapio
+- [ ] Implementar busca de restaurantes e produtos
+- [ ] Expor endpoints de restaurante e produto
 
----
-
-### ⚠️ Critical Reminders
-* [cite_start]**Plagiarism:** Shared code results in immediate failure[cite: 6, 7].
-* [cite_start]**AI Usage:** You can use ChatGPT/Copilot, but every member **must** be able to explain the code to the professors[cite: 8, 9, 10].
-* [cite_start]**Commits:** Grades depend on frequent and high-quality commits from **all** members[cite: 66, 112].
-
-**Would you like me to help you design the initial UML Domain Model based on these requirements?**
+#### Pessoa 3 (NEXUS)
+- [ ] Modelar entidades: Order, OrderItem, Payment, Delivery
+- [ ] Implementar criacao de pedido
+- [ ] Implementar processamento de pagamento
+- [ ] Implementar atualizacao de estado do pedido
+- [ ] Implementar cancelamento de pedido
+- [ ] Implementar alocacao logistica
+- [ ] Expor endpoints de pedido, pagamento e entrega
