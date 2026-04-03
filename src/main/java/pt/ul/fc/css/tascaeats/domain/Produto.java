@@ -1,3 +1,5 @@
+package pt.ul.fc.css.tascaeats.domain;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,7 +33,7 @@ public class Produto{
 
     @NotNull
     @Column(nullable = false)
-    private Boolean disponivel= true;
+    private boolean disponivel = true;
 
     @NotBlank
     @Column(nullable = false)
@@ -39,7 +41,7 @@ public class Produto{
 
     @NotNull
     @Column(nullable = false)
-    private Boolean apagado = false;
+    private boolean apagado = false;
 
     @ManyToOne
     @JoinColumn(name= "catalogo_produtos_id", nullable= false)
@@ -49,7 +51,7 @@ public class Produto{
     @JoinTable(name = "pedido_produto", joinColumns = @JoinColumn(name= "produto_id"), inverseJoinColumns= @JoinColumn(name = "pedido_id"))
     private List<Pedido> pedidos = new ArrayList<>();
     
-    // *********GETTERS E STETTERS**********
+    // *********GETTERS E SETTERS**********
 
     //Id
     public Long getId(){
@@ -79,11 +81,11 @@ public class Produto{
     }
 
     //Disponível
-    public Boolean getDisponivel(){
+    public boolean getDisponivel(){
         return disponivel;
     }
 
-    public void setDisponivel(Boolean disponivel){
+    public void setDisponivel(boolean disponivel){
         this.disponivel = disponivel;
     }
 
@@ -97,11 +99,11 @@ public class Produto{
     }
 
     //Apagado
-    public Boolean getApagado(){
+    public boolean getApagado(){
         return apagado;
     }
 
-    public void setApagado(Boolean apagado){
+    public void setApagado(boolean apagado){
         this.apagado = apagado;
     }
 
