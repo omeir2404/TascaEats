@@ -29,6 +29,7 @@ public class Produto{
     @Column(nullable = false)
     private Double preco;
 
+    @NotNull
     @Column(nullable = false)
     private Boolean disponivel= true;
 
@@ -48,6 +49,76 @@ public class Produto{
     @JoinTable(name = "pedido_produto", joinColumns = @JoinColumn(name= "produto_id"), inverseJoinColumns= @JoinColumn(name = "pedido_id"))
     private List<Pedido> pedidos = new ArrayList<>();
     
-    
+    // *********GETTERS E STETTERS**********
 
+    //Id
+    public Long getId(){
+        return id;
+    }
+
+    public void setId(Long id){
+        this.id = id;
+    }
+
+    //Nome
+    public String getNome(){
+        return nome;
+    }
+
+    public void setNome(String nome){
+        this.nome = nome;
+    }
+
+    //Preço
+    public Double getPreco(){
+        return preco;
+    }
+
+    public void setPreco(Double preco){
+        this.preco = preco;
+    }
+
+    //Disponível
+    public Boolean getDisponivel(){
+        return disponivel;
+    }
+
+    public void setDisponivel(Boolean disponivel){
+        this.disponivel = disponivel;
+    }
+
+    //Descrição
+    public String getDescricao(){
+        return descricao;
+    }
+
+    public void setDescricao(String descricao){
+        this.descricao = descricao;
+    }
+
+    //Apagado
+    public Boolean getApagado(){
+        return apagado;
+    }
+
+    public void setApagado(Boolean apagado){
+        this.apagado = apagado;
+    }
+
+    //Catálogo e Setters
+    public CatalogoProdutos getCatalogoProdutos() {
+        return catalogoProdutos;
+    }
+
+    public void setCatalogoProdutos(CatalogoProdutos catalogoProdutos) {
+        this.catalogoProdutos = catalogoProdutos;
+    }
+
+    public List<Pedido> getPedidos() {
+        return pedidos;
+    }
+
+    public void setPedidos(List<Pedido> pedidos) {
+        this.pedidos = pedidos;
+    }
 }
