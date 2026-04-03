@@ -19,5 +19,35 @@ public class EntregaResumoDTO {
         this.entregadorNome = entregadorNome;
     }
 
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getHoraRecolha() {
+        return horaRecolha;
+    }
+
+    public void setHoraRecolha(LocalDateTime horaRecolha) {
+        this.horaRecolha = horaRecolha;
+    }
+
+    public LocalDateTime getHoraEntrega() {
+        return horaEntrega;
+    }
+
+    public void setHoraEntrega(LocalDateTime horaEntrega) {
+        this.horaEntrega = horaEntrega;
+    }
+
+    public String getEntregadorNome() {
+        return entregadorNome;
+    }
+
+    public void setEntregadorNome(String entregadorNome) {
+        this.entregadorNome = entregadorNome;
+    }
 }
