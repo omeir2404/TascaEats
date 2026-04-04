@@ -24,6 +24,22 @@ public class CatalogoProdutos {
     @OneToMany(mappedBy = "catalogoProdutos", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Produto> produtos = new ArrayList<>();
     
+
+    // *********CONSTRUTORES**********
+
+    protected CatalogoProdutos(){
+    }
+
+    public CatalogoProdutos(Restaurante restaurante) {
+        this();
+        if (restaurante == null) {
+            throw new IllegalArgumentException("Restaurante é obrigatório");
+        }
+        this.restaurante = restaurante;
+        restaurante.setCatalogoProdutos(this);
+    }
+
+
     // *********GETTERS E SETTERS**********
 
     //Id
@@ -40,9 +56,15 @@ public class CatalogoProdutos {
 		return restaurante;
 	}
 
-	public void setRestaurante(Restaurante restaurante) {
-		this.restaurante = restaurante;
-	}
+    public void setRestaurante(Restaurante restaurante) {
+        if (this.restaurante != null && this.restaurante != restaurante) {
+            this.restaurante.setCatalogoProdutos(null);
+        }
+        this.restaurante = restaurante;
+        if (restaurante != null && restaurante.getCatalogoProdutos() != this) {
+            restaurante.setCatalogoProdutos(this);
+        }
+    }
 
     //Produtos
     public List<Produto> getProdutos() {
@@ -64,6 +86,9 @@ public class CatalogoProdutos {
     public void addProduto(Produto produto){
         if(produto == null){
             return;
+        }
+        if(produto.isApagado()){
+            throw new IllegalStateException("Não é possível adicionar ao catálogo um produto apagado!");
         }
         if(!produtos.contains(produto)){
             produtos.add(produto);

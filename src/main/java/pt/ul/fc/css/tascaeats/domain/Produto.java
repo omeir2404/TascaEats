@@ -54,7 +54,7 @@ public class Produto{
 
     // *********CONSTRUTORES**********
 
-    public Produto(){
+    protected Produto(){
     }
 
     public Produto(String nome, Double preco, String descricao, CatalogoProdutos catalogoProdutos){

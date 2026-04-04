@@ -53,7 +53,7 @@ public class Restaurante{
 
     // *********CONSTRUTORES**********
 
-    public Restaurante(){
+    protected Restaurante(){
     }
 
     public Restaurante(String nome, String nif, Morada morada, Administrador administrador,
