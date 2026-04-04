@@ -1,6 +1,8 @@
 package pt.ul.fc.css.tascaeats.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -26,8 +28,10 @@ public class Restaurante{
     @Column(nullable = false)
     private String nif;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private boolean aberto = false;
+    private EstadoRestaurante estado = EstadoRestaurante.FECHADO;
 
     @OneToOne
     @JoinColumn(name = "morada_id", nullable = false, unique = true)
@@ -74,13 +78,17 @@ public class Restaurante{
         this.nif = nif;
     }
 
-    //Aberto
-    public boolean isAberto(){
-        return aberto;
+    //Estado
+    public EstadoRestaurante getEstado(){
+        return estado;
     }
 
-    public void setAberto(boolean aberto){
-        this.aberto = aberto;
+    public void setEstado(EstadoRestaurante estado){
+        this.estado = estado;
+    }
+
+    public boolean isAberto() {
+    return estado == EstadoRestaurante.ABERTO;
     }
 
     //Morada
