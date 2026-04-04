@@ -12,6 +12,18 @@ public abstract class Pagamento {
     private LocalDate dataPagamento;
     private String referenciaPagamento;
 
+    public Pagamento(long id, double valor, LocalDate dataPagamento, String referenciaPagamento){
+        this.id = id;
+        this.valor = valor;
+        this.dataPagamento = dataPagamento;
+        this.referenciaPagamento = referenciaPagamento;
+    }
+
+    public abstract void validarDetalhes();
+
+    public abstract String obterInstrucoesPagamento();
+
+// ###################### GETTERS e SETTERS #####################################################################
     public Long getId() {
         return id;
     }
