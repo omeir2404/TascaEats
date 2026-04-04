@@ -51,6 +51,22 @@ public class Produto{
     @JoinTable(name = "pedido_produto", joinColumns = @JoinColumn(name= "produto_id"), inverseJoinColumns= @JoinColumn(name = "pedido_id"))
     private List<Pedido> pedidos = new ArrayList<>();
     
+
+    // *********CONSTRUTORES**********
+
+    public Produto(){
+    }
+
+    public Produto(String nome, Double preco, String descricao, CatalogoProdutos catalogoProdutos){
+        this.nome = nome;
+        this.preco = preco;
+        this.disponivel = true;
+        this.descricao = descricao;
+        this.apagado = false;
+        this.catalogoProdutos = catalogoProdutos;
+    }
+
+
     // *********GETTERS E SETTERS**********
 
     //Id
@@ -81,12 +97,28 @@ public class Produto{
     }
 
     //Disponível
-    public boolean getDisponivel(){
+    public boolean isDisponivel(){
         return disponivel;
     }
 
-    public void setDisponivel(boolean disponivel){
-        this.disponivel = disponivel;
+    public void disponibilizar() {
+        if (this.apagado) {
+            throw new IllegalStateException("Não é possível disponibilizar um produto apagado!");
+        }
+        if (this.disponivel) {
+            throw new IllegalStateException("O produto já está disponível!");
+        }
+        this.disponivel = true;
+    }
+
+    public void indisponibilizar() {
+        if (this.apagado) {
+            throw new IllegalStateException("Não é possível alterar disponibilidade de um produto apagado!");
+        }
+        if (!this.disponivel) {
+            throw new IllegalStateException("O produto já está indisponível!");
+        }
+        this.disponivel = false;
     }
 
     //Descrição
@@ -99,12 +131,34 @@ public class Produto{
     }
 
     //Apagado
-    public boolean getApagado(){
+    public boolean isApagado(){
         return apagado;
     }
 
-    public void setApagado(boolean apagado){
-        this.apagado = apagado;
+    public void apagar() {
+        if (this.apagado) {
+            throw new IllegalStateException("O produto já está apagado!");
+        }
+        this.apagado = true;
+        this.disponivel = false;
+    }
+
+    //Ativar
+    public void ativar() {
+        if (!this.apagado) {
+            throw new IllegalStateException("O produto já está ativo!");
+        }
+        this.apagado = false;
+    }
+
+    //Disponibilidade
+    public void validarDisponibilidadeParaPedido() {
+        if (this.apagado) {
+            throw new IllegalStateException("O produto foi apagado e não pode ser pedido!");
+        }
+        if (!this.disponivel) {
+            throw new IllegalStateException("O produto está indisponível para ser pedido!");
+        }
     }
 
     //Catálogo e Setters

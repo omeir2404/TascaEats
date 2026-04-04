@@ -6,6 +6,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.validation.constraints.NotBlank;
@@ -25,7 +26,7 @@ public class Restaurante{
     private String nome;
 
     @NotBlank
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String nif;
 
     @NotNull
@@ -33,21 +34,39 @@ public class Restaurante{
     @Column(nullable = false)
     private EstadoRestaurante estado = EstadoRestaurante.FECHADO;
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "morada_id", nullable = false, unique = true)
     private Morada morada; 
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "catalogo_produtos_id", nullable = false, unique = true)
     private CatalogoProdutos catalogoProdutos;
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "catalogo_entregas_id", nullable = false)
     private CatalogoEntregas catalogoEntregas;
 
     @ManyToOne
     @JoinColumn(name = "administrador_id", nullable = false)
     private Administrador administrador;
+
+
+    // *********CONSTRUTORES**********
+
+    public Restaurante(){
+    }
+
+    public Restaurante(String nome, String nif, Morada morada, Administrador administrador,
+                   CatalogoProdutos catalogoProdutos, CatalogoEntregas catalogoEntregas){
+        this.nome = nome;
+        this.nif = nif;
+        this.estado = EstadoRestaurante.FECHADO;
+        this.morada = morada;
+        this.administrador = administrador;
+        this.catalogoProdutos = catalogoProdutos;
+        this.catalogoEntregas = catalogoEntregas;
+    }
+    
 
     // *********GETTERS E SETTERS**********
 
@@ -83,12 +102,35 @@ public class Restaurante{
         return estado;
     }
 
-    public void setEstado(EstadoRestaurante estado){
-        this.estado = estado;
+    public boolean isAberto() {
+        return estado == EstadoRestaurante.ABERTO;
     }
 
-    public boolean isAberto() {
-    return estado == EstadoRestaurante.ABERTO;
+    public void abrir() {
+        if(this.estado == EstadoRestaurante.ABERTO){
+            throw new IllegalStateException("O restaurante já está aberto!");
+        }
+        this.estado = EstadoRestaurante.ABERTO;
+    }
+
+    public void fechar() {
+        if(this.estado == EstadoRestaurante.FECHADO){
+            throw new IllegalStateException("O restaurante já está fechado!");
+        }
+        this.estado = EstadoRestaurante.FECHADO;
+    }
+
+    public void reservar() {
+        if(this.estado == EstadoRestaurante.RESERVADO){
+            throw new IllegalStateException("O restaurante já está reservado!");
+        }
+        this.estado = EstadoRestaurante.RESERVADO;
+    }
+
+    public void validarDisponibilidadeParaPedido() {
+        if (!isAberto()) {
+            throw new IllegalStateException("O restaurante está fechado. Não é possível fazer pedidos!");
+        }
     }
 
     //Morada
