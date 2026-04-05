@@ -7,6 +7,6 @@ import pt.ul.fc.css.tascaeats.domain.user.User;
 import java.util.Optional;
 
 @Repository
-public interface userRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
         Optional<User> findByEmail(String email);
 }
