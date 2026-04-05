@@ -147,25 +147,25 @@ A primeira coisa a fazer é criar a base de dados em memória. Começa pelas ent
 
 - [x] **Criar Enum `EstadoPedido`**
   - Valores: `CRIADO`, `PAGO`, `A_PREPARAR`, `PRONTO_PARA_ENTREGA`, `CANCELADO`, `ATRIBUIDO_ENTREGADOR`, `ENTREGUE`.
-- [ ] **Criar Classe Abstrata `Pagamento`**
+- [x] **Criar Classe Abstrata `Pagamento`**
   - [x]Atributos: `id` (String), `valor` (Double), `dataPagamento` (LocalDate), `referenciaPagamento` (String).
-  - [ ]*Dica JPA:* Usar a anotação `@Inheritance` (ex: `SINGLE_TABLE` ou `JOINED`) para as subclasses.
+  - [x]*Dica JPA:* Usar a anotação `@Inheritance` (ex: `SINGLE_TABLE` ou `JOINED`) para as subclasses.
 - [x] **Criar Subclasses de `Pagamento`**
   - [x] `PagamentoMBWay` (Atributo: `numeroTelemovel`).
   - [x] `PagamentoDinheiro` (Atributos: `valorRecebido`, `troco`).
   - [x] `PagamentoMultibanco` (Atributos: `entidade`, `referencia`).
   - [x] `PagamentoCartao` (Atributo: `numeroCartao`).
-- [ ] **Criar Entidade `Pedido`**
-  - [x]Atributos: `id`, `data`, `hora`, `valorTotal`, `estado` (EstadoPedido).
-  - [ ]Ligações (Mappings): `@ManyToOne` com `Cliente` e `Restaurante`, `@OneToOne` com `Pagamento`, `@ManyToMany` com `Produto`.
-- [ ] **Criar Entidade `Entrega`**
-  - [x]Atributos: `id`, `horaRecolha` (LocalDateTime), `horaEntrega` (LocalDateTime), `enderecoEntrega` (String).
-  - [ ]Ligações (Mappings): `@OneToOne` com `Pedido`, `@ManyToOne` com `Entregador`.
+- [x] **Criar Entidade `Pedido`**
+  - [x] Atributos: `id`, `data`, `hora`, `valorTotal`, `estado` (EstadoPedido).
+  - [x] Ligações (Mappings): `@ManyToOne` com `Cliente` e `Restaurante`, `@OneToOne` com `Pagamento`, `@ManyToMany` com `Produto`.
+- [x] **Criar Entidade `Entrega`**
+  - [x] Atributos: `id`, `horaRecolha` (LocalDateTime), `horaEntrega` (LocalDateTime), `enderecoEntrega` (String).
+  - [x] Ligações (Mappings): `@OneToOne` com `Pedido`, `@ManyToOne` com `Entregador`.
 
 ## 2. 🏭 Factories e Repositórios (Infraestrutura)
-- [ ] **Criar `PagamentoFactory`**
-  - Implementar método estático ou componente `@Component` com o método: `create(tipoPagamento: String, detalhes: Map)`.
-  - Lógica: Ler a string (ex: "MBWAY") e instanciar a subclasse correspondente retirando os dados do `Map`.
+- [x] **Criar `PagamentoFactory`**
+  - [x] Implementar método estático ou componente `@Component` com o método: `create(tipoPagamento: String, detalhes: Map)`.
+  - [x] Lógica: Ler a string (ex: "MBWAY") e instanciar a subclasse correspondente retirando os dados do `Map`.
 - [ ] **Criar Interfaces Repository (Spring Data JPA)**
   - [ ] `IPedidoRepository` (extends JpaRepository).
   - [ ] `IPagamentoRepository` (extends JpaRepository).
