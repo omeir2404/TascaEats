@@ -16,6 +16,18 @@ public class Driver extends User {
     }
 
     public Driver() {
+    }
 
+    @Override
+    public boolean equals(Object obj)    {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Driver driver = (Driver) obj;
+        return this.getEmail().equals(driver.getEmail());
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getEmail().hashCode();
     }
 }
