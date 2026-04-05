@@ -7,13 +7,6 @@ import pt.ul.fc.css.tascaeats.dto.UserRegistrationDTO;
 @Component
 public class UserFactory {
 
-    private static UserFactory instance;
-    public static UserFactory getInstance() {
-        if (instance == null) {
-            instance = new UserFactory();
-        }
-        return instance;
-    }
     private UserFactory() {
         /* This utility class should not be instantiated */
     }
