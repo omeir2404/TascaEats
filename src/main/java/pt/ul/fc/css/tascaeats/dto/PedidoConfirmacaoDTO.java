@@ -19,6 +19,8 @@ public class PedidoConfirmacaoDTO {
         this.dataHora = dataHora;
     }
 
+// ###################### GETTERS e SETTERS #####################################################################
+
     public Long getId() {
         return id;
     }
@@ -49,5 +51,11 @@ public class PedidoConfirmacaoDTO {
 
     public void setDataHora(LocalDateTime dataHora) {
         this.dataHora = dataHora;
+    }
+
+    @Override
+    public String toString(){
+        return "PedidoConfirmacaoDTO{" + "id=" + id + ", valorTotal=" 
+            + valorTotal + ", estado=" + estado + ", dataHora=" + dataHora +"}";
     }
 }
