@@ -1,9 +1,10 @@
 package pt.ul.fc.css.tascaeats.domain.user;
 
 
+import org.springframework.stereotype.Component;
 import pt.ul.fc.css.tascaeats.dto.UserRegistrationDTO;
 
-
+@Component
 public class UserFactory {
 
     private static UserFactory instance;
@@ -23,9 +24,9 @@ public class UserFactory {
             case "Client" ->
                     new Client(userRegistrationDTO.getName(), userRegistrationDTO.getEmail(), userRegistrationDTO.getPassword(), userRegistrationDTO.getAddress());
             case "RestaurantAdmin" ->
-                    new RestaurantAdmin(userRegistrationDTO.getName(), userRegistrationDTO.getEmail(), userRegistrationDTO.getPassword(), userRegistrationDTO.getAddress());
+                    new RestaurantAdmin(userRegistrationDTO.getName(), userRegistrationDTO.getEmail(), userRegistrationDTO.getPassword());
             case "Driver" ->
-                    new Driver(userRegistrationDTO.getName(), userRegistrationDTO.getEmail(), userRegistrationDTO.getPassword(), userRegistrationDTO.getAddress());
+                    new Driver(userRegistrationDTO.getName(), userRegistrationDTO.getEmail(), userRegistrationDTO.getPassword());
             default -> throw new IllegalArgumentException("Invalid user type: " + userRegistrationDTO.getType());
         };
 
