@@ -145,22 +145,22 @@ Uma divisao equilibrada e separar por blocos de dominio com baixa sobreposicao.
 ## 1. 🏗️ Domínio: Entidades e Enums (Base de Dados)
 A primeira coisa a fazer é criar a base de dados em memória. Começa pelas entidades sem dependências e avança para as mais complexas.
 
-- [ ] **Criar Enum `EstadoPedido`**
+- [x] **Criar Enum `EstadoPedido`**
   - Valores: `CRIADO`, `PAGO`, `A_PREPARAR`, `PRONTO_PARA_ENTREGA`, `CANCELADO`, `ATRIBUIDO_ENTREGADOR`, `ENTREGUE`.
 - [ ] **Criar Classe Abstrata `Pagamento`**
-  - Atributos: `id` (String), `valor` (Double), `dataPagamento` (LocalDate), `referenciaPagamento` (String).
-  - *Dica JPA:* Usar a anotação `@Inheritance` (ex: `SINGLE_TABLE` ou `JOINED`) para as subclasses.
-- [ ] **Criar Subclasses de `Pagamento`**
-  - [ ] `PagamentoMBWay` (Atributo: `numeroTelemovel`).
-  - [ ] `PagamentoDinheiro` (Atributos: `valorRecebido`, `troco`).
-  - [ ] `PagamentoMultibanco` (Atributos: `entidade`, `referencia`).
-  - [ ] `PagamentoCartao` (Atributo: `numeroCartao`).
+  - [x]Atributos: `id` (String), `valor` (Double), `dataPagamento` (LocalDate), `referenciaPagamento` (String).
+  - [ ]*Dica JPA:* Usar a anotação `@Inheritance` (ex: `SINGLE_TABLE` ou `JOINED`) para as subclasses.
+- [x] **Criar Subclasses de `Pagamento`**
+  - [x] `PagamentoMBWay` (Atributo: `numeroTelemovel`).
+  - [x] `PagamentoDinheiro` (Atributos: `valorRecebido`, `troco`).
+  - [x] `PagamentoMultibanco` (Atributos: `entidade`, `referencia`).
+  - [x] `PagamentoCartao` (Atributo: `numeroCartao`).
 - [ ] **Criar Entidade `Pedido`**
-  - Atributos: `id`, `data`, `hora`, `valorTotal`, `estado` (EstadoPedido).
-  - Ligações (Mappings): `@ManyToOne` com `Cliente` e `Restaurante`, `@OneToOne` com `Pagamento`, `@ManyToMany` com `Produto`.
+  - [x]Atributos: `id`, `data`, `hora`, `valorTotal`, `estado` (EstadoPedido).
+  - [ ]Ligações (Mappings): `@ManyToOne` com `Cliente` e `Restaurante`, `@OneToOne` com `Pagamento`, `@ManyToMany` com `Produto`.
 - [ ] **Criar Entidade `Entrega`**
-  - Atributos: `id`, `horaRecolha` (LocalDateTime), `horaEntrega` (LocalDateTime), `enderecoEntrega` (String).
-  - Ligações (Mappings): `@OneToOne` com `Pedido`, `@ManyToOne` com `Entregador`.
+  - [x]Atributos: `id`, `horaRecolha` (LocalDateTime), `horaEntrega` (LocalDateTime), `enderecoEntrega` (String).
+  - [ ]Ligações (Mappings): `@OneToOne` com `Pedido`, `@ManyToOne` com `Entregador`.
 
 ## 2. 🏭 Factories e Repositórios (Infraestrutura)
 - [ ] **Criar `PagamentoFactory`**

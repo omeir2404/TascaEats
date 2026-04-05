@@ -2,13 +2,22 @@ package pt.ul.fc.css.tascaeats.domain;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
+@Entity
+@DiscriminatorValue("MBWAY")
 public class PagamentoMBWay extends Pagamento {
 
 
+    @Column(name = "numero_telemovel")
     private String numeroTelemovel;
 
-    public PagamentoMBWay(long id, double valor, LocalDate dataPagamento, String referenciaPagamento, String numeroTelemovel){
+    protected PagamentoMBWay() {
+    }
+
+    public PagamentoMBWay(Long id, double valor, LocalDate dataPagamento, String referenciaPagamento, String numeroTelemovel){
         super(id, valor, dataPagamento, referenciaPagamento);
         this.numeroTelemovel = numeroTelemovel;
     }

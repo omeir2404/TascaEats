@@ -2,11 +2,21 @@ package pt.ul.fc.css.tascaeats.domain;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("CARTAO")
 public class PagamentoCartao extends Pagamento {
 
+    @Column(name = "numero_cartao")
     private String numeroCartao;
 
-    public PagamentoCartao(long id, double valor, LocalDate dataPagamento, String referenciaPagamento, String numeroCartao){
+    protected PagamentoCartao() {
+    }
+
+    public PagamentoCartao(Long id, double valor, LocalDate dataPagamento, String referenciaPagamento, String numeroCartao){
         super(id, valor, dataPagamento, referenciaPagamento);
         this.numeroCartao = numeroCartao;
     }

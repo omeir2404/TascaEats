@@ -2,17 +2,38 @@ package pt.ul.fc.css.tascaeats.domain;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "pagamentos")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tipo_pagamento")
 public abstract class Pagamento {
 
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private double valor;
+    @Column(name = "data_pagamento", nullable = false)
     private LocalDate dataPagamento;
+    @Column(name = "referencia_pagamento")
     private String referenciaPagamento;
 
-    public Pagamento(long id, double valor, LocalDate dataPagamento, String referenciaPagamento){
+    protected Pagamento() {
+    }
+
+    public Pagamento(Long id, double valor, LocalDate dataPagamento, String referenciaPagamento){
         this.id = id;
         this.valor = valor;
         this.dataPagamento = dataPagamento;

@@ -2,13 +2,23 @@ package pt.ul.fc.css.tascaeats.domain;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
+@Entity
+@DiscriminatorValue("MULTIBANCO")
 public class PagamentoMultibanco extends Pagamento {
 
+    @Column(name = "entidade")
     private String entidade;
+    @Column(name = "referencia")
     private String referencia;
 
-    public PagamentoMultibanco(long id, double valor, LocalDate dataPagamento, String referenciaPagamento, String entidade, String referencia) {
+    protected PagamentoMultibanco() {
+    }
+
+    public PagamentoMultibanco(Long id, double valor, LocalDate dataPagamento, String referenciaPagamento, String entidade, String referencia) {
         super(id, valor, dataPagamento, referenciaPagamento);
         this.entidade = entidade;
         this.referencia = referencia;
