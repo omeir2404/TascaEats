@@ -8,6 +8,9 @@ public class AtualizarEstadoRestauranteDTO{
     @NotNull
     private EstadoRestaurante estado;
 
+
+    // *********GETTERS E SETTERS**********
+
     public EstadoRestaurante getEstado(){
         return estado;
     }

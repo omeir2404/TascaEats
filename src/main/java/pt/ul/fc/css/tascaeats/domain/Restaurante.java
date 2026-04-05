@@ -75,10 +75,6 @@ public class Restaurante{
         return id;
     }
 
-    public void setId(Long id){
-        this.id = id;
-    }
-
     //Nome
     public String getNome(){
         return nome;
