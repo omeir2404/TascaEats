@@ -1,51 +1,36 @@
 package pt.ul.fc.css.tascaeats.dto;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
 public class UserRegistrationDTO {
+    @Getter
+    @Setter
+    String name;
+    @Getter
+    @Setter
+    @Email(message = "Email should be valid")
+    String email;
+    @Getter
+    @Setter
+    String password;
+    @Getter
+    @Setter
+    String type;
+    @Getter
+    @Setter
+    @Nullable
+    String address;
 
-    @Getter
-    @Setter
-    private String email;
-    @Getter
-    @Setter
-    private String password;
-    @Getter
-    @Setter
-    private String name;
-    @Getter
-    @Setter
-    private String type;
-
-    public UserRegistrationDTO(String email, String password, String name, String type) {
+    public UserRegistrationDTO(@NotNull String name, @NotNull String email, @NotNull String password, @NotNull String type, @Nullable String address) {
+        this.name = name;
         this.email = email;
         this.password = password;
-        this.name = name;
         this.type = type;
-    }
-
-    public static class UserRegistrationDTO {
-
-        @Getter
-        @Setter
-        private String email;
-        @Getter
-        @Setter
-        private String password;
-        @Getter
-        @Setter
-        private String name;
-        @Getter
-        @Setter
-        private String type;
-
-        public UserRegistrationDTO(String email, String password, String name, String type) {
-            this.email = email;
-            this.password = password;
-            this.name = name;
-            this.type = type;
-        }
-
+        this.address = address;
     }
 }
