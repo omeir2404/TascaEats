@@ -1,9 +1,7 @@
 package pt.ul.fc.css.tascaeats.domain.user;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User {
 
