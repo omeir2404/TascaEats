@@ -29,6 +29,9 @@ public class PagamentoMultibanco extends Pagamento {
         return "Pague " + getValor() + "€ por Multibanco com entidade " + entidade + " e referência " + referencia + ".";
     }
 
+// ###################### GETTERS e SETTERS #####################################################################
+
+
     public String getEntidade() {
         return entidade;
     }

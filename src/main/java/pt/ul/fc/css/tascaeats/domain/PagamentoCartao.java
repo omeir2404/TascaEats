@@ -24,6 +24,8 @@ public class PagamentoCartao extends Pagamento {
         return "O pagamento de " + getValor() + "€ será processado no cartão terminado em " + ultimos4Digitos + ".";
     }
 
+// ###################### GETTERS e SETTERS #####################################################################
+
     public String getNumeroCartao() {
         return numeroCartao;
     }

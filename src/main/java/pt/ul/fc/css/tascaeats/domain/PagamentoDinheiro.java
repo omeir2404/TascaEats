@@ -26,6 +26,9 @@ public class PagamentoDinheiro extends Pagamento {
         return "Pagar " + getValor() + "€ em dinheiro. Troco previsto: " + troco + "€.";
     }
 
+// ###################### GETTERS e SETTERS #####################################################################
+
+
     public double getValorRecebido() {
         return valorRecebido;
     }

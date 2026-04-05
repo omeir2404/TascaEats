@@ -1,5 +1,6 @@
 package pt.ul.fc.css.tascaeats.domain;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class Entrega {
@@ -13,6 +14,43 @@ public class Entrega {
     private Long entregadorId;
 
     private Pedido pedido;
+
+    protected Entrega(){}
+
+
+
+    public Entrega(Pedido pedido, Long entregadorid, String enderecoEntrega) {
+        this.pedido = pedido;
+        this.entregadorId = entregadorid;
+        this.enderecoEntrega = enderecoEntrega;
+    }
+
+// ################### MÉTODOS DE NEGÓCIO ######################################################################
+
+    public void registarRecolha() {
+        if (this.horaRecolha != null) {
+            throw new IllegalStateException("A recolha deste pedido já foi registada.");
+        }
+        this.horaRecolha = LocalDateTime.now();
+    }
+
+    public void registarConclusao() {
+        if (this.horaRecolha == null) {
+            throw new IllegalStateException("Não é possível registar a entrega de um pedido que ainda não foi recolhido.");
+        }
+        
+        if (this.horaEntrega != null) {
+            throw new IllegalStateException("A entrega deste pedido já foi concluída anteriormente.");
+        }
+        
+        this.horaEntrega = LocalDateTime.now();
+    }
+
+    public Duration calcularTempoDeViagem() {
+        return Duration.between(this.horaRecolha, this.horaEntrega);
+    }
+
+// ###################### GETTERS e SETTERS #####################################################################
 
     public Long getId() {
         return id;
