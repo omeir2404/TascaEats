@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class Address {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String street;
@@ -14,7 +15,5 @@ public class Address {
     private String postalCode;
     private String country;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Client user;
 
 }
