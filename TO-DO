@@ -1,4 +1,11 @@
 
+## Status Update (06/04/2026)
+- [x] DTOs de input com validações (`@NotNull`, `@NotBlank`, `@Positive`, `@NotEmpty`).
+- [x] `PagamentoService` implementado e refatorado para maior legibilidade.
+- [x] Métodos de query adicionados em `IPedidoRepository` e `IEntregaRepository`.
+- [ ] Corrigir assinatura em `IEntregaRepository`: `existsByEntregadorIdAndHoraEntregaIsNull` deve devolver `boolean`.
+- [ ] Adicionar endpoints com `@Valid` nos controllers (`PedidoController`, `PagamentoController`, `EntregaController`).
+
 ## Overview
 This version compares what the P1 PDF requires against what appears in the XML diagram.
 
@@ -166,22 +173,22 @@ A primeira coisa a fazer é criar a base de dados em memória. Começa pelas ent
 - [x] **Criar `PagamentoFactory`**
   - [x] Implementar método estático ou componente `@Component` com o método: `create(tipoPagamento: String, detalhes: Map)`.
   - [x] Lógica: Ler a string (ex: "MBWAY") e instanciar a subclasse correspondente retirando os dados do `Map`.
-- [ ] **Criar Interfaces Repository (Spring Data JPA)**
-  - [ ] `IPedidoRepository` (extends JpaRepository).
-  - [ ] `IPagamentoRepository` (extends JpaRepository).
-  - [ ] `IEntregaRepository` (extends JpaRepository).
+- [x] **Criar Interfaces Repository (Spring Data JPA)**
+  - [x] `IPedidoRepository` (extends JpaRepository).
+  - [x] `IPagamentoRepository` (extends JpaRepository).
+  - [x] `IEntregaRepository` (extends JpaRepository).
 
 ## 3. 📦 DTOs (Data Transfer Objects)
 Estes são os objetos que os teus Controllers vão receber e devolver (o que aparece no Swagger).
 
-- [ ] **DTOs de Input (Entrada)**
-  - [ ] `CriarPedidoDTO` (clienteId, restauranteId, produtosIds).
-  - [ ] `ProcessarPagamentoDTO` (pedidoId, tipoPagamento, detalhes).
-  - [ ] `AtualizarEstadoPedidoDTO` (novoEstado).
-  - [ ] `AtribuirEntregadorDTO` (pedidoId).
-- [ ] **DTOs de Output (Resposta)**
-  - [ ] `PedidoConfirmacaoDTO` (id, valorTotal, estado, dataHora).
-  - [ ] `EntregaResumoDTO` (id, horaRecolha, horaEntrega, entregadorNome).
+- [x] **DTOs de Input (Entrada)**
+  - [x] `CriarPedidoDTO` (clienteId, restauranteId, produtosIds).
+  - [x] `ProcessarPagamentoDTO` (pedidoId, tipoPagamento, detalhes).
+  - [x] `AtualizarEstadoPedidoDTO` (novoEstado).
+  - [x] `AtribuirEntregadorDTO` (pedidoId, entregadorId).
+- [x] **DTOs de Output (Resposta)**
+  - [x] `PedidoConfirmacaoDTO` (id, valorTotal, estado, dataHora).
+  - [x] `EntregaResumoDTO` (id, horaRecolha, horaEntrega, entregadorNome).
 
 ## 4. 🧠 Serviços e Regras de Negócio (Casos de Uso)
 *Recomendação: Embora o diagrama mostre o Controller a falar com o Repository, deves criar classes `@Service` para colocar a lógica.*
@@ -190,7 +197,7 @@ Estes são os objetos que os teus Controllers vão receber e devolver (o que apa
   - Logica: Validar se cliente, restaurante e produtos existem.
   - Lógica: Calcular o `valorTotal` com base no preço dos produtos iterados.
   - Lógica: Guardar o pedido com estado inicial obrigatório: `CRIADO`.
-- [ ] **Caso de Uso I: Processar Pagamento**
+- [x] **Caso de Uso I: Processar Pagamento**
   - Lógica: Encontrar o pedido. Validar se estado atual é `CRIADO`.
   - Lógica: Usar a `PagamentoFactory` para gerar o pagamento e usar `IPagamentoRepository.save()`.
   - Lógica: Associar pagamento ao pedido e mudar o estado para `PAGO`.
