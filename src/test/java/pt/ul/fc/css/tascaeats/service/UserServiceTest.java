@@ -1,18 +1,15 @@
 package pt.ul.fc.css.tascaeats.service;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pt.ul.fc.css.tascaeats.domain.user.Address;
-import pt.ul.fc.css.tascaeats.domain.user.Client;
-import pt.ul.fc.css.tascaeats.domain.user.Driver;
-import pt.ul.fc.css.tascaeats.domain.user.RestaurantAdmin;
-import pt.ul.fc.css.tascaeats.domain.user.User;
+import pt.ul.fc.css.tascaeats.domain.user.*;
 import pt.ul.fc.css.tascaeats.dto.UserLoginDTO;
 import pt.ul.fc.css.tascaeats.dto.UserRegistrationDTO;
+import pt.ul.fc.css.tascaeats.dto.UserUpdateDTO;
 import pt.ul.fc.css.tascaeats.repository.UserRepository;
 
 import java.util.List;
@@ -21,7 +18,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -161,7 +157,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Ana Updated", "ana@example.com", "newPass", "client", null));
+        User updated = userService.updateUser(1L, update("Ana Updated", "ana@example.com", "newPass", "client", null, false));
 
         assertThat(updated.getName()).isEqualTo("Ana Updated");
         assertThat(updated.getPassword()).isEqualTo("newPass");
@@ -211,7 +207,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.findByEmail("taken@example.com")).thenReturn(Optional.of(other));
 
-        assertThatThrownBy(() -> userService.updateUser(1L, registration("Ana", "taken@example.com", "secret", "client", null)))
+        assertThatThrownBy(() -> userService.updateUser(1L, update("Ana", "taken@example.com", "secret", "client", null, false)))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Email already exists");
     }
@@ -224,7 +220,7 @@ class UserServiceTest {
         when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Ana", "new@example.com", "secret", "client", null));
+        User updated = userService.updateUser(1L, update("Ana", "new@example.com", "secret", "client", null, false));
 
         assertThat(updated.getEmail()).isEqualTo("new@example.com");
     }
@@ -236,7 +232,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Bob", "ana@example.com", "secret", "client", null));
+        User updated = userService.updateUser(1L, update("Bob", "ana@example.com", "secret", "client", null, false));
 
         assertThat(updated.getName()).isEqualTo("Bob");
     }
@@ -248,7 +244,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Carla", "ana@example.com", "secret", "client", null));
+        User updated = userService.updateUser(1L, update("Carla", "ana@example.com", "secret", "client", null, false));
 
         assertThat(updated.getName()).isEqualTo("Carla");
     }
@@ -261,7 +257,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Ana", "ana@example.com", "different", "client", null));
+        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "different", "client", null, false));
 
         assertThat(updated.getPassword()).isEqualTo("different");
     }
@@ -274,7 +270,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Ana", "ana@example.com", "same", "client", null));
+        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "same", "client", null, false));
 
         assertThat(updated.getPassword()).isEqualTo("same");
     }
@@ -286,7 +282,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Ana", "ana@example.com", "secret", "alien", null));
+        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "alien", null, false));
 
         assertThat(updated).isInstanceOf(Client.class);
     }
@@ -298,7 +294,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Ana", "ana@example.com", "secret", "driver", null));
+        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "driver", null, false));
 
         assertThat(updated).isInstanceOf(Client.class);
     }
@@ -311,7 +307,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Ana", "ana@example.com", "secret", "client", "Rua Nova"));
+        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "client", "Rua Nova", false));
 
         assertThat(((Client) updated).getAddress()).isNull();
     }
@@ -323,7 +319,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Ana", "ana@example.com", "secret", "client", "Rua Nova"));
+        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "client", "Rua Nova", false));
 
         assertThat(((Client) updated).getAddress().getStreet()).isEqualTo("Rua Nova");
     }
@@ -335,7 +331,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Ana", "ana@example.com", "secret", "client", null));
+        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "client", null, false));
 
         assertThat(((Client) updated).getAddress().getStreet()).isEqualTo("Rua Velha");
     }
@@ -347,13 +343,17 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, registration("Ana", "ana@example.com", "secret", "client", "Rua Atualizada"));
+        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "client", "Rua Atualizada", false));
 
         assertThat(((Client) updated).getAddress().getStreet()).isEqualTo("Rua Atualizada");
     }
 
     private UserRegistrationDTO registration(String name, String email, String password, String type, String address) {
         return new UserRegistrationDTO(name, email, password, type, address);
+    }
+
+    private UserUpdateDTO update(String name, String email, String password, String type, String address, boolean available) {
+        return new UserUpdateDTO(name, email, password, type, address, available);
     }
 
     private Client client(long id, String email, String name) {

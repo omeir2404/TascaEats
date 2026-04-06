@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import pt.ul.fc.css.tascaeats.domain.user.Client;
 import pt.ul.fc.css.tascaeats.dto.UserLoginDTO;
 import pt.ul.fc.css.tascaeats.dto.UserRegistrationDTO;
+import pt.ul.fc.css.tascaeats.dto.UserUpdateDTO;
 import pt.ul.fc.css.tascaeats.service.UserService;
 
 import java.util.List;
@@ -18,10 +19,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -118,9 +116,9 @@ class UserControllerTest {
         updated.setId(1L);
         updated.setName("Ana Updated");
         updated.setEmail("ana.updated@example.com");
-        when(userService.updateUser(anyLong(), any(UserRegistrationDTO.class))).thenReturn(updated);
+        when(userService.updateUser(anyLong(), any(UserUpdateDTO.class))).thenReturn(updated);
 
-        UserRegistrationDTO dto = new UserRegistrationDTO("Ana Updated", "ana.updated@example.com", "secret", "client", null);
+        UserUpdateDTO dto = new UserUpdateDTO("Ana Updated", "ana.updated@example.com", "secret", "client", null, false);
 
         mockMvc.perform(put("/api/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
