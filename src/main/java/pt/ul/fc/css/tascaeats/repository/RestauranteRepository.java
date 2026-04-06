@@ -1,0 +1,18 @@
+package pt.ul.fc.css.tascaeats.repository;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import pt.ul.fc.css.tascaeats.domain.EstadoRestaurante;
+import pt.ul.fc.css.tascaeats.domain.Restaurante;
+
+public interface RestauranteRepository extends JpaRepository<Restaurante, Long> {
+
+	List<Restaurante> findByNomeContainingIgnoreCase(String nome);
+
+	Optional<Restaurante> findByNif(String nif);
+
+	List<Restaurante> findByEstado(EstadoRestaurante estado);
+}
