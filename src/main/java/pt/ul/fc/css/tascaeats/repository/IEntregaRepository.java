@@ -11,5 +11,5 @@ public interface IEntregaRepository extends JpaRepository<Entrega, Long> {
     List<Entrega> findByEntregadorId(Long entregadorId);
     Optional<Entrega> findByPedidoId(Long pedidoId);
     List<Entrega> findByHoraEntregaIsNull();
-    List<Entrega> existsByEntregadorIdAndHoraEntregaIsNull(Long entregadorId);
+    boolean existsByEntregadorIdAndHoraEntregaIsNull(Long entregadorId);
 }
