@@ -18,7 +18,7 @@ services:
 
   # APP*****************************************
   springbootapp:
-    image: myapp:latest
+    image: tascaeats-app:dev
     build:
       context: .
 #    container_name: java_app # removed for docker-compose to manage container names
