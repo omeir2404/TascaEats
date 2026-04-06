@@ -1,5 +1,6 @@
 package pt.ul.fc.css.tascaeats.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import pt.ul.fc.css.tascaeats.domain.EstadoPedido;
@@ -74,5 +75,21 @@ public class PedidoService {
         else{
             throw new IllegalStateException("Pedido no estado " + pedido.getEstado() + " não pode ser cancelado.");
         }
+    }
+
+    public List<Pedido> listarPedidos(Long clienteId, EstadoPedido estado) {
+        if (clienteId != null && estado != null) {
+            return pedidoRepository.findByClienteIdAndEstado(clienteId, estado);
+        }
+
+        if (clienteId != null) {
+            return pedidoRepository.findByClienteId(clienteId);
+        }
+
+        if (estado != null) {
+            return pedidoRepository.findByEstado(estado);
+        }
+
+        return pedidoRepository.findAll();
     }
 }
