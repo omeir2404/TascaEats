@@ -126,7 +126,6 @@ public class UserService {
         if (user instanceof Client client && dto.getAddress() != null && !dto.getAddress().isBlank()) {
             Address address = new Address();
             address.setStreet(dto.getAddress());
-            address.setUser(client);
             client.setAddress(address);
         }
     }
