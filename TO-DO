@@ -193,27 +193,27 @@ Estes são os objetos que os teus Controllers vão receber e devolver (o que apa
 ## 4. 🧠 Serviços e Regras de Negócio (Casos de Uso)
 *Recomendação: Embora o diagrama mostre o Controller a falar com o Repository, deves criar classes `@Service` para colocar a lógica.*
 
-- [ ] **Caso de Uso H: Criar Pedido**
-  - Logica: Validar se cliente, restaurante e produtos existem.
-  - Lógica: Calcular o `valorTotal` com base no preço dos produtos iterados.
-  - Lógica: Guardar o pedido com estado inicial obrigatório: `CRIADO`.
+- [x] **Caso de Uso H: Criar Pedido**
+  - [X] Logica: Validar se cliente, restaurante e produtos existem.
+  - [X] Lógica: Calcular o `valorTotal` com base no preço dos produtos iterados.
+  - [X] Lógica: Guardar o pedido com estado inicial obrigatório: `CRIADO`.
 - [x] **Caso de Uso I: Processar Pagamento**
-  - Lógica: Encontrar o pedido. Validar se estado atual é `CRIADO`.
-  - Lógica: Usar a `PagamentoFactory` para gerar o pagamento e usar `IPagamentoRepository.save()`.
-  - Lógica: Associar pagamento ao pedido e mudar o estado para `PAGO`.
+  - [x] Lógica: Encontrar o pedido. Validar se estado atual é `CRIADO`.
+  - [x] Lógica: Usar a `PagamentoFactory` para gerar o pagamento e usar `IPagamentoRepository.save()`.
+  - [x] Lógica: Associar pagamento ao pedido e mudar o estado para `PAGO`.
 - [ ] **Caso de Uso L: Cancelamento (Regras de Negócio Críticas)**
-  - Lógica: Encontrar o pedido a cancelar.
-  - **Validação:** Garantir que o estado **NÃO** é `A_PREPARAR` ou superior. Se for, atirar exceção (HTTP 400 Bad Request).
-  - Lógica: Mudar estado para `CANCELADO`.
+  - [ ] Lógica: Encontrar o pedido a cancelar.
+  - [ ] **Validação:** Garantir que o estado **NÃO** é `A_PREPARAR` ou superior. Se for, atirar exceção (HTTP 400 Bad Request).
+  - [ ] Lógica: Mudar estado para `CANCELADO`.
 - [ ] **Caso de Uso K: Atribuir Entregador**
-  - Lógica: Buscar no `IUtilizadorRepository` um entregador onde `disponivel == true`.
-  - Lógica: Criar a `Entrega`.
-  - Lógica: Atualizar o entregador para `disponivel = false`.
-  - Lógica: Atualizar o estado do pedido para `ATRIBUIDO_ENTREGADOR`.
+  - [ ] Lógica: Buscar no `IUtilizadorRepository` um entregador onde `disponivel == true`.
+  - [ ] Lógica: Criar a `Entrega`.
+  - [ ] Lógica: Atualizar o entregador para `disponivel = false`.
+  - [ ] Lógica: Atualizar o estado do pedido para `ATRIBUIDO_ENTREGADOR`.
 - [ ] **Caso de Uso J: Logística (Recolha e Entrega)**
   - [ ] Implementar recolha: `horaRecolha = LocalDateTime.now()`, estado do pedido = `PRONTO_PARA_ENTREGA` (ou a caminho).
   - [ ] Implementar entrega final: `horaEntrega = LocalDateTime.now()`, estado do pedido = `ENTREGUE`.
-  - **Lógica Crítica:** Mudar o entregador de volta para `disponivel = true` para que possa receber novos pedidos.
+  - [ ] **Lógica Crítica:** Mudar o entregador de volta para `disponivel = true` para que possa receber novos pedidos.
 
 ## 5. 🌐 Controladores (REST API)
 A última camada. Mapear os endpoints HTTP para testar no Postman/Swagger.
