@@ -3,7 +3,6 @@ package pt.ul.fc.css.tascaeats.dto;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
