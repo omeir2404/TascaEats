@@ -3,25 +3,15 @@ package pt.ul.fc.css.tascaeats.dto;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
+@Data
 public class UserRegistrationDTO {
-    @Getter
-    @Setter
     String name;
-    @Getter
-    @Setter
     @Email(message = "Email should be valid")
     String email;
-    @Getter
-    @Setter
     String password;
-    @Getter
-    @Setter
     String type;
-    @Getter
-    @Setter
     @Nullable
     String address;
 
