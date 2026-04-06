@@ -201,10 +201,10 @@ Estes são os objetos que os teus Controllers vão receber e devolver (o que apa
   - [x] Lógica: Encontrar o pedido. Validar se estado atual é `CRIADO`.
   - [x] Lógica: Usar a `PagamentoFactory` para gerar o pagamento e usar `IPagamentoRepository.save()`.
   - [x] Lógica: Associar pagamento ao pedido e mudar o estado para `PAGO`.
-- [ ] **Caso de Uso L: Cancelamento (Regras de Negócio Críticas)**
-  - [ ] Lógica: Encontrar o pedido a cancelar.
-  - [ ] **Validação:** Garantir que o estado **NÃO** é `A_PREPARAR` ou superior. Se for, atirar exceção (HTTP 400 Bad Request).
-  - [ ] Lógica: Mudar estado para `CANCELADO`.
+- [x] **Caso de Uso L: Cancelamento (Regras de Negócio Críticas)**
+  - [x] Lógica: Encontrar o pedido a cancelar.
+  - [x] **Validação:** Garantir que o estado **NÃO** é `A_PREPARAR` ou superior. Se for, atirar exceção (HTTP 400 Bad Request).
+  - [x] Lógica: Mudar estado para `CANCELADO`.
 - [ ] **Caso de Uso K: Atribuir Entregador**
   - [ ] Lógica: Buscar no `IUtilizadorRepository` um entregador onde `disponivel == true`.
   - [ ] Lógica: Criar a `Entrega`.

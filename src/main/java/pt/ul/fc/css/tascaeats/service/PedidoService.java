@@ -2,6 +2,7 @@ package pt.ul.fc.css.tascaeats.service;
 
 import java.util.Optional;
 
+import pt.ul.fc.css.tascaeats.domain.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.Pedido;
 import pt.ul.fc.css.tascaeats.dto.CriarPedidoDTO;
 import pt.ul.fc.css.tascaeats.repository.IPedidoRepository;
@@ -31,7 +32,6 @@ public class PedidoService {
             throw new IllegalArgumentException("O pedido deve conter pelo menos um produto.");
         }
 
-        // validar cliente e restaurante
         if (utilizadorRepository.findById(criarPedidoDto.clienteId).isEmpty()) {
             throw new IllegalArgumentException("Cliente não encontrado: " + criarPedidoDto.clienteId);
         }
@@ -40,7 +40,6 @@ public class PedidoService {
             throw new IllegalArgumentException("Restaurante não encontrado: " + criarPedidoDto.restauranteId);
         }
 
-        //  Lógica: Calcular o valorTotal com base no preço dos produtos iterados.
         Long valorTotal = 0L;
 
         for (Long produtoId : criarPedidoDto.getProdutosIds()) {
@@ -56,7 +55,24 @@ public class PedidoService {
         // O Null é pq o Id vai ser gerado.
         Pedido pedido = new Pedido(null, criarPedidoDto.getClienteId(), criarPedidoDto.getRestauranteId());
         pedidoRepository.save(pedido);
+    }
 
+    public void cancelarPedido(Long pedidoId){
+        if (pedidoId == null) {
+            throw new IllegalArgumentException("ID do pedido inválido.");
+        }
 
+        Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
+        if (pedidoOptional.isEmpty()) {
+            throw new IllegalArgumentException("Pedido não encontrado: " + pedidoId);
+        }
+        Pedido pedido = pedidoOptional.get();
+        if(pedido.getEstado() == EstadoPedido.CRIADO || pedido.getEstado() == EstadoPedido.PAGO){
+            pedido.cancelar();
+            pedidoRepository.save(pedido);
+        }
+        else{
+            throw new IllegalStateException("Pedido no estado " + pedido.getEstado() + " não pode ser cancelado.");
+        }
     }
 }
