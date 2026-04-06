@@ -23,6 +23,7 @@ public class PagamentoService {
         this.pagamentoFactory = pagamentoFactory;
     }
 
+    @Transactional
     public void processarPagamento(ProcessarPagamentoDTO dto) {
         Long pedidoId = dto.getPedidoId();
         if (pedidoId == null) {
