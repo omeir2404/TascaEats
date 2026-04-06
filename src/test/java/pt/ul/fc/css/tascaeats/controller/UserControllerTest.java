@@ -1,6 +1,7 @@
 package pt.ul.fc.css.tascaeats.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -37,6 +38,7 @@ class UserControllerTest {
     private UserService userService;
 
     @Test
+    @DisplayName("Case: register escapes returned email")
     void register_shouldEscapeReturnedEmail() throws Exception {
         Client created = new Client();
         created.setId(1L);
@@ -63,6 +65,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Case: login returns unauthorized when invalid")
     void login_shouldReturnUnauthorizedWhenInvalid() throws Exception {
         when(userService.login(any(UserLoginDTO.class))).thenReturn(false);
 
@@ -76,6 +79,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Case: get users returns list")
     void getUsers_shouldReturnList() throws Exception {
         Client user = new Client();
         user.setId(1L);
@@ -89,6 +93,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Case: get user by id returns not found when missing")
     void getUserById_shouldReturnNotFoundWhenMissing() throws Exception {
         when(userService.getUserById(anyLong())).thenReturn(null);
 
@@ -98,6 +103,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Case: delete user returns no content when deleted")
     void deleteUser_shouldReturnNoContentWhenDeleted() throws Exception {
         when(userService.deleteUser(anyLong())).thenReturn(true);
 
@@ -106,6 +112,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Case: update user returns ok when updated")
     void updateUser_shouldReturnOkWhenUpdated() throws Exception {
         Client updated = new Client();
         updated.setId(1L);
