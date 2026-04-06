@@ -45,6 +45,13 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
+    public User getUserByEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
     public User updateUser(Long id, UserRegistrationDTO dto) {
         User existing = userRepository.findById(id).orElse(null);
         if (existing == null) {
@@ -106,6 +113,9 @@ public class UserService {
         if (dto.getType() == null || dto.getType().isBlank()) {
             throw new IllegalArgumentException("Type is required");
         }
+        if ("client".equalsIgnoreCase(dto.getType()) && (dto.getAddress() == null || dto.getAddress().isBlank())) {
+            throw new IllegalArgumentException("Address is required for client users");
+        }
     }
 
     private User buildUserFromType(String type) {
@@ -113,7 +123,7 @@ public class UserService {
         return switch (normalized) {
             case "client" -> new Client();
             case "driver" -> new Driver();
-            case "restaurantadmin", "restaurant_admin", "admin" -> new RestaurantAdmin();
+            case "restaurantadmin", "restaurant_admin", "restaurant owner", "restaurantowner", "admin" -> new RestaurantAdmin();
             default -> throw new IllegalArgumentException("Invalid user type: " + type);
         };
     }
