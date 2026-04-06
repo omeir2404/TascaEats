@@ -1,5 +1,6 @@
 package pt.ul.fc.css.tascaeats.service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 
 import org.springframework.stereotype.Service;
@@ -68,4 +69,65 @@ public class EntregaService {
 
         return entregaRepository.save(entrega);
     }
+
+
+    @Transactional
+    public Entrega registarRecolha(Long pedidoId) {
+        if (pedidoId == null) {
+            throw new IllegalArgumentException("ID do pedido inválido.");
+        }
+
+        Optional<Entrega> entregaOptional = entregaRepository.findByPedidoId(pedidoId);
+        if (entregaOptional.isEmpty()) {
+            throw new IllegalArgumentException("Entrega não encontrada para pedido: " + pedidoId);
+        }
+        Entrega entrega = entregaOptional.get();
+
+        Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
+        if (pedidoOptional.isEmpty()) {
+            throw new IllegalArgumentException("Pedido não encontrado: " + pedidoId);
+        }
+        Pedido pedido = pedidoOptional.get();
+
+        entrega.setHoraRecolha(LocalDateTime.now());
+        pedido.marcarComoPronto();
+
+        pedidoRepository.save(pedido);
+        return entregaRepository.save(entrega);
+    }
+
+    @Transactional
+    public Entrega registarEntregaFinal(Long pedidoId) {
+        if (pedidoId == null) {
+            throw new IllegalArgumentException("ID do pedido inválido.");
+        }
+
+        Optional<Entrega> entregaOptional = entregaRepository.findByPedidoId(pedidoId);
+        if (entregaOptional.isEmpty()) {
+            throw new IllegalArgumentException("Entrega não encontrada para pedido: " + pedidoId);
+        }
+        Entrega entrega = entregaOptional.get();
+
+        Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
+        if (pedidoOptional.isEmpty()) {
+            throw new IllegalArgumentException("Pedido não encontrado: " + pedidoId);
+        }
+        Pedido pedido = pedidoOptional.get();
+
+        Optional<Driver> entregadorOptional = utilizadorRepository.findById(entrega.getEntregadorId());
+        if (entregadorOptional.isEmpty()) {
+            throw new IllegalArgumentException("Entregador não encontrado: " + entrega.getEntregadorId());
+        }
+        Driver entregador = entregadorOptional.get();
+
+        entrega.setHoraEntrega(LocalDateTime.now());    
+        pedido.marcarComoEntregue();
+
+        entregador.setAvailable(true);
+
+        utilizadorRepository.save(entregador);
+        pedidoRepository.save(pedido);
+        return entregaRepository.save(entrega);
+    }
+}
 }

@@ -205,15 +205,15 @@ Estes são os objetos que os teus Controllers vão receber e devolver (o que apa
   - [x] Lógica: Encontrar o pedido a cancelar.
   - [x] **Validação:** Garantir que o estado **NÃO** é `A_PREPARAR` ou superior. Se for, atirar exceção (HTTP 400 Bad Request).
   - [x] Lógica: Mudar estado para `CANCELADO`.
-- [ ] **Caso de Uso K: Atribuir Entregador**
-  - [ ] Lógica: Buscar no `IUtilizadorRepository` um entregador onde `disponivel == true`.
-  - [ ] Lógica: Criar a `Entrega`.
-  - [ ] Lógica: Atualizar o entregador para `disponivel = false`.
-  - [ ] Lógica: Atualizar o estado do pedido para `ATRIBUIDO_ENTREGADOR`.
-- [ ] **Caso de Uso J: Logística (Recolha e Entrega)**
-  - [ ] Implementar recolha: `horaRecolha = LocalDateTime.now()`, estado do pedido = `PRONTO_PARA_ENTREGA` (ou a caminho).
-  - [ ] Implementar entrega final: `horaEntrega = LocalDateTime.now()`, estado do pedido = `ENTREGUE`.
-  - [ ] **Lógica Crítica:** Mudar o entregador de volta para `disponivel = true` para que possa receber novos pedidos.
+- [x] **Caso de Uso K: Atribuir Entregador**
+  - [x] Lógica: Buscar no `IUtilizadorRepository` um entregador onde `disponivel == true`.
+  - [x] Lógica: Criar a `Entrega`.
+  - [x] Lógica: Atualizar o entregador para `disponivel = false`.
+  - [x] Lógica: Atualizar o estado do pedido para `ATRIBUIDO_ENTREGADOR`.
+- [x] **Caso de Uso J: Logística (Recolha e Entrega)**
+  - [x] Implementar recolha: `horaRecolha = LocalDateTime.now()`, estado do pedido = `PRONTO_PARA_ENTREGA` (ou a caminho).
+  - [x] Implementar entrega final: `horaEntrega = LocalDateTime.now()`, estado do pedido = `ENTREGUE`.
+  - [x] **Lógica Crítica:** Mudar o entregador de volta para `disponivel = true` para que possa receber novos pedidos.
 
 ## 5. 🌐 Controladores (REST API)
 A última camada. Mapear os endpoints HTTP para testar no Postman/Swagger.
