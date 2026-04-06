@@ -7,6 +7,7 @@ import org.springframework.web.util.HtmlUtils;
 import pt.ul.fc.css.tascaeats.domain.user.User;
 import pt.ul.fc.css.tascaeats.dto.UserLoginDTO;
 import pt.ul.fc.css.tascaeats.dto.UserRegistrationDTO;
+import pt.ul.fc.css.tascaeats.dto.UserUpdateDTO;
 import pt.ul.fc.css.tascaeats.service.UserService;
 
 import java.util.HashMap;
@@ -20,13 +21,14 @@ public class UserController {
     private final UserService userService;
     private static final String MSG_FIELD = "message";
     private static final String ERROR_FIELD = "error";
+    private static final String USER_NOT_FOUND = "User not found";
 
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserRegistrationDTO userRegistrationDTO) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody UserRegistrationDTO userRegistrationDTO) {
         try {
             User created = userService.createUser(userRegistrationDTO);
             Map<String, Object> response = new HashMap<>();
@@ -44,7 +46,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginDTO userLoginDTO) {
         boolean ok = userService.login(userLoginDTO);
         if (!ok) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -59,38 +61,44 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable("id") Long id) {
+    public ResponseEntity<Object> getUserById(@PathVariable("id") Long id) {
         User user = userService.getUserById(id);
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, "User not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, USER_NOT_FOUND));
         }
         return ResponseEntity.ok(user);
     }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable("id") Long id,
-                                        @RequestBody UserRegistrationDTO userRegistrationDTO) {
+    public ResponseEntity<Object> updateUser(@PathVariable("id") Long id,
+                                             @RequestBody UserUpdateDTO dto) {
         try {
-            User updated = userService.updateUser(id, userRegistrationDTO);
-            if (updated == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, "User not found"));
+            if (dto.getType() != null && dto.getType().equalsIgnoreCase("driver")) {
+                return respondWithUpdatedUser(userService.updateDriver(id, dto));
             }
-            return ResponseEntity.ok(updated);
+            return respondWithUpdatedUser(userService.updateUser(id, dto));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(ERROR_FIELD, "User update conflict"));
         }
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
+    public ResponseEntity<Object> deleteUser(@PathVariable("id") Long id) {
         boolean deleted = userService.deleteUser(id);
         if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, "User not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, USER_NOT_FOUND));
         }
         return ResponseEntity.noContent().build();
     }
 
     private String sanitizeForOutput(String value) {
         return value == null ? null : HtmlUtils.htmlEscape(value);
+    }
+
+    private ResponseEntity<Object> respondWithUpdatedUser(User updated) {
+        if (updated == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, USER_NOT_FOUND));
+        }
+        return ResponseEntity.ok(updated);
     }
 }

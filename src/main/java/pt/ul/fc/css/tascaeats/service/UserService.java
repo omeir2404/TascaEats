@@ -1,13 +1,10 @@
 package pt.ul.fc.css.tascaeats.service;
 
 import org.springframework.stereotype.Service;
-import pt.ul.fc.css.tascaeats.domain.user.Address;
-import pt.ul.fc.css.tascaeats.domain.user.Client;
-import pt.ul.fc.css.tascaeats.domain.user.Driver;
-import pt.ul.fc.css.tascaeats.domain.user.RestaurantAdmin;
-import pt.ul.fc.css.tascaeats.domain.user.User;
+import pt.ul.fc.css.tascaeats.domain.user.*;
 import pt.ul.fc.css.tascaeats.dto.UserLoginDTO;
 import pt.ul.fc.css.tascaeats.dto.UserRegistrationDTO;
+import pt.ul.fc.css.tascaeats.dto.UserUpdateDTO;
 import pt.ul.fc.css.tascaeats.repository.UserRepository;
 
 import java.util.List;
@@ -52,7 +49,19 @@ public class UserService {
         return userRepository.findByEmail(email).orElse(null);
     }
 
-    public User updateUser(Long id, UserRegistrationDTO dto) {
+    public User updateDriver(Long id, UserUpdateDTO dto) {
+        User existing = userRepository.findById(id).orElse(null);
+        if (existing == null) {
+            return null;
+        }
+        // updated availability before using geral updateUser
+        if (existing instanceof Driver driver) {
+            driver.setAvailable(dto.isAvailable());
+        }
+        return updateUser(id, dto);
+    }
+
+    public User updateUser(Long id, UserUpdateDTO dto) {
         User existing = userRepository.findById(id).orElse(null);
         if (existing == null) {
             return null;
