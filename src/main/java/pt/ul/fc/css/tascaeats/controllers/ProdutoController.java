@@ -75,7 +75,7 @@ public class ProdutoController {
     @GetMapping("/produtos/{id}")
     public ResponseEntity<Object> obterProduto(@PathVariable Long id) {
         try {
-            Produto produto = produtoService.obterPorId(id);
+            Produto produto = produtoService.obterProdutoPorId(id);
             return respondWithProduto(produto);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, PRODUTO_NOT_FOUND));
@@ -112,6 +112,8 @@ public class ProdutoController {
         }
     }
 
+
+    //Funções Auxiliares
     private String sanitizeForOutput(String value) {
         if (value == null) {
             return null;

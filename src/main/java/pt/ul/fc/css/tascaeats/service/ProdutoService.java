@@ -43,7 +43,7 @@ public class ProdutoService {
             throw new IllegalArgumentException("A disponibilidade é obrigatória.");
         }
 
-        Produto produto = obterPorId(id);
+        Produto produto = obterProdutoPorId(id);
         if (produto.isApagado()) {
             throw new IllegalStateException("Não é possível alterar a disponibilidade de um produto apagado.");
         }
@@ -63,7 +63,7 @@ public class ProdutoService {
             throw new IllegalArgumentException("Os dados para atualizar o produto são obrigatórios.");
         }
 
-        Produto produto = obterPorId(id);
+        Produto produto = obterProdutoPorId(id);
         if (produto.isApagado()) {
             throw new IllegalStateException("Não é possível atualizar um produto apagado.");
         }
@@ -93,7 +93,7 @@ public class ProdutoService {
     }
 
     //Obter produto por id
-    public Produto obterPorId(Long id) {
+    public Produto obterProdutoPorId(Long id) {
         Produto produto = produtoRepository.findById(id).orElse(null);
         if (produto == null) {
             throw new IllegalArgumentException("O produto não foi encontrado.");
@@ -103,7 +103,7 @@ public class ProdutoService {
 
     //Apagar produto (soft delete)
     public void apagarProduto(Long id) {
-        Produto produto = obterPorId(id);
+        Produto produto = obterProdutoPorId(id);
         produto.apagar();
         produtoRepository.save(produto);
     }
