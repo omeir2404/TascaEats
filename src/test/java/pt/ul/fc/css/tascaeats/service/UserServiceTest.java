@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pt.ul.fc.css.tascaeats.domain.user.*;
+import pt.ul.fc.css.tascaeats.dto.AddressDTO;
 import pt.ul.fc.css.tascaeats.dto.UserLoginDTO;
 import pt.ul.fc.css.tascaeats.dto.UserRegistrationDTO;
 import pt.ul.fc.css.tascaeats.dto.UserUpdateDTO;
@@ -33,11 +34,11 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    // Case: valid registration (client with address)
+    // Registration
     @Test
-    @DisplayName("Case: valid registration")
-    void validRegistration_shouldCreateUser() {
-        UserRegistrationDTO dto = registration("Ana", "ana@example.com", "secret", "client", "Rua Principal");
+    @DisplayName("Case: valid registration creates client with address")
+    void shouldCreateClientWithAddressWhenRegistrationIsValid() {
+        UserRegistrationDTO dto = registration("Ana", "ana@example.com", "secret", "client", address("Rua Principal"));
         when(userRepository.findByEmail("ana@example.com")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -48,9 +49,9 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: invalid registration (email already exists)")
-    void invalidRegistration_emailAlreadyExists_shouldFail() {
-        UserRegistrationDTO dto = registration("Ana", "ana@example.com", "secret", "client", "Rua Principal");
+    @DisplayName("Case: invalid registration fails when email already exists")
+    void shouldFailRegistrationWhenEmailAlreadyExists() {
+        UserRegistrationDTO dto = registration("Ana", "ana@example.com", "secret", "client", address("Rua Principal"));
         when(userRepository.findByEmail("ana@example.com")).thenReturn(Optional.of(client(2L, "other@example.com", "Other")));
 
         assertThatThrownBy(() -> userService.createUser(dto))
@@ -58,11 +59,10 @@ class UserServiceTest {
                 .hasMessage("Email already exists");
     }
 
-    // Case: invalid registration (email already exists)
     @Test
-    @DisplayName("Case: invalid registration (name is missing)")
-    void invalidRegistration_nameMissing_shouldFail() {
-        UserRegistrationDTO dto = registration(" ", "ana@example.com", "secret", "client", "Rua Principal");
+    @DisplayName("Case: invalid registration fails when name is missing")
+    void shouldFailRegistrationWhenNameIsMissing() {
+        UserRegistrationDTO dto = registration(" ", "ana@example.com", "secret", "client", address("Rua Principal"));
 
         assertThatThrownBy(() -> userService.createUser(dto))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -70,56 +70,52 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: invalid registration (email is missing)")
-    void invalidRegistration_emailMissing_shouldFail() {
-        UserRegistrationDTO dto = registration("Ana", " ", "secret", "client", "Rua Principal");
+    @DisplayName("Case: invalid registration fails when email is missing")
+    void shouldFailRegistrationWhenEmailIsMissing() {
+        UserRegistrationDTO dto = registration("Ana", " ", "secret", "client", address("Rua Principal"));
 
         assertThatThrownBy(() -> userService.createUser(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Email is required");
     }
 
-    // Case: valid login (email exists)
     @Test
-    @DisplayName("Case: invalid registration (password is missing)")
-    void invalidRegistration_passwordMissing_shouldFail() {
-        UserRegistrationDTO dto = registration("Ana", "ana@example.com", "", "client", "Rua Principal");
+    @DisplayName("Case: invalid registration fails when password is missing")
+    void shouldFailRegistrationWhenPasswordIsMissing() {
+        UserRegistrationDTO dto = registration("Ana", "ana@example.com", "", "client", address("Rua Principal"));
 
         assertThatThrownBy(() -> userService.createUser(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Password is required");
     }
 
-    // Case: invalid login (blank email)
     @Test
-    @DisplayName("Case: invalid registration (type is missing)")
-    void invalidRegistration_typeMissing_shouldFail() {
-        UserRegistrationDTO dto = registration("Ana", "ana@example.com", "secret", "", "Rua Principal");
+    @DisplayName("Case: invalid registration fails when type is missing")
+    void shouldFailRegistrationWhenTypeIsMissing() {
+        UserRegistrationDTO dto = registration("Ana", "ana@example.com", "secret", "", address("Rua Principal"));
 
         assertThatThrownBy(() -> userService.createUser(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Type is required");
     }
 
-    // Case: update user (user does not exist)
     @Test
-    @DisplayName("Case: invalid registration (address is missing)")
-    void invalidRegistration_addressMissing_shouldFailForClient() {
-        UserRegistrationDTO dto = registration("Ana", "ana@example.com", "secret", "client", " ");
+    @DisplayName("Case: invalid registration fails when client address is missing")
+    void shouldFailRegistrationWhenClientAddressIsMissing() {
+        UserRegistrationDTO dto = registration("Ana", "ana@example.com", "secret", "client", null);
 
         assertThatThrownBy(() -> userService.createUser(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Address is required for client users");
     }
 
-    // Case: delete user (user exists)
     @Test
-    @DisplayName("Case: registration supports all user types")
-    void registration_shouldSupportAllUserTypes() {
+    @DisplayName("Case: valid registration supports all user types")
+    void shouldSupportAllUserTypesWhenRegistrationIsValid() {
         when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User client = userService.createUser(registration("Ana", "ana@example.com", "secret", "client", "Rua A"));
+        User client = userService.createUser(registration("Ana", "ana@example.com", "secret", "client", address("Rua A")));
         User owner = userService.createUser(registration("Boss", "boss@example.com", "secret", "restaurant owner", null));
         User driver = userService.createUser(registration("Dan", "dan@example.com", "secret", "driver", null));
 
@@ -128,31 +124,33 @@ class UserServiceTest {
         assertThat(driver).isInstanceOf(Driver.class);
     }
 
+    // Login
     @Test
-    @DisplayName("Case: invalid login (email is missing)")
-    void invalidLogin_emailMissing_shouldReturnFalse() {
+    @DisplayName("Case: invalid login returns false when email is missing")
+    void shouldReturnFalseWhenLoginEmailIsMissing() {
         assertThat(userService.login(new UserLoginDTO("", "secret"))).isFalse();
     }
 
     @Test
-    @DisplayName("Case: valid login (email and password are correct)")
-    void validLogin_credentialsCorrect_shouldReturnTrue() {
+    @DisplayName("Case: valid login returns true when user exists")
+    void shouldReturnTrueWhenLoginUserExists() {
         when(authService.login("ana@example.com")).thenReturn(client(1L, "ana@example.com", "Ana"));
 
         assertThat(userService.login(new UserLoginDTO("ana@example.com", "secret"))).isTrue();
     }
 
     @Test
-    @DisplayName("Case: valid login but user does not exist")
-    void validLoginButUserDoesNotExist_shouldReturnFalse() {
+    @DisplayName("Case: valid login returns false when user does not exist")
+    void shouldReturnFalseWhenLoginUserDoesNotExist() {
         when(authService.login("ghost@example.com")).thenReturn(null);
 
         assertThat(userService.login(new UserLoginDTO("ghost@example.com", "secret"))).isFalse();
     }
 
+    // Manage users
     @Test
-    @DisplayName("Case: update user")
-    void updateUser_shouldUpdateBasicFields() {
+    @DisplayName("Case: manage users update user updates basic fields")
+    void shouldUpdateBasicFieldsWhenUpdatingUser() {
         Client existing = client(1L, "ana@example.com", "Ana");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -164,26 +162,25 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: get all users")
-    void getAllUsers_shouldReturnRepositoryValues() {
+    @DisplayName("Case: manage users get all users returns repository values")
+    void shouldReturnRepositoryValuesWhenGettingAllUsers() {
         when(userRepository.findAll()).thenReturn(List.of(client(1L, "ana@example.com", "Ana"), client(2L, "bob@example.com", "Bob")));
 
         assertThat(userService.getAllUsers()).hasSize(2);
     }
 
     @Test
-    @DisplayName("Case: delete user")
-    void deleteUser_shouldReturnTrueWhenUserExists() {
+    @DisplayName("Case: manage users delete user returns true when user exists")
+    void shouldReturnTrueWhenDeletingExistingUser() {
         when(userRepository.existsById(10L)).thenReturn(true);
 
         assertThat(userService.deleteUser(10L)).isTrue();
         verify(userRepository).deleteById(10L);
     }
 
-    // Case: get all users
     @Test
-    @DisplayName("Case: get user by id")
-    void getUserById_shouldReturnUserWhenExists() {
+    @DisplayName("Case: manage users get user by id returns user when exists")
+    void shouldReturnUserWhenGettingUserByIdAndItExists() {
         Client expected = client(7L, "id@example.com", "ById");
         when(userRepository.findById(7L)).thenReturn(Optional.of(expected));
 
@@ -191,8 +188,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: get user by email")
-    void getUserByEmail_shouldReturnUserWhenExists() {
+    @DisplayName("Case: manage users get user by email returns user when exists")
+    void shouldReturnUserWhenGettingUserByEmailAndItExists() {
         Client expected = client(8L, "mail@example.com", "ByEmail");
         when(userRepository.findByEmail("mail@example.com")).thenReturn(Optional.of(expected));
 
@@ -200,8 +197,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: update user with email that already exists")
-    void updateUser_emailAlreadyExists_shouldFail() {
+    @DisplayName("Case: manage users update user fails when email already exists")
+    void shouldFailUpdateWhenEmailAlreadyExists() {
         Client existing = client(1L, "ana@example.com", "Ana");
         Client other = client(2L, "taken@example.com", "Other");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
@@ -213,8 +210,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: update user with email that does not exist")
-    void updateUser_emailDoesNotExist_shouldUpdateEmail() {
+    @DisplayName("Case: manage users update user changes email when email is available")
+    void shouldUpdateEmailWhenUpdateEmailIsAvailable() {
         Client existing = client(1L, "ana@example.com", "Ana");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.findByEmail("new@example.com")).thenReturn(Optional.empty());
@@ -226,8 +223,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: update user with a name that already exists")
-    void updateUser_nameAlreadyExists_shouldStillUpdateName() {
+    @DisplayName("Case: manage users update user accepts name even if repeated")
+    void shouldAcceptRepeatedNameWhenUpdatingUser() {
         Client existing = client(1L, "ana@example.com", "Ana");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -238,8 +235,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: update user with a name that does not exist")
-    void updateUser_nameDoesNotExist_shouldUpdateName() {
+    @DisplayName("Case: manage users update user changes name when provided")
+    void shouldUpdateNameWhenNameIsProvided() {
         Client existing = client(1L, "ana@example.com", "Ana");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -250,8 +247,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: update user with a password that does not match")
-    void updateUser_passwordDoesNotMatch_shouldUpdatePassword() {
+    @DisplayName("Case: manage users update user changes password when different")
+    void shouldUpdatePasswordWhenPasswordIsDifferent() {
         Client existing = client(1L, "ana@example.com", "Ana");
         existing.setPassword("old");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
@@ -263,8 +260,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: update user with a password that matches")
-    void updateUser_passwordMatches_shouldKeepPasswordValue() {
+    @DisplayName("Case: manage users update user keeps password when same")
+    void shouldKeepPasswordWhenPasswordIsSame() {
         Client existing = client(1L, "ana@example.com", "Ana");
         existing.setPassword("same");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
@@ -276,8 +273,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: update user with a type that does not exist")
-    void updateUser_typeDoesNotExist_shouldIgnoreTypeAndPersist() {
+    @DisplayName("Case: manage users update user ignores unknown type")
+    void shouldIgnoreUnknownTypeWhenUpdatingUser() {
         Client existing = client(1L, "ana@example.com", "Ana");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -288,8 +285,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: update user with a type that exists")
-    void updateUser_typeExists_shouldIgnoreTypeAndPersist() {
+    @DisplayName("Case: manage users update user does not change class by type field")
+    void shouldNotChangeClassWhenUpdatingTypeField() {
         Client existing = client(1L, "ana@example.com", "Ana");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -300,33 +297,33 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: update user with an address that does not exist")
-    void updateUser_addressDoesNotExist_shouldKeepAddressNull() {
+    @DisplayName("Case: manage users update user keeps address null when client has no address")
+    void shouldKeepAddressNullWhenClientHasNoAddress() {
         Client existing = client(1L, "ana@example.com", "Ana");
         existing.setAddress(null);
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "client", "Rua Nova", false));
+        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "client", address("Rua Nova"), false));
 
         assertThat(((Client) updated).getAddress()).isNull();
     }
 
     @Test
-    @DisplayName("Case: update user with an address that exists")
-    void updateUser_addressExists_shouldUpdateAddressStreet() {
+    @DisplayName("Case: manage users update user changes address when address exists")
+    void shouldUpdateAddressWhenClientAlreadyHasAddress() {
         Client existing = clientWithAddress(1L, "ana@example.com", "Ana", "Rua Velha");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "client", "Rua Nova", false));
+        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "client", address("Rua Nova"), false));
 
         assertThat(((Client) updated).getAddress().getStreet()).isEqualTo("Rua Nova");
     }
 
     @Test
-    @DisplayName("Case: update user with an address that is null")
-    void updateUser_addressIsNull_shouldNotChangeExistingAddress() {
+    @DisplayName("Case: manage users update user does not change address when dto address is null")
+    void shouldNotChangeAddressWhenDtoAddressIsNull() {
         Client existing = clientWithAddress(1L, "ana@example.com", "Ana", "Rua Velha");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -337,23 +334,33 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Case: update user with an address that is not null")
-    void updateUser_addressIsNotNull_shouldChangeExistingAddress() {
+    @DisplayName("Case: manage users update user changes address when dto address is not null")
+    void shouldChangeAddressWhenDtoAddressIsNotNull() {
         Client existing = clientWithAddress(1L, "ana@example.com", "Ana", "Rua Antiga");
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "client", "Rua Atualizada", false));
+        User updated = userService.updateUser(1L, update("Ana", "ana@example.com", "secret", "client", address("Rua Atualizada"), false));
 
         assertThat(((Client) updated).getAddress().getStreet()).isEqualTo("Rua Atualizada");
     }
 
-    private UserRegistrationDTO registration(String name, String email, String password, String type, String address) {
+    private UserRegistrationDTO registration(String name, String email, String password, String type, AddressDTO address) {
         return new UserRegistrationDTO(name, email, password, type, address);
     }
 
-    private UserUpdateDTO update(String name, String email, String password, String type, String address, boolean available) {
+    private UserUpdateDTO update(String name, String email, String password, String type, AddressDTO address, boolean available) {
         return new UserUpdateDTO(name, email, password, type, address, available);
+    }
+
+    private AddressDTO address(String street) {
+        AddressDTO addressDTO = new AddressDTO();
+        addressDTO.setStreet(street);
+        addressDTO.setCountry("Portugal");
+        addressDTO.setDistrict("Lisboa");
+        addressDTO.setCity("Lisboa");
+        addressDTO.setPostalCode("1000-001");
+        return addressDTO;
     }
 
     private Client client(long id, String email, String name) {
@@ -369,6 +376,10 @@ class UserServiceTest {
         Client client = client(id, email, name);
         Address address = new Address();
         address.setStreet(street);
+        address.setCountry("Portugal");
+        address.setDistrict("Lisboa");
+        address.setCity("Lisboa");
+        address.setPostalCode("1000-001");
         client.setAddress(address);
         return client;
     }
