@@ -13,9 +13,9 @@ public class UserRegistrationDTO {
     String password;
     String type;
     @Nullable
-    String address;
+    AddressDTO address;
 
-    public UserRegistrationDTO(@NotNull String name, @NotNull String email, @NotNull String password, @NotNull String type, @Nullable String address) {
+    public UserRegistrationDTO(@NotNull String name, @NotNull String email, @NotNull String password, @NotNull String type, @Nullable AddressDTO address) {
         this.name = name;
         this.email = email;
         this.password = password;

@@ -13,10 +13,10 @@ public class UserUpdateDTO {
     String password;
     String type;
     @Nullable
-    String address;
+    AddressDTO address;
     boolean available;
 
-    public UserUpdateDTO(@NotNull String name, @NotNull String email, @NotNull String password, @NotNull String type, String address, boolean available) {
+    public UserUpdateDTO(@NotNull String name, @NotNull String email, @NotNull String password, @NotNull String type, AddressDTO address, boolean available) {
         this.name = name;
         this.email = email;
         this.password = password;
