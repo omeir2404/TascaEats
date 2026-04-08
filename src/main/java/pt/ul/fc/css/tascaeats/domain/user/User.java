@@ -1,5 +1,6 @@
 package pt.ul.fc.css.tascaeats.domain.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +24,7 @@ public abstract class User {
     @Column(unique = true)
     private String email;
     // TODO store password hash not real password? also not needed for this phase of project
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
 

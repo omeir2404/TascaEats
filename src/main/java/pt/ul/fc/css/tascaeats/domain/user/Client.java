@@ -1,11 +1,10 @@
 package pt.ul.fc.css.tascaeats.domain.user;
 
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,6 +23,4 @@ public class Client extends User {
     }
     public Client() {}
 
-    public Client(String name, @Email(message = "Email should be valid") String email, String password, String address) {
-    }
 }

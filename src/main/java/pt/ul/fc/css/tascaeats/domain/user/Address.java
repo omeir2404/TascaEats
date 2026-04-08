@@ -1,5 +1,7 @@
 package pt.ul.fc.css.tascaeats.domain.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,9 +13,16 @@ public class Address {
     private Long id;
 
     private String street;
+    @Nullable
+    private String number;
+    @Nullable
+    private String complement;
+    private String country;
+    private String district;
     private String city;
     private String postalCode;
-    private String country;
 
-
+    @JsonIgnore
+    @OneToOne(mappedBy = "address")
+    private Client client;
 }
