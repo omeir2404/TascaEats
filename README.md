@@ -7,7 +7,7 @@ O projeto modelo apresenta uma estrutura de pacotes indicativa. Apesar de não s
 
 A consultoria espanhola **Compadres Sempre Saciados (CSS)** identificou uma oportunidade no mercado de entregas ao domicílio em Portugal e decidiu criar o **TascaEats**, um sistema de delivery de comida. O objetivo é desenvolver uma plataforma robusta que conecte clientes, restaurantes e entregadores.
 
-Um utilizador pode interagir com o sistema com diferentes perfis: como **Cliente**, como **Administrador do Restaurante** ou como **Entregador**. Todos partilham dados base de autenticação e identificação, mas têm permissões e papéis distintos. Para já, um cliente terá só uma morada (no futuro poderá ter várias). O sistema deve permitir o registo, a atualização e a remoção de utilizadores, bem como a autenticação.
+Um utilizador pode interagir com o sistema com diferentes perfis: como **Clientee**, como **Administrador do Restaurante** ou como **Entregador**. Todos partilham dados base de autenticação e identificação, mas têm permissões e papéis distintos. Para já, um cliente terá só uma morada (no futuro poderá ter várias). O sistema deve permitir o registo, a atualização e a remoção de utilizadores, bem como a autenticação.
 
 Para a gestão de restaurantes, o sistema permite a um administrador criar e gerir estabelecimentos (nome, NIF e morada). O restaurante possui um cardápio composto por vários produtos (nome, descrição, preço e estado de disponibilidade) e pode abrir e fechar para receber pedidos. 
 
@@ -18,7 +18,7 @@ Nesta **Fase 1**, o foco será o desenvolvimento do backend como um sistema mono
 # Casos de Uso
 
 - A. **Login com autenticação:** Vamos fazer *mock*. Qualquer palavra-passe será aceite contanto que o utilizador seja válido.
-- B. **Registo de utilizadores:** Criação de perfis de Clientes, Administradores e Entregadores.
+- B. **Registo de utilizadores:** Criação de perfis de Clientees, Administradores e Entregadores.
 - C. **Gerir utilizadores:** Verificar, remover e atualizar utilizadores.
 - D. **Buscar restaurantes:** Pesquisa por nome ou cidade.
 - E. **Gestão de restaurantes:** Criação de restaurantes e gestão do seu estado (aberto/fechado).

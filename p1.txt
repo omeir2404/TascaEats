@@ -23,7 +23,7 @@ A consultoria espanhola Compadres Sempre Saciados (CSS1 ) identificou uma oportu
 mercado de entregas ao domicı́lio em Portugal e decidiu criar o TascaEats, um sistema de delivery
 de comida. O objetivo é desenvolver uma plataforma robusta que conecte clientes, restaurantes e
 entregadores.
-Um utilizador pode interagir com o sistema com diferentes perfis: como Cliente, como Administrador do Restaurante ou como Entregador. Todos partilham dados base de autenticação e
+Um utilizador pode interagir com o sistema com diferentes perfis: como Clientee, como Administrador do Restaurante ou como Entregador. Todos partilham dados base de autenticação e
 identificação, mas têm permissões e papéis distintos2 . Para já, um cliente terá só uma morada
 mas no futuro poderá ter várias. O sistema deve permitir o registo, a atualização e a remoção de
 utilizadores, bem como a autenticação (que nesta fase será feita via mock).
@@ -60,7 +60,7 @@ casos de uso para que os alunos tenham a perceção do domı́nio total. Para 
 implementar os casos de uso identificados abaixo. Mais casos de uso podem ser adicionados nas
 próximas fases.
 A. Login com autenticação (Nota: vamos fazer mock. Qualquer palavra-passe será aceite contanto que o utilizador seja válido).
-B. Registo de utilizadores (Clientes, Administradores e Entregadores).
+B. Registo de utilizadores (Clientees, Administradores e Entregadores).
 C. Verificar, remover e atualizar utilizadores.
 D. Buscar por restaurantes (por nome ou cidade).
 E. Criação de restaurantes e gestão do seu estado (aberto/fechado).
