@@ -6,7 +6,7 @@ import pt.ul.fc.css.tascaeats.domain.Utilizador.Utilizador;
 import pt.ul.fc.css.tascaeats.repository.UtilizadorRepository;
 
 @Service
-public class AuthService {
+public class AutorService {
     @Autowired
     private UtilizadorRepository UtilizadorRepository;
 

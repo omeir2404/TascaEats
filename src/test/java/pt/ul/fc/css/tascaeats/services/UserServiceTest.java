@@ -29,7 +29,7 @@ class UtilizadorServiceTest {
     private UtilizadorRepository UtilizadorRepository;
 
     @Mock
-    private AuthService authService;
+    private AutorService authService;
 
     @InjectMocks
     private UtilizadorService UtilizadorService;

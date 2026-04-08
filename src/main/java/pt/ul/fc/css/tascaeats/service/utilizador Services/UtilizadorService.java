@@ -16,9 +16,9 @@ import java.util.Optional;
 public class UtilizadorService {
 
     private final UtilizadorRepository UtilizadorRepository;
-    private final AuthService authService;
+    private final AutorService authService;
 
-    public UtilizadorService(UtilizadorRepository UtilizadorRepository, AuthService authService) {
+    public UtilizadorService(UtilizadorRepository UtilizadorRepository, AutorService authService) {
         this.UtilizadorRepository = UtilizadorRepository;
         this.authService = authService;
     }
