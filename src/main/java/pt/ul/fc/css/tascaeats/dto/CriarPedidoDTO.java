@@ -2,15 +2,33 @@ package pt.ul.fc.css.tascaeats.dto;
 
 import java.util.List;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 
 public class CriarPedidoDTO {
 
+    @NotNull(message = "Cliente Id é obrigatório")
+    @Positive(message = "Cliente Id deve ser maior que 0")
     private Long clienteId;
 
+    @NotNull(message = "Restaurante Id é obrigatório")
+    @Positive(message = "Restaurante Id deve ser maior que 0")
     private Long restauranteId;
 
-    private List<Long> produtosIds;
+    @NotEmpty(message = "A lista de produtos não pode estar vazia")
+    private List<@NotNull(message = "Produto Id não pode ser nulo") @Positive(message = "Produto Id deve ser maior que 0") Long> produtosIds;
+
+    public CriarPedidoDTO(){}
+
+    public CriarPedidoDTO(Long clientId, Long restauranteId, List<Long> produtosIds){
+        this.clienteId = clientId;
+        this.restauranteId = restauranteId;
+        this.produtosIds = produtosIds;
+    }
+
+    // ###################### GETTERS e SETTERS #####################################################################
 
     public Long getClienteId() {
         return clienteId;
@@ -34,5 +52,12 @@ public class CriarPedidoDTO {
 
     public void setProdutosIds(List<Long> produtosIds) {
         this.produtosIds = produtosIds;
+    }
+
+
+    @Override
+    public String toString(){
+        return "CriarPedidoDTO{" + "clienteId=" + clienteId +
+                    ", restauranteId=" + restauranteId + ", produtosIds=" + produtosIds +"}";
     }
 }

@@ -19,6 +19,9 @@ public class EntregaResumoDTO {
         this.entregadorNome = entregadorNome;
     }
 
+
+// ###################### GETTERS e SETTERS #####################################################################
+
     public Long getId() {
         return id;
     }
@@ -49,5 +52,11 @@ public class EntregaResumoDTO {
 
     public void setEntregadorNome(String entregadorNome) {
         this.entregadorNome = entregadorNome;
+    }
+
+    @Override
+    public String toString(){
+        return "EntregaResumoDTO{" + "id=" + id + ", horaRecolha=" 
+            + horaRecolha + ", horaEntrega=" + horaEntrega + ", entregadorNome=" + entregadorNome +"}";
     }
 }

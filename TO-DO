@@ -1,270 +1,78 @@
+## Status Update (07/04/2026)
 
-## Overview
-This version compares what the P1 PDF requires against what appears in the XML diagram.
+### Feito
+- [x] Estrutura base de domínio para Pedido, Pagamento, Entrega e EstadoPedido.
+- [x] `PagamentoFactory` implementada.
+- [x] Repositories base criados (`IPedidoRepository`, `IPagamentoRepository`, `IEntregaRepository`).
+- [x] `PagamentoController` com `POST /pagamentos` (usa `ProcessarPagamentoDTO`).
+- [x] `PedidoController` com:
+  - [x] `POST /pedidos` (criar pedido)
+  - [x] `PATCH /pedidos/{pedidoId}/cancelar` (cancelar)
+  - [x] `GET /pedidos` com filtros opcionais `clienteId` e `estado`
+- [x] `EntregaController` com:
+  - [x] `POST /entregas/atribuir`
+  - [x] `PATCH /entregas/pedido/{pedidoId}/iniciar-preparacao`
+  - [x] `PATCH /entregas/pedido/{pedidoId}/marcar-pronto`
+  - [x] `PATCH /entregas/pedido/{pedidoId}/recolha`
+  - [x] `PATCH /entregas/pedido/{pedidoId}/entrega-final`
+- [x] `EntregaService` alinhado com fluxo de logística:
+  - [x] seleção automática de entregador disponível
+  - [x] libertação do entregador no fim
+  - [x] validações de estado do pedido durante atribuição/recolha/entrega
 
-Legend:
-- ✅ Present in the diagram
-- ⚠️ Partially present or needs confirmation
-- ❌ Missing from the diagram
+### Já corrigido durante a sessão
+- [x] `IEntregaRepository.existsByEntregadorIdAndHoraEntregaIsNull` a devolver `boolean`.
+- [x] `AtribuirEntregadorDTO`: `entregadorId` não obrigatório (seleção automática).
 
-## Domain Entities
-| Item | Should exist according to P1 | In diagram | Status | Notes |
-|---|---|---|---|---|
-| Utilizador | Abstract base entity with nif, email, password | Yes | ✅ | Correctly modeled as abstract |
-| Cliente | Extends Utilizador | Yes | ✅ | Matches the requirement |
-| Administrador | Extends Utilizador | Yes | ✅ | Matches the requirement |
-| Entregador | Extends Utilizador and has disponibilidade | Yes | ✅ | Attribute disponivel is present |
-| Morada | Address with street and locality fields | Yes | ✅ | Diagram includes rua, numero, numCasa, codigoPostal, cidade |
-| Restaurante | Nome, NIF, morada, estado aberto/fechado | Yes | ✅ | One address per restaurant is the right interpretation |
-| Produto | Nome, descricao, preco, disponivel | yes | ✅ |correct |
-| Pedido | Data, hora, valor total, estado, association to client/order flow | Yes | ✅ | Core fields are present |
-| Pagamento | Abstract payment base class | Yes | ✅ | Correct abstraction |
-| Entrega | Recolha, entrega, entregador, pedido | Yes | ✅ | Logística is modeled |
-| EstadoPedido | Enum with all lifecycle states | Yes | ✅ | States shown are complete |
+---
 
-## Relationships
-| Relationship | Should exist according to P1 | In diagram | Status | Notes |
-|---|---|---|---|---|
-| Utilizador -> Cliente/Administrador/Entregador | Inheritance | Yes | ✅ | Correct polymorphic hierarchy |
-| Cliente -> Morada | 1:1 now, future 1:N | Yes | ✅ | Diagram allows future expansion |
-| Restaurante -> Morada | 1:1 | Yes | ✅ | A restaurant has one address |
-| Administrador -> Restaurante | 1:N | Yes | ✅ | One admin can manage one or more restaurants |
-| Restaurante -> Produto | 1:N | Yes | ✅ | Cardápio relationship is present |
-| Cliente -> Pedido | 1:N | Yes | ✅ | A client can place multiple orders |
-| Pedido -> Produto | N:M | Yes | ✅ | Order contains multiple products |
-| Pedido -> Pagamento | 1:1 mandatory | Yes | ✅ | Payment is required |
-| Pedido -> Entrega | 1:0..1 or 1:1 depending on flow | Yes | ✅ | Delivery exists when logistics starts |
-| Entregador -> Entrega | 1:N | Yes | ✅ | One deliverer can handle many deliveries |
+## Pendentes Prioritários (bloqueiam build/fecho P1)
 
-## Controllers
-| Controller | Should exist according to P1 | In diagram | Status | Notes |
-|---|---|---|---|---|
-| AutenticacaoController | Register and login | Yes | ✅ | Registo and mock login are covered |
-| RestauranteController | Create, search, change open/closed state | Yes | ✅ | Search by name or city is expected |
-| ProdutoController | Add, update, remove, list products | Yes | ✅ | CRUD over restaurant products is modeled |
-| PedidoController | Create, cancel, update status | Partially | ⚠️ | Create and cancel are shown; status update should be confirmed in implementation |
-| PagamentoController | Process payment | Yes | ✅ | Present in the diagram |
-| EntregaController | Assign deliverer, register pickup, register delivery | Yes | ✅ | All logistics actions are present |
+### 1) Resolver dependências em falta após merge de branches
+- [ ] Garantir existência/merge de:
+  - [ ] `IUtilizadorRepository`
+  - [ ] `IRestauranteRepository`
+  - [ ] `IProdutoRepository`
+  - [ ] entidade de entregador (`Driver`/`Entregador`) e métodos (`getAvailable`, `setAvailable`)
+- [ ] Reconciliar nomes/tipos (ex.: `Driver` vs `Entregador`) em `EntregaService`.
 
-## DTOs
-| DTO | Should exist according to P1 | In diagram | Status | Notes |
-|---|---|---|---|---|
-| RegistoUtilizadorDTO | nif, email, password, tipoUtilizador, morada | Yes | ✅ | Correct structure |
-| LoginDTO | email, password | Yes | ✅ | Correct structure |
-| AtualizarUtilizadorDTO | Update user fields | Yes | ✅ | Present |
-| UtilizadorResumoDTO | Summary output | Yes | ✅ | Present |
-| RestauranteDTO | nome, nif, morada, aberto | Yes | ✅ | Present |
-| AtualizarEstadoRestauranteDTO | aberto | Yes | ✅ | Present |
-| RestauranteResumoDTO | Summary output | Yes | ✅ | Present |
-| ProdutoDTO | nome, descricao, preco, disponivel | Yes | ✅ | Better than the entity if entity lacks descricao |
-| AtualizarDisponibilidadeDTO | disponivel | Yes | ✅ | Present |
-| CriarPedidoDTO | clienteId, restauranteId, produtosIds | Yes | ✅ | Good choice for request input |
-| ProcessarPagamentoDTO | pedidoId, tipoPagamento, detalhes | Yes | ✅ | Flexible payment input |
-| AtualizarEstadoPedidoDTO | novoEstado | Yes | ✅ | Present |
-| PedidoConfirmacaoDTO | id, valorTotal, estado, dataHora | Yes | ✅ | Present |
-| MoradaDTO | rua, numero, numCasa, codigoPostal, cidade | Yes | ✅ | Present |
-| AtribuirEntregadorDTO | pedidoId, entregadorId | Partially | ⚠️ | Diagram shows pedidoId; entregadorId should be confirmed or added |
-| EntregaResumoDTO | delivery summary | Yes | ✅ | Present |
+### 2) Corrigir `PedidoService` (estado atual ainda inconsistente)
+- [ ] Adicionar imports/tipos corretos (`Produto`, `IProdutoRepository`).
+- [ ] Trocar acessos diretos a campos privados do DTO por getters:
+  - [ ] `criarPedidoDto.getClienteId()`
+  - [ ] `criarPedidoDto.getRestauranteId()`
+- [ ] Corrigir `ProdutoRepository` para `produtoRepository`.
+- [ ] Garantir cálculo e persistência de `valorTotal` no `Pedido`.
+- [ ] Adicionar `@Service` e (idealmente) `@Transactional` aos métodos de escrita.
 
-## Factories
-| Factory | Should exist according to P1/architecture | In diagram | Status | Notes |
-|---|---|---|---|---|
-| UtilizadorFactory | Create user variants from input | No | ✅ | Not shown in the diagram |
-| PedidoFactory | Create order and compute totals | No | ✅ | Not shown in the diagram |
-| PagamentoFactory | Resolve payment subtype | No | ✅ | Not shown in the diagram |
+### 3) Validar constraints de persistência
+- [ ] Rever `Entrega.enderecoEntrega` (`nullable=false`) e usar morada real do pedido/cliente quando disponível.
+- [ ] Confirmar mapeamentos JPA e relações com as entidades que entram no merge.
 
-## Business Rules
-| Rule | Required by P1 | In diagram | Status | Notes |
-|---|---|---|---|---|
-| Cancel order only if not in preparation | Yes | Not shown | ❌ | Must be implemented in service logic |
-| Soft-delete product linked to old orders | Yes | Not shown | ❌ | Product needs soft-delete support |
-| Do not order from closed restaurants | Yes | Not shown | ❌ | Must be validated in business logic |
-| Do not add out-of-stock products to an order | Yes | Not shown | ❌ | Must be validated in business logic |
-| Do not assign unavailable deliverer | Yes | Not shown | ❌ | Must be validated in business logic |
-| Every order must have a payment | Yes | Yes | ✅ | Modeled by mandatory payment association |
+---
 
-## Summary
-| Area | Verdict | Notes |
-|---|---|---|
-| Domain model | Mostly correct | Main entities and inheritance are present |
-| Relationships | Mostly correct | Restaurant -> Morada should stay 1:1 |
-| Controllers | Mostly correct | Core flows are covered |
-| DTOs | Strong | Input/output DTOs are well organized |
-| Factories | Missing | Not represented in the diagram |
-| Business rules | Missing from diagram | Need implementation in services |
+## Regras de Negócio P1 a confirmar em demo (Swagger)
+- [ ] Não permitir pedido para restaurante fechado.
+- [ ] Não permitir adicionar produto indisponível/esgotado.
+- [ ] Cancelamento proibido quando pedido já está em preparo ou adiante.
+- [ ] Entregador não pode receber nova entrega enquanto tiver entrega ativa.
+- [ ] Pagamento obrigatório por pedido.
 
-## Bottom Line
-The diagram is a good representation of the P1 domain model, but it is **not complete** if you expect architectural support classes like factories and explicit business-rule enforcement to be shown.
+---
 
-Most important gaps:
-- Produto should explicitly include descricao in the domain entity
-- Soft-delete behavior is not modeled
-- Factories are not shown
-- Some business rules are not modeled and must be implemented in code
+## Qualidade e Finalização
+- [ ] Criar `@ControllerAdvice` para mapear exceções de negócio em HTTP 400/404/409.
+- [ ] Rever códigos de resposta (`201` para criação de pedido, quando aplicável).
+- [ ] Testes mínimos dos casos H, I, J, K, L.
+- [ ] Executar build final e corrigir erros:
+  - [ ] `./mvnw clean test`
+- [ ] Atualizar README com equipa + links dos vídeos.
+- [ ] Gravar vídeos de demonstração dos casos de uso via Swagger.
 
+---
 
-
-## Divisao de Trabalho (3 Pessoas)
-
-Uma divisao equilibrada e separar por blocos de dominio com baixa sobreposicao.
-
-| Pessoa | Bloco | Entidades | Requisitos | API |
-|---|---|---|---|---|
-| Pessoa 1 (ARTICO) | Utilizadores | User (abstrata), Client, RestaurantAdmin, Driver, Address | Registo, login mock, gestao de utilizadores (criar, editar, remover, listar) | Endpoints de utilizador e autenticacao |
-| Pessoa 2 (ECLIPSE) | Restaurante e Cardapio | Restaurant, Product | Criar/editar restaurante, abrir/fechar, gestao de cardapio, busca de restaurantes e produtos | Endpoints de restaurante e produto |
-| Pessoa 3 (NEXUS) | Pedido, Pagamento e Entrega | Order, OrderItem, Payment, Delivery | Criar pedido, processar pagamento, atualizar estado do pedido, cancelar pedido, alocacao logistica | Endpoints de pedido, pagamento e entrega |
-
-### Checklist de Execucao
-
-#### Pessoa 1 (ARTICO)
-- [ ] Modelar entidades: User, Client, RestaurantAdmin, Driver, Address
-- [ ] Implementar registo e login mock
-- [ ] Implementar gestao de utilizadores (criar, editar, remover, listar)
-- [ ] Expor endpoints de utilizador e autenticacao
-
-#### Pessoa 2 (ECLIPSE)
-- [ ] Modelar entidades: Restaurant, Product
-- [ ] Implementar criacao/edicao de restaurante
-- [ ] Implementar abrir/fechar restaurante
-- [ ] Implementar gestao de cardapio
-- [ ] Implementar busca de restaurantes e produtos
-- [ ] Expor endpoints de restaurante e produto
-
-#### Pessoa 3 (NEXUS)
-- [ ] Modelar entidades: Order, OrderItem, Payment, Delivery
-- [ ] Implementar criacao de pedido
-- [ ] Implementar processamento de pagamento
-- [ ] Implementar atualizacao de estado do pedido
-- [ ] Implementar cancelamento de pedido
-- [ ] Implementar alocacao logistica
-- [ ] Expor endpoints de pedido, pagamento e entrega
-
-
-# 📋 TO-DO: Módulo de Pedidos, Pagamentos e Entregas (Fase 1)
-
-## 1. 🏗️ Domínio: Entidades e Enums (Base de Dados)
-A primeira coisa a fazer é criar a base de dados em memória. Começa pelas entidades sem dependências e avança para as mais complexas.
-
-- [ ] **Criar Enum `EstadoPedido`**
-  - Valores: `CRIADO`, `PAGO`, `A_PREPARAR`, `PRONTO_PARA_ENTREGA`, `CANCELADO`, `ATRIBUIDO_ENTREGADOR`, `ENTREGUE`.
-- [ ] **Criar Classe Abstrata `Pagamento`**
-  - Atributos: `id` (String), `valor` (Double), `dataPagamento` (LocalDate), `referenciaPagamento` (String).
-  - *Dica JPA:* Usar a anotação `@Inheritance` (ex: `SINGLE_TABLE` ou `JOINED`) para as subclasses.
-- [ ] **Criar Subclasses de `Pagamento`**
-  - [ ] `PagamentoMBWay` (Atributo: `numeroTelemovel`).
-  - [ ] `PagamentoDinheiro` (Atributos: `valorRecebido`, `troco`).
-  - [ ] `PagamentoMultibanco` (Atributos: `entidade`, `referencia`).
-  - [ ] `PagamentoCartao` (Atributo: `numeroCartao`).
-- [ ] **Criar Entidade `Pedido`**
-  - Atributos: `id`, `data`, `hora`, `valorTotal`, `estado` (EstadoPedido).
-  - Ligações (Mappings): `@ManyToOne` com `Cliente` e `Restaurante`, `@OneToOne` com `Pagamento`, `@ManyToMany` com `Produto`.
-- [ ] **Criar Entidade `Entrega`**
-  - Atributos: `id`, `horaRecolha` (LocalDateTime), `horaEntrega` (LocalDateTime), `enderecoEntrega` (String).
-  - Ligações (Mappings): `@OneToOne` com `Pedido`, `@ManyToOne` com `Entregador`.
-
-## 2. 🏭 Factories e Repositórios (Infraestrutura)
-- [ ] **Criar `PagamentoFactory`**
-  - Implementar método estático ou componente `@Component` com o método: `create(tipoPagamento: String, detalhes: Map)`.
-  - Lógica: Ler a string (ex: "MBWAY") e instanciar a subclasse correspondente retirando os dados do `Map`.
-- [ ] **Criar Interfaces Repository (Spring Data JPA)**
-  - [ ] `IPedidoRepository` (extends JpaRepository).
-  - [ ] `IPagamentoRepository` (extends JpaRepository).
-  - [ ] `IEntregaRepository` (extends JpaRepository).
-
-## 3. 📦 DTOs (Data Transfer Objects)
-Estes são os objetos que os teus Controllers vão receber e devolver (o que aparece no Swagger).
-
-- [ ] **DTOs de Input (Entrada)**
-  - [ ] `CriarPedidoDTO` (clienteId, restauranteId, produtosIds).
-  - [ ] `ProcessarPagamentoDTO` (pedidoId, tipoPagamento, detalhes).
-  - [ ] `AtualizarEstadoPedidoDTO` (novoEstado).
-  - [ ] `AtribuirEntregadorDTO` (pedidoId).
-- [ ] **DTOs de Output (Resposta)**
-  - [ ] `PedidoConfirmacaoDTO` (id, valorTotal, estado, dataHora).
-  - [ ] `EntregaResumoDTO` (id, horaRecolha, horaEntrega, entregadorNome).
-
-## 4. 🧠 Serviços e Regras de Negócio (Casos de Uso)
-*Recomendação: Embora o diagrama mostre o Controller a falar com o Repository, deves criar classes `@Service` para colocar a lógica.*
-
-- [ ] **Caso de Uso H: Criar Pedido**
-  - Logica: Validar se cliente, restaurante e produtos existem.
-  - Lógica: Calcular o `valorTotal` com base no preço dos produtos iterados.
-  - Lógica: Guardar o pedido com estado inicial obrigatório: `CRIADO`.
-- [ ] **Caso de Uso I: Processar Pagamento**
-  - Lógica: Encontrar o pedido. Validar se estado atual é `CRIADO`.
-  - Lógica: Usar a `PagamentoFactory` para gerar o pagamento e usar `IPagamentoRepository.save()`.
-  - Lógica: Associar pagamento ao pedido e mudar o estado para `PAGO`.
-- [ ] **Caso de Uso L: Cancelamento (Regras de Negócio Críticas)**
-  - Lógica: Encontrar o pedido a cancelar.
-  - **Validação:** Garantir que o estado **NÃO** é `A_PREPARAR` ou superior. Se for, atirar exceção (HTTP 400 Bad Request).
-  - Lógica: Mudar estado para `CANCELADO`.
-- [ ] **Caso de Uso K: Atribuir Entregador**
-  - Lógica: Buscar no `IUtilizadorRepository` um entregador onde `disponivel == true`.
-  - Lógica: Criar a `Entrega`.
-  - Lógica: Atualizar o entregador para `disponivel = false`.
-  - Lógica: Atualizar o estado do pedido para `ATRIBUIDO_ENTREGADOR`.
-- [ ] **Caso de Uso J: Logística (Recolha e Entrega)**
-  - [ ] Implementar recolha: `horaRecolha = LocalDateTime.now()`, estado do pedido = `PRONTO_PARA_ENTREGA` (ou a caminho).
-  - [ ] Implementar entrega final: `horaEntrega = LocalDateTime.now()`, estado do pedido = `ENTREGUE`.
-  - **Lógica Crítica:** Mudar o entregador de volta para `disponivel = true` para que possa receber novos pedidos.
-
-## 5. 🌐 Controladores (REST API)
-A última camada. Mapear os endpoints HTTP para testar no Postman/Swagger.
-
-- [ ] **Criar `PedidoController`**
-  - `POST /pedidos` -> recebe `CriarPedidoDTO`, devolve `201 Created` com `PedidoConfirmacaoDTO`.
-  - `PUT /pedidos/{id}/cancelar` -> devolve `200 OK`.
-- [ ] **Criar `PagamentoController`**
-  - `POST /pagamentos` -> recebe `ProcessarPagamentoDTO`, devolve `200 OK`.
-- [ ] **Criar `EntregaController`**
-  - `POST /entregas/atribuir` -> recebe `AtribuirEntregadorDTO`, devolve `200 OK`.
-  - `PUT /entregas/{id}/recolha` -> regista a hora de recolha.
-  - `PUT /entregas/{id}/concluir` -> regista a entrega e liberta entregador.
-
-## 6. ✅ Testes e Validação Final
-- [ ] Testar no Swagger se tentar cancelar um pedido que está `A_PREPARAR` dá erro.
-- [ ] Testar no Swagger se ao concluir uma entrega o entregador volta a ficar com `disponivel = true`.
-- [ ] Validar se o total do pedido bate certo com a soma dos produtos.
-
-FILES:
-
-Domain (entities + enum)
-1. src/main/java/pt/ul/fc/css/tascaeats/domain/EstadoPedido.java
-2. src/main/java/pt/ul/fc/css/tascaeats/domain/Pagamento.java
-3. src/main/java/pt/ul/fc/css/tascaeats/domain/PagamentoMBWay.java
-4. src/main/java/pt/ul/fc/css/tascaeats/domain/PagamentoDinheiro.java
-5. src/main/java/pt/ul/fc/css/tascaeats/domain/PagamentoMultibanco.java
-6. src/main/java/pt/ul/fc/css/tascaeats/domain/PagamentoCartao.java
-7. src/main/java/pt/ul/fc/css/tascaeats/domain/Pedido.java
-8. src/main/java/pt/ul/fc/css/tascaeats/domain/Entrega.java
-
-Factory
-1. src/main/java/pt/ul/fc/css/tascaeats/service/PagamentoFactory.java
-
-
-Repositories
-1. src/main/java/pt/ul/fc/css/tascaeats/repository/IPedidoRepository.java
-2. src/main/java/pt/ul/fc/css/tascaeats/repository/IPagamentoRepository.java
-3. src/main/java/pt/ul/fc/css/tascaeats/repository/IEntregaRepository.java
-
-DTOs (input)
-1. src/main/java/pt/ul/fc/css/tascaeats/dto/CriarPedidoDTO.java
-2. src/main/java/pt/ul/fc/css/tascaeats/dto/ProcessarPagamentoDTO.java
-3. src/main/java/pt/ul/fc/css/tascaeats/dto/AtualizarEstadoPedidoDTO.java
-4. src/main/java/pt/ul/fc/css/tascaeats/dto/AtribuirEntregadorDTO.java
-
-DTOs (output)
-1. src/main/java/pt/ul/fc/css/tascaeats/dto/PedidoConfirmacaoDTO.java
-2. src/main/java/pt/ul/fc/css/tascaeats/dto/EntregaResumoDTO.java
-
-Services
-1. src/main/java/pt/ul/fc/css/tascaeats/service/PedidoService.java
-2. src/main/java/pt/ul/fc/css/tascaeats/service/PagamentoService.java
-3. src/main/java/pt/ul/fc/css/tascaeats/service/EntregaService.java
-
-Controllers
-1. src/main/java/pt/ul/fc/css/tascaeats/controllers/PedidoController.java
-2. src/main/java/pt/ul/fc/css/tascaeats/controllers/PagamentoController.java
-3. src/main/java/pt/ul/fc/css/tascaeats/controllers/EntregaController.java
-
-
+## Comandos Úteis
+```bash
+./mvnw clean test
+./mvnw spring-boot:run
+```
