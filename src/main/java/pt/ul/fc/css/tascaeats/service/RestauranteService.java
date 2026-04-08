@@ -16,16 +16,16 @@ import pt.ul.fc.css.tascaeats.dto.AtualizarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.CriarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.MoradaDTO;
 import pt.ul.fc.css.tascaeats.repository.AdministradorRepository;
-import pt.ul.fc.css.tascaeats.repository.RestauranteRepository;
+import pt.ul.fc.css.tascaeats.repository.IRestauranteRepository;
 
 @Service
 @Transactional
 public class RestauranteService {
 
-	private final RestauranteRepository restauranteRepository;
-	private final RestaurantAdminRepository administradorRepository;
+	private final IRestauranteRepository restauranteRepository;
+	private final IRestauranteAdminRepository administradorRepository;
 
-	public RestauranteService(RestauranteRepository restauranteRepository, RestaurantAdminRepository administradorRepository) {
+	public RestauranteService(IRestauranteRepository restauranteRepository, IRestauranteAdminRepository administradorRepository) {
 		this.restauranteRepository = restauranteRepository;
 		this.administradorRepository = administradorRepository;
 	}

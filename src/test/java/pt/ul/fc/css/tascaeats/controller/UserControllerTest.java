@@ -8,12 +8,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import pt.ul.fc.css.tascaeats.domain.user.Address;
-import pt.ul.fc.css.tascaeats.domain.user.Client;
-import pt.ul.fc.css.tascaeats.dto.UserLoginDTO;
-import pt.ul.fc.css.tascaeats.dto.UserRegistrationDTO;
-import pt.ul.fc.css.tascaeats.dto.UserUpdateDTO;
-import pt.ul.fc.css.tascaeats.service.UserService;
+import pt.ul.fc.css.tascaeats.domain.Utilizador.Morada;
+import pt.ul.fc.css.tascaeats.domain.Utilizador.Cliente;
+import pt.ul.fc.css.tascaeats.dto.UtilizadorLoginDTO;
+import pt.ul.fc.css.tascaeats.dto.UtilizadorRegistoDTO;
+import pt.ul.fc.css.tascaeats.dto.UtilizadorUpdateDTO;
+import pt.ul.fc.css.tascaeats.service.UtilizadorService;
 
 import java.util.List;
 
@@ -24,8 +24,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserController.class)
-class UserControllerTest {
+@WebMvcTest(UtilizadorController.class)
+class UtilizadorControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -34,21 +34,21 @@ class UserControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private UserService userService;
+    private UtilizadorService UtilizadorService;
 
     // Registration
     @Test
     @DisplayName("Case: valid registration escapes returned email")
     void shouldEscapeReturnedEmailWhenRegistrationIsValid() throws Exception {
-        Client created = new Client();
+        Cliente created = new Cliente();
         created.setId(1L);
         created.setName("Ana");
         created.setEmail("<script>alert(1)</script>@example.com");
         created.setPassword("secret");
 
-        when(userService.createUser(any(UserRegistrationDTO.class))).thenReturn(created);
+        when(UtilizadorService.createUtilizador(any(UtilizadorRegistoDTO.class))).thenReturn(created);
 
-        UserRegistrationDTO dto = new UserRegistrationDTO(
+        UtilizadorRegistoDTO dto = new UtilizadorRegistoDTO(
                 "Ana",
                 "<script>alert(1)</script>@example.com",
                 "secret",
@@ -60,18 +60,18 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("User registered successfully"))
+                .andExpect(jsonPath("$.message").value("Utilizador registered successfully"))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.email").value("&lt;script&gt;alert(1)&lt;/script&gt;@example.com"))
-                .andExpect(jsonPath("$.type").value("Client"));
+                .andExpect(jsonPath("$.type").value("Cliente"));
     }
 
     @Test
     @DisplayName("Case: invalid registration returns bad request")
     void shouldReturnBadRequestWhenRegistrationDataIsInvalid() throws Exception {
-        when(userService.createUser(any(UserRegistrationDTO.class))).thenThrow(new IllegalArgumentException("invalid"));
+        when(UtilizadorService.createUtilizador(any(UtilizadorRegistoDTO.class))).thenThrow(new IllegalArgumentException("invalid"));
 
-        UserRegistrationDTO dto = new UserRegistrationDTO("Ana", "ana@example.com", "secret", "client", null);
+        UtilizadorRegistoDTO dto = new UtilizadorRegistoDTO("Ana", "ana@example.com", "secret", "client", null);
 
         mockMvc.perform(post("/api/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -83,38 +83,38 @@ class UserControllerTest {
     @Test
     @DisplayName("Case: invalid registration returns conflict when email already exists")
     void shouldReturnConflictWhenRegistrationEmailAlreadyExists() throws Exception {
-        when(userService.createUser(any(UserRegistrationDTO.class))).thenThrow(new IllegalStateException("exists"));
+        when(UtilizadorService.createUtilizador(any(UtilizadorRegistoDTO.class))).thenThrow(new IllegalStateException("exists"));
 
-        UserRegistrationDTO dto = new UserRegistrationDTO("Ana", "ana@example.com", "secret", "client", null);
+        UtilizadorRegistoDTO dto = new UtilizadorRegistoDTO("Ana", "ana@example.com", "secret", "client", null);
 
         mockMvc.perform(post("/api/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("User already exists"));
+                .andExpect(jsonPath("$.error").value("Utilizador already exists"));
     }
 
     // Login
     @Test
     @DisplayName("Case: invalid login returns unauthorized")
     void shouldReturnUnauthorizedWhenLoginIsInvalid() throws Exception {
-        when(userService.login(any(UserLoginDTO.class))).thenReturn(false);
+        when(UtilizadorService.login(any(UtilizadorLoginDTO.class))).thenReturn(false);
 
-        UserLoginDTO dto = new UserLoginDTO("ana@example.com", "wrong");
+        UtilizadorLoginDTO dto = new UtilizadorLoginDTO("ana@example.com", "wrong");
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value("Invalid user"));
+                .andExpect(jsonPath("$.message").value("Invalid Utilizador"));
     }
 
     @Test
     @DisplayName("Case: valid login returns success message")
     void shouldReturnSuccessMessageWhenLoginIsValid() throws Exception {
-        when(userService.login(any(UserLoginDTO.class))).thenReturn(true);
+        when(UtilizadorService.login(any(UtilizadorLoginDTO.class))).thenReturn(true);
 
-        UserLoginDTO dto = new UserLoginDTO("ana@example.com", "secret");
+        UtilizadorLoginDTO dto = new UtilizadorLoginDTO("ana@example.com", "secret");
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -123,20 +123,20 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.message").value("Login successful (mock)"));
     }
 
-    // Manage users
+    // Manage Utilizadors
     @Test
-    @DisplayName("Case: manage users get all users returns list")
-    void shouldReturnUsersListWhenGettingAllUsers() throws Exception {
-        Client user = new Client();
-        user.setId(1L);
-        user.setName("Ana");
-        user.setEmail("ana@example.com");
-        Address address = new Address();
+    @DisplayName("Case: manage Utilizadors get all Utilizadors returns list")
+    void shouldReturnUtilizadorsListWhenGettingAllUtilizadors() throws Exception {
+        Cliente Utilizador = new Cliente();
+        Utilizador.setId(1L);
+        Utilizador.setName("Ana");
+        Utilizador.setEmail("ana@example.com");
+        Morada address = new Morada();
         address.setStreet("Rua A");
-        user.setAddress(address);
-        when(userService.getAllUsers()).thenReturn(List.of(user));
+        Utilizador.setMorada(address);
+        when(UtilizadorService.getAllUtilizadors()).thenReturn(List.of(Utilizador));
 
-        mockMvc.perform(get("/api/users"))
+        mockMvc.perform(get("/api/Utilizadors"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].email").value("ana@example.com"))
                 .andExpect(jsonPath("$[0].address.street").value("Rua A"))
@@ -144,62 +144,62 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Case: manage users get user by id returns dto when found")
-    void shouldReturnUserDtoWhenGettingUserByIdAndFound() throws Exception {
-        Client user = new Client();
-        user.setId(1L);
-        user.setName("Ana");
-        user.setEmail("ana@example.com");
-        when(userService.getUserById(1L)).thenReturn(user);
+    @DisplayName("Case: manage Utilizadors get Utilizador by id returns dto when found")
+    void shouldReturnUtilizadorDtoWhenGettingUtilizadorByIdAndFound() throws Exception {
+        Cliente Utilizador = new Cliente();
+        Utilizador.setId(1L);
+        Utilizador.setName("Ana");
+        Utilizador.setEmail("ana@example.com");
+        when(UtilizadorService.getUtilizadorById(1L)).thenReturn(Utilizador);
 
-        mockMvc.perform(get("/api/users/1"))
+        mockMvc.perform(get("/api/Utilizadors/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.type").value("Client"))
+                .andExpect(jsonPath("$.type").value("Cliente"))
                 .andExpect(jsonPath("$.password").doesNotExist());
     }
 
     @Test
-    @DisplayName("Case: manage users get user by id returns not found when missing")
-    void shouldReturnNotFoundWhenGettingUserByIdAndMissing() throws Exception {
-        when(userService.getUserById(anyLong())).thenReturn(null);
+    @DisplayName("Case: manage Utilizadors get Utilizador by id returns not found when missing")
+    void shouldReturnNotFoundWhenGettingUtilizadorByIdAndMissing() throws Exception {
+        when(UtilizadorService.getUtilizadorById(anyLong())).thenReturn(null);
 
-        mockMvc.perform(get("/api/users/99"))
+        mockMvc.perform(get("/api/Utilizadors/99"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("User not found"));
+                .andExpect(jsonPath("$.error").value("Utilizador not found"));
     }
 
     @Test
-    @DisplayName("Case: manage users delete user returns no content when deleted")
-    void shouldReturnNoContentWhenDeletingExistingUser() throws Exception {
-        when(userService.deleteUser(anyLong())).thenReturn(true);
+    @DisplayName("Case: manage Utilizadors delete Utilizador returns no content when deleted")
+    void shouldReturnNoContentWhenDeletingExistingUtilizador() throws Exception {
+        when(UtilizadorService.deleteUtilizador(anyLong())).thenReturn(true);
 
-        mockMvc.perform(delete("/api/users/10"))
+        mockMvc.perform(delete("/api/Utilizadors/10"))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @DisplayName("Case: manage users delete user returns not found when missing")
-    void shouldReturnNotFoundWhenDeletingMissingUser() throws Exception {
-        when(userService.deleteUser(anyLong())).thenReturn(false);
+    @DisplayName("Case: manage Utilizadors delete Utilizador returns not found when missing")
+    void shouldReturnNotFoundWhenDeletingMissingUtilizador() throws Exception {
+        when(UtilizadorService.deleteUtilizador(anyLong())).thenReturn(false);
 
-        mockMvc.perform(delete("/api/users/10"))
+        mockMvc.perform(delete("/api/Utilizadors/10"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("User not found"));
+                .andExpect(jsonPath("$.error").value("Utilizador not found"));
     }
 
     @Test
-    @DisplayName("Case: manage users update user returns ok when updated")
-    void shouldReturnOkWhenUpdatingUserSuccessfully() throws Exception {
-        Client updated = new Client();
+    @DisplayName("Case: manage Utilizadors update Utilizador returns ok when updated")
+    void shouldReturnOkWhenUpdatingUtilizadorSuccessfully() throws Exception {
+        Cliente updated = new Cliente();
         updated.setId(1L);
         updated.setName("Ana Updated");
         updated.setEmail("ana.updated@example.com");
-        when(userService.updateUser(anyLong(), any(UserUpdateDTO.class))).thenReturn(updated);
+        when(UtilizadorService.updateUtilizador(anyLong(), any(UtilizadorUpdateDTO.class))).thenReturn(updated);
 
-        UserUpdateDTO dto = new UserUpdateDTO("Ana Updated", "ana.updated@example.com", "secret", "client", null, false);
+        UtilizadorUpdateDTO dto = new UtilizadorUpdateDTO("Ana Updated", "ana.updated@example.com", "secret", "client", null, false);
 
-        mockMvc.perform(put("/api/users/1")
+        mockMvc.perform(put("/api/Utilizadors/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -207,17 +207,17 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Case: manage users update user returns conflict when email exists")
-    void shouldReturnConflictWhenUpdatingUserAndServiceThrowsConflict() throws Exception {
-        when(userService.updateUser(anyLong(), any(UserUpdateDTO.class))).thenThrow(new IllegalStateException("conflict"));
+    @DisplayName("Case: manage Utilizadors update Utilizador returns conflict when email exists")
+    void shouldReturnConflictWhenUpdatingUtilizadorAndServiceThrowsConflict() throws Exception {
+        when(UtilizadorService.updateUtilizador(anyLong(), any(UtilizadorUpdateDTO.class))).thenThrow(new IllegalStateException("conflict"));
 
-        UserUpdateDTO dto = new UserUpdateDTO("Ana", "ana@example.com", "secret", "client", null, false);
+        UtilizadorUpdateDTO dto = new UtilizadorUpdateDTO("Ana", "ana@example.com", "secret", "client", null, false);
 
-        mockMvc.perform(put("/api/users/1")
+        mockMvc.perform(put("/api/Utilizadors/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("User update conflict"));
+                .andExpect(jsonPath("$.error").value("Utilizador update conflict"));
     }
 }
 

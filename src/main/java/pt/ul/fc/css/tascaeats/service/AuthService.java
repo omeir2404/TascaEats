@@ -2,16 +2,16 @@ package pt.ul.fc.css.tascaeats.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pt.ul.fc.css.tascaeats.domain.user.User;
-import pt.ul.fc.css.tascaeats.repository.UserRepository;
+import pt.ul.fc.css.tascaeats.domain.Utilizador.Utilizador;
+import pt.ul.fc.css.tascaeats.repository.UtilizadorRepository;
 
 @Service
 public class AuthService {
     @Autowired
-    private UserRepository userRepository;
+    private UtilizadorRepository UtilizadorRepository;
 
-    public User login(String email) {
-        return userRepository.findByEmail(email)
+    public Utilizador login(String email) {
+        return UtilizadorRepository.findByEmail(email)
                 .orElse( null);
     }
 }

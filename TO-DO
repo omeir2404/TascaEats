@@ -31,15 +31,15 @@
 ### 1) Resolver dependências em falta após merge de branches
 - [ ] Garantir existência/merge de:
   - [ ] `IUtilizadorRepository`
-  - [ ] `IRestauranteRepository`
+  - [ ] `IIRestauranteRepository`
   - [ ] `IProdutoRepository`
-  - [ ] entidade de entregador (`Driver`/`Entregador`) e métodos (`getAvailable`, `setAvailable`)
-- [ ] Reconciliar nomes/tipos (ex.: `Driver` vs `Entregador`) em `EntregaService`.
+  - [ ] entidade de entregador (`Entregador`/`Entregador`) e métodos (`getAvailable`, `setAvailable`)
+- [ ] Reconciliar nomes/tipos (ex.: `Entregador` vs `Entregador`) em `EntregaService`.
 
 ### 2) Corrigir `PedidoService` (estado atual ainda inconsistente)
 - [ ] Adicionar imports/tipos corretos (`Produto`, `IProdutoRepository`).
 - [ ] Trocar acessos diretos a campos privados do DTO por getters:
-  - [ ] `criarPedidoDto.getClienteId()`
+  - [ ] `criarPedidoDto.getClienteeId()`
   - [ ] `criarPedidoDto.getRestauranteId()`
 - [ ] Corrigir `ProdutoRepository` para `produtoRepository`.
 - [ ] Garantir cálculo e persistência de `valorTotal` no `Pedido`.

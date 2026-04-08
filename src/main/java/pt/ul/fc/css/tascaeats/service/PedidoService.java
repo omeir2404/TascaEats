@@ -7,17 +7,17 @@ import pt.ul.fc.css.tascaeats.domain.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.Pedido;
 import pt.ul.fc.css.tascaeats.dto.CriarPedidoDTO;
 import pt.ul.fc.css.tascaeats.repository.IPedidoRepository;
-import pt.ul.fc.css.tascaeats.repository.IRestauranteRepository;
+import pt.ul.fc.css.tascaeats.repository.IIRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.IUtilizadorRepository;
 
 public class PedidoService {
 
     private final IPedidoRepository pedidoRepository;
     private final IUtilizadorRepository utilizadorRepository;
-    private final IRestauranteRepository restauranteRepository;
+    private final IIRestauranteRepository restauranteRepository;
     private final IProdutoRepository produtoRepository;
 
-    public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository) {
+    public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IIRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository) {
         this.pedidoRepository = pedidoRepository;
         this.utilizadorRepository = utilizadorRepository;
         this.restauranteRepository = restauranteRepository;
@@ -34,7 +34,7 @@ public class PedidoService {
         }
 
         if (utilizadorRepository.findById(criarPedidoDto.clienteId).isEmpty()) {
-            throw new IllegalArgumentException("Cliente não encontrado: " + criarPedidoDto.clienteId);
+            throw new IllegalArgumentException("Clientee não encontrado: " + criarPedidoDto.clienteId);
         }
 
         if (restauranteRepository.findById(criarPedidoDto.restauranteId).isEmpty()) {
@@ -54,7 +54,7 @@ public class PedidoService {
         }
 
         // O Null é pq o Id vai ser gerado.
-        Pedido pedido = new Pedido(null, criarPedidoDto.getClienteId(), criarPedidoDto.getRestauranteId());
+        Pedido pedido = new Pedido(null, criarPedidoDto.getClienteeId(), criarPedidoDto.getRestauranteId());
         pedidoRepository.save(pedido);
     }
 
@@ -79,11 +79,11 @@ public class PedidoService {
 
     public List<Pedido> listarPedidos(Long clienteId, EstadoPedido estado) {
         if (clienteId != null && estado != null) {
-            return pedidoRepository.findByClienteIdAndEstado(clienteId, estado);
+            return pedidoRepository.findByClienteeIdAndEstado(clienteId, estado);
         }
 
         if (clienteId != null) {
-            return pedidoRepository.findByClienteId(clienteId);
+            return pedidoRepository.findByClienteeId(clienteId);
         }
 
         if (estado != null) {

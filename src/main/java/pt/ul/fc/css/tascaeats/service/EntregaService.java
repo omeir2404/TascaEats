@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import pt.ul.fc.css.tascaeats.domain.Driver;
+import pt.ul.fc.css.tascaeats.domain.Entregador;
 import pt.ul.fc.css.tascaeats.domain.Entrega;
 import pt.ul.fc.css.tascaeats.domain.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.Pedido;
@@ -58,10 +58,10 @@ public class EntregaService {
             throw new IllegalStateException("Pedido já possui entrega associada.");
         }
 
-        Driver entregador = null;
+        Entregador entregador = null;
         for (var utilizador : utilizadorRepository.findAll()) {
-            if (utilizador instanceof Driver) {
-                Driver candidato = (Driver) utilizador;
+            if (utilizador instanceof Entregador) {
+                Entregador candidato = (Entregador) utilizador;
                 if (Boolean.TRUE.equals(candidato.getAvailable())) {
                     if (!entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
                         entregador = candidato;
@@ -166,11 +166,11 @@ public class EntregaService {
 
         Pedido pedido = pedidoOptional.get();
 
-        Optional<Driver> entregadorOptional = utilizadorRepository.findById(entrega.getEntregadorId());
+        Optional<Entregador> entregadorOptional = utilizadorRepository.findById(entrega.getEntregadorId());
         if (entregadorOptional.isEmpty()) {
             throw new IllegalArgumentException("Entregador não encontrado: " + entrega.getEntregadorId());
         }
-        Driver entregador = entregadorOptional.get();
+        Entregador entregador = entregadorOptional.get();
 
         entrega.registarConclusao();
         pedido.marcarComoEntregue();
