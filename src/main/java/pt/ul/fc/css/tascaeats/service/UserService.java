@@ -2,6 +2,7 @@ package pt.ul.fc.css.tascaeats.service;
 
 import org.springframework.stereotype.Service;
 import pt.ul.fc.css.tascaeats.domain.user.*;
+import pt.ul.fc.css.tascaeats.dto.AddressDTO;
 import pt.ul.fc.css.tascaeats.dto.UserLoginDTO;
 import pt.ul.fc.css.tascaeats.dto.UserRegistrationDTO;
 import pt.ul.fc.css.tascaeats.dto.UserUpdateDTO;
@@ -84,7 +85,7 @@ public class UserService {
 
         if (existing instanceof Client client && dto.getAddress() != null && client.getAddress() != null) {
             // Keep Address update minimal here; creating Address requires cleaner mapping in the domain.
-            client.getAddress().setStreet(dto.getAddress());
+            applyAddress(client, dto.getAddress());
         }
 
         return userRepository.save(existing);
@@ -122,7 +123,7 @@ public class UserService {
         if (dto.getType() == null || dto.getType().isBlank()) {
             throw new IllegalArgumentException("Type is required");
         }
-        if ("client".equalsIgnoreCase(dto.getType()) && (dto.getAddress() == null || dto.getAddress().isBlank())) {
+        if ("client".equalsIgnoreCase(dto.getType()) && (dto.getAddress() == null)) {
             throw new IllegalArgumentException("Address is required for client users");
         }
     }
@@ -141,10 +142,23 @@ public class UserService {
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
         user.setPassword(dto.getPassword());
+        applyAddress(user, dto.getAddress());
+    }
 
-        if (user instanceof Client client && dto.getAddress() != null && !dto.getAddress().isBlank()) {
+    private void applyAddress(User user, AddressDTO dto) {
+        if (user instanceof Client client && dto != null) {
             Address address = new Address();
-            address.setStreet(dto.getAddress());
+
+            address.setStreet(dto.getStreet());
+            // optional fields
+            if (dto.getNumber() != null) address.setNumber(dto.getNumber());
+            if (dto.getComplement() != null) address.setComplement(dto.getComplement());
+            //
+            address.setCountry(dto.getCountry());
+            address.setDistrict(dto.getDistrict());
+            address.setCity(dto.getCity());
+            address.setPostalCode(dto.getPostalCode());
+
             client.setAddress(address);
         }
     }
