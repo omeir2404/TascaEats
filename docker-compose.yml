@@ -1,7 +1,7 @@
 services:
   pgserver:
     image: postgres:18.3-alpine3.23
-    container_name: pgserver
+#    container_name: pgserver # removed for docker-compose to manage container names
     volumes:
       - postgres-data:/var/lib/postgresql/
     expose:
@@ -18,10 +18,10 @@ services:
 
   # APP*****************************************
   springbootapp:
-    image: myapp:latest
+    image: tascaeats-app:dev
     build:
       context: .
-    container_name: java_app
+#    container_name: java_app # removed for docker-compose to manage container names
     restart: unless-stopped
     depends_on:
       - pgserver
