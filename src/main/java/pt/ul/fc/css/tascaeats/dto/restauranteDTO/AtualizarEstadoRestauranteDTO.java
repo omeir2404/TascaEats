@@ -1,7 +1,7 @@
 package pt.ul.fc.css.tascaeats.dto.restauranteDTO;
 
 import jakarta.validation.constraints.NotNull;
-import pt.ul.fc.css.tascaeats.domain.EstadoRestaurante;
+import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 
 public class AtualizarEstadoRestauranteDTO{
 

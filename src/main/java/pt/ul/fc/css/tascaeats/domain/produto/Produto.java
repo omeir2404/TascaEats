@@ -14,6 +14,7 @@ import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import java.util.ArrayList;
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 
 @Entity
 public class Produto{

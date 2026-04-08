@@ -1,13 +1,21 @@
 package pt.ul.fc.css.tascaeats.dto.mensagensDTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ApiErrorDTO {
     private String error;
+
+    public ApiErrorDTO() {
+    }
+
+    public ApiErrorDTO(String error) {
+        this.error = error;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
 }
 

@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import pt.ul.fc.css.tascaeats.domain.Entrega;
-import pt.ul.fc.css.tascaeats.domain.Pedido;
-import pt.ul.fc.css.tascaeats.dto.AtribuirEntregadorDTO;
-import pt.ul.fc.css.tascaeats.dto.EntregaResumoDTO;
-import pt.ul.fc.css.tascaeats.service.EntregaService;
+import pt.ul.fc.css.tascaeats.domain.entrega.Entrega;
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
+import pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO;
+import pt.ul.fc.css.tascaeats.dto.entregaDTO.EntregaResumoDTO;
+import pt.ul.fc.css.tascaeats.service.entregaService.EntregaService;
 
 @RestController
 @RequestMapping("/entregas")

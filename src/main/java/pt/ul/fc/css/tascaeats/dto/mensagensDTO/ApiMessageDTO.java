@@ -1,13 +1,21 @@
 package pt.ul.fc.css.tascaeats.dto.mensagensDTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ApiMessageDTO {
     private String message;
+
+    public ApiMessageDTO() {
+    }
+
+    public ApiMessageDTO(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }
 

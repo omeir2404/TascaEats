@@ -6,11 +6,11 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
-import pt.ul.fc.css.tascaeats.domain.Pagamento;
-import pt.ul.fc.css.tascaeats.domain.PagamentoCartao;
-import pt.ul.fc.css.tascaeats.domain.PagamentoDinheiro;
-import pt.ul.fc.css.tascaeats.domain.PagamentoMBWay;
-import pt.ul.fc.css.tascaeats.domain.PagamentoMultibanco;
+import pt.ul.fc.css.tascaeats.domain.pagamento.Pagamento;
+import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoCartao;
+import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoDinheiro;
+import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMBWay;
+import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco;
 
 @Component
 public class PagamentoFactory {

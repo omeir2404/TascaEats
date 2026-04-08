@@ -1,15 +1,11 @@
 package pt.ul.fc.css.tascaeats.domain.utilizador;
 
 import jakarta.persistence.Entity;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 public class Entregador extends Utilizador {
 
-    @Getter
-    @Setter
-    boolean available;
+    private boolean available;
 
      public Entregador(String name, String email, String password) {
         super(name, email, password);
@@ -29,5 +25,13 @@ public class Entregador extends Utilizador {
     @Override
     public int hashCode() {
         return this.getEmail().hashCode();
+    }
+
+    public boolean isAvailable(){
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 }

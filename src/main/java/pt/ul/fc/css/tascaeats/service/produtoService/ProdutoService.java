@@ -4,20 +4,20 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import pt.ul.fc.css.tascaeats.domain.CatalogoProdutos;
-import pt.ul.fc.css.tascaeats.domain.Produto;
-import pt.ul.fc.css.tascaeats.dto.AtualizarDisponibilidadeProdutoDTO;
-import pt.ul.fc.css.tascaeats.dto.AtualizarProdutoDTO;
-import pt.ul.fc.css.tascaeats.dto.CriarProdutoDTO;
-import pt.ul.fc.css.tascaeats.repository.CatalogoProdutosRepository;
-import pt.ul.fc.css.tascaeats.repository.ProdutoRepository;
+import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
+import pt.ul.fc.css.tascaeats.domain.produto.Produto;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarProdutoDTO;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
+import pt.ul.fc.css.tascaeats.repository.produtoRepository.ICatalogoProdutosRepository;
+import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 
 @Service
 public class ProdutoService {
-    private final ProdutoRepository produtoRepository;
-    private final CatalogoProdutosRepository catalogoProdutosRepository;
+    private final IProdutoRepository produtoRepository;
+    private final ICatalogoProdutosRepository catalogoProdutosRepository;
 
-    public ProdutoService(ProdutoRepository produtoRepository, CatalogoProdutosRepository catalogoProdutosRepository) {
+    public ProdutoService(IProdutoRepository produtoRepository, ICatalogoProdutosRepository catalogoProdutosRepository) {
         this.produtoRepository = produtoRepository;
         this.catalogoProdutosRepository = catalogoProdutosRepository;
     }

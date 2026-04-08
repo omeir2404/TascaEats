@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import pt.ul.fc.css.tascaeats.domain.EstadoRestaurante;
-import pt.ul.fc.css.tascaeats.domain.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 
 public interface IRestauranteRepository extends JpaRepository<Restaurante, Long> {
 

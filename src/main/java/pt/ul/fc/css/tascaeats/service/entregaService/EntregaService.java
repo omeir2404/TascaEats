@@ -5,14 +5,14 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import pt.ul.fc.css.tascaeats.domain.Entregador;
-import pt.ul.fc.css.tascaeats.domain.Entrega;
-import pt.ul.fc.css.tascaeats.domain.EstadoPedido;
-import pt.ul.fc.css.tascaeats.domain.Pedido;
-import pt.ul.fc.css.tascaeats.dto.AtribuirEntregadorDTO;
-import pt.ul.fc.css.tascaeats.repository.IEntregaRepository;
-import pt.ul.fc.css.tascaeats.repository.IPedidoRepository;
-import pt.ul.fc.css.tascaeats.repository.IUtilizadorRepository;
+import pt.ul.fc.css.tascaeats.domain.entrega.Entrega;
+import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
+import pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO;
+import pt.ul.fc.css.tascaeats.repository.entregaRepository.IEntregaRepository;
+import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
+import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
 
 @Service
 public class EntregaService {
@@ -60,9 +60,8 @@ public class EntregaService {
 
         Entregador entregador = null;
         for (var utilizador : utilizadorRepository.findAll()) {
-            if (utilizador instanceof Entregador) {
-                Entregador candidato = (Entregador) utilizador;
-                if (Boolean.TRUE.equals(candidato.getAvailable())) {
+            if (utilizador instanceof Entregador candidato) {
+                if (candidato.isAvailable()) {
                     if (!entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
                         entregador = candidato;
                         break;
@@ -166,11 +165,16 @@ public class EntregaService {
 
         Pedido pedido = pedidoOptional.get();
 
-        Optional<Entregador> entregadorOptional = utilizadorRepository.findById(entrega.getEntregadorId());
-        if (entregadorOptional.isEmpty()) {
+        Long entregadorId = entrega.getEntregadorId();
+        if (entregadorId == null) {
+            throw new IllegalArgumentException("Entregador não encontrado: null");
+        }
+
+        Optional<pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador> entregadorOptional = utilizadorRepository.findById(entregadorId);
+        if (entregadorOptional.isEmpty() || !(entregadorOptional.get() instanceof Entregador)) {
             throw new IllegalArgumentException("Entregador não encontrado: " + entrega.getEntregadorId());
         }
-        Entregador entregador = entregadorOptional.get();
+        Entregador entregador = (Entregador) entregadorOptional.get();
 
         entrega.registarConclusao();
         pedido.marcarComoEntregue();

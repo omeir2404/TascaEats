@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.validation.Valid;
-import pt.ul.fc.css.tascaeats.domain.EstadoPedido;
-import pt.ul.fc.css.tascaeats.domain.Pedido;
-import pt.ul.fc.css.tascaeats.dto.CriarPedidoDTO;
-import pt.ul.fc.css.tascaeats.service.PedidoService;
+import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
+import pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO;
+import pt.ul.fc.css.tascaeats.service.pedidoService.PedidoService;
 
 @RestController
 @RequestMapping("/pedidos")

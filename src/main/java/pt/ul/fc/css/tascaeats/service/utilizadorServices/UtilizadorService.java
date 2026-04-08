@@ -1,12 +1,12 @@
 package pt.ul.fc.css.tascaeats.service.utilizadorServices;
 
 import org.springframework.stereotype.Service;
-import pt.ul.fc.css.tascaeats.domain.Utilizador.*;
-import pt.ul.fc.css.tascaeats.dto.MoradaDTO;
-import pt.ul.fc.css.tascaeats.dto.UtilizadorLoginDTO;
-import pt.ul.fc.css.tascaeats.dto.UtilizadorRegistoDTO;
-import pt.ul.fc.css.tascaeats.dto.UtilizadorUpdateDTO;
-import pt.ul.fc.css.tascaeats.repository.UtilizadorRepository;
+import pt.ul.fc.css.tascaeats.domain.utilizador.*;
+import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorLoginDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
+import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
 
 import java.util.List;
 import java.util.Locale;
@@ -15,10 +15,10 @@ import java.util.Optional;
 @Service
 public class UtilizadorService {
 
-    private final UtilizadorRepository UtilizadorRepository;
+    private final IUtilizadorRepository UtilizadorRepository;
     private final AutorService authService;
 
-    public UtilizadorService(UtilizadorRepository UtilizadorRepository, AutorService authService) {
+    public UtilizadorService(IUtilizadorRepository UtilizadorRepository, AutorService authService) {
         this.UtilizadorRepository = UtilizadorRepository;
         this.authService = authService;
     }
@@ -83,9 +83,9 @@ public class UtilizadorService {
             existing.setPassword(dto.getPassword());
         }
 
-        if (existing instanceof Cliente client && dto.getMorada() != null && client.getMorada() != null) {
+        if (existing instanceof Cliente client && dto.getAddress() != null && client.getAddress() != null) {
             // Keep Morada update minimal here; creating Morada requires cleaner mapping in the domain.
-            applyMorada(client, dto.getMorada());
+            applyMorada(client, dto.getAddress());
         }
 
         return UtilizadorRepository.save(existing);
@@ -123,7 +123,7 @@ public class UtilizadorService {
         if (dto.getType() == null || dto.getType().isBlank()) {
             throw new IllegalArgumentException("Type is required");
         }
-        if ("client".equalsIgnoreCase(dto.getType()) && (dto.getMorada() == null)) {
+        if ("client".equalsIgnoreCase(dto.getType()) && (dto.getAddress() == null)) {
             throw new IllegalArgumentException("Morada is required for client Utilizadors");
         }
     }
@@ -142,24 +142,19 @@ public class UtilizadorService {
         Utilizador.setName(dto.getName());
         Utilizador.setEmail(dto.getEmail());
         Utilizador.setPassword(dto.getPassword());
-        applyMorada(Utilizador, dto.getMorada());
+        applyMorada(Utilizador, dto.getAddress());
     }
 
     private void applyMorada(Utilizador Utilizador, MoradaDTO dto) {
         if (Utilizador instanceof Cliente client && dto != null) {
             Morada address = new Morada();
 
-            address.setStreet(dto.getStreet());
-            // optional fields
-            if (dto.getNumber() != null) address.setNumber(dto.getNumber());
-            if (dto.getComplement() != null) address.setComplement(dto.getComplement());
-            //
-            address.setCountry(dto.getCountry());
-            address.setDistrict(dto.getDistrict());
-            address.setCity(dto.getCity());
-            address.setPostalCode(dto.getPostalCode());
+            address.setStreet(dto.getRua());
+            address.setNumber(dto.getNumeroPorta() == null ? null : String.valueOf(dto.getNumeroPorta()));
+            address.setPostalCode(dto.getCodigoPostal());
+            address.setCity(dto.getLocalidade());
 
-            client.setMorada(address);
+            client.setAddress(address);
         }
     }
 }

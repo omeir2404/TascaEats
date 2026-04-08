@@ -1,6 +1,7 @@
 package pt.ul.fc.css.tascaeats.dto.restauranteDTO;
 
-import pt.ul.fc.css.tascaeats.domain.EstadoRestaurante;
+import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
+import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 
 public class RestauranteDTO {
 

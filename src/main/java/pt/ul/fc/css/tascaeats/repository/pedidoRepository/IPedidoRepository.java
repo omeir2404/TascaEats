@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import pt.ul.fc.css.tascaeats.domain.EstadoPedido;
-import pt.ul.fc.css.tascaeats.domain.Pedido;
+import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 
 public interface IPedidoRepository extends JpaRepository<Pedido, Long> {
     List<Pedido> findByClienteeId(Long clienteId);

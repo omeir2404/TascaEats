@@ -8,12 +8,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import pt.ul.fc.css.tascaeats.domain.Utilizador.Morada;
-import pt.ul.fc.css.tascaeats.domain.Utilizador.Cliente;
-import pt.ul.fc.css.tascaeats.dto.UtilizadorLoginDTO;
-import pt.ul.fc.css.tascaeats.dto.UtilizadorRegistoDTO;
-import pt.ul.fc.css.tascaeats.dto.UtilizadorUpdateDTO;
-import pt.ul.fc.css.tascaeats.service.UtilizadorService;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorLoginDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
+import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService;
 
 import java.util.List;
 
@@ -133,7 +133,7 @@ class UtilizadorControllerTest {
         Utilizador.setEmail("ana@example.com");
         Morada address = new Morada();
         address.setStreet("Rua A");
-        Utilizador.setMorada(address);
+        Utilizador.setAddress(address);
         when(UtilizadorService.getAllUtilizadors()).thenReturn(List.of(Utilizador));
 
         mockMvc.perform(get("/api/Utilizadors"))

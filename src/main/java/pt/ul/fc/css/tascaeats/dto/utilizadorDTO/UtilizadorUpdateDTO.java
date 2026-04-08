@@ -3,9 +3,8 @@ package pt.ul.fc.css.tascaeats.dto.utilizadorDTO;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 
-@Data
 public class UtilizadorUpdateDTO {
     String name;
     @Email(message = "Email should be valid")
@@ -22,6 +21,54 @@ public class UtilizadorUpdateDTO {
         this.password = password;
         this.type = type;
         this.address = address;
+        this.available = available;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public MoradaDTO getAddress() {
+        return address;
+    }
+
+    public void setAddress(MoradaDTO address) {
+        this.address = address;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
         this.available = available;
     }
 

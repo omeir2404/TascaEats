@@ -1,22 +1,23 @@
 package pt.ul.fc.css.tascaeats.service.restauranteServices;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import pt.ul.fc.css.tascaeats.domain.Administrador;
-import pt.ul.fc.css.tascaeats.domain.CatalogoEntregas;
-import pt.ul.fc.css.tascaeats.domain.CatalogoProdutos;
-import pt.ul.fc.css.tascaeats.domain.EstadoRestaurante;
-import pt.ul.fc.css.tascaeats.domain.Morada;
-import pt.ul.fc.css.tascaeats.domain.Restaurante;
-import pt.ul.fc.css.tascaeats.dto.AtualizarEstadoRestauranteDTO;
-import pt.ul.fc.css.tascaeats.dto.AtualizarRestauranteDTO;
-import pt.ul.fc.css.tascaeats.dto.CriarRestauranteDTO;
-import pt.ul.fc.css.tascaeats.dto.MoradaDTO;
-import pt.ul.fc.css.tascaeats.repository.AdministradorRepository;
-import pt.ul.fc.css.tascaeats.repository.IRestauranteRepository;
+import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
+import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
+import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Morada;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
+import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
+import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarRestauranteDTO;
+import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
+import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
+import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
+import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IRestauranteAdminRepository;
 
 @Service
 @Transactional
@@ -39,8 +40,10 @@ public class RestauranteService {
 			throw new IllegalArgumentException("O email do administrador e obrigatório.");
 		}
 
-		Administrador administrador = administradorRepository.findByEmail(adminEmail.trim())
-				.orElseThrow(() -> new IllegalArgumentException("O administrador não foi encontrado."));
+		RestauranteAdmin administrador = administradorRepository.findByEmail(adminEmail.trim());
+		if (administrador == null) {
+			throw new IllegalArgumentException("O administrador não foi encontrado.");
+		}
 
 		String nome = stringNormalizada(dto.getNome(), "O nome do restaurante é obrigatório.");
 		String nif = normalizarNif(dto.getNif());

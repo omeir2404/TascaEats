@@ -2,7 +2,7 @@ package pt.ul.fc.css.tascaeats.repository.utilizadorRepository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import pt.ul.fc.css.tascaeats.domain.Utilizador.Utilizador;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador;
 
 import java.util.Optional;
 

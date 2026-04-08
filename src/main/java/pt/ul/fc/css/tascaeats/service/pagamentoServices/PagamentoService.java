@@ -3,12 +3,13 @@ package pt.ul.fc.css.tascaeats.service.pagamentoServices;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import pt.ul.fc.css.tascaeats.domain.Pagamento;
-import pt.ul.fc.css.tascaeats.domain.Pedido;
-import pt.ul.fc.css.tascaeats.dto.ProcessarPagamentoDTO;
-import pt.ul.fc.css.tascaeats.repository.IPagamentoRepository;
-import pt.ul.fc.css.tascaeats.repository.IPedidoRepository;
+import pt.ul.fc.css.tascaeats.domain.pagamento.Pagamento;
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
+import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
+import pt.ul.fc.css.tascaeats.repository.pagamentoRepository.IPagamentoRepository;
+import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 
 @Service
 public class PagamentoService {

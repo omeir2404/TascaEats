@@ -13,6 +13,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import jakarta.persistence.ManyToOne;
+import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
+import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 
 @Entity
 public class Restaurante{
@@ -48,7 +50,7 @@ public class Restaurante{
 
     @ManyToOne
     @JoinColumn(name = "administrador_id", nullable = false)
-    private Administrador administrador;
+    private RestauranteAdmin administrador;
 
 
     // *********CONSTRUTORES**********
@@ -56,7 +58,7 @@ public class Restaurante{
     protected Restaurante(){
     }
 
-    public Restaurante(String nome, String nif, Morada morada, Administrador administrador,
+    public Restaurante(String nome, String nif, Morada morada, RestauranteAdmin administrador,
                    CatalogoProdutos catalogoProdutos, CatalogoEntregas catalogoEntregas){
         this.nome = nome;
         this.nif = nif;
@@ -157,11 +159,11 @@ public class Restaurante{
     }
 
     //Administrador
-    public Administrador getAdministrador(){
+    public RestauranteAdmin getAdministrador(){
         return administrador;
     }
 
-    public void setAdministrador(Administrador administrador){
+    public void setAdministrador(RestauranteAdmin administrador){
         this.administrador = administrador;
     }
 

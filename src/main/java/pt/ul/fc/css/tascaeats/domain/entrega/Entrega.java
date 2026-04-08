@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 
 @Entity
 @Table(name = "entregas")

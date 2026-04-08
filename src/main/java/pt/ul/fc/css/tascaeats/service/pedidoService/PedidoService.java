@@ -3,21 +3,26 @@ package pt.ul.fc.css.tascaeats.service.pedidoService;
 import java.util.List;
 import java.util.Optional;
 
-import pt.ul.fc.css.tascaeats.domain.EstadoPedido;
-import pt.ul.fc.css.tascaeats.domain.Pedido;
-import pt.ul.fc.css.tascaeats.dto.CriarPedidoDTO;
-import pt.ul.fc.css.tascaeats.repository.IPedidoRepository;
-import pt.ul.fc.css.tascaeats.repository.IIRestauranteRepository;
-import pt.ul.fc.css.tascaeats.repository.IUtilizadorRepository;
+import org.springframework.stereotype.Service;
 
+import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
+import pt.ul.fc.css.tascaeats.domain.produto.Produto;
+import pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO;
+import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
+import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
+import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
+import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
+
+@Service
 public class PedidoService {
 
     private final IPedidoRepository pedidoRepository;
     private final IUtilizadorRepository utilizadorRepository;
-    private final IIRestauranteRepository restauranteRepository;
+    private final IRestauranteRepository restauranteRepository;
     private final IProdutoRepository produtoRepository;
 
-    public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IIRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository) {
+    public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository) {
         this.pedidoRepository = pedidoRepository;
         this.utilizadorRepository = utilizadorRepository;
         this.restauranteRepository = restauranteRepository;
@@ -33,18 +38,18 @@ public class PedidoService {
             throw new IllegalArgumentException("O pedido deve conter pelo menos um produto.");
         }
 
-        if (utilizadorRepository.findById(criarPedidoDto.clienteId).isEmpty()) {
-            throw new IllegalArgumentException("Clientee não encontrado: " + criarPedidoDto.clienteId);
+        if (utilizadorRepository.findById(criarPedidoDto.getClienteeId()).isEmpty()) {
+            throw new IllegalArgumentException("Clientee não encontrado: " + criarPedidoDto.getClienteeId());
         }
 
-        if (restauranteRepository.findById(criarPedidoDto.restauranteId).isEmpty()) {
-            throw new IllegalArgumentException("Restaurante não encontrado: " + criarPedidoDto.restauranteId);
+        if (restauranteRepository.findById(criarPedidoDto.getRestauranteId()).isEmpty()) {
+            throw new IllegalArgumentException("Restaurante não encontrado: " + criarPedidoDto.getRestauranteId());
         }
 
-        Long valorTotal = 0L;
+        double valorTotal = 0;
 
         for (Long produtoId : criarPedidoDto.getProdutosIds()) {
-            Optional<Produto> produtoOptional  = ProdutoRepository.findById(produtoId);
+            Optional<Produto> produtoOptional  = produtoRepository.findById(produtoId);
             if (produtoOptional.isEmpty()) {
                 throw new IllegalArgumentException("Produto não encontrado: " + produtoId);
             }
@@ -55,6 +60,7 @@ public class PedidoService {
 
         // O Null é pq o Id vai ser gerado.
         Pedido pedido = new Pedido(null, criarPedidoDto.getClienteeId(), criarPedidoDto.getRestauranteId());
+        pedido.setValorTotal(valorTotal);
         pedidoRepository.save(pedido);
     }
 

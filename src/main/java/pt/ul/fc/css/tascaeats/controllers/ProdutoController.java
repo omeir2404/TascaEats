@@ -4,11 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
-import pt.ul.fc.css.tascaeats.domain.Produto;
-import pt.ul.fc.css.tascaeats.dto.AtualizarDisponibilidadeProdutoDTO;
-import pt.ul.fc.css.tascaeats.dto.AtualizarProdutoDTO;
-import pt.ul.fc.css.tascaeats.dto.CriarProdutoDTO;
-import pt.ul.fc.css.tascaeats.service.ProdutoService;
+import pt.ul.fc.css.tascaeats.domain.produto.Produto;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarProdutoDTO;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
+import pt.ul.fc.css.tascaeats.service.produtoService.ProdutoService;
 
 import jakarta.validation.Valid;
 import java.util.HashMap;

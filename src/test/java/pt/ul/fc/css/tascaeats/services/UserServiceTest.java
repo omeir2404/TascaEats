@@ -6,12 +6,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pt.ul.fc.css.tascaeats.domain.Utilizador.*;
-import pt.ul.fc.css.tascaeats.dto.MoradaDTO;
-import pt.ul.fc.css.tascaeats.dto.UtilizadorLoginDTO;
-import pt.ul.fc.css.tascaeats.dto.UtilizadorRegistoDTO;
-import pt.ul.fc.css.tascaeats.dto.UtilizadorUpdateDTO;
-import pt.ul.fc.css.tascaeats.repository.UtilizadorRepository;
+import pt.ul.fc.css.tascaeats.domain.utilizador.*;
+import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorLoginDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
+import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
+import pt.ul.fc.css.tascaeats.service.utilizadorServices.AutorService;
+import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +28,7 @@ import static org.mockito.Mockito.when;
 class UtilizadorServiceTest {
 
     @Mock
-    private UtilizadorRepository UtilizadorRepository;
+    private IUtilizadorRepository UtilizadorRepository;
 
     @Mock
     private AutorService authService;
@@ -300,13 +302,13 @@ class UtilizadorServiceTest {
     @DisplayName("Case: manage Utilizadors update Utilizador keeps address null when client has no address")
     void shouldKeepMoradaNullWhenClienteHasNoMorada() {
         Cliente existing = client(1L, "ana@example.com", "Ana");
-        existing.setMorada(null);
+        existing.setAddress(null);
         when(UtilizadorRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(UtilizadorRepository.save(any(Utilizador.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Utilizador updated = UtilizadorService.updateUtilizador(1L, update("Ana", "ana@example.com", "secret", "client", address("Rua Nova"), false));
 
-        assertThat(((Cliente) updated).getMorada()).isNull();
+        assertThat(((Cliente) updated).getAddress()).isNull();
     }
 
     @Test
@@ -318,7 +320,7 @@ class UtilizadorServiceTest {
 
         Utilizador updated = UtilizadorService.updateUtilizador(1L, update("Ana", "ana@example.com", "secret", "client", address("Rua Nova"), false));
 
-        assertThat(((Cliente) updated).getMorada().getStreet()).isEqualTo("Rua Nova");
+        assertThat(((Cliente) updated).getAddress().getStreet()).isEqualTo("Rua Nova");
     }
 
     @Test
@@ -330,7 +332,7 @@ class UtilizadorServiceTest {
 
         Utilizador updated = UtilizadorService.updateUtilizador(1L, update("Ana", "ana@example.com", "secret", "client", null, false));
 
-        assertThat(((Cliente) updated).getMorada().getStreet()).isEqualTo("Rua Velha");
+        assertThat(((Cliente) updated).getAddress().getStreet()).isEqualTo("Rua Velha");
     }
 
     @Test
@@ -342,7 +344,7 @@ class UtilizadorServiceTest {
 
         Utilizador updated = UtilizadorService.updateUtilizador(1L, update("Ana", "ana@example.com", "secret", "client", address("Rua Atualizada"), false));
 
-        assertThat(((Cliente) updated).getMorada().getStreet()).isEqualTo("Rua Atualizada");
+        assertThat(((Cliente) updated).getAddress().getStreet()).isEqualTo("Rua Atualizada");
     }
 
     private UtilizadorRegistoDTO registration(String name, String email, String password, String type, MoradaDTO address) {
@@ -355,11 +357,10 @@ class UtilizadorServiceTest {
 
     private MoradaDTO address(String street) {
         MoradaDTO addressDTO = new MoradaDTO();
-        addressDTO.setStreet(street);
-        addressDTO.setCountry("Portugal");
-        addressDTO.setDistrict("Lisboa");
-        addressDTO.setCity("Lisboa");
-        addressDTO.setPostalCode("1000-001");
+        addressDTO.setRua(street);
+        addressDTO.setNumeroPorta(1);
+        addressDTO.setLocalidade("Lisboa");
+        addressDTO.setCodigoPostal("1000-001");
         return addressDTO;
     }
 
@@ -380,7 +381,7 @@ class UtilizadorServiceTest {
         address.setDistrict("Lisboa");
         address.setCity("Lisboa");
         address.setPostalCode("1000-001");
-        client.setMorada(address);
+        client.setAddress(address);
         return client;
     }
 }

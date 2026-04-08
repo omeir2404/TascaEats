@@ -4,12 +4,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
-import pt.ul.fc.css.tascaeats.domain.user.Morada;
-import pt.ul.fc.css.tascaeats.domain.user.Cliente;
-import pt.ul.fc.css.tascaeats.domain.user.Entregador;
-import pt.ul.fc.css.tascaeats.domain.user.Utilizador;
-import pt.ul.fc.css.tascaeats.dto.*;
-import pt.ul.fc.css.tascaeats.service.UtilizadorService;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador;
+import pt.ul.fc.css.tascaeats.dto.mensagensDTO.ApiErrorDTO;
+import pt.ul.fc.css.tascaeats.dto.mensagensDTO.ApiMessageDTO;
+import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaResponseDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorLoginDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoRespostaDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRespostaDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
+import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -120,7 +127,7 @@ public class UtilizadorController {
             dto.setAvailable(driver.isAvailable());
         }
         if (Utilizador instanceof Cliente client) {
-            dto.setMorada(toMoradaResponse(client.getMorada()));
+            dto.setAddress(toMoradaResponse(client.getAddress()));
         }
 
         return dto;

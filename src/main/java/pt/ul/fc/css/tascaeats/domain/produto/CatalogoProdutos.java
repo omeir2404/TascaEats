@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 
 @Entity
 public class CatalogoProdutos {
@@ -27,7 +28,7 @@ public class CatalogoProdutos {
 
     // *********CONSTRUTORES**********
 
-    protected CatalogoProdutos(){
+    public CatalogoProdutos(){
     }
 
     public CatalogoProdutos(Restaurante restaurante) {

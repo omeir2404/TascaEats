@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import pt.ul.fc.css.tascaeats.dto.ProcessarPagamentoDTO;
-import pt.ul.fc.css.tascaeats.service.PagamentoService;
+import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
+import pt.ul.fc.css.tascaeats.service.pagamentoServices.PagamentoService;
 
 @RestController
 @RequestMapping("/pagamentos")

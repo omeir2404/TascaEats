@@ -1,6 +1,7 @@
 package pt.ul.fc.css.tascaeats.controllers;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,12 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import pt.ul.fc.css.tascaeats.domain.EstadoRestaurante;
-import pt.ul.fc.css.tascaeats.domain.Restaurante;
-import pt.ul.fc.css.tascaeats.dto.AtualizarEstadoRestauranteDTO;
-import pt.ul.fc.css.tascaeats.dto.AtualizarRestauranteDTO;
-import pt.ul.fc.css.tascaeats.dto.CriarRestauranteDTO;
-import pt.ul.fc.css.tascaeats.service.RestauranteService;
+import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
+import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarRestauranteDTO;
+import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
+import pt.ul.fc.css.tascaeats.service.restauranteServices.RestauranteService;
 
 @RestController
 @RequestMapping("/api/restaurantes")
@@ -106,7 +107,7 @@ public class RestauranteController {
 
         List<Map<String, Object>> resposta = new ArrayList<>();
         for (Restaurante restaurante : restaurantes) {
-            response.add(resumoRestaurante(restaurante));
+            resposta.add(resumoRestaurante(restaurante));
         }
 
         return ResponseEntity.ok(resposta);
