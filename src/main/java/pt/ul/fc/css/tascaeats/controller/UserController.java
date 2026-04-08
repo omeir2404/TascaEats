@@ -4,23 +4,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
+import pt.ul.fc.css.tascaeats.domain.user.Address;
+import pt.ul.fc.css.tascaeats.domain.user.Client;
+import pt.ul.fc.css.tascaeats.domain.user.Driver;
 import pt.ul.fc.css.tascaeats.domain.user.User;
-import pt.ul.fc.css.tascaeats.dto.UserLoginDTO;
-import pt.ul.fc.css.tascaeats.dto.UserRegistrationDTO;
-import pt.ul.fc.css.tascaeats.dto.UserUpdateDTO;
+import pt.ul.fc.css.tascaeats.dto.*;
 import pt.ul.fc.css.tascaeats.service.UserService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
 public class UserController {
 
     private final UserService userService;
-    private static final String MSG_FIELD = "message";
-    private static final String ERROR_FIELD = "error";
     private static final String USER_NOT_FOUND = "User not found";
 
     public UserController(UserService userService) {
@@ -28,45 +26,50 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@RequestBody UserRegistrationDTO userRegistrationDTO) {
+    public ResponseEntity<?> register(@RequestBody UserRegistrationDTO userRegistrationDTO) {
         try {
             User created = userService.createUser(userRegistrationDTO);
-            Map<String, Object> response = new HashMap<>();
-            response.put(MSG_FIELD, "User registered successfully");
-            response.put("id", created.getId());
-            // Escape user-provided fields before returning them in the response body.
-            response.put("email", sanitizeForOutput(created.getEmail()));
-            response.put("type", created.getClass().getSimpleName());
+            UserRegistrationResponseDTO response = new UserRegistrationResponseDTO(
+                    "User registered successfully",
+                    created.getId(),
+                    // Escape user-provided fields before returning them in the response body.
+                    sanitizeForOutput(created.getEmail()),
+                    created.getClass().getSimpleName()
+            );
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of(ERROR_FIELD, "Invalid registration data"));
+            return ResponseEntity.badRequest().body(error("Invalid registration data"));
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(ERROR_FIELD, "User already exists"));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error("User already exists"));
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<ApiMessageDTO> login(@RequestBody UserLoginDTO userLoginDTO) {
         boolean ok = userService.login(userLoginDTO);
         if (!ok) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of(MSG_FIELD, "Invalid user"));
+                    .body(new ApiMessageDTO("Invalid user"));
         }
-        return ResponseEntity.ok(Map.of(MSG_FIELD, "Login successful (mock)"));
+        return ResponseEntity.ok(new ApiMessageDTO("Login successful (mock)"));
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UserResponseDTO>> getUsers() {
+        List<UserResponseDTO> users = userService.getAllUsers()
+                .stream()
+                .map(this::toUserResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/users/{id}")
     public ResponseEntity<Object> getUserById(@PathVariable("id") Long id) {
         User user = userService.getUserById(id);
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, USER_NOT_FOUND));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(USER_NOT_FOUND));
         }
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(toUserResponse(user));
     }
 
     @PutMapping("/users/{id}")
@@ -78,7 +81,7 @@ public class UserController {
             }
             return respondWithUpdatedUser(userService.updateUser(id, dto));
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(ERROR_FIELD, "User update conflict"));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error("User update conflict"));
         }
     }
 
@@ -86,7 +89,7 @@ public class UserController {
     public ResponseEntity<Object> deleteUser(@PathVariable("id") Long id) {
         boolean deleted = userService.deleteUser(id);
         if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, USER_NOT_FOUND));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(USER_NOT_FOUND));
         }
         return ResponseEntity.noContent().build();
     }
@@ -97,8 +100,44 @@ public class UserController {
 
     private ResponseEntity<Object> respondWithUpdatedUser(User updated) {
         if (updated == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, USER_NOT_FOUND));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(USER_NOT_FOUND));
         }
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(toUserResponse(updated));
+    }
+
+    private ApiErrorDTO error(String message) {
+        return new ApiErrorDTO(message);
+    }
+
+    private UserResponseDTO toUserResponse(User user) {
+        UserResponseDTO dto = new UserResponseDTO();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setType(user.getClass().getSimpleName());
+
+        if (user instanceof Driver driver) {
+            dto.setAvailable(driver.isAvailable());
+        }
+        if (user instanceof Client client) {
+            dto.setAddress(toAddressResponse(client.getAddress()));
+        }
+
+        return dto;
+    }
+
+    private AddressResponseDTO toAddressResponse(Address address) {
+        if (address == null) {
+            return null;
+        }
+        return new AddressResponseDTO(
+                address.getStreet(),
+                address.getNumber(),
+                address.getComplement(),
+                address.getCountry(),
+                address.getDistrict(),
+                address.getCity(),
+                address.getPostalCode()
+        );
     }
 }
