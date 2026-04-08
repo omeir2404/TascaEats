@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.repository;
+package pt.ul.fc.css.tascaeats.repository.entregaRepository;
 
 import java.util.List;
 import java.util.Optional;

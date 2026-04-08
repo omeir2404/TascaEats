@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.domain;
+package pt.ul.fc.css.tascaeats.domain.restaurante;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

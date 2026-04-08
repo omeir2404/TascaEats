@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.dto;
+package pt.ul.fc.css.tascaeats.dto.restauranteDTO;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.service;
+package pt.ul.fc.css.tascaeats.service.restauranteServices;
 
 import java.util.List;
 
@@ -136,7 +136,7 @@ public class RestauranteService {
         Optional<Restaurante> nifBom = restauranteRepository.findByNif(nif);
         if (nifBom.isPresent()) {
             Restaurante existe = nifBom.get();
-            boolean validacoes = idIgnorar != null && idIgnorar.equals(existe.getId())
+			boolean validacoes = idIgnorar != null && idIgnorar.equals(existe.getId());
             boolean mesmoRestaurante = validacoes;
             if (!mesmoRestaurante) {
                 throw new IllegalArgumentException("Já existe um restaurante com esse nif.");

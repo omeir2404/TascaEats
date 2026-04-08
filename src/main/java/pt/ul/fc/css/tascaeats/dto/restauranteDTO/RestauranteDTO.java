@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.dto;
+package pt.ul.fc.css.tascaeats.dto.restauranteDTO;
 
 import pt.ul.fc.css.tascaeats.domain.EstadoRestaurante;
 

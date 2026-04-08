@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.repository;
+package pt.ul.fc.css.tascaeats.repository.pedidoRepository;
 
 import java.util.List;
 

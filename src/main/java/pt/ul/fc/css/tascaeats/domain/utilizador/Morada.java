@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.domain.Utilizador;
+package pt.ul.fc.css.tascaeats.domain.utilizador;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;

@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.service;
+package pt.ul.fc.css.tascaeats.service.utilizadorServices;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

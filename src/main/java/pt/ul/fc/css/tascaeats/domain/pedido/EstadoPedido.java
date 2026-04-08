@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.domain;
+package pt.ul.fc.css.tascaeats.domain.pedido;
 
 public enum EstadoPedido {
     CRIADO,

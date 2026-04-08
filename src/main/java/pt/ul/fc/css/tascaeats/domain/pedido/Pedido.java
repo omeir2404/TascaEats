@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.domain;
+package pt.ul.fc.css.tascaeats.domain.pedido;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

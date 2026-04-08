@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.domain;
+package pt.ul.fc.css.tascaeats.domain.produto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;

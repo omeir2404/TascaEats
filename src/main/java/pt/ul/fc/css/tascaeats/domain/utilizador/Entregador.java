@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.domain.Utilizador;
+package pt.ul.fc.css.tascaeats.domain.utilizador;
 
 import jakarta.persistence.Entity;
 import lombok.Getter;

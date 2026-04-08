@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.repository;
+package pt.ul.fc.css.tascaeats.repository.produtoRepository;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.service;
+package pt.ul.fc.css.tascaeats.service.entregaService;
 
 import java.util.Optional;
 

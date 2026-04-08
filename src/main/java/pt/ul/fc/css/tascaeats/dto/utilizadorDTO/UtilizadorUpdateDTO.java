@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.dto;
+package pt.ul.fc.css.tascaeats.dto.utilizadorDTO;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;

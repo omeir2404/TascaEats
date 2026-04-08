@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.service;
+package pt.ul.fc.css.tascaeats.service.pedidoService;
 
 import java.util.List;
 import java.util.Optional;

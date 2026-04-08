@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.dto;
+package pt.ul.fc.css.tascaeats.dto.mensagensDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

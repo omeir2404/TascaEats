@@ -1,4 +1,4 @@
-package pt.ul.fc.css.tascaeats.controller;
+package pt.ul.fc.css.tascaeats.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
