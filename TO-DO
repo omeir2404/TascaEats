@@ -138,3 +138,133 @@ Uma divisao equilibrada e separar por blocos de dominio com baixa sobreposicao.
 - [ ] Implementar cancelamento de pedido
 - [ ] Implementar alocacao logistica
 - [ ] Expor endpoints de pedido, pagamento e entrega
+
+
+# 📋 TO-DO: Módulo de Pedidos, Pagamentos e Entregas (Fase 1)
+
+## 1. 🏗️ Domínio: Entidades e Enums (Base de Dados)
+A primeira coisa a fazer é criar a base de dados em memória. Começa pelas entidades sem dependências e avança para as mais complexas.
+
+- [ ] **Criar Enum `EstadoPedido`**
+  - Valores: `CRIADO`, `PAGO`, `A_PREPARAR`, `PRONTO_PARA_ENTREGA`, `CANCELADO`, `ATRIBUIDO_ENTREGADOR`, `ENTREGUE`.
+- [ ] **Criar Classe Abstrata `Pagamento`**
+  - Atributos: `id` (String), `valor` (Double), `dataPagamento` (LocalDate), `referenciaPagamento` (String).
+  - *Dica JPA:* Usar a anotação `@Inheritance` (ex: `SINGLE_TABLE` ou `JOINED`) para as subclasses.
+- [ ] **Criar Subclasses de `Pagamento`**
+  - [ ] `PagamentoMBWay` (Atributo: `numeroTelemovel`).
+  - [ ] `PagamentoDinheiro` (Atributos: `valorRecebido`, `troco`).
+  - [ ] `PagamentoMultibanco` (Atributos: `entidade`, `referencia`).
+  - [ ] `PagamentoCartao` (Atributo: `numeroCartao`).
+- [ ] **Criar Entidade `Pedido`**
+  - Atributos: `id`, `data`, `hora`, `valorTotal`, `estado` (EstadoPedido).
+  - Ligações (Mappings): `@ManyToOne` com `Cliente` e `Restaurante`, `@OneToOne` com `Pagamento`, `@ManyToMany` com `Produto`.
+- [ ] **Criar Entidade `Entrega`**
+  - Atributos: `id`, `horaRecolha` (LocalDateTime), `horaEntrega` (LocalDateTime), `enderecoEntrega` (String).
+  - Ligações (Mappings): `@OneToOne` com `Pedido`, `@ManyToOne` com `Entregador`.
+
+## 2. 🏭 Factories e Repositórios (Infraestrutura)
+- [ ] **Criar `PagamentoFactory`**
+  - Implementar método estático ou componente `@Component` com o método: `create(tipoPagamento: String, detalhes: Map)`.
+  - Lógica: Ler a string (ex: "MBWAY") e instanciar a subclasse correspondente retirando os dados do `Map`.
+- [ ] **Criar Interfaces Repository (Spring Data JPA)**
+  - [ ] `IPedidoRepository` (extends JpaRepository).
+  - [ ] `IPagamentoRepository` (extends JpaRepository).
+  - [ ] `IEntregaRepository` (extends JpaRepository).
+
+## 3. 📦 DTOs (Data Transfer Objects)
+Estes são os objetos que os teus Controllers vão receber e devolver (o que aparece no Swagger).
+
+- [ ] **DTOs de Input (Entrada)**
+  - [ ] `CriarPedidoDTO` (clienteId, restauranteId, produtosIds).
+  - [ ] `ProcessarPagamentoDTO` (pedidoId, tipoPagamento, detalhes).
+  - [ ] `AtualizarEstadoPedidoDTO` (novoEstado).
+  - [ ] `AtribuirEntregadorDTO` (pedidoId).
+- [ ] **DTOs de Output (Resposta)**
+  - [ ] `PedidoConfirmacaoDTO` (id, valorTotal, estado, dataHora).
+  - [ ] `EntregaResumoDTO` (id, horaRecolha, horaEntrega, entregadorNome).
+
+## 4. 🧠 Serviços e Regras de Negócio (Casos de Uso)
+*Recomendação: Embora o diagrama mostre o Controller a falar com o Repository, deves criar classes `@Service` para colocar a lógica.*
+
+- [ ] **Caso de Uso H: Criar Pedido**
+  - Logica: Validar se cliente, restaurante e produtos existem.
+  - Lógica: Calcular o `valorTotal` com base no preço dos produtos iterados.
+  - Lógica: Guardar o pedido com estado inicial obrigatório: `CRIADO`.
+- [ ] **Caso de Uso I: Processar Pagamento**
+  - Lógica: Encontrar o pedido. Validar se estado atual é `CRIADO`.
+  - Lógica: Usar a `PagamentoFactory` para gerar o pagamento e usar `IPagamentoRepository.save()`.
+  - Lógica: Associar pagamento ao pedido e mudar o estado para `PAGO`.
+- [ ] **Caso de Uso L: Cancelamento (Regras de Negócio Críticas)**
+  - Lógica: Encontrar o pedido a cancelar.
+  - **Validação:** Garantir que o estado **NÃO** é `A_PREPARAR` ou superior. Se for, atirar exceção (HTTP 400 Bad Request).
+  - Lógica: Mudar estado para `CANCELADO`.
+- [ ] **Caso de Uso K: Atribuir Entregador**
+  - Lógica: Buscar no `IUtilizadorRepository` um entregador onde `disponivel == true`.
+  - Lógica: Criar a `Entrega`.
+  - Lógica: Atualizar o entregador para `disponivel = false`.
+  - Lógica: Atualizar o estado do pedido para `ATRIBUIDO_ENTREGADOR`.
+- [ ] **Caso de Uso J: Logística (Recolha e Entrega)**
+  - [ ] Implementar recolha: `horaRecolha = LocalDateTime.now()`, estado do pedido = `PRONTO_PARA_ENTREGA` (ou a caminho).
+  - [ ] Implementar entrega final: `horaEntrega = LocalDateTime.now()`, estado do pedido = `ENTREGUE`.
+  - **Lógica Crítica:** Mudar o entregador de volta para `disponivel = true` para que possa receber novos pedidos.
+
+## 5. 🌐 Controladores (REST API)
+A última camada. Mapear os endpoints HTTP para testar no Postman/Swagger.
+
+- [ ] **Criar `PedidoController`**
+  - `POST /pedidos` -> recebe `CriarPedidoDTO`, devolve `201 Created` com `PedidoConfirmacaoDTO`.
+  - `PUT /pedidos/{id}/cancelar` -> devolve `200 OK`.
+- [ ] **Criar `PagamentoController`**
+  - `POST /pagamentos` -> recebe `ProcessarPagamentoDTO`, devolve `200 OK`.
+- [ ] **Criar `EntregaController`**
+  - `POST /entregas/atribuir` -> recebe `AtribuirEntregadorDTO`, devolve `200 OK`.
+  - `PUT /entregas/{id}/recolha` -> regista a hora de recolha.
+  - `PUT /entregas/{id}/concluir` -> regista a entrega e liberta entregador.
+
+## 6. ✅ Testes e Validação Final
+- [ ] Testar no Swagger se tentar cancelar um pedido que está `A_PREPARAR` dá erro.
+- [ ] Testar no Swagger se ao concluir uma entrega o entregador volta a ficar com `disponivel = true`.
+- [ ] Validar se o total do pedido bate certo com a soma dos produtos.
+
+FILES:
+
+Domain (entities + enum)
+1. src/main/java/pt/ul/fc/css/tascaeats/domain/EstadoPedido.java
+2. src/main/java/pt/ul/fc/css/tascaeats/domain/Pagamento.java
+3. src/main/java/pt/ul/fc/css/tascaeats/domain/PagamentoMBWay.java
+4. src/main/java/pt/ul/fc/css/tascaeats/domain/PagamentoDinheiro.java
+5. src/main/java/pt/ul/fc/css/tascaeats/domain/PagamentoMultibanco.java
+6. src/main/java/pt/ul/fc/css/tascaeats/domain/PagamentoCartao.java
+7. src/main/java/pt/ul/fc/css/tascaeats/domain/Pedido.java
+8. src/main/java/pt/ul/fc/css/tascaeats/domain/Entrega.java
+
+Factory
+1. src/main/java/pt/ul/fc/css/tascaeats/service/PagamentoFactory.java
+
+
+Repositories
+1. src/main/java/pt/ul/fc/css/tascaeats/repository/IPedidoRepository.java
+2. src/main/java/pt/ul/fc/css/tascaeats/repository/IPagamentoRepository.java
+3. src/main/java/pt/ul/fc/css/tascaeats/repository/IEntregaRepository.java
+
+DTOs (input)
+1. src/main/java/pt/ul/fc/css/tascaeats/dto/CriarPedidoDTO.java
+2. src/main/java/pt/ul/fc/css/tascaeats/dto/ProcessarPagamentoDTO.java
+3. src/main/java/pt/ul/fc/css/tascaeats/dto/AtualizarEstadoPedidoDTO.java
+4. src/main/java/pt/ul/fc/css/tascaeats/dto/AtribuirEntregadorDTO.java
+
+DTOs (output)
+1. src/main/java/pt/ul/fc/css/tascaeats/dto/PedidoConfirmacaoDTO.java
+2. src/main/java/pt/ul/fc/css/tascaeats/dto/EntregaResumoDTO.java
+
+Services
+1. src/main/java/pt/ul/fc/css/tascaeats/service/PedidoService.java
+2. src/main/java/pt/ul/fc/css/tascaeats/service/PagamentoService.java
+3. src/main/java/pt/ul/fc/css/tascaeats/service/EntregaService.java
+
+Controllers
+1. src/main/java/pt/ul/fc/css/tascaeats/controllers/PedidoController.java
+2. src/main/java/pt/ul/fc/css/tascaeats/controllers/PagamentoController.java
+3. src/main/java/pt/ul/fc/css/tascaeats/controllers/EntregaController.java
+
+
