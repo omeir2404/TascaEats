@@ -242,16 +242,16 @@
 - [x] `criarRestaurante` com `numeroPorta <= 0` deve falhar
 - [x] `criarRestaurante` com sucesso deve criar restaurante em estado `FECHADO`
 - [x] `criarRestaurante` com sucesso deve associar `CatalogoProdutos` e `CatalogoEntregas`
-- [ ] `atualizarRestaurante` com DTO nulo deve falhar
-- [ ] `atualizarRestaurante` com restaurante inexistente deve falhar
-- [ ] `atualizarRestaurante` com `nif` de outro restaurante deve falhar
-- [ ] `atualizarRestaurante` com sucesso deve persistir `nome`, `nif` e `morada`
-- [ ] `atualizarEstado` com DTO nulo ou `estado` nulo deve falhar
-- [ ] `atualizarEstado` com restaurante inexistente deve falhar
-- [ ] `atualizarEstado` para o mesmo estado atual deve falhar (`IllegalStateException`)
-- [ ] `atualizarEstado` para `ABERTO` deve chamar regra de domínio e persistir
-- [ ] `atualizarEstado` para `FECHADO` deve chamar regra de domínio e persistir
-- [ ] `atualizarEstado` para `RESERVADO` deve chamar regra de domínio e persistir
+- [x] `atualizarRestaurante` com DTO nulo deve falhar
+- [x] `atualizarRestaurante` com restaurante inexistente deve falhar
+- [x] `atualizarRestaurante` com `nif` de outro restaurante deve falhar
+- [x] `atualizarRestaurante` com sucesso deve persistir `nome`, `nif` e `morada`
+- [x] `atualizarEstado` com DTO nulo ou `estado` nulo deve falhar
+- [x] `atualizarEstado` com restaurante inexistente deve falhar
+- [x] `atualizarEstado` para o mesmo estado atual deve falhar (`IllegalStateException`)
+- [x] `atualizarEstado` para `ABERTO` deve chamar regra de domínio e persistir
+- [x] `atualizarEstado` para `FECHADO` deve chamar regra de domínio e persistir
+- [x] `atualizarEstado` para `RESERVADO` deve chamar regra de domínio e persistir
 - [ ] `procurarRestaurantePorNome` com nome nulo/vazio deve devolver todos
 - [ ] `procurarRestaurantePorNome` com nome válido deve usar pesquisa case-insensitive
 - [ ] `listarPorEstado` com estado nulo deve devolver todos

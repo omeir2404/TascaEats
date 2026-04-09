@@ -13,6 +13,8 @@ import pt.ul.fc.css.tascaeats.domain.restaurante.Morada;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
+import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
+import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IRestauranteAdminRepository;
@@ -21,7 +23,6 @@ import pt.ul.fc.css.tascaeats.service.restauranteServices.RestauranteService;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -223,6 +224,256 @@ public class RestauranteServiceTest {
     }
 
 
+    //J) Atualizar restaurante com DTO nulo.
+    @Test
+    @DisplayName("J: Atualizar restaurante com DTO nulo.")
+    void updateRestauranteWithNullDTO() {
+        try {
+            restauranteService.atualizarRestaurante(1L, null);
+            fail("É necessário haver dados para atualizar o restaurante.");
+        } catch (IllegalArgumentException e) {
+            assertEquals("É necessário haver dados para atualizar o restaurante.", e.getMessage());
+        }
+    }
+
+
+    //K) Atualizar restaurante inexistente.
+    @Test
+    @DisplayName("K: Atualizar restaurante com restaurante inexistente.")
+    void updateRestauranteWithInexistenteRestaurante() {
+        AtualizarRestauranteDTO dto = atualizarDTOValido();
+        when(restauranteRepository.findById(99L)).thenReturn(Optional.empty());
+        try {
+            restauranteService.atualizarRestaurante(99L, dto);
+            fail("O restaurante não foi encontrado.");
+        } catch (IllegalArgumentException e) {
+            assertEquals("O restaurante não foi encontrado.", e.getMessage());
+        }
+    }
+
+
+    //L) Atualizar restaurante com NIF de outro restaurante.
+    @Test
+    @DisplayName("L: Atualizar restaurante com nif de outro restaurante.")
+    void updateRestauranteWithNifFromAnotherRestaurante() {
+        RestauranteAdmin admin = adminValido();
+        Restaurante restauranteExistente = new Restaurante(
+                "Restaurante A",
+                "111111111",
+                new Morada("Rua A", 1, "1111-111", "Lisboa"),
+                admin,
+                new CatalogoProdutos(),
+                new CatalogoEntregas()
+        );
+
+        Restaurante outroRestaurante = new Restaurante(
+                "Restaurante B",
+                "222222222",
+                new Morada("Rua B", 2, "2222-222", "Porto"),
+                admin,
+                new CatalogoProdutos(),
+                new CatalogoEntregas()
+        );
+
+        AtualizarRestauranteDTO dto = atualizarDTOValido();
+        dto.setNif("222222222");
+
+        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restauranteExistente));
+        when(restauranteRepository.findByNif("222222222")).thenReturn(Optional.of(outroRestaurante));
+
+        try {
+            restauranteService.atualizarRestaurante(1L, dto);
+            fail("Já existe um restaurante com esse nif.");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Já existe um restaurante com esse nif.", e.getMessage());
+        }
+    }
+
+
+    //M) Atualizar restaurante com sucesso.
+    @Test
+    @DisplayName("M: Atualizar restaurante com sucesso. Persiste nome, nif e morada.")
+    void updateRestauranteSuccessPersistsNomeNifMorada() {
+        Restaurante restauranteExistente = new Restaurante(
+                "Burger King",
+                "111111111",
+                new Morada("Rua bk", 5, "1304-131", "Lisboa"),
+                adminValido(),
+                new CatalogoProdutos(),
+                new CatalogoEntregas()
+        );
+
+        AtualizarRestauranteDTO dto = atualizarDTOValido();
+        dto.setNome("Mc Donald's");
+        dto.setNif(" 123456789 ");
+        dto.getMorada().setRua("Rua mc");
+        dto.getMorada().setNumeroPorta(77);
+        dto.getMorada().setCodigoPostal("4000-123");
+        dto.getMorada().setLocalidade("Bragança");
+
+        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restauranteExistente));
+        when(restauranteRepository.findByNif("123456789")).thenReturn(Optional.empty());
+        when(restauranteRepository.save(any(Restaurante.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Restaurante atualizado = restauranteService.atualizarRestaurante(1L, dto);
+
+        assertThat(atualizado.getNome()).isEqualTo("Mc Donald's");
+        assertThat(atualizado.getNif()).isEqualTo("123456789");
+        assertThat(atualizado.getMorada().getRua()).isEqualTo("Rua mc");
+        assertThat(atualizado.getMorada().getNumeroPorta()).isEqualTo(77);
+        assertThat(atualizado.getMorada().getCodigoPostal()).isEqualTo("4000-123");
+        assertThat(atualizado.getMorada().getLocalidade()).isEqualTo("Bragança");
+    }
+
+    //N) Atualizar estado com DTO nulo ou estado nulo.
+    @Test
+    @DisplayName("N: Atualizar estado com DTO nulo ou estado nulo.")
+    void atualizarEstadoComNullDTOOuNullEstado() {
+        try {
+            restauranteService.atualizarEstado(1L, null);
+            fail("É necessário existir estado do restaurante.");
+        } catch (IllegalArgumentException e) {
+            assertEquals("É necessário existir estado do restaurante.", e.getMessage());
+        }
+
+        try {
+            AtualizarEstadoRestauranteDTO dto = new AtualizarEstadoRestauranteDTO();
+            dto.setEstado(null);
+            restauranteService.atualizarEstado(1L, dto);
+            fail("É necessário existir estado do restaurante.");
+        } catch (IllegalArgumentException e) {
+            assertEquals("É necessário existir estado do restaurante.", e.getMessage());
+        }
+    }
+
+
+    //O) Atualizar estado do restaurante com restaurante inexistente.
+    @Test
+    @DisplayName("O: Atualizar estado com restaurante inexistente.")
+    void atualizarEstadoRestauranteInexistente() {
+        AtualizarEstadoRestauranteDTO dto = new AtualizarEstadoRestauranteDTO();
+        dto.setEstado(EstadoRestaurante.ABERTO);
+
+        when(restauranteRepository.findById(99L)).thenReturn(Optional.empty());
+
+        try {
+            restauranteService.atualizarEstado(99L, dto);
+            fail("O restaurante não foi encontrado.");
+        } catch (IllegalArgumentException e) {
+            assertEquals("O restaurante não foi encontrado.", e.getMessage());
+        }
+    }
+
+    //P) Atualizar estado do restaurante para o mesmo estado atual.
+    @Test
+    @DisplayName("P: Atualizar estado do restaurante para o mesmo estado atual.")
+    void atualizarEstadoMesmoEstado() {
+        Restaurante restaurante = new Restaurante(
+                "Tasca Eats",
+                "123456789",
+                new Morada("Rua", 1, "1234-000", "Lisboa"),
+                adminValido(),
+                new CatalogoProdutos(),
+                new CatalogoEntregas()
+        );
+
+        AtualizarEstadoRestauranteDTO dto = new AtualizarEstadoRestauranteDTO();
+        dto.setEstado(EstadoRestaurante.FECHADO);
+        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
+
+        try {
+            restauranteService.atualizarEstado(1L, dto);
+            fail("O restaurante já está nesse estado. Não é possível atualizar.");
+        } catch (IllegalStateException e) {
+            assertEquals("O restaurante já está nesse estado. Não é possível atualizar.", e.getMessage());
+        }
+    }
+
+    //Q) Atualizar restaurante para estado ABERTO
+    @Test
+    @DisplayName("Q: Atualizar estado do restaurante para ABERTO.")
+    void atualizarEstadoParaAberto() {
+        Restaurante restaurante = new Restaurante(
+                "Tasca Eats",
+                "123456789",
+                new Morada("Rua", 1, "1234-111", "Lisboa"),
+                adminValido(),
+                new CatalogoProdutos(),
+                new CatalogoEntregas()
+        );
+
+        AtualizarEstadoRestauranteDTO dto = new AtualizarEstadoRestauranteDTO();
+        dto.setEstado(EstadoRestaurante.ABERTO);
+        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
+
+        try {
+            restauranteService.atualizarEstado(1L, dto);
+        } catch (Exception e) {
+            fail("Não devia lançar exceção.");
+        }
+
+        verify(restauranteRepository).save(any(Restaurante.class));
+        assertEquals(EstadoRestaurante.ABERTO, restaurante.getEstado());
+    }
+
+    //R) Atualizar restaurante para estado FECHADO
+    @Test
+    @DisplayName("R: Atualizar estado para FECHADO.")
+    void atualizarEstadoParaFechado() {
+        Restaurante restaurante = new Restaurante(
+                "Tasca Etas",
+                "123456789",
+                new Morada("Rua", 1, "1000-000", "Lisboa"),
+                adminValido(),
+                new CatalogoProdutos(),
+                new CatalogoEntregas()
+        );
+        restaurante.abrir();
+
+        AtualizarEstadoRestauranteDTO dto = new AtualizarEstadoRestauranteDTO();
+        dto.setEstado(EstadoRestaurante.FECHADO);
+        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
+
+        try {
+            restauranteService.atualizarEstado(1L, dto);
+        } catch (Exception e) {
+            fail("Não devia lançar exceção.");
+        }
+
+        verify(restauranteRepository).save(any(Restaurante.class));
+        assertEquals(EstadoRestaurante.FECHADO, restaurante.getEstado());
+    }
+
+    //S) Atualizar restaurante para estado RESERVADO
+    @Test
+    @DisplayName("S: Atualizar estado para RESERVADO.")
+    void atualizarEstadoParaReservado() {
+        Restaurante restaurante = new Restaurante(
+                "Tasca Eats",
+                "123456789",
+                new Morada("Rua", 1, "1000-000", "Lisboa"),
+                adminValido(),
+                new CatalogoProdutos(),
+                new CatalogoEntregas()
+        );
+
+        AtualizarEstadoRestauranteDTO dto = new AtualizarEstadoRestauranteDTO();
+        dto.setEstado(EstadoRestaurante.RESERVADO);
+        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
+
+        try {
+            restauranteService.atualizarEstado(1L, dto);
+        } catch (Exception e) {
+            fail("Não devia lançar exceção.");
+        }
+
+        verify(restauranteRepository).save(any(Restaurante.class));
+        assertEquals(EstadoRestaurante.RESERVADO, restaurante.getEstado());
+    }
+
+    //T) Procurar restaurante por nome, com nome nulo/vazio deve devolver todos os restaurantes.
+
+
 
     //**********Funções auxiliares************
 
@@ -245,5 +496,20 @@ public class RestauranteServiceTest {
     //Criar administrador válido
     private RestauranteAdmin adminValido() {
         return new RestauranteAdmin("Admin", "admin@gmail.com", "password:123");
+    }
+
+    private AtualizarRestauranteDTO atualizarDTOValido() {
+        AtualizarRestauranteDTO dto = new AtualizarRestauranteDTO();
+        dto.setNome("Tasca Atualizada");
+        dto.setNif("123456789");
+
+        MoradaDTO morada = new MoradaDTO();
+        morada.setRua("Rua Atualizada");
+        morada.setNumeroPorta(10);
+        morada.setCodigoPostal("3000-300");
+        morada.setLocalidade("Coimbra");
+
+        dto.setMorada(morada);
+        return dto;
     }
 }
