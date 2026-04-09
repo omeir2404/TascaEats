@@ -125,6 +125,15 @@ public class RestauranteService {
 		return restauranteRepository.findByNomeContainingIgnoreCase(nome.trim());
 	}
 
+	//Procurar restaurante por cidade
+	@Transactional(readOnly = true)
+	public List<Restaurante> procurarRestaurantePorCidade(String cidade) {
+		if (cidade == null || cidade.isBlank()) {
+			return restauranteRepository.findAll(); //Se o utilizador não escrever nada, devolvo todos os restaurantes.
+		}
+		return restauranteRepository.findByMoradaLocalidadeIgnoreCase(cidade.trim());
+	}
+
 	@Transactional(readOnly = true)
 	public List<Restaurante> listarPorEstado(EstadoRestaurante estado) {
 		if (estado == null) {

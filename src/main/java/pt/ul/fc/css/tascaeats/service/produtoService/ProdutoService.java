@@ -76,6 +76,13 @@ public class ProdutoService {
     }
 
     //Listar produtos
+    public List<Produto> listarProdutosPorRestaurante(Long restauranteId) {
+        if (restauranteId == null || restauranteId <= 0) {
+            throw new IllegalArgumentException("O id do restaurante é obrigatório.");
+        }
+        return produtoRepository.findByCatalogoProdutosRestauranteId(restauranteId);
+    }
+
     public List<Produto> listarProdutos() {
         return produtoRepository.findAll();
     }
