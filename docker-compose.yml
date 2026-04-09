@@ -11,7 +11,7 @@ services:
     networks:
       - dbnet
     environment:
-      - POSTGRES_Utilizador=Utilizador
+      - POSTGRES_USER=Utilizador
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=postgres
     restart: unless-stopped
