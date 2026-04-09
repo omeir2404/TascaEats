@@ -3,7 +3,8 @@ set -euo pipefail
 
 usage() {
     echo "Usage: $0 --yes [--ports 3000,5432,...]"
-    echo "Warning: this will delete all Docker containers, images, volumes, networks, and build cache."
+    echo "Warning: this will delete all Docker containers, images, volumes, networks, build cache,"
+    echo "project build artifacts, and Maven caches."
     echo "If --ports is provided, processes listening on those ports will be terminated."
 }
 
@@ -42,6 +43,8 @@ if ! docker info >/dev/null 2>&1; then
     exit 1
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 echo "Stopping and removing all containers..."
 containers="$(docker ps -aq)"
 if [[ -n "${containers}" ]]; then
@@ -70,6 +73,15 @@ fi
 echo "Pruning build cache and unused Docker resources..."
 docker builder prune -a -f >/dev/null 2>&1 || true
 docker system prune -a --volumes -f >/dev/null 2>&1 || true
+
+echo "Cleaning project build artifacts..."
+rm -rf "${SCRIPT_DIR}/target" || true
+rm -rf "${SCRIPT_DIR}/.mvn/.cache" || true
+
+echo "Cleaning Maven local caches..."
+rm -rf "${HOME}/.m2/repository" || true
+rm -rf "${HOME}/.m2/wrapper" || true
+mkdir -p "${HOME}/.m2"
 
 free_port() {
     local port="$1"
