@@ -34,10 +34,10 @@ public class RestauranteService {
     //Criar restaurante
 	public Restaurante criarRestaurante(CriarRestauranteDTO dto, String adminEmail) {
 		if (dto == null) {
-			throw new IllegalArgumentException("Os dados do restaurante sao obrigatórios.");
+			throw new IllegalArgumentException("Os dados do restaurante são obrigatórios.");
 		}
 		if (adminEmail == null || adminEmail.isBlank()) {
-			throw new IllegalArgumentException("O email do administrador e obrigatório.");
+			throw new IllegalArgumentException("O email do administrador é obrigatório.");
 		}
 
 		RestauranteAdmin administrador = administradorRepository.findByEmail(adminEmail.trim());

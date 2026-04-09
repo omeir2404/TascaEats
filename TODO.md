@@ -44,14 +44,14 @@
 - [x] C: update and delete user for existing user
 - [x] C: update fails on email conflict
 - [x] D: search restaurants by name
-- [ ] D: search restaurants by city (pending implementation)
+- [x] D: search restaurants by city (pending implementation)
 - [x] E: create restaurant and update state to open
 - [x] E: update state fails when state is unchanged
 - [x] F: create/update/soft-delete product
 - [x] F: create product fails when catalog is missing
 - [x] F: update availability fails for soft-deleted product
 - [x] G: search product by name
-- [ ] G: list products by restaurant (pending implementation)
+- [x] G: list products by restaurant (pending implementation)
 - [x] H: create order computes total from products
 - [x] H: create order fails when product is missing
 - [x] I: process payment links payment and moves order to PAGO
@@ -232,16 +232,16 @@
 ### Services
 
 #### 1) RestauranteService
-- [ ] `criarRestaurante` com DTO nulo deve falhar (`IllegalArgumentException`)
-- [ ] `criarRestaurante` com `adminEmail` nulo/vazio deve falhar
-- [ ] `criarRestaurante` com admin inexistente deve falhar
-- [ ] `criarRestaurante` com `nome` em branco deve falhar
-- [ ] `criarRestaurante` com `nif` não numérico ou com tamanho diferente de 9 deve falhar
-- [ ] `criarRestaurante` com `nif` já existente deve falhar
-- [ ] `criarRestaurante` com morada nula deve falhar
-- [ ] `criarRestaurante` com `numeroPorta <= 0` deve falhar
-- [ ] `criarRestaurante` com sucesso deve criar restaurante em estado `FECHADO`
-- [ ] `criarRestaurante` com sucesso deve associar `CatalogoProdutos` e `CatalogoEntregas`
+- [x] `criarRestaurante` com DTO nulo deve falhar (`IllegalArgumentException`)
+- [x] `criarRestaurante` com `adminEmail` nulo/vazio deve falhar
+- [x] `criarRestaurante` com admin inexistente deve falhar
+- [x] `criarRestaurante` com `nome` em branco deve falhar
+- [x] `criarRestaurante` com `nif` não numérico ou com tamanho diferente de 9 deve falhar
+- [x] `criarRestaurante` com `nif` já existente deve falhar
+- [x] `criarRestaurante` com morada nula deve falhar
+- [x] `criarRestaurante` com `numeroPorta <= 0` deve falhar
+- [x] `criarRestaurante` com sucesso deve criar restaurante em estado `FECHADO`
+- [x] `criarRestaurante` com sucesso deve associar `CatalogoProdutos` e `CatalogoEntregas`
 - [ ] `atualizarRestaurante` com DTO nulo deve falhar
 - [ ] `atualizarRestaurante` com restaurante inexistente deve falhar
 - [ ] `atualizarRestaurante` com `nif` de outro restaurante deve falhar
