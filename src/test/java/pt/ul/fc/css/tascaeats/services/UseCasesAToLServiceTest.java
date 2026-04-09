@@ -193,10 +193,18 @@ class UseCasesAToLServiceTest {
         assertThat(result).doesNotContain(r2);
     }
 
+    //D) Buscar restaurantes de determinada cidade
     @Test
-    @Disabled("Pending implementation: search by city is not available in RestauranteService/IRestauranteRepository")
     @DisplayName("D: search restaurants by city should return restaurants in that city")
     void searchRestaurantByCityShouldReturnMatches() {
+        Restaurante r1 = restaurante("Tasca Lisboa", "111111111", "Lisboa", EstadoRestaurante.ABERTO);
+        Restaurante r2 = restaurante("Porto Grill", "222222222", "Porto", EstadoRestaurante.FECHADO);
+        when(restauranteRepository.findByMoradaLocalidadeIgnoreCase("lisboa")).thenReturn(List.of(r1));
+
+        List<Restaurante> result = restauranteService.procurarRestaurantePorCidade("lisboa");
+
+        assertThat(result).containsExactly(r1);
+        assertThat(result).doesNotContain(r2);
     }
 
     // E) Criacao de restaurantes e gestao de estado
@@ -293,9 +301,17 @@ class UseCasesAToLServiceTest {
     }
 
     @Test
-    @Disabled("Pending implementation: search products by restaurant is not exposed in ProdutoService")
     @DisplayName("G: list products for a specific restaurant should return only that restaurant menu")
     void listProductsByRestaurantShouldReturnOnlyRestaurantMenu() {
+        Produto p1 = new Produto("Massa", 5.5, "Ótima", new CatalogoProdutos());
+        Produto p2 = new Produto("Hamburguer", 7.0, "Boa", new CatalogoProdutos());
+        when(produtoRepository.findByCatalogoProdutosRestauranteId(1L)).thenReturn(List.of(p1));
+
+        List<Produto> result = produtoService.listarProdutosPorRestaurante(1L);
+
+        assertThat(result).containsExactly(p1);
+        assertThat(result).doesNotContain(p2);
+
     }
 
     // H) Criacao de pedido
