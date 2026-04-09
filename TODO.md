@@ -226,3 +226,156 @@
 - [ ] `findByPedidoId` deve devolver entrega associada ao pedido
 - [ ] `findByHoraEntregaIsNull` deve devolver entregas ativas
 - [ ] `existsByEntregadorIdAndHoraEntregaIsNull` deve refletir estado ativo do entregador
+
+## Test Checklist By Class (Restaurante e Produto)
+
+### Services
+
+#### 1) RestauranteService
+- [ ] `criarRestaurante` com DTO nulo deve falhar (`IllegalArgumentException`)
+- [ ] `criarRestaurante` com `adminEmail` nulo/vazio deve falhar
+- [ ] `criarRestaurante` com admin inexistente deve falhar
+- [ ] `criarRestaurante` com `nome` em branco deve falhar
+- [ ] `criarRestaurante` com `nif` não numérico ou com tamanho diferente de 9 deve falhar
+- [ ] `criarRestaurante` com `nif` já existente deve falhar
+- [ ] `criarRestaurante` com morada nula deve falhar
+- [ ] `criarRestaurante` com `numeroPorta <= 0` deve falhar
+- [ ] `criarRestaurante` com sucesso deve criar restaurante em estado `FECHADO`
+- [ ] `criarRestaurante` com sucesso deve associar `CatalogoProdutos` e `CatalogoEntregas`
+- [ ] `atualizarRestaurante` com DTO nulo deve falhar
+- [ ] `atualizarRestaurante` com restaurante inexistente deve falhar
+- [ ] `atualizarRestaurante` com `nif` de outro restaurante deve falhar
+- [ ] `atualizarRestaurante` com sucesso deve persistir `nome`, `nif` e `morada`
+- [ ] `atualizarEstado` com DTO nulo ou `estado` nulo deve falhar
+- [ ] `atualizarEstado` com restaurante inexistente deve falhar
+- [ ] `atualizarEstado` para o mesmo estado atual deve falhar (`IllegalStateException`)
+- [ ] `atualizarEstado` para `ABERTO` deve chamar regra de domínio e persistir
+- [ ] `atualizarEstado` para `FECHADO` deve chamar regra de domínio e persistir
+- [ ] `atualizarEstado` para `RESERVADO` deve chamar regra de domínio e persistir
+- [ ] `procurarRestaurantePorNome` com nome nulo/vazio deve devolver todos
+- [ ] `procurarRestaurantePorNome` com nome válido deve usar pesquisa case-insensitive
+- [ ] `listarPorEstado` com estado nulo deve devolver todos
+- [ ] `listarPorEstado` com estado válido deve filtrar corretamente
+
+#### 2) ProdutoService
+- [ ] `criarProduto` com DTO nulo deve falhar (`IllegalArgumentException`)
+- [ ] `criarProduto` com catálogo inexistente deve falhar
+- [ ] `criarProduto` com sucesso deve criar produto com `disponivel=true` e `apagado=false`
+- [ ] `atualizarProduto` com DTO nulo deve falhar
+- [ ] `atualizarProduto` com produto inexistente deve falhar
+- [ ] `atualizarProduto` em produto apagado deve falhar (`IllegalStateException`)
+- [ ] `atualizarProduto` com sucesso deve persistir `nome`, `preco` e `descricao`
+- [ ] `atualizarDisponibilidade` com DTO nulo ou `disponivel` nulo deve falhar
+- [ ] `atualizarDisponibilidade` com produto inexistente deve falhar
+- [ ] `atualizarDisponibilidade` em produto apagado deve falhar
+- [ ] `atualizarDisponibilidade` para `false` deve indisponibilizar produto ativo
+- [ ] `atualizarDisponibilidade` para `true` deve disponibilizar produto previamente indisponível
+- [ ] `obterProdutoPorId` com id inexistente deve falhar
+- [ ] `listarProdutosAtivos` deve excluir produtos apagados (soft delete)
+- [ ] `listarProdutosDisponiveis` deve devolver apenas `disponivel=true`
+- [ ] `procurarProdutoPorNome` deve usar pesquisa case-insensitive
+- [ ] `apagarProduto` com id inexistente deve falhar
+- [ ] `apagarProduto` com sucesso deve marcar `apagado=true` e `disponivel=false`
+- [ ] regra P1: produto indisponível/apagado não deve poder entrar em pedido (validado no fluxo H)
+
+### Controllers
+
+#### 1) RestauranteController
+- [ ] `POST /api/restaurantes` com payload válido deve retornar `201` com dados do restaurante
+- [ ] `POST /api/restaurantes` sem `adminEmail` deve retornar `400`
+- [ ] `POST /api/restaurantes` com NIF inválido/duplicado deve retornar `400`
+- [ ] `PUT /api/restaurantes/{id}` com sucesso deve retornar `200`
+- [ ] `PUT /api/restaurantes/{id}` com id inexistente deve retornar `404`
+- [ ] `PATCH /api/restaurantes/{id}/estado` com sucesso deve retornar `200`
+- [ ] `PATCH /api/restaurantes/{id}/estado` com estado repetido deve retornar `409`
+- [ ] `PATCH /api/restaurantes/{id}/abrir` deve delegar para atualização de estado `ABERTO`
+- [ ] `PATCH /api/restaurantes/{id}/fechar` deve delegar para atualização de estado `FECHADO`
+- [ ] `GET /api/restaurantes/{id}` com id válido deve retornar `200`
+- [ ] `GET /api/restaurantes/{id}` com id inválido deve retornar `404`
+- [ ] `GET /api/restaurantes?nome=...` deve pesquisar por nome
+- [ ] `GET /api/restaurantes?estado=ABERTO` deve filtrar por estado
+- [ ] `GET /api/restaurantes` sem filtros deve devolver lista completa
+
+#### 2) ProdutoController
+- [ ] `POST /api/catalogos/{catalogoId}/produtos` com payload válido deve retornar `201`
+- [ ] `POST /api/catalogos/{catalogoId}/produtos` com catálogo inexistente deve retornar `400`
+- [ ] `PUT /api/produtos/{id}` com sucesso deve retornar `200`
+- [ ] `PUT /api/produtos/{id}` com produto inexistente deve retornar `404`
+- [ ] `PUT /api/produtos/{id}` com produto apagado deve retornar `409`
+- [ ] `PATCH /api/produtos/{id}/disponibilidade` com sucesso deve retornar `200`
+- [ ] `PATCH /api/produtos/{id}/disponibilidade` com `disponivel` ausente deve retornar `400`
+- [ ] `PATCH /api/produtos/{id}/disponibilidade` em produto apagado deve retornar `409`
+- [ ] `GET /api/produtos/{id}` com id válido deve retornar `200`
+- [ ] `GET /api/produtos/{id}` com id inexistente deve retornar `404`
+- [ ] `GET /api/produtos?nome=...` deve pesquisar por nome
+- [ ] `GET /api/produtos?ativos=true` deve devolver apenas não apagados
+- [ ] `GET /api/produtos?disponiveis=true` deve devolver apenas disponíveis
+- [ ] `DELETE /api/produtos/{id}` com sucesso deve retornar `204`
+- [ ] `DELETE /api/produtos/{id}` com id inexistente deve retornar `404`
+
+### Domain (entities + enum)
+
+#### 1) EstadoRestaurante
+- [ ] deve conter os valores esperados (`ABERTO`, `FECHADO`, `RESERVADO`)
+
+#### 2) Restaurante
+- [ ] novo `Restaurante` deve iniciar em `FECHADO`
+- [ ] `abrir` a partir de `FECHADO` deve passar
+- [ ] `abrir` quando já `ABERTO` deve falhar
+- [ ] `fechar` a partir de `ABERTO` deve passar
+- [ ] `fechar` quando já `FECHADO` deve falhar
+- [ ] `reservar` a partir de `ABERTO`/`FECHADO` deve passar
+- [ ] `reservar` quando já `RESERVADO` deve falhar
+- [ ] `validarDisponibilidadeParaPedido` com estado diferente de `ABERTO` deve falhar
+- [ ] `validarDisponibilidadeParaPedido` com estado `ABERTO` deve passar
+
+#### 3) Produto
+- [ ] novo `Produto` deve iniciar com `disponivel=true` e `apagado=false`
+- [ ] `indisponibilizar` quando produto disponível deve passar
+- [ ] `indisponibilizar` quando já indisponível deve falhar
+- [ ] `disponibilizar` quando produto indisponível e ativo deve passar
+- [ ] `disponibilizar` quando já disponível deve falhar
+- [ ] `apagar` deve marcar `apagado=true` e `disponivel=false`
+- [ ] `apagar` repetido deve falhar
+- [ ] `ativar` em produto apagado deve reativar (`apagado=false`)
+- [ ] `ativar` em produto já ativo deve falhar
+- [ ] `validarDisponibilidadeParaPedido` em produto apagado deve falhar
+- [ ] `validarDisponibilidadeParaPedido` em produto indisponível deve falhar
+- [ ] `validarDisponibilidadeParaPedido` em produto disponível e ativo deve passar
+
+#### 4) CatalogoProdutos
+- [ ] construtor com `restaurante=null` deve falhar
+- [ ] `setRestaurante` deve manter associação bidirecional consistente
+- [ ] `addProduto` com produto nulo não deve alterar lista
+- [ ] `addProduto` com produto apagado deve falhar
+- [ ] `addProduto` deve associar produto ao catálogo
+- [ ] `removeProduto` deve remover da lista e limpar associação
+- [ ] `setProdutos` deve substituir coleção mantendo consistência das associações
+
+### Factory
+
+#### 1) Restaurante/Produto Factory
+- [ ] confirmar que não existe factory dedicada para `Restaurante`/`Produto` no desenho atual
+- [ ] se for introduzida factory no futuro, validar criação com campos obrigatórios e erros de domínio
+
+### Repositories
+
+#### 1) IRestauranteRepository (`@DataJpaTest`)
+- [ ] `findByNomeContainingIgnoreCase` deve pesquisar por nome sem case-sensitive
+- [ ] `findByNif` deve encontrar restaurante por NIF único
+- [ ] `findByNif` com NIF inexistente deve devolver vazio
+- [ ] `findByEstado` deve devolver apenas restaurantes no estado pedido
+
+#### 2) IProdutoRepository (`@DataJpaTest`)
+- [ ] `findByNomeContainingIgnoreCase` deve pesquisar por nome sem case-sensitive
+- [ ] `findByDisponivelTrue` deve devolver apenas produtos disponíveis
+- [ ] `findByApagadoFalse` deve excluir produtos soft-deleted
+
+#### 3) ICatalogoProdutosRepository (`@DataJpaTest`)
+- [ ] guardar e obter catálogo por id
+- [ ] persistir catálogo com múltiplos produtos deve manter relação `OneToMany`
+- [ ] remover produto do catálogo deve refletir `orphanRemoval=true`
+
+#### 4) IRestauranteAdminRepository (`@DataJpaTest`)
+- [ ] `findByEmail` deve devolver admin existente
+- [ ] `findByEmail` com email inexistente deve devolver `null`
