@@ -8,9 +8,9 @@ import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 
 public interface IPedidoRepository extends JpaRepository<Pedido, Long> {
-    List<Pedido> findByClienteeId(Long clienteId);
+    List<Pedido> findByClienteId(Long clienteId);
     List<Pedido> findByRestauranteId(Long restauranteId);
     List<Pedido> findByEstado(EstadoPedido estado);
-    List<Pedido> findByClienteeIdAndEstado(Long clienteId, EstadoPedido estado);
+    List<Pedido> findByClienteIdAndEstado(Long clienteId, EstadoPedido estado);
     boolean existsByIdAndEstado(Long id, EstadoPedido estado);
 }

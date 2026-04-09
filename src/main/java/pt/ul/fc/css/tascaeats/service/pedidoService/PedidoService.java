@@ -85,11 +85,11 @@ public class PedidoService {
 
     public List<Pedido> listarPedidos(Long clienteId, EstadoPedido estado) {
         if (clienteId != null && estado != null) {
-            return pedidoRepository.findByClienteeIdAndEstado(clienteId, estado);
+            return pedidoRepository.findByClienteIdAndEstado(clienteId, estado);
         }
 
         if (clienteId != null) {
-            return pedidoRepository.findByClienteeId(clienteId);
+            return pedidoRepository.findByClienteId(clienteId);
         }
 
         if (estado != null) {
