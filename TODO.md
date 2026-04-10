@@ -258,25 +258,25 @@
 - [x] `listarPorEstado` com estado válido deve filtrar corretamente
 
 #### 2) ProdutoService
-- [ ] `criarProduto` com DTO nulo deve falhar (`IllegalArgumentException`)
-- [ ] `criarProduto` com catálogo inexistente deve falhar
-- [ ] `criarProduto` com sucesso deve criar produto com `disponivel=true` e `apagado=false`
-- [ ] `atualizarProduto` com DTO nulo deve falhar
-- [ ] `atualizarProduto` com produto inexistente deve falhar
-- [ ] `atualizarProduto` em produto apagado deve falhar (`IllegalStateException`)
-- [ ] `atualizarProduto` com sucesso deve persistir `nome`, `preco` e `descricao`
-- [ ] `atualizarDisponibilidade` com DTO nulo ou `disponivel` nulo deve falhar
-- [ ] `atualizarDisponibilidade` com produto inexistente deve falhar
-- [ ] `atualizarDisponibilidade` em produto apagado deve falhar
-- [ ] `atualizarDisponibilidade` para `false` deve indisponibilizar produto ativo
-- [ ] `atualizarDisponibilidade` para `true` deve disponibilizar produto previamente indisponível
-- [ ] `obterProdutoPorId` com id inexistente deve falhar
-- [ ] `listarProdutosAtivos` deve excluir produtos apagados (soft delete)
-- [ ] `listarProdutosDisponiveis` deve devolver apenas `disponivel=true`
-- [ ] `procurarProdutoPorNome` deve usar pesquisa case-insensitive
-- [ ] `apagarProduto` com id inexistente deve falhar
-- [ ] `apagarProduto` com sucesso deve marcar `apagado=true` e `disponivel=false`
-- [ ] regra P1: produto indisponível/apagado não deve poder entrar em pedido (validado no fluxo H)
+- [x] `criarProduto` com DTO nulo deve falhar (`IllegalArgumentException`)
+- [x] `criarProduto` com catálogo inexistente deve falhar
+- [x] `criarProduto` com sucesso deve criar produto com `disponivel=true` e `apagado=false`
+- [x] `atualizarProduto` com DTO nulo deve falhar
+- [x] `atualizarProduto` com produto inexistente deve falhar
+- [x] `atualizarProduto` em produto apagado deve falhar (`IllegalStateException`)
+- [x] `atualizarProduto` com sucesso deve persistir `nome`, `preco` e `descricao`
+- [x] `atualizarDisponibilidade` com DTO nulo ou `disponivel` nulo deve falhar
+- [x] `atualizarDisponibilidade` com produto inexistente deve falhar
+- [x] `atualizarDisponibilidade` em produto apagado deve falhar
+- [x] `atualizarDisponibilidade` para `false` deve indisponibilizar produto ativo
+- [x] `atualizarDisponibilidade` para `true` deve disponibilizar produto previamente indisponível
+- [x] `obterProdutoPorId` com id inexistente deve falhar
+- [x] `listarProdutosAtivos` deve excluir produtos apagados (soft delete)
+- [x] `listarProdutosDisponiveis` deve devolver apenas `disponivel=true`
+- [x] `procurarProdutoPorNome` deve usar pesquisa case-insensitive
+- [x] `apagarProduto` com id inexistente deve falhar
+- [x] `apagarProduto` com sucesso deve marcar `apagado=true` e `disponivel=false`
+- [x] regra P1: produto indisponível/apagado não deve poder entrar em pedido (validado no fluxo H)
 
 ### Controllers
 

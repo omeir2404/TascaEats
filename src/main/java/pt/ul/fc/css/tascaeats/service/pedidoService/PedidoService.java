@@ -54,6 +54,7 @@ public class PedidoService {
                 throw new IllegalArgumentException("Produto não encontrado: " + produtoId);
             }
             var produto = produtoOptional.get();
+            produto.validarDisponibilidadeParaPedido();
 
             valorTotal += produto.getPreco();
         }

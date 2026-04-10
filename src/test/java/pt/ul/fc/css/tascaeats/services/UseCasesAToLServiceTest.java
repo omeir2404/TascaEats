@@ -333,7 +333,7 @@ class UseCasesAToLServiceTest {
     }
 
     @Test
-    @DisplayName("H: create order fails when one product is missing")
+    @DisplayName("I: create order fails when one product is missing")
     void createOrderShouldFailWhenProductMissing() {
         when(utilizadorRepository.findById(1L)).thenReturn(Optional.of(cliente(1L, "c@tasca.pt")));
         when(restauranteRepository.findById(2L)).thenReturn(Optional.of(restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO)));
@@ -344,9 +344,39 @@ class UseCasesAToLServiceTest {
                 .hasMessageContaining("Produto não encontrado");
     }
 
+    @Test
+    @DisplayName("J: create order fails when product is unavailable")
+    void createOrderShouldFailWhenProductUnavailable() {
+        when(utilizadorRepository.findById(1L)).thenReturn(Optional.of(cliente(1L, "c@tasca.pt")));
+        when(restauranteRepository.findById(2L)).thenReturn(Optional.of(restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO)));
+
+        Produto indisponivel = new Produto("Prato X", 8.0, "X", new CatalogoProdutos());
+        indisponivel.indisponibilizar();
+        when(produtoRepository.findById(12L)).thenReturn(Optional.of(indisponivel));
+
+        assertThatThrownBy(() -> pedidoService.criarPedido(new CriarPedidoDTO(1L, 2L, List.of(12L))))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("indisponível para ser pedido");
+    }
+
+    @Test
+    @DisplayName("K: create order fails when product is soft-deleted")
+    void createOrderShouldFailWhenProductDeleted() {
+        when(utilizadorRepository.findById(1L)).thenReturn(Optional.of(cliente(1L, "c@tasca.pt")));
+        when(restauranteRepository.findById(2L)).thenReturn(Optional.of(restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO)));
+
+        Produto apagado = new Produto("Prato Y", 9.0, "Y", new CatalogoProdutos());
+        apagado.apagar();
+        when(produtoRepository.findById(13L)).thenReturn(Optional.of(apagado));
+
+        assertThatThrownBy(() -> pedidoService.criarPedido(new CriarPedidoDTO(1L, 2L, List.of(13L))))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("foi apagado");
+    }
+
     // I) Registo e processamento de pagamento
     @Test
-    @DisplayName("I: process payment links payment and moves order to PAGO")
+    @DisplayName("L: process payment links payment and moves order to PAGO")
     void processPaymentShouldMoveOrderToPaid() {
         Pedido pedido = new Pedido(1L, 1L, 2L);
         pedido.setValorTotal(20.0);
@@ -363,7 +393,7 @@ class UseCasesAToLServiceTest {
     }
 
     @Test
-    @DisplayName("I: process payment fails when order id is unknown")
+    @DisplayName("M: process payment fails when order id is unknown")
     void processPaymentShouldFailWhenOrderMissing() {
         when(pedidoRepository.findById(500L)).thenReturn(Optional.empty());
 
@@ -372,9 +402,9 @@ class UseCasesAToLServiceTest {
                 .hasMessageContaining("Pedido não encontrado");
     }
 
-    // J) Atualizacao do estado do pedido
+    // N) Atualizacao do estado do pedido
     @Test
-    @DisplayName("J: order status should move from PAGO to A_PREPARAR to PRONTO_PARA_ENTREGA")
+    @DisplayName("N: order status should move from PAGO to A_PREPARAR to PRONTO_PARA_ENTREGA")
     void orderStatusTransitionsShouldWorkInSequence() {
         Pedido pedido = new Pedido(70L, 1L, 2L);
         pedido.setEstado(EstadoPedido.PAGO);
@@ -390,7 +420,7 @@ class UseCasesAToLServiceTest {
     }
 
     @Test
-    @DisplayName("J: iniciar preparacao fails if order is not paid")
+    @DisplayName("O: iniciar preparacao fails if order is not paid")
     void startPreparationShouldFailWhenOrderNotPaid() {
         Pedido pedido = new Pedido(71L, 1L, 2L);
         pedido.setEstado(EstadoPedido.CRIADO);
@@ -401,9 +431,9 @@ class UseCasesAToLServiceTest {
                 .hasMessageContaining("precisa de ser pago");
     }
 
-    // K) Atribuicao de entregador a pedido
+    // P) Atribuicao de entregador a pedido
     @Test
-    @DisplayName("K: assign available driver to ready order")
+    @DisplayName("P: assign available driver to ready order")
     void assignDriverShouldWorkWhenOrderReadyAndDriverFree() {
         Pedido pedido = new Pedido(80L, 1L, 2L);
         pedido.setEstado(EstadoPedido.PRONTO_PARA_ENTREGA);
@@ -425,7 +455,7 @@ class UseCasesAToLServiceTest {
     }
 
     @Test
-    @DisplayName("K: assign driver fails when no available drivers exist")
+    @DisplayName("Q: assign driver fails when no available drivers exist")
     void assignDriverShouldFailWhenNoDriverAvailable() {
         Pedido pedido = new Pedido(81L, 1L, 2L);
         pedido.setEstado(EstadoPedido.PRONTO_PARA_ENTREGA);
@@ -445,7 +475,7 @@ class UseCasesAToLServiceTest {
 
     // L) Cancelamento de pedido
     @Test
-    @DisplayName("L: cancel order succeeds when order is CRIADO")
+    @DisplayName("R: cancel order succeeds when order is CRIADO")
     void cancelOrderShouldSucceedWhenCreated() {
         Pedido pedido = new Pedido(90L, 1L, 2L);
         pedido.setEstado(EstadoPedido.CRIADO);
@@ -458,7 +488,7 @@ class UseCasesAToLServiceTest {
     }
 
     @Test
-    @DisplayName("L: cancel order fails when order is already in preparation")
+    @DisplayName("S: cancel order fails when order is already in preparation")
     void cancelOrderShouldFailWhenPreparing() {
         Pedido pedido = new Pedido(91L, 1L, 2L);
         pedido.setEstado(EstadoPedido.A_PREPARAR);
@@ -468,6 +498,9 @@ class UseCasesAToLServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("não pode ser cancelado");
     }
+
+
+    //**********Funções auxiliares************
 
     private UtilizadorRegistoDTO registo(String nome, String email, String password, String type, MoradaDTO moradaDTO) {
         return new UtilizadorRegistoDTO(nome, email, password, type, moradaDTO);
