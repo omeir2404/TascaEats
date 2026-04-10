@@ -1,16 +1,21 @@
 package pt.ul.fc.css.tascaeats.service.utilizadorServices;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
-import pt.ul.fc.css.tascaeats.domain.utilizador.*;
+
+import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
+import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorLoginDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 
 @Service
 public class UtilizadorService {
@@ -100,7 +105,7 @@ public class UtilizadorService {
     }
 
     public boolean login(UtilizadorLoginDTO UtilizadorLoginDTO) {
-        if (UtilizadorLoginDTO == null || UtilizadorLoginDTO.getEmail() == null || UtilizadorLoginDTO.getEmail().isBlank()) {
+        if (UtilizadorLoginDTO == null || UtilizadorLoginDTO.getEmail() == null || UtilizadorLoginDTO.getEmail().isBlank() || !UtilizadorLoginDTO.getEmail().contains("@")) {
             return false;
         }
         // Mock login: any password is accepted as long as the Utilizador exists.
@@ -114,7 +119,7 @@ public class UtilizadorService {
         if (dto.getName() == null || dto.getName().isBlank()) {
             throw new IllegalArgumentException("Name is required");
         }
-        if (dto.getEmail() == null || dto.getEmail().isBlank()) {
+        if (dto.getEmail() == null || dto.getEmail().isBlank() || dto.getEmail().chars().filter(ch -> ch == '@').count() != 1 || dto.getEmail().contains(" ") || dto.getEmail().contains("\t") || dto.getEmail().contains("..")) {
             throw new IllegalArgumentException("Email is required");
         }
         if (dto.getPassword() == null || dto.getPassword().isBlank()) {
@@ -126,14 +131,18 @@ public class UtilizadorService {
         if ("client".equalsIgnoreCase(dto.getType()) && (dto.getAddress() == null)) {
             throw new IllegalArgumentException("Morada is required for client Utilizadors");
         }
+        if (dto.getAddress() != null && dto.getAddress().getCodigoPostal() != null
+                && dto.getAddress().getCodigoPostal().chars().filter(ch -> ch == '-').count() != 1) {
+            throw new IllegalArgumentException("Codigo Postal so pode ter 1 '-' ");
+        }
     }
 
     private Utilizador buildUtilizadorFromType(String type) {
         String normalized = type.trim().toLowerCase(Locale.ROOT);
         return switch (normalized) {
-            case "client" -> new Cliente();
-            case "driver" -> new Entregador();
-            case "restaurantadmin", "restaurant_admin", "restaurant owner", "restaurantowner", "admin" -> new RestauranteAdmin();
+            case "client", "cliente" -> new Cliente();
+            case "driver", "entregador" -> new Entregador();
+            case "restaurantadmin", "restauranteadmin", "restaurant_admin", "restaurante_admin", "restaurant owner", "restaurantowner", "admin", "administrador", "donoDoRestaurante", "dono_restaurante" -> new RestauranteAdmin();
             default -> throw new IllegalArgumentException("Invalid Utilizador type: " + type);
         };
     }
