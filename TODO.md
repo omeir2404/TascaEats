@@ -252,10 +252,10 @@
 - [x] `atualizarEstado` para `ABERTO` deve chamar regra de domínio e persistir
 - [x] `atualizarEstado` para `FECHADO` deve chamar regra de domínio e persistir
 - [x] `atualizarEstado` para `RESERVADO` deve chamar regra de domínio e persistir
-- [ ] `procurarRestaurantePorNome` com nome nulo/vazio deve devolver todos
-- [ ] `procurarRestaurantePorNome` com nome válido deve usar pesquisa case-insensitive
-- [ ] `listarPorEstado` com estado nulo deve devolver todos
-- [ ] `listarPorEstado` com estado válido deve filtrar corretamente
+- [x] `procurarRestaurantePorNome` com nome nulo/vazio deve devolver todos
+- [x] `procurarRestaurantePorNome` com nome válido deve usar pesquisa case-insensitive
+- [x] `listarPorEstado` com estado nulo deve devolver todos
+- [x] `listarPorEstado` com estado válido deve filtrar corretamente
 
 #### 2) ProdutoService
 - [ ] `criarProduto` com DTO nulo deve falhar (`IllegalArgumentException`)

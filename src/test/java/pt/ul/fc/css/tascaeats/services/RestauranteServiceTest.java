@@ -325,6 +325,7 @@ public class RestauranteServiceTest {
         assertThat(atualizado.getMorada().getLocalidade()).isEqualTo("Bragança");
     }
 
+
     //N) Atualizar estado com DTO nulo ou estado nulo.
     @Test
     @DisplayName("N: Atualizar estado com DTO nulo ou estado nulo.")
@@ -364,6 +365,7 @@ public class RestauranteServiceTest {
         }
     }
 
+
     //P) Atualizar estado do restaurante para o mesmo estado atual.
     @Test
     @DisplayName("P: Atualizar estado do restaurante para o mesmo estado atual.")
@@ -388,6 +390,7 @@ public class RestauranteServiceTest {
             assertEquals("O restaurante já está nesse estado. Não é possível atualizar.", e.getMessage());
         }
     }
+
 
     //Q) Atualizar restaurante para estado ABERTO
     @Test
@@ -415,6 +418,7 @@ public class RestauranteServiceTest {
         verify(restauranteRepository).save(any(Restaurante.class));
         assertEquals(EstadoRestaurante.ABERTO, restaurante.getEstado());
     }
+
 
     //R) Atualizar restaurante para estado FECHADO
     @Test
@@ -444,6 +448,7 @@ public class RestauranteServiceTest {
         assertEquals(EstadoRestaurante.FECHADO, restaurante.getEstado());
     }
 
+
     //S) Atualizar restaurante para estado RESERVADO
     @Test
     @DisplayName("S: Atualizar estado para RESERVADO.")
@@ -471,8 +476,66 @@ public class RestauranteServiceTest {
         assertEquals(EstadoRestaurante.RESERVADO, restaurante.getEstado());
     }
 
-    //T) Procurar restaurante por nome, com nome nulo/vazio deve devolver todos os restaurantes.
 
+    //T) Procurar restaurante por nome, com nome nulo/vazio, deve devolver todos os restaurantes.
+    @Test
+    @DisplayName("T: Procurar restaurante por nome nulo ou vazio devolve todos.")
+    void procurarRestaurantePorNomeNullOuVazio() {
+        when(restauranteRepository.findAll()).thenReturn(java.util.List.of(
+                new Restaurante("TascaEats1", "111111111", new Morada("Rua", 1, "1000-000", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas()),
+                new Restaurante("TascaEats2", "222222222", new Morada("Rua", 2, "2000-000", "Porto"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())
+        ));
+
+        var result1 = restauranteService.procurarRestaurantePorNome(null);
+        var result2 = restauranteService.procurarRestaurantePorNome("   ");
+
+        assertEquals(2, result1.size());
+        assertEquals(2, result2.size());
+    }
+
+
+    //U) Procurar restaurante por nome com nome válido (deve usar pesquisa case-insensitive).
+    @Test
+    @DisplayName("U: Procurar restaurante por nome deve ser case-insensitive.")
+    void procurarRestaurantePorNomeCaseInsensitive() {
+        when(restauranteRepository.findByNomeContainingIgnoreCase("TASCA")).thenReturn(java.util.List.of(
+                        new Restaurante("Tasca Eats", "123456789", new Morada("Rua", 1, "1234-567", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())));
+
+        var result = restauranteService.procurarRestaurantePorNome("TASCA");
+        assertEquals(1, result.size());
+        assertEquals("Tasca Eats", result.get(0).getNome());
+    }
+
+
+    //V) Listar restaurantes por estado com estado nulo deve devolver todos os restaurantes.
+    @Test
+    @DisplayName("V: Listar por estado nulo devolve todos.")
+    void listarPorEstadoNull() {
+        when(restauranteRepository.findAll()).thenReturn(java.util.List.of(
+                new Restaurante("Reastaurante A", "111111111", new Morada("Rua", 1, "1000-000", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas()),
+                new Restaurante("Restaurante B", "222222222", new Morada("Rua", 2, "2000-000", "Porto"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())
+        ));
+
+        var result = restauranteService.listarPorEstado(null);
+        assertEquals(2, result.size());
+    }
+
+
+    //W) Listar restaurantes por estados com estado válido.A função deve filtrar corretamente.
+    @Test
+    @DisplayName("W: Listar por estado válido filtra corretamente.")
+    void listarPorEstadoValido() {
+
+        Restaurante r = new Restaurante("Aberto", "123456789", new Morada("Rua", 1, "1000-000", "Lisboa"),
+                adminValido(), new CatalogoProdutos(), new CatalogoEntregas());
+        r.abrir();
+
+        when(restauranteRepository.findByEstado(EstadoRestaurante.ABERTO)).thenReturn(java.util.List.of(r));
+        var result = restauranteService.listarPorEstado(EstadoRestaurante.ABERTO);
+
+        assertEquals(1, result.size());
+        assertEquals(EstadoRestaurante.ABERTO, result.get(0).getEstado());
+    }
 
 
     //**********Funções auxiliares************
