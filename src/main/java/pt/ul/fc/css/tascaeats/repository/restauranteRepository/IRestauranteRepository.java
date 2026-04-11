@@ -12,7 +12,7 @@ public interface IRestauranteRepository extends JpaRepository<Restaurante, Long>
 
 	List<Restaurante> findByNomeContainingIgnoreCase(String nome);
 
-	List<Restaurante> findByMoradaLocalidadeIgnoreCase(String localidade);
+	List<Restaurante> findByMoradaCidadeIgnoreCase(String cidade);
 
 	Optional<Restaurante> findByNif(String nif);
 
