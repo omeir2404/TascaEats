@@ -297,51 +297,51 @@
 - [x] `GET /api/restaurantes` sem filtros deve devolver lista completa
 
 #### 2) ProdutoController
-- [ ] `POST /api/catalogos/{catalogoId}/produtos` com payload válido deve retornar `201`
-- [ ] `POST /api/catalogos/{catalogoId}/produtos` com catálogo inexistente deve retornar `400`
-- [ ] `PUT /api/produtos/{id}` com sucesso deve retornar `200`
-- [ ] `PUT /api/produtos/{id}` com produto inexistente deve retornar `404`
-- [ ] `PUT /api/produtos/{id}` com produto apagado deve retornar `409`
-- [ ] `PATCH /api/produtos/{id}/disponibilidade` com sucesso deve retornar `200`
-- [ ] `PATCH /api/produtos/{id}/disponibilidade` com `disponivel` ausente deve retornar `400`
-- [ ] `PATCH /api/produtos/{id}/disponibilidade` em produto apagado deve retornar `409`
-- [ ] `GET /api/produtos/{id}` com id válido deve retornar `200`
-- [ ] `GET /api/produtos/{id}` com id inexistente deve retornar `404`
-- [ ] `GET /api/produtos?nome=...` deve pesquisar por nome
-- [ ] `GET /api/produtos?ativos=true` deve devolver apenas não apagados
-- [ ] `GET /api/produtos?disponiveis=true` deve devolver apenas disponíveis
-- [ ] `DELETE /api/produtos/{id}` com sucesso deve retornar `204`
-- [ ] `DELETE /api/produtos/{id}` com id inexistente deve retornar `404`
+- [x] `POST /api/catalogos/{catalogoId}/produtos` com payload válido deve retornar `201`
+- [x] `POST /api/catalogos/{catalogoId}/produtos` com catálogo inexistente deve retornar `400`
+- [x] `PUT /api/produtos/{id}` com sucesso deve retornar `200`
+- [x] `PUT /api/produtos/{id}` com produto inexistente deve retornar `404`
+- [x] `PUT /api/produtos/{id}` com produto apagado deve retornar `409`
+- [x] `PATCH /api/produtos/{id}/disponibilidade` com sucesso deve retornar `200`
+- [x] `PATCH /api/produtos/{id}/disponibilidade` com `disponivel` ausente deve retornar `400`
+- [x] `PATCH /api/produtos/{id}/disponibilidade` em produto apagado deve retornar `409`
+- [x] `GET /api/produtos/{id}` com id válido deve retornar `200`
+- [x] `GET /api/produtos/{id}` com id inexistente deve retornar `404`
+- [x] `GET /api/produtos?nome=...` deve pesquisar por nome
+- [x] `GET /api/produtos?ativos=true` deve devolver apenas não apagados
+- [x] `GET /api/produtos?disponiveis=true` deve devolver apenas disponíveis
+- [x] `DELETE /api/produtos/{id}` com sucesso deve retornar `204`
+- [x] `DELETE /api/produtos/{id}` com id inexistente deve retornar `404`
 
 ### Domain (entities + enum)
 
 #### 1) EstadoRestaurante
-- [ ] deve conter os valores esperados (`ABERTO`, `FECHADO`, `RESERVADO`)
+- [x] deve conter os valores esperados (`ABERTO`, `FECHADO`, `RESERVADO`)
 
 #### 2) Restaurante
-- [ ] novo `Restaurante` deve iniciar em `FECHADO`
-- [ ] `abrir` a partir de `FECHADO` deve passar
-- [ ] `abrir` quando já `ABERTO` deve falhar
-- [ ] `fechar` a partir de `ABERTO` deve passar
-- [ ] `fechar` quando já `FECHADO` deve falhar
-- [ ] `reservar` a partir de `ABERTO`/`FECHADO` deve passar
-- [ ] `reservar` quando já `RESERVADO` deve falhar
-- [ ] `validarDisponibilidadeParaPedido` com estado diferente de `ABERTO` deve falhar
-- [ ] `validarDisponibilidadeParaPedido` com estado `ABERTO` deve passar
+- [x] novo `Restaurante` deve iniciar em `FECHADO`
+- [x] `abrir` a partir de `FECHADO` deve passar
+- [x] `abrir` quando já `ABERTO` deve falhar
+- [x] `fechar` a partir de `ABERTO` deve passar
+- [x] `fechar` quando já `FECHADO` deve falhar
+- [x] `reservar` a partir de `ABERTO`/`FECHADO` deve passar
+- [x] `reservar` quando já `RESERVADO` deve falhar
+- [x] `validarDisponibilidadeParaPedido` com estado diferente de `ABERTO` deve falhar
+- [x] `validarDisponibilidadeParaPedido` com estado `ABERTO` deve passar
 
 #### 3) Produto
-- [ ] novo `Produto` deve iniciar com `disponivel=true` e `apagado=false`
-- [ ] `indisponibilizar` quando produto disponível deve passar
-- [ ] `indisponibilizar` quando já indisponível deve falhar
-- [ ] `disponibilizar` quando produto indisponível e ativo deve passar
-- [ ] `disponibilizar` quando já disponível deve falhar
-- [ ] `apagar` deve marcar `apagado=true` e `disponivel=false`
-- [ ] `apagar` repetido deve falhar
-- [ ] `ativar` em produto apagado deve reativar (`apagado=false`)
-- [ ] `ativar` em produto já ativo deve falhar
-- [ ] `validarDisponibilidadeParaPedido` em produto apagado deve falhar
-- [ ] `validarDisponibilidadeParaPedido` em produto indisponível deve falhar
-- [ ] `validarDisponibilidadeParaPedido` em produto disponível e ativo deve passar
+- [x] novo `Produto` deve iniciar com `disponivel=true` e `apagado=false`
+- [x] `indisponibilizar` quando produto disponível deve passar
+- [x] `indisponibilizar` quando já indisponível deve falhar
+- [x] `disponibilizar` quando produto indisponível e ativo deve passar
+- [x] `disponibilizar` quando já disponível deve falhar
+- [x] `apagar` deve marcar `apagado=true` e `disponivel=false`
+- [x] `apagar` repetido deve falhar
+- [x] `ativar` em produto apagado deve reativar (`apagado=false`)
+- [x] `ativar` em produto já ativo deve falhar
+- [x] `validarDisponibilidadeParaPedido` em produto apagado deve falhar
+- [x] `validarDisponibilidadeParaPedido` em produto indisponível deve falhar
+- [x] `validarDisponibilidadeParaPedido` em produto disponível e ativo deve passar
 
 #### 4) CatalogoProdutos
 - [ ] construtor com `restaurante=null` deve falhar
@@ -355,8 +355,8 @@
 ### Factory
 
 #### 1) Restaurante/Produto Factory
-- [ ] confirmar que não existe factory dedicada para `Restaurante`/`Produto` no desenho atual
-- [ ] se for introduzida factory no futuro, validar criação com campos obrigatórios e erros de domínio
+- [x] confirmar que não existe factory dedicada para `Restaurante`/`Produto` no desenho atual
+- [x] se for introduzida factory no futuro, validar criação com campos obrigatórios e erros de domínio
 
 ### Repositories
 
