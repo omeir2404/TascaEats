@@ -119,6 +119,7 @@ public class RestauranteTest {
         assertDoesNotThrow(restaurante::validarDisponibilidadeParaPedido);
     }
 
+
     //**********Funções auxiliares************
 
     private Restaurante criarRestaurante() {
