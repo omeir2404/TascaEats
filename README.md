@@ -49,6 +49,154 @@ sudo systemctl start docker
 
 O projeto modelo apresenta uma estrutura de pacotes indicativa. Apesar de não ser obrigatória, é recomendada para simplificar o desenvolvimento desta fase e das posteriores. A equipa tem liberdade de alterar qualquer ficheiro do projeto durante o seu desenvolvimento.
 
+# Implementacao do Projeto (Estado Atual)
+
+Esta seccao descreve o que esta efetivamente implementado no repositorio, com base no codigo atual.
+
+## Stack Tecnologica
+
+- Backend: Spring Boot 3.0.5 (Java 17)
+- Persistencia: Spring Data JPA + Hibernate
+- Base de dados: PostgreSQL (em Docker)
+- Documentacao da API: SpringDoc OpenAPI/Swagger UI
+- Testes: JUnit + Spring Boot Test
+
+Dependencias principais em `pom.xml`: `spring-boot-starter-web`, `spring-boot-starter-data-jpa`, `spring-boot-starter-validation`, `springdoc-openapi-starter-webmvc-ui`, `postgresql`.
+
+## Arquitetura e Organizacao
+
+O projeto segue uma arquitetura em camadas:
+
+- `controllers`: camada HTTP/REST
+- `service`: regras de negocio e validacoes
+- `domain`: modelo de dominio rico (entidades, estados e comportamentos)
+- `repository`: acesso a dados com interfaces Spring Data
+- `dto`: contratos de entrada/saida da API
+- `config`: configuracao (incluindo OpenAPI)
+
+Pacote base: `src/main/java/pt/ul/fc/css/tascaeats`.
+
+## Funcionalidades Implementadas por Modulo
+
+### 1) Utilizadores e Autenticacao Mock
+
+Implementado em `UtilizadorController` + `UtilizadorService`:
+
+- Registo de utilizadores (`client`, `driver/entregador`, `admin/restaurante admin`)
+- Login mock (password aceite se o email existir)
+- Consultar, atualizar e remover utilizadores
+- Validacoes de email, tipo de utilizador e morada para cliente
+
+Endpoints base: `/api/register`, `/api/login`, `/api/Utilizadors`.
+
+### 2) Restaurantes
+
+Implementado em `RestauranteController` + `RestauranteService`:
+
+- Criacao de restaurante associada a administrador
+- Atualizacao de dados (nome, nif, morada)
+- Gestao de estado (`ABERTO`, `FECHADO`, `RESERVADO`)
+- Pesquisa/listagem por nome, cidade e estado
+
+Endpoint base: `/api/restaurantes`.
+
+### 3) Produtos (Cardapio)
+
+Implementado em `ProdutoController` + `ProdutoService`:
+
+- Criacao de produto por restaurante
+- Atualizacao de produto
+- Atualizacao de disponibilidade
+- Soft delete de produto (`apagar`) no dominio
+- Listagens com filtros (nome, restaurante, ativos, disponiveis)
+
+Endpoints base: `/api/restaurantes/{restauranteId}/produtos` e `/api/produtos`.
+
+### 4) Pedidos
+
+Implementado em `PedidoController` + `PedidoService`:
+
+- Criacao de pedido com validacao de cliente, restaurante e produtos
+- Validacao de disponibilidade de restaurante e produtos
+- Calculo do valor total do pedido
+- Cancelamento condicionado ao estado (`CRIADO` ou `PAGO`)
+- Listagem de pedidos com filtros opcionais (`clienteId`, `estado`)
+
+Endpoint base: `/pedidos`.
+
+### 5) Pagamentos
+
+Implementado em `PagamentoController` + `PagamentoService` + `PagamentoFactory`:
+
+- Processamento de pagamento para pedido
+- Criacao polimorfica do pagamento (ex.: MBWay, Multibanco, Dinheiro, Cartao)
+- Associacao do pagamento ao pedido e transicao de estado para pago
+
+Endpoint base: `/pagamentos`.
+
+### 6) Entregas e Fluxo Logistico
+
+Implementado em `EntregaController` + `EntregaService`:
+
+- Inicio da preparacao do pedido
+- Marcacao de pedido pronto para entrega
+- Atribuicao automatica de entregador disponivel
+- Registo de recolha e entrega final
+- Atualizacao da disponibilidade do entregador no fim da entrega
+
+Endpoints base: `/entregas`.
+
+## Regras de Negocio Cobertas
+
+Entre as regras atualmente implementadas:
+
+- Nao permitir pedido para restaurante fechado/indisponivel
+- Nao permitir adicionar produto indisponivel a pedido
+- Nao permitir cancelar pedido fora dos estados permitidos
+- Nao atribuir entrega se o pedido nao estiver pronto para entrega
+- Nao atribuir pedido se nao houver entregadores disponiveis
+- Nao permitir alterar disponibilidade/atualizar produto apagado
+
+## API e Documentacao
+
+- OpenAPI configurado em `OpenApiConfig`
+- Swagger UI disponivel em runtime (tipicamente):
+    - `http://localhost:8080/swagger-ui/index.html`
+
+Lista detalhada dos casos de uso e rotas: ficheiro `USE_CASES_API_ROUTES.md`.
+
+## Persistencia e Execucao
+
+- Configuracao JPA/DB em `src/main/resources/application.properties`
+- Infraestrutura Docker em `docker-compose.yml` com:
+    - Servico PostgreSQL (`pgserver`)
+    - Servico aplicacao Spring Boot (`springbootapp`)
+
+Comando recomendado para correr o projeto:
+
+```bash
+./run.sh
+```
+
+## Testes Implementados
+
+O projeto contem testes para dominio, servicos, controllers e repositories, incluindo:
+
+- Testes de dominio (`Pedido`, `Produto`, `Restaurante`, `Pagamento*`, `Entrega`, estados)
+- Testes de servicos (`PedidoService`, `PagamentoService`, `EntregaService`, `ProdutoService`, `RestauranteService`, utilizadores)
+- Testes de controllers (utilizadores, restaurantes, produtos, pedidos, pagamentos, entregas)
+- Testes de repositories Spring Data
+
+Diretorio principal de testes: `src/test/java/pt/ul/fc/css/tascaeats`.
+
+## Equipa
+
+Grupo CSS 25:
+
+- Omeir Haroon (61810)
+- Isa David (61871)
+- Diogo Roque (61857)
+
 
 # Contextualização
 

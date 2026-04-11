@@ -1,16 +1,29 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
 package pt.ul.fc.css.tascaeats.service.utilizadorServices;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
-import pt.ul.fc.css.tascaeats.domain.utilizador.*;
+
+import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
+import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorLoginDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 
 @Service
 public class UtilizadorService {

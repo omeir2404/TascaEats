@@ -1,9 +1,28 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
 package pt.ul.fc.css.tascaeats.controllers;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.HtmlUtils;
+
 import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
@@ -11,11 +30,12 @@ import pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador;
 import pt.ul.fc.css.tascaeats.dto.mensagensDTO.ApiErrorDTO;
 import pt.ul.fc.css.tascaeats.dto.mensagensDTO.ApiMessageDTO;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaResponseDTO;
-import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.*;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorLoginDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoRespostaDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRespostaDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
 import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
