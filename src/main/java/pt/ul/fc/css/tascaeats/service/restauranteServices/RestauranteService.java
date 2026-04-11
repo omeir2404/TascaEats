@@ -1,9 +1,13 @@
 package pt.ul.fc.css.tascaeats.service.restauranteServices;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
+
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
+import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
@@ -13,9 +17,6 @@ import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IRestauranteAdminRepository;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
