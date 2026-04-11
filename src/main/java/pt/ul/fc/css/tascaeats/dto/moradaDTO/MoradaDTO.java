@@ -7,6 +7,19 @@ import jakarta.validation.constraints.Positive;
 
 public class MoradaDTO {
 
+	public MoradaDTO() {
+	}
+
+	public MoradaDTO(String rua, Integer numero, @Nullable String complemento, String codigoPostal, String cidade, String distrito, String pais) {
+		this.rua = rua;
+		this.numero = numero;
+		this.complemento = complemento;
+		this.codigoPostal = codigoPostal;
+		this.cidade = cidade;
+		this.distrito = distrito;
+		this.pais = pais;
+	}
+
 	@NotBlank(message = "A 'rua' da morada é obrigatória.")
 	private String rua;
 	@NotNull(message = "O 'numero' da morada é obrigatório.")
@@ -57,11 +70,12 @@ public class MoradaDTO {
 	}
 
 	//Complemento
+	@Nullable
 	public String getComplemento() {
 		return complemento;
 	}
 
-	public void setComplemento(String complemento) {
+	public void setComplemento(@Nullable String complemento) {
 		this.complemento = complemento;
 	}
 

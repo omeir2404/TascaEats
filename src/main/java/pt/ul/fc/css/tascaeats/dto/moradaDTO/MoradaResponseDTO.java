@@ -1,81 +1,82 @@
 package pt.ul.fc.css.tascaeats.dto.moradaDTO;
 
 public class MoradaResponseDTO {
-    private String street;
-    private String number;
-    private String complement;
-    private String country;
-    private String district;
-    private String city;
-    private String postalCode;
+    private String rua;
+    private Integer numero;
+    private String complemento;
+    private String pais;
+    private String distrito;
+    private String cidade;
+    private String codigoPostal;
 
     public MoradaResponseDTO() {
     }
 
-    public MoradaResponseDTO(String street, String number, String complement, String country, String district, String city, String postalCode) {
-        this.street = street;
-        this.number = number;
-        this.complement = complement;
-        this.country = country;
-        this.district = district;
-        this.city = city;
-        this.postalCode = postalCode;
+    public MoradaResponseDTO(String rua, Integer number, String complemento, String pais, String distrito, String cidade, String codigoPostal) {
+        this.rua = rua;
+        this.numero = number;
+        this.complemento = complemento;
+        this.pais = pais;
+        this.distrito = distrito;
+        this.cidade = cidade;
+        this.codigoPostal = codigoPostal;
     }
 
-    public String getStreet() {
-        return street;
+
+    public String getRua() {
+        return rua;
     }
 
-    public void setStreet(String street) {
-        this.street = street;
+    public void setRua(String rua) {
+        this.rua = rua;
     }
 
-    public String getNumber() {
-        return number;
+    public Integer getNumero() {
+        return numero;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setNumero(Integer numero) {
+        this.numero = numero;
     }
 
-    public String getComplement() {
-        return complement;
+    public String getComplemento() {
+        return complemento;
     }
 
-    public void setComplement(String complement) {
-        this.complement = complement;
+    public void setComplemento(String complemento) {
+        this.complemento = complemento;
     }
 
-    public String getCountry() {
-        return country;
+    public String getPais() {
+        return pais;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setPais(String pais) {
+        this.pais = pais;
     }
 
-    public String getDistrict() {
-        return district;
+    public String getDistrito() {
+        return distrito;
     }
 
-    public void setDistrict(String district) {
-        this.district = district;
+    public void setDistrito(String distrito) {
+        this.distrito = distrito;
     }
 
-    public String getCity() {
-        return city;
+    public String getCidade() {
+        return cidade;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
     }
 
-    public String getPostalCode() {
-        return postalCode;
+    public String getCodigoPostal() {
+        return codigoPostal;
     }
 
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
+    public void setCodigoPostal(String codigoPostal) {
+        this.codigoPostal = codigoPostal;
     }
 }
 
