@@ -297,37 +297,37 @@
 - [x] `GET /api/restaurantes` sem filtros deve devolver lista completa
 
 #### 2) ProdutoController
-- [ ] `POST /api/catalogos/{catalogoId}/produtos` com payload válido deve retornar `201`
-- [ ] `POST /api/catalogos/{catalogoId}/produtos` com catálogo inexistente deve retornar `400`
-- [ ] `PUT /api/produtos/{id}` com sucesso deve retornar `200`
-- [ ] `PUT /api/produtos/{id}` com produto inexistente deve retornar `404`
-- [ ] `PUT /api/produtos/{id}` com produto apagado deve retornar `409`
-- [ ] `PATCH /api/produtos/{id}/disponibilidade` com sucesso deve retornar `200`
-- [ ] `PATCH /api/produtos/{id}/disponibilidade` com `disponivel` ausente deve retornar `400`
-- [ ] `PATCH /api/produtos/{id}/disponibilidade` em produto apagado deve retornar `409`
-- [ ] `GET /api/produtos/{id}` com id válido deve retornar `200`
-- [ ] `GET /api/produtos/{id}` com id inexistente deve retornar `404`
-- [ ] `GET /api/produtos?nome=...` deve pesquisar por nome
-- [ ] `GET /api/produtos?ativos=true` deve devolver apenas não apagados
-- [ ] `GET /api/produtos?disponiveis=true` deve devolver apenas disponíveis
-- [ ] `DELETE /api/produtos/{id}` com sucesso deve retornar `204`
-- [ ] `DELETE /api/produtos/{id}` com id inexistente deve retornar `404`
+- [x] `POST /api/catalogos/{catalogoId}/produtos` com payload válido deve retornar `201`
+- [x] `POST /api/catalogos/{catalogoId}/produtos` com catálogo inexistente deve retornar `400`
+- [x] `PUT /api/produtos/{id}` com sucesso deve retornar `200`
+- [x] `PUT /api/produtos/{id}` com produto inexistente deve retornar `404`
+- [x] `PUT /api/produtos/{id}` com produto apagado deve retornar `409`
+- [x] `PATCH /api/produtos/{id}/disponibilidade` com sucesso deve retornar `200`
+- [x] `PATCH /api/produtos/{id}/disponibilidade` com `disponivel` ausente deve retornar `400`
+- [x] `PATCH /api/produtos/{id}/disponibilidade` em produto apagado deve retornar `409`
+- [x] `GET /api/produtos/{id}` com id válido deve retornar `200`
+- [x] `GET /api/produtos/{id}` com id inexistente deve retornar `404`
+- [x] `GET /api/produtos?nome=...` deve pesquisar por nome
+- [x] `GET /api/produtos?ativos=true` deve devolver apenas não apagados
+- [x] `GET /api/produtos?disponiveis=true` deve devolver apenas disponíveis
+- [x] `DELETE /api/produtos/{id}` com sucesso deve retornar `204`
+- [x] `DELETE /api/produtos/{id}` com id inexistente deve retornar `404`
 
 ### Domain (entities + enum)
 
 #### 1) EstadoRestaurante
-- [ ] deve conter os valores esperados (`ABERTO`, `FECHADO`, `RESERVADO`)
+- [x] deve conter os valores esperados (`ABERTO`, `FECHADO`, `RESERVADO`)
 
 #### 2) Restaurante
-- [ ] novo `Restaurante` deve iniciar em `FECHADO`
-- [ ] `abrir` a partir de `FECHADO` deve passar
-- [ ] `abrir` quando já `ABERTO` deve falhar
-- [ ] `fechar` a partir de `ABERTO` deve passar
-- [ ] `fechar` quando já `FECHADO` deve falhar
-- [ ] `reservar` a partir de `ABERTO`/`FECHADO` deve passar
-- [ ] `reservar` quando já `RESERVADO` deve falhar
-- [ ] `validarDisponibilidadeParaPedido` com estado diferente de `ABERTO` deve falhar
-- [ ] `validarDisponibilidadeParaPedido` com estado `ABERTO` deve passar
+- [x] novo `Restaurante` deve iniciar em `FECHADO`
+- [x] `abrir` a partir de `FECHADO` deve passar
+- [x] `abrir` quando já `ABERTO` deve falhar
+- [x] `fechar` a partir de `ABERTO` deve passar
+- [x] `fechar` quando já `FECHADO` deve falhar
+- [x] `reservar` a partir de `ABERTO`/`FECHADO` deve passar
+- [x] `reservar` quando já `RESERVADO` deve falhar
+- [x] `validarDisponibilidadeParaPedido` com estado diferente de `ABERTO` deve falhar
+- [x] `validarDisponibilidadeParaPedido` com estado `ABERTO` deve passar
 
 #### 3) Produto
 - [ ] novo `Produto` deve iniciar com `disponivel=true` e `apagado=false`

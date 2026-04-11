@@ -1,0 +1,296 @@
+package pt.ul.fc.css.tascaeats.controllers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.MockMvc;
+import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
+import pt.ul.fc.css.tascaeats.domain.produto.Produto;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
+import pt.ul.fc.css.tascaeats.service.produtoService.ProdutoService;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(ProdutoController.class)
+class ProdutoControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private ProdutoService produtoService;
+
+    @Test
+    @DisplayName("A: POST /api/catalogos/{catalogoId}/produtos com payload válido retorna 201.")
+    void shouldCreateProdutoWhenPayloadIsValid() throws Exception {
+        CriarProdutoDTO dto = criarProdutoDTO();
+        Produto produto = produto(1L, "Massa", 10.0, "Massa fresca", true, false);
+
+        when(produtoService.criarProduto(eq(4L), any(CriarProdutoDTO.class))).thenReturn(produto);
+
+        mockMvc.perform(post("/api/catalogos/4/produtos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Produto criado com sucesso"))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nome").value("Massa"))
+                .andExpect(jsonPath("$.preco").value(10.0))
+                .andExpect(jsonPath("$.descricao").value("Massa fresca"));
+    }
+
+    @Test
+    @DisplayName("B: POST /api/catalogos/{catalogoId}/produtos com catálogo inexistente retorna 400.")
+    void shouldReturnBadRequestWhenCatalogoDoesNotExist() throws Exception {
+        when(produtoService.criarProduto(eq(99L), any(CriarProdutoDTO.class)))
+                .thenThrow(new IllegalArgumentException("O catálogo não foi encontrado."));
+
+        mockMvc.perform(post("/api/catalogos/99/produtos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(criarProdutoDTO())))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("O catálogo não foi encontrado."));
+    }
+
+    @Test
+    @DisplayName("C: PUT /api/produtos/{id} com sucesso retorna 200.")
+    void shouldUpdateProdutoWhenRequestIsValid() throws Exception {
+        Produto produto = produto(2L, "Pizza", 12.5, "Pizza grande", true, false);
+
+        when(produtoService.atualizarProduto(eq(2L), any())).thenReturn(produto);
+
+        mockMvc.perform(put("/api/produtos/2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(produtoUpdatePayload("Pizza", 12.5, "Pizza grande"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(2))
+                .andExpect(jsonPath("$.nome").value("Pizza"))
+                .andExpect(jsonPath("$.preco").value(12.5))
+                .andExpect(jsonPath("$.disponivel").value(true))
+                .andExpect(jsonPath("$.apagado").value(false));
+    }
+
+    @Test
+    @DisplayName("D: PUT /api/produtos/{id} com produto inexistente retorna 404")
+    void shouldReturnNotFoundWhenUpdatingMissingProduto() throws Exception {
+        when(produtoService.atualizarProduto(eq(999L), any()))
+                .thenThrow(new IllegalArgumentException("O produto não foi encontrado."));
+
+        mockMvc.perform(put("/api/produtos/999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(produtoUpdatePayload("Pizza", 12.5, "Pizza grande"))))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Produto n\u00e3o encontrado"));
+    }
+
+    @Test
+    @DisplayName("E: PUT /api/produtos/{id} com produto apagado retorna 409.")
+    void shouldReturnConflictWhenUpdatingDeletedProduto() throws Exception {
+        when(produtoService.atualizarProduto(eq(5L), any()))
+                .thenThrow(new IllegalStateException("Nao e possivel atualizar um produto apagado."));
+
+        mockMvc.perform(put("/api/produtos/5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(produtoUpdatePayload("Pizza", 12.5, "Pizza grande"))))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("Nao e possivel atualizar um produto apagado."));
+    }
+
+    @Test
+    @DisplayName("F: PATCH /api/produtos/{id}/disponibilidade com sucesso retorna 200")
+    void shouldUpdateDisponibilidadeWhenRequestIsValid() throws Exception {
+        AtualizarDisponibilidadeProdutoDTO dto = disponibilidadeDTO(false);
+        Produto produto = produto(6L, "Hamburguer", 8.0, "Menu", false, false);
+
+        when(produtoService.atualizarDisponibilidade(eq(6L), any(AtualizarDisponibilidadeProdutoDTO.class)))
+                .thenReturn(produto);
+
+        mockMvc.perform(patch("/api/produtos/6/disponibilidade")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(6))
+                .andExpect(jsonPath("$.disponivel").value(false));
+    }
+
+    @Test
+    @DisplayName("G: PATCH /api/produtos/{id}/disponibilidade com disponível ausente retorna 400.")
+    void shouldReturnBadRequestWhenDisponivelIsMissing() throws Exception {
+        mockMvc.perform(patch("/api/produtos/6/disponibilidade")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("H: PATCH /api/produtos/{id}/disponibilidade em produto apagado retorna 409.")
+    void shouldReturnConflictWhenChangingDisponibilidadeOfDeletedProduto() throws Exception {
+        when(produtoService.atualizarDisponibilidade(eq(6L), any(AtualizarDisponibilidadeProdutoDTO.class)))
+                .thenThrow(new IllegalStateException("Não é possível alterar a disponibilidade de um produto apagado."));
+
+        mockMvc.perform(patch("/api/produtos/6/disponibilidade")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(disponibilidadeDTO(false))))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("Não é possível alterar a disponibilidade de um produto apagado."));
+    }
+
+    @Test
+    @DisplayName("I: GET /api/produtos/{id} com id valido retorna 200")
+    void shouldReturnProdutoWhenIdIsValid() throws Exception {
+        when(produtoService.obterProdutoPorId(3L))
+                .thenReturn(produto(3L, "Sopa", 3.5, "Sopa do dia", true, false));
+
+        mockMvc.perform(get("/api/produtos/3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(3))
+                .andExpect(jsonPath("$.nome").value("Sopa"))
+                .andExpect(jsonPath("$.apagado").value(false));
+    }
+
+    @Test
+    @DisplayName("J: GET /api/produtos/{id} com id inexistente retorna 404")
+    void shouldReturnNotFoundWhenProdutoIdDoesNotExist() throws Exception {
+        when(produtoService.obterProdutoPorId(anyLong()))
+                .thenThrow(new IllegalArgumentException("O produto não foi encontrado."));
+
+        mockMvc.perform(get("/api/produtos/404"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Produto não encontrado"));
+    }
+
+    @Test
+    @DisplayName("K: GET /api/produtos?nome pesquisa por nome")
+    void shouldSearchProdutosByNome() throws Exception {
+        when(produtoService.procurarProdutoPorNome("massa"))
+                .thenReturn(List.of(
+                        produto(1L, "Massa Carbonara", 11.0, "Clássica", true, false),
+                        produto(2L, "Massa Pesto", 10.0, "Verde", true, false)
+                ));
+
+        mockMvc.perform(get("/api/produtos").param("nome", "massa"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("Massa Carbonara"))
+                .andExpect(jsonPath("$[1].nome").value("Massa Pesto"));
+
+        verify(produtoService).procurarProdutoPorNome("massa");
+    }
+
+    @Test
+    @DisplayName("L: GET /api/produtos?ativos=true devolve apenas não apagados")
+    void shouldReturnOnlyActiveProdutos() throws Exception {
+        when(produtoService.listarProdutosAtivos())
+                .thenReturn(List.of(
+                        produto(7L, "Salada", 6.0, "Fresca", true, false),
+                        produto(8L, "Bife", 15.0, "Grelhado", false, false)
+                ));
+
+        mockMvc.perform(get("/api/produtos").param("ativos", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].apagado").value(false))
+                .andExpect(jsonPath("$[1].apagado").value(false));
+
+        verify(produtoService).listarProdutosAtivos();
+    }
+
+    @Test
+    @DisplayName("M: GET /api/produtos?disponiveis=true devolve apenas disponíveis")
+    void shouldReturnOnlyAvailableProdutos() throws Exception {
+        when(produtoService.listarProdutosDisponiveis())
+                .thenReturn(List.of(
+                        produto(9L, "Peixe", 13.0, "Assado", true, false),
+                        produto(10L, "Arroz", 4.0, "Branco", true, false)
+                ));
+
+        mockMvc.perform(get("/api/produtos").param("disponiveis", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].disponivel").value(true))
+                .andExpect(jsonPath("$[1].disponivel").value(true));
+
+        verify(produtoService).listarProdutosDisponiveis();
+    }
+
+    @Test
+    @DisplayName("N: DELETE /api/produtos/{id} com sucesso retorna 204")
+    void shouldDeleteProdutoWhenIdExists() throws Exception {
+        mockMvc.perform(delete("/api/produtos/12"))
+                .andExpect(status().isNoContent());
+
+        verify(produtoService).apagarProduto(12L);
+    }
+
+    @Test
+    @DisplayName("O: DELETE /api/produtos/{id} com id inexistente retorna 404")
+    void shouldReturnNotFoundWhenDeletingMissingProduto() throws Exception {
+        org.mockito.Mockito.doThrow(new IllegalArgumentException("O produto não foi encontrado."))
+                .when(produtoService).apagarProduto(404L);
+
+        mockMvc.perform(delete("/api/produtos/404"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Produto não encontrado"));
+    }
+
+
+    //**********Funções auxiliares************
+
+    private CriarProdutoDTO criarProdutoDTO() {
+        CriarProdutoDTO dto = new CriarProdutoDTO();
+        dto.setNome("Massa");
+        dto.setPreco(10.0);
+        dto.setDescricao("Massa fresca");
+        return dto;
+    }
+
+    private Map<String, Object> produtoUpdatePayload(String nome, double preco, String descricao) {
+        return Map.of(
+                "id", 1L,
+                "nome", nome,
+                "preco", preco,
+                "descricao", descricao
+        );
+    }
+
+    private AtualizarDisponibilidadeProdutoDTO disponibilidadeDTO(boolean disponivel) {
+        AtualizarDisponibilidadeProdutoDTO dto = new AtualizarDisponibilidadeProdutoDTO();
+        dto.setDisponivel(disponivel);
+        return dto;
+    }
+
+    private Produto produto(Long id, String nome, double preco, String descricao, boolean disponivel, boolean apagado) {
+        Produto produto = new Produto(nome, preco, descricao, new CatalogoProdutos());
+        ReflectionTestUtils.setField(produto, "id", id);
+
+        if (!disponivel) {
+            produto.indisponibilizar();
+        }
+        if (apagado) {
+            produto.apagar();
+        }
+
+        return produto;
+    }
+
+}
