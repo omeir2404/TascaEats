@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Morada;
@@ -50,10 +49,9 @@ public class RestauranteService {
 		validarNif(nif, null);
 		Morada morada = moradaObtida(dto.getMorada());
 
-		CatalogoProdutos catalogoProdutos = new CatalogoProdutos();
 		CatalogoEntregas catalogoEntregas = new CatalogoEntregas();
 
-		Restaurante novoRestaurante = new Restaurante(nome, nif, morada, administrador, catalogoProdutos, catalogoEntregas);
+		Restaurante novoRestaurante = new Restaurante(nome, nif, morada, administrador, catalogoEntregas);
 		return restauranteRepository.save(novoRestaurante);
 	}
 

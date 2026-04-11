@@ -13,7 +13,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import jakarta.persistence.ManyToOne;
-import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 
 @Entity
@@ -41,10 +40,6 @@ public class Restaurante{
     private Morada morada; 
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "catalogo_produtos_id", nullable = false, unique = true)
-    private CatalogoProdutos catalogoProdutos;
-
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "catalogo_entregas_id", nullable = false)
     private CatalogoEntregas catalogoEntregas;
 
@@ -59,13 +54,12 @@ public class Restaurante{
     }
 
     public Restaurante(String nome, String nif, Morada morada, RestauranteAdmin administrador,
-                   CatalogoProdutos catalogoProdutos, CatalogoEntregas catalogoEntregas){
+                   CatalogoEntregas catalogoEntregas){
         this.nome = nome;
         this.nif = nif;
         this.estado = EstadoRestaurante.FECHADO;
         this.morada = morada;
         this.administrador = administrador;
-        this.catalogoProdutos = catalogoProdutos;
         this.catalogoEntregas = catalogoEntregas;
     }
     
@@ -138,15 +132,6 @@ public class Restaurante{
 
     public void setMorada(Morada morada){
         this.morada = morada;
-    }
-
-    //Catálogo de Produtos
-    public CatalogoProdutos getCatalogoProdutos(){
-        return catalogoProdutos;
-    }
-
-    public void setCatalogoProdutos(CatalogoProdutos catalogoProdutos){
-        this.catalogoProdutos = catalogoProdutos;
     }
 
     //Catálogo de Entregas

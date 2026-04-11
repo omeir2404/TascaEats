@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Positive;
 import java.util.List;
 import java.util.ArrayList;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 
 @Entity
 public class Produto{
@@ -45,8 +46,8 @@ public class Produto{
     private boolean apagado = false;
 
     @ManyToOne
-    @JoinColumn(name= "catalogo_produtos_id", nullable= false)
-    private CatalogoProdutos catalogoProdutos;
+    @JoinColumn(name= "restaurante_id", nullable= false)
+    private Restaurante restaurante;
 
     @ManyToMany
     @JoinTable(name = "pedido_produto", joinColumns = @JoinColumn(name= "produto_id"), inverseJoinColumns= @JoinColumn(name = "pedido_id"))
@@ -58,13 +59,13 @@ public class Produto{
     protected Produto(){
     }
 
-    public Produto(String nome, Double preco, String descricao, CatalogoProdutos catalogoProdutos){
+    public Produto(String nome, Double preco, String descricao, Restaurante restaurante){
         this.nome = nome;
         this.preco = preco;
         this.disponivel = true;
         this.descricao = descricao;
         this.apagado = false;
-        this.catalogoProdutos = catalogoProdutos;
+        this.restaurante = restaurante;
     }
 
 
@@ -159,12 +160,12 @@ public class Produto{
     }
 
     //Catálogo e Setters
-    public CatalogoProdutos getCatalogoProdutos() {
-        return catalogoProdutos;
+    public Restaurante getRestaurante() {
+        return restaurante;
     }
 
-    public void setCatalogoProdutos(CatalogoProdutos catalogoProdutos) {
-        this.catalogoProdutos = catalogoProdutos;
+    public void setRestaurante(Restaurante restaurante) {
+        this.restaurante = restaurante;
     }
 
     public List<Pedido> getPedidos() {

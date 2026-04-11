@@ -13,5 +13,5 @@ public interface IProdutoRepository extends JpaRepository<Produto, Long> {
 
 	List<Produto> findByApagadoFalse();
 
-	List<Produto> findByCatalogoProdutosRestauranteId(Long restauranteId);
+	List<Produto> findByRestauranteId(Long restauranteId);
 }
