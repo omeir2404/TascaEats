@@ -1,11 +1,14 @@
 package pt.ul.fc.css.tascaeats.controllers;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
 import pt.ul.fc.css.tascaeats.service.pagamentoServices.PagamentoService;
 
@@ -20,8 +23,12 @@ public class PagamentoController {
     }
 
     @PostMapping
-    public ResponseEntity<String> pagarPedido(@RequestBody ProcessarPagamentoDTO dto) {
-        pagamentoService.processarPagamento(dto);
-        return ResponseEntity.ok("Pagamento processado com sucesso.");
+    public ResponseEntity<?> pagarPedido(@Valid @RequestBody ProcessarPagamentoDTO dto) {
+        try {
+            pagamentoService.processarPagamento(dto);
+            return ResponseEntity.ok("Pagamento processado com sucesso.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }

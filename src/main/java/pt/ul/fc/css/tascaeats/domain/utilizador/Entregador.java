@@ -5,13 +5,15 @@ import jakarta.persistence.Entity;
 @Entity
 public class Entregador extends Utilizador {
 
-    private boolean available;
+    private boolean available = true;
 
      public Entregador(String name, String email, String password) {
         super(name, email, password);
+        this.available = true;
     }
 
     public Entregador() {
+        this.available = true;
     }
 
     @Override

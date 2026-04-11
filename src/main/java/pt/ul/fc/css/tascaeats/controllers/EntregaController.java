@@ -26,9 +26,15 @@ public class EntregaController {
 	}
 
 	@PostMapping("/atribuir")
-	public ResponseEntity<EntregaResumoDTO> atribuirEntregador(@Valid @RequestBody AtribuirEntregadorDTO dto) {
-		Entrega entrega = entregaService.atribuirEntregador(dto);
-		return ResponseEntity.ok(toResumoDTO(entrega));
+	public ResponseEntity<Object> atribuirEntregador(@Valid @RequestBody AtribuirEntregadorDTO dto) {
+		try {
+			Entrega entrega = entregaService.atribuirEntregador(dto);
+			return ResponseEntity.ok(toResumoDTO(entrega));
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(409).body(java.util.Map.of("error", e.getMessage()));
+		}
 	}
 
 	@PatchMapping("/pedido/{pedidoId}/iniciar-preparacao")
