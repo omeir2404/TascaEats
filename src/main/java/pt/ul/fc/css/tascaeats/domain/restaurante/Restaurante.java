@@ -1,9 +1,18 @@
 package pt.ul.fc.css.tascaeats.domain.restaurante;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 
@@ -32,10 +41,6 @@ public class Restaurante{
     private Morada morada; 
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "catalogo_produtos_id", nullable = false, unique = true)
-    private CatalogoProdutos catalogoProdutos;
-
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "catalogo_entregas_id", nullable = false)
     private CatalogoEntregas catalogoEntregas;
 
@@ -50,12 +55,11 @@ public class Restaurante{
     }
 
     public Restaurante(String nome, String nif, Morada morada, RestauranteAdmin administrador,
-                   CatalogoProdutos catalogoProdutos, CatalogoEntregas catalogoEntregas){
+                   CatalogoEntregas catalogoEntregas){
         this.nome = nome;
         this.nif = nif;
         this.morada = morada;
         this.administrador = administrador;
-        this.catalogoProdutos = catalogoProdutos;
         this.catalogoEntregas = catalogoEntregas;
     }
     
@@ -128,15 +132,6 @@ public class Restaurante{
 
     public void setMorada(Morada morada){
         this.morada = morada;
-    }
-
-    //Catálogo de Produtos
-    public CatalogoProdutos getCatalogoProdutos(){
-        return catalogoProdutos;
-    }
-
-    public void setCatalogoProdutos(CatalogoProdutos catalogoProdutos){
-        this.catalogoProdutos = catalogoProdutos;
     }
 
     //Catálogo de Entregas

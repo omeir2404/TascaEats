@@ -3,6 +3,7 @@ package pt.ul.fc.css.tascaeats.controllers;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,10 +40,10 @@ public class ProdutoController {
     }
 
     //Criar produto
-    @PostMapping("/catalogos/{catalogoId}/produtos")
-    public ResponseEntity<Map<String, Object>> criarProduto(@PathVariable Long catalogoId, @Valid @RequestBody CriarProdutoDTO dto) {
+    @PostMapping("/restaurantes/{restauranteId}/produtos")
+    public ResponseEntity<Map<String, Object>> criarProduto(@PathVariable Long restauranteId, @Valid @RequestBody CriarProdutoDTO dto) {
         try {
-            Produto criado = produtoService.criarProduto(catalogoId, dto);
+            Produto criado = produtoService.criarProduto(restauranteId, dto);
             Map<String, Object> response = new HashMap<>();
             response.put(MSG_FIELD, "Produto criado com sucesso");
             response.put("id", criado.getId());
@@ -94,25 +95,29 @@ public class ProdutoController {
 
     //Listar produtos
     @GetMapping("/produtos")
-    public ResponseEntity<List<Produto>> listarProdutos(@RequestParam(required = false) String nome,
+    public ResponseEntity<List<Map<String, Object>>> listarProdutos(@RequestParam(required = false) String nome,
             @RequestParam(required = false) Long restauranteId,
             @RequestParam(required = false, defaultValue = "false") boolean ativos,
             @RequestParam(required = false, defaultValue = "false") boolean disponiveis) {
 
+        List<Produto> produtos;
+
         if (restauranteId != null) {
-            return ResponseEntity.ok(produtoService.listarProdutosPorRestaurante(restauranteId));
-        }
-        if (nome != null && !nome.isBlank()) {
-            return ResponseEntity.ok(produtoService.procurarProdutoPorNome(nome));
-        }
-        if (disponiveis) {
-            return ResponseEntity.ok(produtoService.listarProdutosDisponiveis());
-        }
-        if (ativos) {
-            return ResponseEntity.ok(produtoService.listarProdutosAtivos());
+            produtos = produtoService.listarProdutosPorRestaurante(restauranteId);
+        } else if (nome != null && !nome.isBlank()) {
+            produtos = produtoService.procurarProdutoPorNome(nome);
+        } else if (disponiveis) {
+            produtos = produtoService.listarProdutosDisponiveis();
+        } else if (ativos) {
+            produtos = produtoService.listarProdutosAtivos();
+        } else {
+            produtos = produtoService.listarProdutos();
         }
 
-        return ResponseEntity.ok(produtoService.listarProdutos());
+        List<Map<String, Object>> response = produtos.stream()
+                .map(this::resumoProduto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 
     //Apagar produtos
@@ -147,5 +152,21 @@ public class ProdutoController {
         response.put("disponivel", produto.isDisponivel());
         response.put("apagado", produto.isApagado());
         return ResponseEntity.ok(response);
+    }
+
+    private Map<String, Object> resumoProduto(Produto produto) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", produto.getId());
+        response.put("nome", sanitizeForOutput(produto.getNome()));
+        response.put("preco", produto.getPreco());
+        response.put("descricao", sanitizeForOutput(produto.getDescricao()));
+        response.put("disponivel", produto.isDisponivel());
+        response.put("apagado", produto.isApagado());
+
+        if (produto.getRestaurante() != null) {
+            response.put("restauranteId", produto.getRestaurante().getId());
+        }
+
+        return response;
     }
 }

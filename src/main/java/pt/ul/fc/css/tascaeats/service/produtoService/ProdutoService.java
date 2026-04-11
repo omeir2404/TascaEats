@@ -4,36 +4,36 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarProdutoDTO;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
-import pt.ul.fc.css.tascaeats.repository.produtoRepository.ICatalogoProdutosRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
+import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 
 @Service
 public class ProdutoService {
     private final IProdutoRepository produtoRepository;
-    private final ICatalogoProdutosRepository catalogoProdutosRepository;
+    private final IRestauranteRepository restauranteRepository;
 
-    public ProdutoService(IProdutoRepository produtoRepository, ICatalogoProdutosRepository catalogoProdutosRepository) {
+    public ProdutoService(IProdutoRepository produtoRepository, IRestauranteRepository restauranteRepository) {
         this.produtoRepository = produtoRepository;
-        this.catalogoProdutosRepository = catalogoProdutosRepository;
+        this.restauranteRepository = restauranteRepository;
     }
 
     //Criar Produto
-    public Produto criarProduto(Long catalogoId, CriarProdutoDTO dto) {
+    public Produto criarProduto(Long restauranteId, CriarProdutoDTO dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Os dados do produto são obrigatórios.");
         }
 
-        CatalogoProdutos catalogo = catalogoProdutosRepository.findById(catalogoId).orElse(null);
-        if (catalogo == null) {
-            throw new IllegalArgumentException("O catálogo não foi encontrado.");
+        Restaurante restaurante = restauranteRepository.findById(restauranteId).orElse(null);
+        if (restaurante == null) {
+            throw new IllegalArgumentException("O restaurante não foi encontrado.");
         }
 
-        Produto produto = new Produto(dto.getNome(), dto.getPreco(), dto.getDescricao(), catalogo);
+        Produto produto = new Produto(dto.getNome(), dto.getPreco(), dto.getDescricao(), restaurante);
         return produtoRepository.save(produto);
     }
 
@@ -80,7 +80,7 @@ public class ProdutoService {
         if (restauranteId == null || restauranteId <= 0) {
             throw new IllegalArgumentException("O id do restaurante é obrigatório.");
         }
-        return produtoRepository.findByCatalogoProdutosRestauranteId(restauranteId);
+        return produtoRepository.findByRestauranteId(restauranteId);
     }
 
     public List<Produto> listarProdutos() {
