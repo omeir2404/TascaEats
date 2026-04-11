@@ -11,11 +11,7 @@ import pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador;
 import pt.ul.fc.css.tascaeats.dto.mensagensDTO.ApiErrorDTO;
 import pt.ul.fc.css.tascaeats.dto.mensagensDTO.ApiMessageDTO;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaResponseDTO;
-import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorLoginDTO;
-import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
-import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoRespostaDTO;
-import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRespostaDTO;
-import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
+import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.*;
 import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService;
 
 import java.util.List;
@@ -138,13 +134,13 @@ public class UtilizadorController {
             return null;
         }
         return new MoradaResponseDTO(
-                address.getStreet(),
-                address.getNumber(),
-                address.getComplement(),
-                address.getCountry(),
-                address.getDistrict(),
-                address.getCity(),
-                address.getPostalCode()
+                address.getRua(),
+                address.getNumero().toString(),
+                address.getComplemento(),
+                address.getPais(),
+                address.getDistrito(),
+                address.getCidade(),
+                address.getCodigoPostal()
         );
     }
 }

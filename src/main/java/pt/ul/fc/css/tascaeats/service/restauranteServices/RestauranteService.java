@@ -1,23 +1,22 @@
 package pt.ul.fc.css.tascaeats.service.restauranteServices;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
-import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
-import pt.ul.fc.css.tascaeats.domain.restaurante.Morada;
+import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
+import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
-import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IRestauranteAdminRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -148,9 +147,7 @@ public class RestauranteService {
         Optional<Restaurante> nifBom = restauranteRepository.findByNif(nif);
         if (nifBom.isPresent()) {
             Restaurante existe = nifBom.get();
-			boolean validacoes = idIgnorar != null && idIgnorar.equals(existe.getId());
-            boolean mesmoRestaurante = validacoes;
-            if (!mesmoRestaurante) {
+			if (!(idIgnorar != null && idIgnorar.equals(existe.getId()))) {
                 throw new IllegalArgumentException("Já existe um restaurante com esse nif.");
             }
         }
@@ -177,15 +174,25 @@ public class RestauranteService {
 		}
 
 		String rua = stringNormalizada(dto.getRua(), "A rua da morada é obrigatória.");
+		Integer numero = dto.getNumero();
+		String complemento = dto.getComplemento() != null ? dto.getComplemento().trim() : null; // O complemento é opcional, então pode ser nulo.
+		String pais = stringNormalizada(dto.getPais(), "O país é obrigatório.");
+		String distrito = stringNormalizada(dto.getDistrito(), "O distrito é obrigatório.");
+		String cidade = stringNormalizada(dto.getCidade(), "A cidade é obrigatória.");
 		String codigoPostal = stringNormalizada(dto.getCodigoPostal(), "O código postal é obrigatório.");
-		String localidade = stringNormalizada(dto.getLocalidade(), "A localidade é obrigatória.");
-
-		Integer numeroPorta = dto.getNumeroPorta();
-		if (numeroPorta == null || numeroPorta <= 0) {
+		if (numero == null || numero <= 0) {
 			throw new IllegalArgumentException("O número da porta não pode ser negativo e tem de existir.");
 		}
+		Morada morada = new Morada();
+		morada.setRua(rua);
+		morada.setNumero(numero);
+		morada.setComplemento(complemento);
+		morada.setPais(pais);
+		morada.setDistrito(distrito);
+		morada.setCidade(cidade);
+		morada.setCodigoPostal(codigoPostal);
 
-		return new Morada(rua, numeroPorta, codigoPostal, localidade);
+		return morada;
 	}
 
 
