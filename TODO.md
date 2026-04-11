@@ -316,18 +316,18 @@
 ### Domain (entities + enum)
 
 #### 1) EstadoRestaurante
-- [ ] deve conter os valores esperados (`ABERTO`, `FECHADO`, `RESERVADO`)
+- [x] deve conter os valores esperados (`ABERTO`, `FECHADO`, `RESERVADO`)
 
 #### 2) Restaurante
-- [ ] novo `Restaurante` deve iniciar em `FECHADO`
-- [ ] `abrir` a partir de `FECHADO` deve passar
-- [ ] `abrir` quando já `ABERTO` deve falhar
-- [ ] `fechar` a partir de `ABERTO` deve passar
-- [ ] `fechar` quando já `FECHADO` deve falhar
-- [ ] `reservar` a partir de `ABERTO`/`FECHADO` deve passar
-- [ ] `reservar` quando já `RESERVADO` deve falhar
-- [ ] `validarDisponibilidadeParaPedido` com estado diferente de `ABERTO` deve falhar
-- [ ] `validarDisponibilidadeParaPedido` com estado `ABERTO` deve passar
+- [x] novo `Restaurante` deve iniciar em `FECHADO`
+- [x] `abrir` a partir de `FECHADO` deve passar
+- [x] `abrir` quando já `ABERTO` deve falhar
+- [x] `fechar` a partir de `ABERTO` deve passar
+- [x] `fechar` quando já `FECHADO` deve falhar
+- [x] `reservar` a partir de `ABERTO`/`FECHADO` deve passar
+- [x] `reservar` quando já `RESERVADO` deve falhar
+- [x] `validarDisponibilidadeParaPedido` com estado diferente de `ABERTO` deve falhar
+- [x] `validarDisponibilidadeParaPedido` com estado `ABERTO` deve passar
 
 #### 3) Produto
 - [ ] novo `Produto` deve iniciar com `disponivel=true` e `apagado=false`
