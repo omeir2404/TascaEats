@@ -1,5 +1,52 @@
 # Sobre o projeto modelo
 
+## Docker quick start (run in any machine)
+
+1. Install Docker Engine/Desktop and Docker Compose plugin.
+2. Start Docker daemon:
+
+    ```bash
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    ```
+
+3. (Optional, recommended) allow running docker without sudo:
+
+    ```bash
+    sudo usermod -aG docker "$USER"
+    # log out and log in again
+    ```
+
+4. Create environment file:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+5. Start everything:
+
+    ```bash
+    ./run.sh
+    ```
+
+6. Stop and remove containers:
+
+    ```bash
+    docker compose down
+    ```
+
+### Common error: Docker socket not found
+
+If you see:
+
+`failed to connect to the docker API at unix:///var/run/docker.sock ... no such file or directory`
+
+it means the Docker daemon is not running. Start it with:
+
+```bash
+sudo systemctl start docker
+```
+
 O projeto modelo apresenta uma estrutura de pacotes indicativa. Apesar de não ser obrigatória, é recomendada para simplificar o desenvolvimento desta fase e das posteriores. A equipa tem liberdade de alterar qualquer ficheiro do projeto durante o seu desenvolvimento.
 
 
