@@ -195,7 +195,7 @@ class UseCasesAToLServiceTest {
     void searchRestaurantByCityShouldReturnMatches() {
         Restaurante r1 = restaurante("Tasca Lisboa", "111111111", "Lisboa", EstadoRestaurante.ABERTO);
         Restaurante r2 = restaurante("Porto Grill", "222222222", "Porto", EstadoRestaurante.FECHADO);
-        when(restauranteRepository.findByMoradaLocalidadeIgnoreCase("lisboa")).thenReturn(List.of(r1));
+        when(restauranteRepository.findByMoradaCidadeIgnoreCase("lisboa")).thenReturn(List.of(r1));
 
         List<Restaurante> result = restauranteService.procurarRestaurantePorCidade("lisboa");
 

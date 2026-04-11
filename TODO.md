@@ -9,7 +9,7 @@
   - [x] invalid registration (password is missing)
   - [x] invalid registration (type is missing)
   - [x] invalid registration (address is missing)
-  - [x] all types of Utilizadors (client, restaurant owner, driver)
+  - [x] all types of Utilizadores (client, restaurant owner, driver)
 
 - test login Utilizador
   - [x] invalid login (email is missing)
@@ -62,9 +62,6 @@
 - [x] K: assign driver fails when no available driver exists
 - [x] L: cancel order succeeds when order is CRIADO
 - [x] L: cancel order fails when order is A_PREPARAR
-
-
-
 
 ## Test Checklist By Class
 
@@ -343,15 +340,6 @@
 - [x] `validarDisponibilidadeParaPedido` em produto indisponível deve falhar
 - [x] `validarDisponibilidadeParaPedido` em produto disponível e ativo deve passar
 
-#### 4) CatalogoProdutos
-- [ ] construtor com `restaurante=null` deve falhar
-- [ ] `setRestaurante` deve manter associação bidirecional consistente
-- [ ] `addProduto` com produto nulo não deve alterar lista
-- [ ] `addProduto` com produto apagado deve falhar
-- [ ] `addProduto` deve associar produto ao catálogo
-- [ ] `removeProduto` deve remover da lista e limpar associação
-- [ ] `setProdutos` deve substituir coleção mantendo consistência das associações
-
 ### Factory
 
 #### 1) Restaurante/Produto Factory
@@ -361,21 +349,16 @@
 ### Repositories
 
 #### 1) IRestauranteRepository (`@DataJpaTest`)
-- [ ] `findByNomeContainingIgnoreCase` deve pesquisar por nome sem case-sensitive
-- [ ] `findByNif` deve encontrar restaurante por NIF único
-- [ ] `findByNif` com NIF inexistente deve devolver vazio
-- [ ] `findByEstado` deve devolver apenas restaurantes no estado pedido
+- [x] `findByNomeContainingIgnoreCase` deve pesquisar por nome sem case-sensitive
+- [x] `findByNif` deve encontrar restaurante por NIF único
+- [x] `findByNif` com NIF inexistente deve devolver vazio
+- [x] `findByEstado` deve devolver apenas restaurantes no estado pedido
 
 #### 2) IProdutoRepository (`@DataJpaTest`)
-- [ ] `findByNomeContainingIgnoreCase` deve pesquisar por nome sem case-sensitive
-- [ ] `findByDisponivelTrue` deve devolver apenas produtos disponíveis
-- [ ] `findByApagadoFalse` deve excluir produtos soft-deleted
+- [x] `findByNomeContainingIgnoreCase` deve pesquisar por nome sem case-sensitive
+- [x] `findByDisponivelTrue` deve devolver apenas produtos disponíveis
+- [x] `findByApagadoFalse` deve excluir produtos soft-deleted
 
-#### 3) ICatalogoProdutosRepository (`@DataJpaTest`)
-- [ ] guardar e obter catálogo por id
-- [ ] persistir catálogo com múltiplos produtos deve manter relação `OneToMany`
-- [ ] remover produto do catálogo deve refletir `orphanRemoval=true`
-
-#### 4) IRestauranteAdminRepository (`@DataJpaTest`)
+#### 3) IRestauranteAdminRepository (`@DataJpaTest`)
 - [ ] `findByEmail` deve devolver admin existente
 - [ ] `findByEmail` com email inexistente deve devolver `null`

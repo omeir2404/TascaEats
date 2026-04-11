@@ -128,7 +128,7 @@ public class RestauranteService {
 		if (cidade == null || cidade.isBlank()) {
 			return restauranteRepository.findAll(); //Se o utilizador não escrever nada, devolvo todos os restaurantes.
 		}
-		return restauranteRepository.findByMoradaLocalidadeIgnoreCase(cidade.trim());
+		return restauranteRepository.findByMoradaCidadeIgnoreCase(cidade.trim());
 	}
 
 	@Transactional(readOnly = true)
