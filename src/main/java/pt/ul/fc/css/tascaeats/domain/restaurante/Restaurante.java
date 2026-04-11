@@ -1,18 +1,19 @@
 package pt.ul.fc.css.tascaeats.domain.restaurante;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 
 @Entity
@@ -57,7 +58,6 @@ public class Restaurante{
                    CatalogoEntregas catalogoEntregas){
         this.nome = nome;
         this.nif = nif;
-        this.estado = EstadoRestaurante.FECHADO;
         this.morada = morada;
         this.administrador = administrador;
         this.catalogoEntregas = catalogoEntregas;

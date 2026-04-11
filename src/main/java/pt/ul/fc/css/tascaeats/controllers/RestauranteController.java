@@ -1,29 +1,20 @@
 package pt.ul.fc.css.tascaeats.controllers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.service.restauranteServices.RestauranteService;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/restaurantes")
@@ -143,9 +134,12 @@ public class RestauranteController {
         if (r.getMorada() != null) {
             moradaMap = new HashMap<>();
             moradaMap.put("rua", r.getMorada().getRua());
-            moradaMap.put("numeroPorta", r.getMorada().getNumeroPorta());
+            moradaMap.put("numeroPorta", r.getMorada().getNumero());
             moradaMap.put("codigoPostal", r.getMorada().getCodigoPostal());
-            moradaMap.put("localidade", r.getMorada().getLocalidade());
+            moradaMap.put("localidade", r.getMorada().getCidade());
+            moradaMap.put("pais", r.getMorada().getPais());
+            moradaMap.put("distrito", r.getMorada().getDistrito());
+            moradaMap.put("complemento", r.getMorada().getComplemento());
         }
         response.put("morada", moradaMap);
         return response;

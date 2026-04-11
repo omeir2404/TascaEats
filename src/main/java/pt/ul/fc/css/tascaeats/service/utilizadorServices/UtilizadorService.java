@@ -1,21 +1,16 @@
 package pt.ul.fc.css.tascaeats.service.utilizadorServices;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
-
-import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
-import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
-import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
-import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
-import pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador;
+import pt.ul.fc.css.tascaeats.domain.utilizador.*;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorLoginDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 @Service
 public class UtilizadorService {
@@ -142,7 +137,9 @@ public class UtilizadorService {
         return switch (normalized) {
             case "client", "cliente" -> new Cliente();
             case "driver", "entregador" -> new Entregador();
-            case "restaurantadmin", "restauranteadmin", "restaurant_admin", "restaurante_admin", "restaurant owner", "restaurantowner", "admin", "administrador", "donoDoRestaurante", "dono_restaurante" -> new RestauranteAdmin();
+            case "restaurantadmin", "restauranteadmin", "restaurant_admin", "restaurante_admin", "restaurant owner",
+                 "restaurantowner", "admin", "administrador", "donodorestaurante", "dono_restaurante" ->
+                    new RestauranteAdmin();
             default -> throw new IllegalArgumentException("Invalid Utilizador type: " + type);
         };
     }
@@ -158,10 +155,10 @@ public class UtilizadorService {
         if (Utilizador instanceof Cliente client && dto != null) {
             Morada address = new Morada();
 
-            address.setStreet(dto.getRua());
-            address.setNumber(dto.getNumeroPorta() == null ? null : String.valueOf(dto.getNumeroPorta()));
-            address.setPostalCode(dto.getCodigoPostal());
-            address.setCity(dto.getLocalidade());
+            address.setRua(dto.getRua());
+            address.setNumero(dto.getNumero() == null ? null : dto.getNumero());
+            address.setCodigoPostal(dto.getCodigoPostal());
+            address.setCidade(dto.getCidade());
 
             client.setAddress(address);
         }
