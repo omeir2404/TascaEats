@@ -207,10 +207,10 @@
 ### Repositories
 
 #### 1) IPedidoRepository (`@DataJpaTest`)
-- [ ] `findByClienteeId` deve devolver pedidos do cliente
+- [ ] `findByclienteId` deve devolver pedidos do cliente
 - [ ] `findByRestauranteId` deve devolver pedidos do restaurante
 - [ ] `findByEstado` deve filtrar por estado
-- [ ] `findByClienteeIdAndEstado` deve aplicar filtro combinado
+- [ ] `findByclienteIdAndEstado` deve aplicar filtro combinado
 - [ ] `existsByIdAndEstado` deve retornar verdadeiro/falso corretamente
 
 #### 2) IPagamentoRepository (`@DataJpaTest`)
