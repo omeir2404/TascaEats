@@ -135,7 +135,7 @@ public class UtilizadorController {
         }
         return new MoradaResponseDTO(
                 address.getRua(),
-                address.getNumero().toString(),
+                address.getNumero(),
                 address.getComplemento(),
                 address.getPais(),
                 address.getDistrito(),
