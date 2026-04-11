@@ -360,5 +360,5 @@
 - [x] `findByApagadoFalse` deve excluir produtos soft-deleted
 
 #### 3) IRestauranteAdminRepository (`@DataJpaTest`)
-- [ ] `findByEmail` deve devolver admin existente
-- [ ] `findByEmail` com email inexistente deve devolver `null`
+- [x] `findByEmail` deve devolver admin existente
+- [x] `findByEmail` com email inexistente deve devolver `null`
