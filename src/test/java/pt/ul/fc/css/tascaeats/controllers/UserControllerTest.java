@@ -139,7 +139,7 @@ class UtilizadorControllerTest {
         mockMvc.perform(get("/api/Utilizadors"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].email").value("ana@example.com"))
-                .andExpect(jsonPath("$[0].address.street").value("Rua A"))
+            .andExpect(jsonPath("$[0].address.rua").value("Rua A"))
                 .andExpect(jsonPath("$[0].password").doesNotExist());
     }
 

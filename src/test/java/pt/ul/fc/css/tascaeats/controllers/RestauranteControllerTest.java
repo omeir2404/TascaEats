@@ -1,16 +1,30 @@
 package pt.ul.fc.css.tascaeats.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
@@ -21,15 +35,6 @@ import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.service.restauranteServices.RestauranteService;
-
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(RestauranteController.class)
 class RestauranteControllerTest {
@@ -233,7 +238,7 @@ class RestauranteControllerTest {
     }
 
     @Test
-    @DisplayName("M :GET /api/restaurantes?estado=ABERTO filtra por estado")
+        @DisplayName("M: GET /api/restaurantes?estado=ABERTO filtra por estado")
     void shouldFilterRestaurantesByEstado() throws Exception {
         when(restauranteService.listarPorEstado(EstadoRestaurante.ABERTO))
                 .thenReturn(List.of(restaurante(4L, "Tasca Sol", "123456789", EstadoRestaurante.ABERTO)));
@@ -307,7 +312,6 @@ class RestauranteControllerTest {
                 nif,
                 morada,
                 new RestauranteAdmin("Admin", "admin@tasca.pt", "segredo"),
-                new CatalogoProdutos(),
                 new CatalogoEntregas()
         );
         ReflectionTestUtils.setField(restaurante, "id", id);

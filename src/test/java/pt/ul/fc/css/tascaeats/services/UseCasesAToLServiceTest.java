@@ -1,22 +1,37 @@
 package pt.ul.fc.css.tascaeats.services;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import pt.ul.fc.css.tascaeats.domain.entrega.Entrega;
 import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoDinheiro;
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
-import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
-import pt.ul.fc.css.tascaeats.domain.utilizador.*;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
+import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador;
 import pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
@@ -32,7 +47,6 @@ import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
 import pt.ul.fc.css.tascaeats.repository.entregaRepository.IEntregaRepository;
 import pt.ul.fc.css.tascaeats.repository.pagamentoRepository.IPagamentoRepository;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
-import pt.ul.fc.css.tascaeats.repository.produtoRepository.ICatalogoProdutosRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IRestauranteAdminRepository;
@@ -45,18 +59,6 @@ import pt.ul.fc.css.tascaeats.service.produtoService.ProdutoService;
 import pt.ul.fc.css.tascaeats.service.restauranteServices.RestauranteService;
 import pt.ul.fc.css.tascaeats.service.utilizadorServices.AutorService;
 import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UseCasesAToLServiceTest {
@@ -77,8 +79,6 @@ class UseCasesAToLServiceTest {
 
     @Mock
     private IProdutoRepository produtoRepository;
-    @Mock
-    private ICatalogoProdutosRepository catalogoProdutosRepository;
     @InjectMocks
     private ProdutoService produtoService;
 
@@ -241,8 +241,7 @@ class UseCasesAToLServiceTest {
     @Test
     @DisplayName("F: create update and soft-delete product should work")
     void createUpdateDeleteProductShouldWork() {
-        CatalogoProdutos catalogo = new CatalogoProdutos();
-        when(catalogoProdutosRepository.findById(1L)).thenReturn(Optional.of(catalogo));
+        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO)));
         when(produtoRepository.save(any(Produto.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Produto created = produtoService.criarProduto(1L, criarProdutoDto("Bitoque", 10.0, "Com ovo"));
@@ -263,17 +262,17 @@ class UseCasesAToLServiceTest {
     @Test
     @DisplayName("F: create product fails when catalog does not exist")
     void createProductShouldFailWhenCatalogMissing() {
-        when(catalogoProdutosRepository.findById(999L)).thenReturn(Optional.empty());
+        when(restauranteRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> produtoService.criarProduto(999L, criarProdutoDto("Pizza", 9.0, "Margherita")))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("catálogo não foi encontrado");
+            .hasMessageContaining("restaurante não foi encontrado");
     }
 
     @Test
     @DisplayName("F: update availability fails when product is soft-deleted")
     void updateAvailabilityShouldFailWhenProductDeleted() {
-        Produto deleted = new Produto("Soup", 3.0, "Hot", new CatalogoProdutos());
+        Produto deleted = new Produto("Soup", 3.0, "Hot", restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO));
         deleted.apagar();
         AtualizarDisponibilidadeProdutoDTO disponibilidadeDto = new AtualizarDisponibilidadeProdutoDTO();
         disponibilidadeDto.setDisponivel(true);
@@ -288,7 +287,7 @@ class UseCasesAToLServiceTest {
     @Test
     @DisplayName("G: search product by name returns matching products")
     void searchProductByNameShouldReturnMatches() {
-        Produto bacalhau = new Produto("Bacalhau", 14.0, "Forno", new CatalogoProdutos());
+        Produto bacalhau = new Produto("Bacalhau", 14.0, "Forno", restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO));
         when(produtoRepository.findByNomeContainingIgnoreCase("bac")).thenReturn(List.of(bacalhau));
 
         List<Produto> found = produtoService.procurarProdutoPorNome("bac");
@@ -299,9 +298,9 @@ class UseCasesAToLServiceTest {
     @Test
     @DisplayName("G: list products for a specific restaurant should return only that restaurant menu")
     void listProductsByRestaurantShouldReturnOnlyRestaurantMenu() {
-        Produto p1 = new Produto("Massa", 5.5, "Ótima", new CatalogoProdutos());
-        Produto p2 = new Produto("Hamburguer", 7.0, "Boa", new CatalogoProdutos());
-        when(produtoRepository.findByCatalogoProdutosRestauranteId(1L)).thenReturn(List.of(p1));
+        Produto p1 = new Produto("Massa", 5.5, "Ótima", restaurante("R", "111111111", "Lisboa", EstadoRestaurante.ABERTO));
+        Produto p2 = new Produto("Hamburguer", 7.0, "Boa", restaurante("S", "222222222", "Porto", EstadoRestaurante.ABERTO));
+        when(produtoRepository.findByRestauranteId(1L)).thenReturn(List.of(p1));
 
         List<Produto> result = produtoService.listarProdutosPorRestaurante(1L);
 
@@ -316,8 +315,8 @@ class UseCasesAToLServiceTest {
     void createOrderShouldComputeTotalCorrectly() {
         when(utilizadorRepository.findById(1L)).thenReturn(Optional.of(cliente(1L, "c@tasca.pt")));
         when(restauranteRepository.findById(2L)).thenReturn(Optional.of(restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO)));
-        when(produtoRepository.findById(10L)).thenReturn(Optional.of(new Produto("Prato A", 5.5, "A", new CatalogoProdutos())));
-        when(produtoRepository.findById(11L)).thenReturn(Optional.of(new Produto("Prato B", 7.0, "B", new CatalogoProdutos())));
+        when(produtoRepository.findById(10L)).thenReturn(Optional.of(new Produto("Prato A", 5.5, "A", restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO))));
+        when(produtoRepository.findById(11L)).thenReturn(Optional.of(new Produto("Prato B", 7.0, "B", restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO))));
 
         CriarPedidoDTO dto = new CriarPedidoDTO(1L, 2L, List.of(10L, 11L));
         pedidoService.criarPedido(dto);
@@ -346,7 +345,7 @@ class UseCasesAToLServiceTest {
         when(utilizadorRepository.findById(1L)).thenReturn(Optional.of(cliente(1L, "c@tasca.pt")));
         when(restauranteRepository.findById(2L)).thenReturn(Optional.of(restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO)));
 
-        Produto indisponivel = new Produto("Prato X", 8.0, "X", new CatalogoProdutos());
+        Produto indisponivel = new Produto("Prato X", 8.0, "X", restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO));
         indisponivel.indisponibilizar();
         when(produtoRepository.findById(12L)).thenReturn(Optional.of(indisponivel));
 
@@ -361,7 +360,7 @@ class UseCasesAToLServiceTest {
         when(utilizadorRepository.findById(1L)).thenReturn(Optional.of(cliente(1L, "c@tasca.pt")));
         when(restauranteRepository.findById(2L)).thenReturn(Optional.of(restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO)));
 
-        Produto apagado = new Produto("Prato Y", 9.0, "Y", new CatalogoProdutos());
+        Produto apagado = new Produto("Prato Y", 9.0, "Y", restaurante("R", "123123123", "Lisboa", EstadoRestaurante.ABERTO));
         apagado.apagar();
         when(produtoRepository.findById(13L)).thenReturn(Optional.of(apagado));
 
@@ -549,7 +548,6 @@ class UseCasesAToLServiceTest {
                 nif,
                 morada,
                 admin,
-                new CatalogoProdutos(),
                 new CatalogoEntregas());
 
         if (estado == EstadoRestaurante.ABERTO) {

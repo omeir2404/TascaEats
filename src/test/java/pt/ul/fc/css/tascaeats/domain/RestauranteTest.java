@@ -1,15 +1,16 @@
 package pt.ul.fc.css.tascaeats.domain;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
+
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class RestauranteTest {
 
@@ -134,7 +135,6 @@ public class RestauranteTest {
                 "123456789",
                 morada,
                 new RestauranteAdmin("Admin", "admin@tascaeats.pt", "password123"),
-                new CatalogoProdutos(),
                 new CatalogoEntregas()
         );
     }

@@ -1,28 +1,33 @@
 package pt.ul.fc.css.tascaeats.services;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
-import pt.ul.fc.css.tascaeats.domain.produto.Produto;
-import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
-import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarProdutoDTO;
-import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
-import pt.ul.fc.css.tascaeats.repository.produtoRepository.ICatalogoProdutosRepository;
-import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
-import pt.ul.fc.css.tascaeats.service.produtoService.ProdutoService;
-
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Fail.fail;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import pt.ul.fc.css.tascaeats.domain.produto.Produto;
+import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
+import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarProdutoDTO;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
+import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
+import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
+import pt.ul.fc.css.tascaeats.service.produtoService.ProdutoService;
 
 @ExtendWith(MockitoExtension.class)
 public class ProdutoServiceTest {
@@ -30,7 +35,7 @@ public class ProdutoServiceTest {
     @Mock
     private IProdutoRepository produtoRepository;
     @Mock
-    private ICatalogoProdutosRepository catalogoProdutosRepository;
+    private IRestauranteRepository restauranteRepository;
     @InjectMocks
     private ProdutoService produtoService;
 
@@ -49,16 +54,16 @@ public class ProdutoServiceTest {
 
     //B) Criar produto com catálogo inexistente.
     @Test
-    @DisplayName("B: Criar produto com catálogo inexistente.")
-    void criarProdutoWithCatalogoInexistente() {
+    @DisplayName("B: Criar produto com restaurante inexistente.")
+    void criarProdutoWithRestauranteInexistente() {
         CriarProdutoDTO dto = criarProdutoDTOValido();
-        when(catalogoProdutosRepository.findById(1L)).thenReturn(Optional.empty());
+        when(restauranteRepository.findById(1L)).thenReturn(Optional.empty());
 
         try {
             produtoService.criarProduto(1L, dto);
-            fail("O catálogo não foi encontrado.");
+            fail("O restaurante não foi encontrado.");
         } catch (IllegalArgumentException e) {
-            assertEquals("O catálogo não foi encontrado.", e.getMessage());
+            assertEquals("O restaurante não foi encontrado.", e.getMessage());
         }
     }
 
@@ -68,9 +73,9 @@ public class ProdutoServiceTest {
     @DisplayName("C: Criar produto com sucesso.")
     void criarProdutoSuccess() {
         CriarProdutoDTO dto = criarProdutoDTOValido();
-        CatalogoProdutos catalogo = new CatalogoProdutos();
+        Restaurante restaurante = restauranteValido();
 
-        when(catalogoProdutosRepository.findById(1L)).thenReturn(Optional.of(catalogo));
+        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
         when(produtoRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         Produto produto = produtoService.criarProduto(1L, dto);
@@ -357,7 +362,25 @@ public class ProdutoServiceTest {
     }
 
     private Produto produtoValido() {
-        return new Produto("Massa", 10.0, "Descrição", new CatalogoProdutos());
+        return new Produto("Massa", 10.0, "Descrição", restauranteValido());
+    }
+
+    private Restaurante restauranteValido() {
+        Morada morada = new Morada();
+        morada.setRua("Rua Teste");
+        morada.setNumero(1);
+        morada.setCodigoPostal("1000-100");
+        morada.setCidade("Lisboa");
+        morada.setDistrito("Lisboa");
+        morada.setPais("Portugal");
+
+        return new Restaurante(
+                "Restaurante",
+                "123456789",
+                morada,
+                new RestauranteAdmin("Admin", "admin@test.pt", "pw"),
+                new CatalogoEntregas()
+        );
     }
 
 }

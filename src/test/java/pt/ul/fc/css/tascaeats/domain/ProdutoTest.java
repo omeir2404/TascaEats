@@ -1,15 +1,18 @@
 package pt.ul.fc.css.tascaeats.domain;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
-import pt.ul.fc.css.tascaeats.domain.produto.Produto;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import pt.ul.fc.css.tascaeats.domain.produto.Produto;
+import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
+import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 
 public class ProdutoTest {
 
@@ -152,7 +155,25 @@ public class ProdutoTest {
                 "Bacalhau",
                 12.5,
                 "Prato do dia",
-                new CatalogoProdutos()
+                restauranteDummy()
+        );
+    }
+
+    private Restaurante restauranteDummy() {
+        Morada morada = new Morada();
+        morada.setRua("Rua A");
+        morada.setNumero(1);
+        morada.setCodigoPostal("1000-100");
+        morada.setCidade("Lisboa");
+        morada.setDistrito("Lisboa");
+        morada.setPais("Portugal");
+
+        return new Restaurante(
+                "Restaurante Teste",
+                "123456789",
+                morada,
+                new RestauranteAdmin("Admin", "admin@test.pt", "pw"),
+                new CatalogoEntregas()
         );
     }
 

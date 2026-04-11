@@ -1,12 +1,20 @@
 package pt.ul.fc.css.tascaeats.services;
 
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
+
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
@@ -19,15 +27,6 @@ import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IRestauranteAdminRepository;
 import pt.ul.fc.css.tascaeats.service.restauranteServices.RestauranteService;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Fail.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RestauranteServiceTest {
@@ -145,7 +144,6 @@ public class RestauranteServiceTest {
         Restaurante existente = new Restaurante("Outro", "123456789",
                 morada("Rua X", 10, "1000-001", "Lisboa"),
                 admin,
-                new CatalogoProdutos(),
                 new CatalogoEntregas()
         );
 
@@ -218,7 +216,6 @@ public class RestauranteServiceTest {
         assertThat(created.getNome()).isEqualTo("Tasca Eats");
         assertThat(created.getNif()).isEqualTo("123456789");
         assertThat(created.getEstado()).isEqualTo(EstadoRestaurante.FECHADO);
-        assertThat(created.getCatalogoProdutos()).isNotNull();
         assertThat(created.getCatalogoEntregas()).isNotNull();
         assertThat(created.getAdministrador()).isSameAs(admin);
     }
@@ -262,7 +259,6 @@ public class RestauranteServiceTest {
                 "111111111",
                 morada("Rua A", 1, "1111-111", "Lisboa"),
                 admin,
-                new CatalogoProdutos(),
                 new CatalogoEntregas()
         );
         Restaurante outroRestaurante = new Restaurante(
@@ -270,7 +266,6 @@ public class RestauranteServiceTest {
                 "222222222",
                 morada("Rua B", 2, "2222-222", "Porto"),
                 admin,
-                new CatalogoProdutos(),
                 new CatalogoEntregas()
         );
 
@@ -298,7 +293,6 @@ public class RestauranteServiceTest {
                 "111111111",
                 morada("Rua bk", 5, "1304-131", "Lisboa"),
                 adminValido(),
-                new CatalogoProdutos(),
                 new CatalogoEntregas()
         );
 
@@ -374,7 +368,6 @@ public class RestauranteServiceTest {
                 "123456789",
                 morada("Rua", 1, "1234-000", "Lisboa"),
                 adminValido(),
-                new CatalogoProdutos(),
                 new CatalogoEntregas()
         );
 
@@ -400,7 +393,6 @@ public class RestauranteServiceTest {
                 "123456789",
                 morada("Rua", 1, "1234-111", "Lisboa"),
                 adminValido(),
-                new CatalogoProdutos(),
                 new CatalogoEntregas()
         );
 
@@ -428,7 +420,6 @@ public class RestauranteServiceTest {
                 "123456789",
                 morada("Rua", 1, "1000-000", "Lisboa"),
                 adminValido(),
-                new CatalogoProdutos(),
                 new CatalogoEntregas()
         );
         restaurante.abrir();
@@ -457,7 +448,6 @@ public class RestauranteServiceTest {
                 "123456789",
                 morada("Rua", 1, "1000-000", "Lisboa"),
                 adminValido(),
-                new CatalogoProdutos(),
                 new CatalogoEntregas()
         );
 
@@ -481,8 +471,8 @@ public class RestauranteServiceTest {
     @DisplayName("T: Procurar restaurante por nome nulo ou vazio devolve todos.")
     void procurarRestaurantePorNomeNullOuVazio() {
         when(restauranteRepository.findAll()).thenReturn(java.util.List.of(
-                new Restaurante("TascaEats1", "111111111", morada("Rua", 1, "1000-000", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas()),
-                new Restaurante("TascaEats2", "222222222", morada("Rua", 2, "2000-000", "Porto"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())
+            new Restaurante("TascaEats1", "111111111", morada("Rua", 1, "1000-000", "Lisboa"), adminValido(), new CatalogoEntregas()),
+            new Restaurante("TascaEats2", "222222222", morada("Rua", 2, "2000-000", "Porto"), adminValido(), new CatalogoEntregas())
         ));
 
         var result1 = restauranteService.procurarRestaurantePorNome(null);
@@ -498,7 +488,7 @@ public class RestauranteServiceTest {
     @DisplayName("U: Procurar restaurante por nome deve ser case-insensitive.")
     void procurarRestaurantePorNomeCaseInsensitive() {
         when(restauranteRepository.findByNomeContainingIgnoreCase("TASCA")).thenReturn(java.util.List.of(
-                new Restaurante("Tasca Eats", "123456789", morada("Rua", 1, "1234-567", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())));
+            new Restaurante("Tasca Eats", "123456789", morada("Rua", 1, "1234-567", "Lisboa"), adminValido(), new CatalogoEntregas())));
 
         var result = restauranteService.procurarRestaurantePorNome("TASCA");
         assertEquals(1, result.size());
@@ -511,8 +501,8 @@ public class RestauranteServiceTest {
     @DisplayName("V: Listar por estado nulo devolve todos.")
     void listarPorEstadoNull() {
         when(restauranteRepository.findAll()).thenReturn(java.util.List.of(
-                new Restaurante("Reastaurante A", "111111111", morada("Rua", 1, "1000-000", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas()),
-                new Restaurante("Restaurante B", "222222222", morada("Rua", 2, "2000-000", "Porto"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())
+            new Restaurante("Reastaurante A", "111111111", morada("Rua", 1, "1000-000", "Lisboa"), adminValido(), new CatalogoEntregas()),
+            new Restaurante("Restaurante B", "222222222", morada("Rua", 2, "2000-000", "Porto"), adminValido(), new CatalogoEntregas())
         ));
 
         var result = restauranteService.listarPorEstado(null);
@@ -526,7 +516,7 @@ public class RestauranteServiceTest {
     void listarPorEstadoValido() {
 
         Restaurante r = new Restaurante("Aberto", "123456789", morada("Rua", 1, "1000-000", "Lisboa"),
-                adminValido(), new CatalogoProdutos(), new CatalogoEntregas());
+            adminValido(), new CatalogoEntregas());
         r.abrir();
 
         when(restauranteRepository.findByEstado(EstadoRestaurante.ABERTO)).thenReturn(java.util.List.of(r));

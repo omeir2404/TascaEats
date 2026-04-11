@@ -1,28 +1,21 @@
 package pt.ul.fc.css.tascaeats.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
-import pt.ul.fc.css.tascaeats.domain.produto.Produto;
-import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
-import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
-import pt.ul.fc.css.tascaeats.service.produtoService.ProdutoService;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -30,6 +23,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import pt.ul.fc.css.tascaeats.domain.produto.Produto;
+import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
+import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
+import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
+import pt.ul.fc.css.tascaeats.service.produtoService.ProdutoService;
 
 @WebMvcTest(ProdutoController.class)
 class ProdutoControllerTest {
@@ -44,14 +48,14 @@ class ProdutoControllerTest {
     private ProdutoService produtoService;
 
     @Test
-    @DisplayName("A: POST /api/catalogos/{catalogoId}/produtos com payload válido retorna 201.")
+        @DisplayName("A: POST /api/restaurantes/{restauranteId}/produtos com payload válido retorna 201.")
     void shouldCreateProdutoWhenPayloadIsValid() throws Exception {
         CriarProdutoDTO dto = criarProdutoDTO();
         Produto produto = produto(1L, "Massa", 10.0, "Massa fresca", true, false);
 
         when(produtoService.criarProduto(eq(4L), any(CriarProdutoDTO.class))).thenReturn(produto);
 
-        mockMvc.perform(post("/api/catalogos/4/produtos")
+        mockMvc.perform(post("/api/restaurantes/4/produtos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
@@ -63,16 +67,16 @@ class ProdutoControllerTest {
     }
 
     @Test
-    @DisplayName("B: POST /api/catalogos/{catalogoId}/produtos com catálogo inexistente retorna 400.")
+    @DisplayName("B: POST /api/restaurantes/{restauranteId}/produtos com restaurante inexistente retorna 400.")
     void shouldReturnBadRequestWhenCatalogoDoesNotExist() throws Exception {
         when(produtoService.criarProduto(eq(99L), any(CriarProdutoDTO.class)))
-                .thenThrow(new IllegalArgumentException("O catálogo não foi encontrado."));
+                .thenThrow(new IllegalArgumentException("O restaurante não foi encontrado."));
 
-        mockMvc.perform(post("/api/catalogos/99/produtos")
+        mockMvc.perform(post("/api/restaurantes/99/produtos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(criarProdutoDTO())))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("O catálogo não foi encontrado."));
+                .andExpect(jsonPath("$.error").value("O restaurante não foi encontrado."));
     }
 
     @Test
@@ -254,7 +258,7 @@ class ProdutoControllerTest {
     }
 
 
-    //**********Funções auxiliares************
+        // ********** Funções auxiliares **********
 
     private CriarProdutoDTO criarProdutoDTO() {
         CriarProdutoDTO dto = new CriarProdutoDTO();
@@ -280,7 +284,7 @@ class ProdutoControllerTest {
     }
 
     private Produto produto(Long id, String nome, double preco, String descricao, boolean disponivel, boolean apagado) {
-        Produto produto = new Produto(nome, preco, descricao, new CatalogoProdutos());
+                Produto produto = new Produto(nome, preco, descricao, restauranteDummy());
         ReflectionTestUtils.setField(produto, "id", id);
 
         if (!disponivel) {
@@ -292,5 +296,23 @@ class ProdutoControllerTest {
 
         return produto;
     }
+
+        private Restaurante restauranteDummy() {
+                Morada morada = new Morada();
+                morada.setRua("Rua Teste");
+                morada.setNumero(1);
+                morada.setCodigoPostal("1000-100");
+                morada.setCidade("Lisboa");
+                morada.setDistrito("Lisboa");
+                morada.setPais("Portugal");
+
+                return new Restaurante(
+                                "Restaurante Teste",
+                                "123456789",
+                                morada,
+                                new RestauranteAdmin("Admin", "admin@teste.pt", "pw"),
+                                new CatalogoEntregas()
+                );
+        }
 
 }
