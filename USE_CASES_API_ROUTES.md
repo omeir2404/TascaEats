@@ -108,7 +108,7 @@ Base URL: `http://localhost:8080`
 ```json
 {
   "pedidoId": 1,
-  "metodo": "DINHEIRO",
+  "tipoPagamento": "DINHEIRO",
   "detalhes": {
     "valorRecebido": 20.0
   }

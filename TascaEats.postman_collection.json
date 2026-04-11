@@ -1,0 +1,589 @@
+{
+  "info": {
+    "_postman_id": "f3d6f83c-cd28-42d0-925b-a639f2f70b5f",
+    "name": "TascaEats API",
+    "description": "Postman collection for TascaEats current routes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "userId",
+      "value": "1"
+    },
+    {
+      "key": "restauranteId",
+      "value": "1"
+    },
+    {
+      "key": "produtoId",
+      "value": "1"
+    },
+    {
+      "key": "pedidoId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth & Users",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"secret\"\n}"
+            },
+            "url": "{{baseUrl}}/api/login"
+          }
+        },
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ana\",\n  \"email\": \"ana@example.com\",\n  \"password\": \"secret\",\n  \"type\": \"client\",\n  \"address\": {\n    \"rua\": \"Rua A\",\n    \"numero\": 10,\n    \"complemento\": \"1o Dto\",\n    \"codigoPostal\": \"1000-100\",\n    \"cidade\": \"Lisboa\",\n    \"distrito\": \"Lisboa\",\n    \"pais\": \"Portugal\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/register"
+          }
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/Utilizadors"
+          }
+        },
+        {
+          "name": "Get User By Id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/Utilizadors/{{userId}}"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ana Updated\",\n  \"email\": \"ana.updated@example.com\",\n  \"password\": \"newsecret\",\n  \"type\": \"client\"\n}"
+            },
+            "url": "{{baseUrl}}/api/Utilizadors/{{userId}}"
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/Utilizadors/{{userId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restaurants",
+      "item": [
+        {
+          "name": "Create Restaurant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Tasca Eats\",\n  \"nif\": \"123456789\",\n  \"morada\": {\n    \"rua\": \"Rua da Tasca\",\n    \"numero\": 10,\n    \"complemento\": \"1o Dto\",\n    \"codigoPostal\": \"1000-100\",\n    \"cidade\": \"Lisboa\",\n    \"distrito\": \"Lisboa\",\n    \"pais\": \"Portugal\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/restaurantes?adminEmail=admin@tasca.pt",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "restaurantes"
+              ],
+              "query": [
+                {
+                  "key": "adminEmail",
+                  "value": "admin@tasca.pt"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Restaurant",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Tasca Eats Updated\",\n  \"nif\": \"123456789\",\n  \"morada\": {\n    \"rua\": \"Rua Nova\",\n    \"numero\": 11,\n    \"complemento\": \"Loja\",\n    \"codigoPostal\": \"1000-101\",\n    \"cidade\": \"Lisboa\",\n    \"distrito\": \"Lisboa\",\n    \"pais\": \"Portugal\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}"
+          }
+        },
+        {
+          "name": "Update Restaurant State",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"ABERTO\"\n}"
+            },
+            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/estado"
+          }
+        },
+        {
+          "name": "Open Restaurant",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/abrir"
+          }
+        },
+        {
+          "name": "Close Restaurant",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/fechar"
+          }
+        },
+        {
+          "name": "Get Restaurant By Id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}"
+          }
+        },
+        {
+          "name": "List Restaurants",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/restaurantes"
+          }
+        },
+        {
+          "name": "Search Restaurants By Name",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/restaurantes?nome=tasca",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "restaurantes"
+              ],
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "tasca"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Restaurants By City",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/restaurantes?cidade=lisboa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "restaurantes"
+              ],
+              "query": [
+                {
+                  "key": "cidade",
+                  "value": "lisboa"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Restaurants By State",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/restaurantes?estado=ABERTO",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "restaurantes"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "ABERTO"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Create Product For Restaurant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Bacalhau\",\n  \"preco\": 12.5,\n  \"descricao\": \"Prato do dia\"\n}"
+            },
+            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/produtos"
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Bacalhau Especial\",\n  \"preco\": 13.0,\n  \"descricao\": \"Com extra\"\n}"
+            },
+            "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
+          }
+        },
+        {
+          "name": "Update Product Availability",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"disponivel\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/produtos/{{produtoId}}/disponibilidade"
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
+          }
+        },
+        {
+          "name": "Get Product By Id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
+          }
+        },
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/produtos"
+          }
+        },
+        {
+          "name": "Search Products By Name",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/produtos?nome=bac",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "produtos"
+              ],
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "bac"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Products By Restaurant",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/produtos?restauranteId={{restauranteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "produtos"
+              ],
+              "query": [
+                {
+                  "key": "restauranteId",
+                  "value": "{{restauranteId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Active Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/produtos?ativos=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "produtos"
+              ],
+              "query": [
+                {
+                  "key": "ativos",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Available Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/produtos?disponiveis=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "produtos"
+              ],
+              "query": [
+                {
+                  "key": "disponiveis",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clienteId\": 1,\n  \"restauranteId\": 1,\n  \"produtosIds\": [1, 2]\n}"
+            },
+            "url": "{{baseUrl}}/pedidos"
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/pedidos/{{pedidoId}}/cancelar"
+          }
+        },
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/pedidos"
+          }
+        },
+        {
+          "name": "List Orders By Client",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/pedidos?clienteId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ],
+              "query": [
+                {
+                  "key": "clienteId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Orders By State",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/pedidos?estado=CRIADO",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pedidos"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "CRIADO"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pedidoId\": 1,\n  \"tipoPagamento\": \"DINHEIRO\",\n  \"detalhes\": {\n    \"valorRecebido\": 20.0\n  }\n}"
+            },
+            "url": "{{baseUrl}}/pagamentos"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delivery",
+      "item": [
+        {
+          "name": "Assign Driver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pedidoId\": 1\n}"
+            },
+            "url": "{{baseUrl}}/entregas/atribuir"
+          }
+        },
+        {
+          "name": "Start Preparation",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/entregas/pedido/{{pedidoId}}/iniciar-preparacao"
+          }
+        },
+        {
+          "name": "Mark Order Ready",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/entregas/pedido/{{pedidoId}}/marcar-pronto"
+          }
+        },
+        {
+          "name": "Register Pickup",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/entregas/pedido/{{pedidoId}}/recolha"
+          }
+        },
+        {
+          "name": "Register Final Delivery",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/entregas/pedido/{{pedidoId}}/entrega-final"
+          }
+        }
+      ]
+    }
+  ]
+}
