@@ -1,13 +1,7 @@
 package pt.ul.fc.css.tascaeats.domain.utilizador;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity(name = "MoradaUtilizador")
 @Table(name = "morada_utilizador")
@@ -16,13 +10,13 @@ public class Morada {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String street;
-    private String number;
-    private String complement;
-    private String country;
-    private String district;
-    private String city;
-    private String postalCode;
+    private String rua;
+    private Integer numero;
+    private String complemento;
+    private String pais;
+    private String distrito;
+    private String cidade;
+    private String codigoPostal;
 
     @JsonIgnore
     @OneToOne(mappedBy = "address")
@@ -36,60 +30,60 @@ public class Morada {
         this.id = id;
     }
 
-    public String getStreet() {
-        return street;
+    public String getRua() {
+        return rua;
     }
 
-    public void setStreet(String street) {
-        this.street = street;
+    public void setRua(String street) {
+        this.rua = street;
     }
 
-    public String getNumber() {
-        return number;
+    public Integer getNumero() {
+        return numero;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setNumero(Integer number) {
+        this.numero = number;
     }
 
-    public String getComplement() {
-        return complement;
+    public String getComplemento() {
+        return complemento;
     }
 
-    public void setComplement(String complement) {
-        this.complement = complement;
+    public void setComplemento(String complement) {
+        this.complemento = complement;
     }
 
-    public String getCountry() {
-        return country;
+    public String getPais() {
+        return pais;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setPais(String country) {
+        this.pais = country;
     }
 
-    public String getDistrict() {
-        return district;
+    public String getDistrito() {
+        return distrito;
     }
 
-    public void setDistrict(String district) {
-        this.district = district;
+    public void setDistrito(String district) {
+        this.distrito = district;
     }
 
-    public String getCity() {
-        return city;
+    public String getCidade() {
+        return cidade;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setCidade(String city) {
+        this.cidade = city;
     }
 
-    public String getPostalCode() {
-        return postalCode;
+    public String getCodigoPostal() {
+        return codigoPostal;
     }
 
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
+    public void setCodigoPostal(String postalCode) {
+        this.codigoPostal = postalCode;
     }
 
     public Cliente getClient() {
