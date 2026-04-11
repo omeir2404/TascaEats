@@ -9,8 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
-import pt.ul.fc.css.tascaeats.domain.restaurante.Morada;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
@@ -143,7 +143,7 @@ public class RestauranteServiceTest {
         RestauranteAdmin admin = adminValido();
         CriarRestauranteDTO dto = criarDTOValido();
         Restaurante existente = new Restaurante("Outro", "123456789",
-                new Morada("Rua X", 10, "1000-001", "Lisboa"),
+                morada("Rua X", 10, "1000-001", "Lisboa"),
                 admin,
                 new CatalogoProdutos(),
                 new CatalogoEntregas()
@@ -185,7 +185,7 @@ public class RestauranteServiceTest {
     @DisplayName("H: Criar restaurante com número da porta <= 0.")
     void createRestauranteWithInvalidNumeroPorta() {
         CriarRestauranteDTO dto = criarDTOValido();
-        dto.getMorada().setNumeroPorta(0);
+        dto.getMorada().setNumero(0);
 
         when(restauranteAdminRepository.findByEmail("admin@gmail.com")).thenReturn(adminValido());
         when(restauranteRepository.findByNif("123456789")).thenReturn(Optional.empty());
@@ -260,16 +260,15 @@ public class RestauranteServiceTest {
         Restaurante restauranteExistente = new Restaurante(
                 "Restaurante A",
                 "111111111",
-                new Morada("Rua A", 1, "1111-111", "Lisboa"),
+                morada("Rua A", 1, "1111-111", "Lisboa"),
                 admin,
                 new CatalogoProdutos(),
                 new CatalogoEntregas()
         );
-
         Restaurante outroRestaurante = new Restaurante(
                 "Restaurante B",
                 "222222222",
-                new Morada("Rua B", 2, "2222-222", "Porto"),
+                morada("Rua B", 2, "2222-222", "Porto"),
                 admin,
                 new CatalogoProdutos(),
                 new CatalogoEntregas()
@@ -297,7 +296,7 @@ public class RestauranteServiceTest {
         Restaurante restauranteExistente = new Restaurante(
                 "Burger King",
                 "111111111",
-                new Morada("Rua bk", 5, "1304-131", "Lisboa"),
+                morada("Rua bk", 5, "1304-131", "Lisboa"),
                 adminValido(),
                 new CatalogoProdutos(),
                 new CatalogoEntregas()
@@ -307,9 +306,9 @@ public class RestauranteServiceTest {
         dto.setNome("Mc Donald's");
         dto.setNif(" 123456789 ");
         dto.getMorada().setRua("Rua mc");
-        dto.getMorada().setNumeroPorta(77);
+        dto.getMorada().setNumero(77);
         dto.getMorada().setCodigoPostal("4000-123");
-        dto.getMorada().setLocalidade("Bragança");
+        dto.getMorada().setCidade("Bragança");
 
         when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restauranteExistente));
         when(restauranteRepository.findByNif("123456789")).thenReturn(Optional.empty());
@@ -320,9 +319,9 @@ public class RestauranteServiceTest {
         assertThat(atualizado.getNome()).isEqualTo("Mc Donald's");
         assertThat(atualizado.getNif()).isEqualTo("123456789");
         assertThat(atualizado.getMorada().getRua()).isEqualTo("Rua mc");
-        assertThat(atualizado.getMorada().getNumeroPorta()).isEqualTo(77);
+        assertThat(atualizado.getMorada().getNumero()).isEqualTo(77);
         assertThat(atualizado.getMorada().getCodigoPostal()).isEqualTo("4000-123");
-        assertThat(atualizado.getMorada().getLocalidade()).isEqualTo("Bragança");
+        assertThat(atualizado.getMorada().getCidade()).isEqualTo("Bragança");
     }
 
 
@@ -373,7 +372,7 @@ public class RestauranteServiceTest {
         Restaurante restaurante = new Restaurante(
                 "Tasca Eats",
                 "123456789",
-                new Morada("Rua", 1, "1234-000", "Lisboa"),
+                morada("Rua", 1, "1234-000", "Lisboa"),
                 adminValido(),
                 new CatalogoProdutos(),
                 new CatalogoEntregas()
@@ -399,7 +398,7 @@ public class RestauranteServiceTest {
         Restaurante restaurante = new Restaurante(
                 "Tasca Eats",
                 "123456789",
-                new Morada("Rua", 1, "1234-111", "Lisboa"),
+                morada("Rua", 1, "1234-111", "Lisboa"),
                 adminValido(),
                 new CatalogoProdutos(),
                 new CatalogoEntregas()
@@ -427,7 +426,7 @@ public class RestauranteServiceTest {
         Restaurante restaurante = new Restaurante(
                 "Tasca Etas",
                 "123456789",
-                new Morada("Rua", 1, "1000-000", "Lisboa"),
+                morada("Rua", 1, "1000-000", "Lisboa"),
                 adminValido(),
                 new CatalogoProdutos(),
                 new CatalogoEntregas()
@@ -456,7 +455,7 @@ public class RestauranteServiceTest {
         Restaurante restaurante = new Restaurante(
                 "Tasca Eats",
                 "123456789",
-                new Morada("Rua", 1, "1000-000", "Lisboa"),
+                morada("Rua", 1, "1000-000", "Lisboa"),
                 adminValido(),
                 new CatalogoProdutos(),
                 new CatalogoEntregas()
@@ -482,8 +481,8 @@ public class RestauranteServiceTest {
     @DisplayName("T: Procurar restaurante por nome nulo ou vazio devolve todos.")
     void procurarRestaurantePorNomeNullOuVazio() {
         when(restauranteRepository.findAll()).thenReturn(java.util.List.of(
-                new Restaurante("TascaEats1", "111111111", new Morada("Rua", 1, "1000-000", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas()),
-                new Restaurante("TascaEats2", "222222222", new Morada("Rua", 2, "2000-000", "Porto"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())
+                new Restaurante("TascaEats1", "111111111", morada("Rua", 1, "1000-000", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas()),
+                new Restaurante("TascaEats2", "222222222", morada("Rua", 2, "2000-000", "Porto"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())
         ));
 
         var result1 = restauranteService.procurarRestaurantePorNome(null);
@@ -499,7 +498,7 @@ public class RestauranteServiceTest {
     @DisplayName("U: Procurar restaurante por nome deve ser case-insensitive.")
     void procurarRestaurantePorNomeCaseInsensitive() {
         when(restauranteRepository.findByNomeContainingIgnoreCase("TASCA")).thenReturn(java.util.List.of(
-                        new Restaurante("Tasca Eats", "123456789", new Morada("Rua", 1, "1234-567", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())));
+                new Restaurante("Tasca Eats", "123456789", morada("Rua", 1, "1234-567", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())));
 
         var result = restauranteService.procurarRestaurantePorNome("TASCA");
         assertEquals(1, result.size());
@@ -512,8 +511,8 @@ public class RestauranteServiceTest {
     @DisplayName("V: Listar por estado nulo devolve todos.")
     void listarPorEstadoNull() {
         when(restauranteRepository.findAll()).thenReturn(java.util.List.of(
-                new Restaurante("Reastaurante A", "111111111", new Morada("Rua", 1, "1000-000", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas()),
-                new Restaurante("Restaurante B", "222222222", new Morada("Rua", 2, "2000-000", "Porto"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())
+                new Restaurante("Reastaurante A", "111111111", morada("Rua", 1, "1000-000", "Lisboa"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas()),
+                new Restaurante("Restaurante B", "222222222", morada("Rua", 2, "2000-000", "Porto"), adminValido(), new CatalogoProdutos(), new CatalogoEntregas())
         ));
 
         var result = restauranteService.listarPorEstado(null);
@@ -526,7 +525,7 @@ public class RestauranteServiceTest {
     @DisplayName("W: Listar por estado válido filtra corretamente.")
     void listarPorEstadoValido() {
 
-        Restaurante r = new Restaurante("Aberto", "123456789", new Morada("Rua", 1, "1000-000", "Lisboa"),
+        Restaurante r = new Restaurante("Aberto", "123456789", morada("Rua", 1, "1000-000", "Lisboa"),
                 adminValido(), new CatalogoProdutos(), new CatalogoEntregas());
         r.abrir();
 
@@ -546,13 +545,7 @@ public class RestauranteServiceTest {
         dto.setNome("Tasca Eats");
         dto.setNif("123456789");
 
-        MoradaDTO morada = new MoradaDTO();
-        morada.setRua("Rua 123");
-        morada.setNumeroPorta(2);
-        morada.setCodigoPostal("2765-543");
-        morada.setLocalidade("Porto");
-
-        dto.setMorada(morada);
+        dto.setMorada(new MoradaDTO("Rua 123", 2, null, "2765-543", "Porto", "Porto", "Portugal"));
         return dto;
     }
 
@@ -566,13 +559,19 @@ public class RestauranteServiceTest {
         dto.setNome("Tasca Atualizada");
         dto.setNif("123456789");
 
-        MoradaDTO morada = new MoradaDTO();
-        morada.setRua("Rua Atualizada");
-        morada.setNumeroPorta(10);
-        morada.setCodigoPostal("3000-300");
-        morada.setLocalidade("Coimbra");
-
-        dto.setMorada(morada);
+        dto.setMorada(new MoradaDTO("Rua Atualizada", 10, null, "3000-300", "Coimbra", "Coimbra", "Portugal"));
         return dto;
+    }
+
+    private Morada morada(String rua, Integer numero, String codigoPostal, String cidade) {
+        Morada morada = new Morada();
+        morada.setRua(rua);
+        morada.setNumero(numero);
+        morada.setCodigoPostal(codigoPostal);
+        morada.setCidade(cidade);
+        morada.setComplemento(null);
+        morada.setDistrito(cidade);
+        morada.setPais("Portugal");
+        return morada;
     }
 }

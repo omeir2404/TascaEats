@@ -1,25 +1,12 @@
 package pt.ul.fc.css.tascaeats.services;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import pt.ul.fc.css.tascaeats.domain.entrega.Entrega;
 import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoDinheiro;
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
@@ -29,10 +16,7 @@ import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
-import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
-import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
-import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
-import pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador;
+import pt.ul.fc.css.tascaeats.domain.utilizador.*;
 import pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
@@ -61,6 +45,18 @@ import pt.ul.fc.css.tascaeats.service.produtoService.ProdutoService;
 import pt.ul.fc.css.tascaeats.service.restauranteServices.RestauranteService;
 import pt.ul.fc.css.tascaeats.service.utilizadorServices.AutorService;
 import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UseCasesAToLServiceTest {
@@ -511,12 +507,7 @@ class UseCasesAToLServiceTest {
     }
 
     private MoradaDTO moradaDto(String rua, int numeroPorta, String codigoPostal, String localidade) {
-        MoradaDTO dto = new MoradaDTO();
-        dto.setRua(rua);
-        dto.setNumeroPorta(numeroPorta);
-        dto.setCodigoPostal(codigoPostal);
-        dto.setLocalidade(localidade);
-        return dto;
+        return new MoradaDTO(rua, numeroPorta, null, codigoPostal, localidade, localidade, "Portugal");
     }
 
     private CriarRestauranteDTO criarRestauranteDto(String nome, String nif, String localidade) {
@@ -546,10 +537,17 @@ class UseCasesAToLServiceTest {
 
     private Restaurante restaurante(String nome, String nif, String cidade, EstadoRestaurante estado) {
         RestauranteAdmin admin = new RestauranteAdmin("Admin", "admin@tasca.pt", "pw");
+        Morada morada = new Morada();
+        morada.setRua("Rua Principal");
+        morada.setComplemento("2º Esq");
+        morada.setNumero(1);
+        morada.setCodigoPostal("1000-001");
+        morada.setCidade(cidade);
+        morada.setPais("Portugal");
         Restaurante restaurante = new Restaurante(
                 nome,
                 nif,
-                new pt.ul.fc.css.tascaeats.domain.restaurante.Morada("Rua X", 1, "1000-001", cidade),
+                morada,
                 admin,
                 new CatalogoProdutos(),
                 new CatalogoEntregas());

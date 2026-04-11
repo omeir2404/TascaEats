@@ -5,13 +5,11 @@ import org.junit.jupiter.api.Test;
 import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
-import pt.ul.fc.css.tascaeats.domain.restaurante.Morada;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RestauranteTest {
 
@@ -123,10 +121,18 @@ public class RestauranteTest {
     //**********Funções auxiliares************
 
     private Restaurante criarRestaurante() {
+        Morada morada = new Morada();
+        morada.setRua("Rua A");
+        morada.setNumero(10);
+        morada.setCodigoPostal("1000-100");
+        morada.setCidade("Lisboa");
+        morada.setDistrito("Lisboa");
+        morada.setPais("Portugal");
+
         return new Restaurante(
                 "Tasquinha",
                 "123456789",
-                new Morada("Rua A", 10, "1000-100", "Lisboa"),
+                morada,
                 new RestauranteAdmin("Admin", "admin@tascaeats.pt", "password123"),
                 new CatalogoProdutos(),
                 new CatalogoEntregas()

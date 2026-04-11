@@ -13,8 +13,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import pt.ul.fc.css.tascaeats.domain.produto.CatalogoProdutos;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
-import pt.ul.fc.css.tascaeats.domain.restaurante.Morada;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
@@ -24,15 +24,10 @@ import pt.ul.fc.css.tascaeats.service.restauranteServices.RestauranteService;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -294,19 +289,23 @@ class RestauranteControllerTest {
     }
 
     private MoradaDTO moradaDTO() {
-        MoradaDTO dto = new MoradaDTO();
-        dto.setRua("Rua da Tasca");
-        dto.setNumeroPorta(10);
-        dto.setCodigoPostal("1000-100");
-        dto.setLocalidade("Lisboa");
-        return dto;
+        return new MoradaDTO("Rua da Tasca", 10, null, "1000-100", "Lisboa", "Lisboa", "Portugal");
     }
 
     private Restaurante restaurante(Long id, String nome, String nif, EstadoRestaurante estado) {
+        Morada morada = new Morada();
+        morada.setRua("Rua da Tasca");
+        morada.setNumero(10);
+        morada.setCodigoPostal("1000-100");
+        morada.setCidade("Lisboa");
+        morada.setComplemento("1º Dir");
+        morada.setDistrito("Lisboa");
+        morada.setPais("Portugal");
+
         Restaurante restaurante = new Restaurante(
                 nome,
                 nif,
-                new Morada("Rua da Tasca", 10, "1000-100", "Lisboa"),
+                morada,
                 new RestauranteAdmin("Admin", "admin@tasca.pt", "segredo"),
                 new CatalogoProdutos(),
                 new CatalogoEntregas()

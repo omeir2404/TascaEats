@@ -132,7 +132,7 @@ class UtilizadorControllerTest {
         Utilizador.setName("Ana");
         Utilizador.setEmail("ana@example.com");
         Morada address = new Morada();
-        address.setStreet("Rua A");
+        address.setRua("Rua A");
         Utilizador.setAddress(address);
         when(UtilizadorService.getAllUtilizadors()).thenReturn(List.of(Utilizador));
 

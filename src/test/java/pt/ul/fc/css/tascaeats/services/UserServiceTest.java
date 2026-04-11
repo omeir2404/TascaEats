@@ -320,7 +320,7 @@ class UtilizadorServiceTest {
 
         Utilizador updated = UtilizadorService.updateUtilizador(1L, update("Ana", "ana@example.com", "secret", "client", address("Rua Nova"), false));
 
-        assertThat(((Cliente) updated).getAddress().getStreet()).isEqualTo("Rua Nova");
+        assertThat(((Cliente) updated).getAddress().getRua()).isEqualTo("Rua Nova");
     }
 
     @Test
@@ -332,7 +332,7 @@ class UtilizadorServiceTest {
 
         Utilizador updated = UtilizadorService.updateUtilizador(1L, update("Ana", "ana@example.com", "secret", "client", null, false));
 
-        assertThat(((Cliente) updated).getAddress().getStreet()).isEqualTo("Rua Velha");
+        assertThat(((Cliente) updated).getAddress().getRua()).isEqualTo("Rua Velha");
     }
 
     @Test
@@ -344,7 +344,7 @@ class UtilizadorServiceTest {
 
         Utilizador updated = UtilizadorService.updateUtilizador(1L, update("Ana", "ana@example.com", "secret", "client", address("Rua Atualizada"), false));
 
-        assertThat(((Cliente) updated).getAddress().getStreet()).isEqualTo("Rua Atualizada");
+        assertThat(((Cliente) updated).getAddress().getRua()).isEqualTo("Rua Atualizada");
     }
 
     private UtilizadorRegistoDTO registration(String name, String email, String password, String type, MoradaDTO address) {
@@ -356,12 +356,7 @@ class UtilizadorServiceTest {
     }
 
     private MoradaDTO address(String street) {
-        MoradaDTO addressDTO = new MoradaDTO();
-        addressDTO.setRua(street);
-        addressDTO.setNumeroPorta(1);
-        addressDTO.setLocalidade("Lisboa");
-        addressDTO.setCodigoPostal("1000-001");
-        return addressDTO;
+        return new MoradaDTO(street, 1, null, "1000-001", "Lisboa", "Lisboa", "Portugal");
     }
 
     private Cliente client(long id, String email, String name) {
@@ -376,11 +371,11 @@ class UtilizadorServiceTest {
     private Cliente clientWithMorada(long id, String email, String name, String street) {
         Cliente client = client(id, email, name);
         Morada address = new Morada();
-        address.setStreet(street);
-        address.setCountry("Portugal");
-        address.setDistrict("Lisboa");
-        address.setCity("Lisboa");
-        address.setPostalCode("1000-001");
+        address.setRua(street);
+        address.setPais("Portugal");
+        address.setDistrito("Lisboa");
+        address.setCidade("Lisboa");
+        address.setCodigoPostal("1000-001");
         client.setAddress(address);
         return client;
     }
