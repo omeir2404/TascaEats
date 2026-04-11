@@ -68,161 +68,161 @@
 ### Services
 
 #### 1) PedidoService
-- [ ] criarPedido com DTO nulo deve falhar (`IllegalArgumentException`)
-- [ ] criarPedido com lista de produtos vazia deve falhar
-- [ ] criarPedido com cliente inexistente deve falhar
-- [ ] criarPedido com restaurante inexistente deve falhar
-- [ ] criarPedido com produto inexistente deve falhar
-- [ ] criarPedido com sucesso deve calcular `valorTotal` corretamente
-- [ ] criarPedido com sucesso deve criar pedido no estado `CRIADO`
-- [ ] cancelarPedido com `pedidoId` nulo deve falhar
-- [ ] cancelarPedido com pedido inexistente deve falhar
-- [ ] cancelarPedido com estado `CRIADO` deve passar
-- [ ] cancelarPedido com estado `PAGO` deve passar
-- [ ] cancelarPedido com estado `A_PREPARAR` deve falhar
-- [ ] cancelarPedido com estado `PRONTO_PARA_ENTREGA` deve falhar
-- [ ] listarPedidos com `clienteId` e `estado` deve usar filtro combinado
-- [ ] listarPedidos só com `clienteId` deve filtrar por cliente
-- [ ] listarPedidos só com `estado` deve filtrar por estado
-- [ ] listarPedidos sem filtros deve devolver todos
+- [x] criarPedido com DTO nulo deve falhar (`IllegalArgumentException`)
+- [x] criarPedido com lista de produtos vazia deve falhar
+- [x] criarPedido com cliente inexistente deve falhar
+- [x] criarPedido com restaurante inexistente deve falhar
+- [x] criarPedido com produto inexistente deve falhar
+- [x] criarPedido com sucesso deve calcular `valorTotal` corretamente
+- [x] criarPedido com sucesso deve criar pedido no estado `CRIADO`
+- [x] cancelarPedido com `pedidoId` nulo deve falhar
+- [x] cancelarPedido com pedido inexistente deve falhar
+- [x] cancelarPedido com estado `CRIADO` deve passar
+- [x] cancelarPedido com estado `PAGO` deve passar
+- [x] cancelarPedido com estado `A_PREPARAR` deve falhar
+- [x] cancelarPedido com estado `PRONTO_PARA_ENTREGA` deve falhar
+- [x] listarPedidos com `clienteId` e `estado` deve usar filtro combinado
+- [x] listarPedidos só com `clienteId` deve filtrar por cliente
+- [x] listarPedidos só com `estado` deve filtrar por estado
+- [x] listarPedidos sem filtros deve devolver todos
 
 #### 2) PagamentoService
-- [ ] processarPagamento com `pedidoId` nulo deve falhar
-- [ ] processarPagamento com pedido inexistente deve falhar
-- [ ] processarPagamento com factory a devolver `null` deve falhar
-- [ ] processarPagamento com sucesso deve guardar pagamento
-- [ ] processarPagamento com sucesso deve associar pagamento ao pedido
-- [ ] processarPagamento com sucesso deve mudar estado para `PAGO`
-- [ ] processarPagamento não deve permitir pagar pedido já pago (via regra de domínio)
+- [x] processarPagamento com `pedidoId` nulo deve falhar
+- [x] processarPagamento com pedido inexistente deve falhar
+- [x] processarPagamento com factory a devolver `null` deve falhar
+- [x] processarPagamento com sucesso deve guardar pagamento
+- [x] processarPagamento com sucesso deve associar pagamento ao pedido
+- [x] processarPagamento com sucesso deve mudar estado para `PAGO`
+- [x] processarPagamento não deve permitir pagar pedido já pago (via regra de domínio)
 
 #### 3) EntregaService
-- [ ] atribuirEntregador com DTO nulo deve falhar
-- [ ] atribuirEntregador com `pedidoId` nulo deve falhar
-- [ ] atribuirEntregador com pedido inexistente deve falhar
-- [ ] atribuirEntregador com pedido fora de `PRONTO_PARA_ENTREGA` deve falhar
-- [ ] atribuirEntregador com entrega já existente para o pedido deve falhar
-- [ ] atribuirEntregador sem entregadores disponíveis deve falhar
-- [ ] atribuirEntregador com sucesso deve marcar entregador indisponível
-- [ ] atribuirEntregador com sucesso deve mudar pedido para `ATRIBUIDO_ENTREGADOR`
-- [ ] iniciarPreparacao com pedido inexistente deve falhar
-- [ ] iniciarPreparacao com estado inválido deve falhar
-- [ ] iniciarPreparacao com estado `PAGO` deve passar e gravar `A_PREPARAR`
-- [ ] marcarPedidoComoPronto com estado inválido deve falhar
-- [ ] marcarPedidoComoPronto com estado `A_PREPARAR` deve passar
-- [ ] registarRecolha sem entrega deve falhar
-- [ ] registarRecolha com pedido fora de `ATRIBUIDO_ENTREGADOR` deve falhar
-- [ ] registarRecolha com sucesso deve definir `horaRecolha`
-- [ ] registarEntregaFinal sem entrega deve falhar
-- [ ] registarEntregaFinal sem entregador válido deve falhar
-- [ ] registarEntregaFinal com sucesso deve definir `horaEntrega`
-- [ ] registarEntregaFinal com sucesso deve mudar pedido para `ENTREGUE`
-- [ ] registarEntregaFinal com sucesso deve libertar entregador (`available=true`)
+- [x] atribuirEntregador com DTO nulo deve falhar
+- [x] atribuirEntregador com `pedidoId` nulo deve falhar
+- [x] atribuirEntregador com pedido inexistente deve falhar
+- [x] atribuirEntregador com pedido fora de `PRONTO_PARA_ENTREGA` deve falhar
+- [x] atribuirEntregador com entrega já existente para o pedido deve falhar
+- [x] atribuirEntregador sem entregadores disponíveis deve falhar
+- [x] atribuirEntregador com sucesso deve marcar entregador indisponível
+- [x] atribuirEntregador com sucesso deve mudar pedido para `ATRIBUIDO_ENTREGADOR`
+- [x] iniciarPreparacao com pedido inexistente deve falhar
+- [x] iniciarPreparacao com estado inválido deve falhar
+- [x] iniciarPreparacao com estado `PAGO` deve passar e gravar `A_PREPARAR`
+- [x] marcarPedidoComoPronto com estado inválido deve falhar
+- [x] marcarPedidoComoPronto com estado `A_PREPARAR` deve passar
+- [x] registarRecolha sem entrega deve falhar
+- [x] registarRecolha com pedido fora de `ATRIBUIDO_ENTREGADOR` deve falhar
+- [x] registarRecolha com sucesso deve definir `horaRecolha`
+- [x] registarEntregaFinal sem entrega deve falhar
+- [x] registarEntregaFinal sem entregador válido deve falhar
+- [x] registarEntregaFinal com sucesso deve definir `horaEntrega`
+- [x] registarEntregaFinal com sucesso deve mudar pedido para `ENTREGUE`
+- [x] registarEntregaFinal com sucesso deve libertar entregador (`available=true`)
 
 ### Controllers
 
 #### 1) PedidoController
-- [ ] `POST /pedidos` com payload válido deve retornar 200 e mensagem de sucesso
-- [ ] `POST /pedidos` com payload inválido deve retornar erro HTTP apropriado
-- [ ] `PATCH /pedidos/{id}/cancelar` com sucesso deve retornar 200
-- [ ] `PATCH /pedidos/{id}/cancelar` com erro de negócio deve retornar 4xx/5xx conforme handler
-- [ ] `GET /pedidos` sem filtros deve retornar lista
-- [ ] `GET /pedidos` com `clienteId` deve filtrar
-- [ ] `GET /pedidos` com `estado` deve filtrar
-- [ ] `GET /pedidos` com ambos filtros deve filtrar corretamente
+- [x] `POST /pedidos` com payload válido deve retornar 200 e mensagem de sucesso
+- [x] `POST /pedidos` com payload inválido deve retornar erro HTTP apropriado
+- [x] `PATCH /pedidos/{id}/cancelar` com sucesso deve retornar 200
+- [x] `PATCH /pedidos/{id}/cancelar` com erro de negócio deve retornar 4xx/5xx conforme handler
+- [x] `GET /pedidos` sem filtros deve retornar lista
+- [x] `GET /pedidos` com `clienteId` deve filtrar
+- [x] `GET /pedidos` com `estado` deve filtrar
+- [x] `GET /pedidos` com ambos filtros deve filtrar corretamente
 
 #### 2) PagamentoController
-- [ ] `POST /pagamentos` com payload válido deve retornar 200 e mensagem de sucesso
-- [ ] `POST /pagamentos` com `pedidoId` ausente/inválido deve retornar erro
-- [ ] `POST /pagamentos` com tipo de pagamento inválido deve retornar erro
-- [ ] `POST /pagamentos` deve delegar para `PagamentoService`
+- [x] `POST /pagamentos` com payload válido deve retornar 200 e mensagem de sucesso
+- [x] `POST /pagamentos` com `pedidoId` ausente/inválido deve retornar erro
+- [x] `POST /pagamentos` com tipo de pagamento inválido deve retornar erro
+- [x] `POST /pagamentos` deve delegar para `PagamentoService`
 
 #### 3) EntregaController
-- [ ] `POST /entregas/atribuir` com payload válido deve retornar resumo da entrega
-- [ ] `POST /entregas/atribuir` com payload inválido deve retornar erro
-- [ ] `PATCH /entregas/pedido/{id}/iniciar-preparacao` com sucesso deve retornar 200
-- [ ] `PATCH /entregas/pedido/{id}/marcar-pronto` com sucesso deve retornar 200
-- [ ] `PATCH /entregas/pedido/{id}/recolha` com sucesso deve retornar resumo com `horaRecolha`
-- [ ] `PATCH /entregas/pedido/{id}/entrega-final` com sucesso deve retornar resumo com `horaEntrega`
-- [ ] endpoints de entrega devem propagar erros de negócio corretamente
+- [x] `POST /entregas/atribuir` com payload válido deve retornar resumo da entrega
+- [x] `POST /entregas/atribuir` com payload inválido deve retornar erro
+- [x] `PATCH /entregas/pedido/{id}/iniciar-preparacao` com sucesso deve retornar 200
+- [x] `PATCH /entregas/pedido/{id}/marcar-pronto` com sucesso deve retornar 200
+- [x] `PATCH /entregas/pedido/{id}/recolha` com sucesso deve retornar resumo com `horaRecolha`
+- [x] `PATCH /entregas/pedido/{id}/entrega-final` com sucesso deve retornar resumo com `horaEntrega`
+- [x] endpoints de entrega devem propagar erros de negócio corretamente
 
 ### Domain (entities + enum)
 
 #### 1) EstadoPedido
-- [ ] deve conter todos os valores esperados (`CRIADO`, `PAGO`, `A_PREPARAR`, `PRONTO_PARA_ENTREGA`, `CANCELADO`, `ATRIBUIDO_ENTREGADOR`, `ENTREGUE`)
+- [x] deve conter todos os valores esperados (`CRIADO`, `PAGO`, `A_PREPARAR`, `PRONTO_PARA_ENTREGA`, `CANCELADO`, `ATRIBUIDO_ENTREGADOR`, `ENTREGUE`)
 
 #### 2) Pagamento (abstrata)
-- [ ] subclasses devem implementar `validarDetalhes`
-- [ ] subclasses devem implementar `obterInstrucoesPagamento`
-- [ ] getters/setters devem preservar dados corretamente
+- [x] subclasses devem implementar `validarDetalhes`
+- [x] subclasses devem implementar `obterInstrucoesPagamento`
+- [x] getters/setters devem preservar dados corretamente
 
 #### 3) PagamentoMBWay
-- [ ] `validarDetalhes` com número válido (9 dígitos iniciados por 9) deve passar
-- [ ] `validarDetalhes` com número inválido deve falhar
-- [ ] `obterInstrucoesPagamento` deve incluir valor e número
+- [x] `validarDetalhes` com número válido (9 dígitos iniciados por 9) deve passar
+- [x] `validarDetalhes` com número inválido deve falhar
+- [x] `obterInstrucoesPagamento` deve incluir valor e número
 
 #### 4) PagamentoDinheiro
-- [ ] `validarDetalhes` com valor recebido suficiente deve calcular troco
-- [ ] `validarDetalhes` com valor insuficiente deve falhar
-- [ ] `obterInstrucoesPagamento` deve incluir troco esperado
+- [x] `validarDetalhes` com valor recebido suficiente deve calcular troco
+- [x] `validarDetalhes` com valor insuficiente deve falhar
+- [x] `obterInstrucoesPagamento` deve incluir troco esperado
 
 #### 5) PagamentoMultibanco
-- [ ] `validarDetalhes` com entidade/referência válidas deve passar
-- [ ] `validarDetalhes` com entidade/referência inválidas deve falhar
-- [ ] `obterInstrucoesPagamento` deve conter entidade e referência
+- [x] `validarDetalhes` com entidade/referência válidas deve passar
+- [x] `validarDetalhes` com entidade/referência inválidas deve falhar
+- [x] `obterInstrucoesPagamento` deve conter entidade e referência
 
 #### 6) PagamentoCartao
-- [ ] `validarDetalhes` com número/cartão/data/cvv válidos deve passar
-- [ ] `validarDetalhes` com dados inválidos deve falhar
-- [ ] `obterInstrucoesPagamento` deve retornar instruções consistentes
+- [x] `validarDetalhes` com número/cartão/data/cvv válidos deve passar
+- [x] `validarDetalhes` com dados inválidos deve falhar
+- [x] `obterInstrucoesPagamento` deve retornar instruções consistentes
 
 #### 7) Pedido
-- [ ] `confirmarPagamento` de `CRIADO` para `PAGO` deve passar
-- [ ] `confirmarPagamento` fora de `CRIADO` deve falhar
-- [ ] `iniciarPreparacao` de `PAGO` para `A_PREPARAR` deve passar
-- [ ] `iniciarPreparacao` fora de `PAGO` deve falhar
-- [ ] `marcarComoPronto` de `A_PREPARAR` para `PRONTO_PARA_ENTREGA` deve passar
-- [ ] `atribuirEntregador` de `PRONTO_PARA_ENTREGA` para `ATRIBUIDO_ENTREGADOR` deve passar
-- [ ] `marcarComoEntregue` de `ATRIBUIDO_ENTREGADOR` para `ENTREGUE` deve passar
-- [ ] `cancelar` em estados permitidos deve mudar para `CANCELADO`
-- [ ] `cancelar` em estados bloqueados deve falhar
+- [x] `confirmarPagamento` de `CRIADO` para `PAGO` deve passar
+- [x] `confirmarPagamento` fora de `CRIADO` deve falhar
+- [x] `iniciarPreparacao` de `PAGO` para `A_PREPARAR` deve passar
+- [x] `iniciarPreparacao` fora de `PAGO` deve falhar
+- [x] `marcarComoPronto` de `A_PREPARAR` para `PRONTO_PARA_ENTREGA` deve passar
+- [x] `atribuirEntregador` de `PRONTO_PARA_ENTREGA` para `ATRIBUIDO_ENTREGADOR` deve passar
+- [x] `marcarComoEntregue` de `ATRIBUIDO_ENTREGADOR` para `ENTREGUE` deve passar
+- [x] `cancelar` em estados permitidos deve mudar para `CANCELADO`
+- [x] `cancelar` em estados bloqueados deve falhar
 
 #### 8) Entrega
-- [ ] `registarRecolha` primeira vez deve definir `horaRecolha`
-- [ ] `registarRecolha` segunda vez deve falhar
-- [ ] `registarConclusao` sem recolha deve falhar
-- [ ] `registarConclusao` após recolha deve definir `horaEntrega`
-- [ ] `registarConclusao` repetida deve falhar
-- [ ] `calcularTempoDeViagem` deve devolver duração correta
+- [x] `registarRecolha` primeira vez deve definir `horaRecolha`
+- [x] `registarRecolha` segunda vez deve falhar
+- [x] `registarConclusao` sem recolha deve falhar
+- [x] `registarConclusao` após recolha deve definir `horaEntrega`
+- [x] `registarConclusao` repetida deve falhar
+- [x] `calcularTempoDeViagem` deve devolver duração correta
 
 ### Factory
 
 #### 1) PagamentoFactory
-- [ ] criar `MBWAY` com detalhes válidos deve retornar `PagamentoMBWay`
-- [ ] criar `DINHEIRO` com detalhes válidos deve retornar `PagamentoDinheiro`
-- [ ] criar `MULTIBANCO` com detalhes válidos deve retornar `PagamentoMultibanco`
-- [ ] criar `CARTAO` com detalhes válidos deve retornar `PagamentoCartao`
-- [ ] tipo de pagamento inválido deve lançar exceção
-- [ ] detalhes obrigatórios ausentes por tipo devem lançar exceção
+- [x] criar `MBWAY` com detalhes válidos deve retornar `PagamentoMBWay`
+- [x] criar `DINHEIRO` com detalhes válidos deve retornar `PagamentoDinheiro`
+- [x] criar `MULTIBANCO` com detalhes válidos deve retornar `PagamentoMultibanco`
+- [x] criar `CARTAO` com detalhes válidos deve retornar `PagamentoCartao`
+- [x] tipo de pagamento inválido deve lançar exceção
+- [x] detalhes obrigatórios ausentes por tipo devem lançar exceção
 
 ### Repositories
 
 #### 1) IPedidoRepository (`@DataJpaTest`)
-- [ ] `findByclienteId` deve devolver pedidos do cliente
-- [ ] `findByRestauranteId` deve devolver pedidos do restaurante
-- [ ] `findByEstado` deve filtrar por estado
-- [ ] `findByclienteIdAndEstado` deve aplicar filtro combinado
-- [ ] `existsByIdAndEstado` deve retornar verdadeiro/falso corretamente
+- [x] `findByclienteId` deve devolver pedidos do cliente
+- [x] `findByRestauranteId` deve devolver pedidos do restaurante
+- [x] `findByEstado` deve filtrar por estado
+- [x] `findByclienteIdAndEstado` deve aplicar filtro combinado
+- [x] `existsByIdAndEstado` deve retornar verdadeiro/falso corretamente
 
 #### 2) IPagamentoRepository (`@DataJpaTest`)
-- [ ] guardar e obter pagamento por id
-- [ ] persistência por subtipo (`MBWAY`, `DINHEIRO`, `MULTIBANCO`, `CARTAO`)
-- [ ] verificar discriminação correta dos tipos no retrieval
+- [x] guardar e obter pagamento por id
+- [x] persistência por subtipo (`MBWAY`, `DINHEIRO`, `MULTIBANCO`, `CARTAO`)
+- [x] verificar discriminação correta dos tipos no retrieval
 
 #### 3) IEntregaRepository (`@DataJpaTest`)
-- [ ] `findByEntregadorId` deve devolver entregas do entregador
-- [ ] `findByPedidoId` deve devolver entrega associada ao pedido
-- [ ] `findByHoraEntregaIsNull` deve devolver entregas ativas
-- [ ] `existsByEntregadorIdAndHoraEntregaIsNull` deve refletir estado ativo do entregador
+- [x] `findByEntregadorId` deve devolver entregas do entregador
+- [x] `findByPedidoId` deve devolver entrega associada ao pedido
+- [x] `findByHoraEntregaIsNull` deve devolver entregas ativas
+- [x] `existsByEntregadorIdAndHoraEntregaIsNull` deve refletir estado ativo do entregador
 
 ## Test Checklist By Class (Restaurante e Produto)
 
