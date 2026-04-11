@@ -281,20 +281,20 @@
 ### Controllers
 
 #### 1) RestauranteController
-- [ ] `POST /api/restaurantes` com payload válido deve retornar `201` com dados do restaurante
-- [ ] `POST /api/restaurantes` sem `adminEmail` deve retornar `400`
-- [ ] `POST /api/restaurantes` com NIF inválido/duplicado deve retornar `400`
-- [ ] `PUT /api/restaurantes/{id}` com sucesso deve retornar `200`
-- [ ] `PUT /api/restaurantes/{id}` com id inexistente deve retornar `404`
-- [ ] `PATCH /api/restaurantes/{id}/estado` com sucesso deve retornar `200`
-- [ ] `PATCH /api/restaurantes/{id}/estado` com estado repetido deve retornar `409`
-- [ ] `PATCH /api/restaurantes/{id}/abrir` deve delegar para atualização de estado `ABERTO`
-- [ ] `PATCH /api/restaurantes/{id}/fechar` deve delegar para atualização de estado `FECHADO`
-- [ ] `GET /api/restaurantes/{id}` com id válido deve retornar `200`
-- [ ] `GET /api/restaurantes/{id}` com id inválido deve retornar `404`
-- [ ] `GET /api/restaurantes?nome=...` deve pesquisar por nome
-- [ ] `GET /api/restaurantes?estado=ABERTO` deve filtrar por estado
-- [ ] `GET /api/restaurantes` sem filtros deve devolver lista completa
+- [x] `POST /api/restaurantes` com payload válido deve retornar `201` com dados do restaurante
+- [x] `POST /api/restaurantes` sem `adminEmail` deve retornar `400`
+- [x] `POST /api/restaurantes` com NIF inválido/duplicado deve retornar `400`
+- [x] `PUT /api/restaurantes/{id}` com sucesso deve retornar `200`
+- [x] `PUT /api/restaurantes/{id}` com id inexistente deve retornar `404`
+- [x] `PATCH /api/restaurantes/{id}/estado` com sucesso deve retornar `200`
+- [x] `PATCH /api/restaurantes/{id}/estado` com estado repetido deve retornar `409`
+- [x] `PATCH /api/restaurantes/{id}/abrir` deve delegar para atualização de estado `ABERTO`
+- [x] `PATCH /api/restaurantes/{id}/fechar` deve delegar para atualização de estado `FECHADO`
+- [x] `GET /api/restaurantes/{id}` com id válido deve retornar `200`
+- [x] `GET /api/restaurantes/{id}` com id inválido deve retornar `404`
+- [x] `GET /api/restaurantes?nome=...` deve pesquisar por nome
+- [x] `GET /api/restaurantes?estado=ABERTO` deve filtrar por estado
+- [x] `GET /api/restaurantes` sem filtros deve devolver lista completa
 
 #### 2) ProdutoController
 - [ ] `POST /api/catalogos/{catalogoId}/produtos` com payload válido deve retornar `201`
