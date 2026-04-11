@@ -177,11 +177,11 @@ public class Pedido {
         this.estado = estado;
     }
 
-    public Long getClienteeId() {
+    public Long getclienteId() {
         return clienteId;
     }
 
-    public void setClienteeId(Long clienteId) {
+    public void setclienteId(Long clienteId) {
         this.clienteId = clienteId;
     }
 

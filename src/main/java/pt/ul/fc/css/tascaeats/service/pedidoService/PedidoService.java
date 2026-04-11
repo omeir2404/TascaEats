@@ -34,12 +34,20 @@ public class PedidoService {
             throw new IllegalArgumentException("Pedido inválido.");
         }
 
+        if (criarPedidoDto.getClienteId() == null || criarPedidoDto.getClienteId() <= 0) {
+            throw new IllegalArgumentException("Cliente Id inválido.");
+        }
+
+        if (criarPedidoDto.getRestauranteId() == null || criarPedidoDto.getRestauranteId() <= 0) {
+            throw new IllegalArgumentException("Restaurante Id inválido.");
+        }
+
         if (criarPedidoDto.getProdutosIds() == null || criarPedidoDto.getProdutosIds().isEmpty()) {
             throw new IllegalArgumentException("O pedido deve conter pelo menos um produto.");
         }
 
-        if (utilizadorRepository.findById(criarPedidoDto.getClienteeId()).isEmpty()) {
-            throw new IllegalArgumentException("Clientee não encontrado: " + criarPedidoDto.getClienteeId());
+        if (utilizadorRepository.findById(criarPedidoDto.getClienteId()).isEmpty()) {
+            throw new IllegalArgumentException("Clientee não encontrado: " + criarPedidoDto.getClienteId());
         }
 
         if (restauranteRepository.findById(criarPedidoDto.getRestauranteId()).isEmpty()) {
@@ -60,7 +68,7 @@ public class PedidoService {
         }
 
         // O Null é pq o Id vai ser gerado.
-        Pedido pedido = new Pedido(null, criarPedidoDto.getClienteeId(), criarPedidoDto.getRestauranteId());
+        Pedido pedido = new Pedido(null, criarPedidoDto.getClienteId(), criarPedidoDto.getRestauranteId());
         pedido.setValorTotal(valorTotal);
         pedidoRepository.save(pedido);
     }

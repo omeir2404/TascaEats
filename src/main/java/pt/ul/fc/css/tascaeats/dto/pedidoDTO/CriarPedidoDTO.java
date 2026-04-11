@@ -2,6 +2,9 @@ package pt.ul.fc.css.tascaeats.dto.pedidoDTO;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -9,6 +12,8 @@ import jakarta.validation.constraints.Positive;
 
 public class CriarPedidoDTO {
 
+    @JsonProperty("clienteId")
+    @JsonAlias({"clienteeId"})
     @NotNull(message = "Clientee Id é obrigatório")
     @Positive(message = "Clientee Id deve ser maior que 0")
     private Long clienteId;
@@ -30,11 +35,11 @@ public class CriarPedidoDTO {
 
     // ###################### GETTERS e SETTERS #####################################################################
 
-    public Long getClienteeId() {
+    public Long getClienteId() {
         return clienteId;
     }
 
-    public void setClienteeId(Long clienteId) {
+    public void setClienteId(Long clienteId) {
         this.clienteId = clienteId;
     }
 

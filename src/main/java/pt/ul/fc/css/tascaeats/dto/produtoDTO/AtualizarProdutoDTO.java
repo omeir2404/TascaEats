@@ -27,6 +27,10 @@ public class AtualizarProdutoDTO {
         return id;
     }
 
+	public void setId(Long id) {
+		this.id = id;
+	}
+
     //Nome
 	public String getNome() {
 		return nome;

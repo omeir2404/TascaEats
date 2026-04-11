@@ -2,6 +2,10 @@ package pt.ul.fc.css.tascaeats.controllers;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,15 +27,30 @@ import pt.ul.fc.css.tascaeats.service.pedidoService.PedidoService;
 public class PedidoController {
 
 	private final PedidoService pedidoService;
+	private final ObjectMapper objectMapper;
 
-	public PedidoController(PedidoService pedidoService) {
+	public PedidoController(PedidoService pedidoService, ObjectMapper objectMapper) {
 		this.pedidoService = pedidoService;
+		this.objectMapper = objectMapper;
 	}
 
-	@PostMapping
+	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> criarPedido(@Valid @RequestBody CriarPedidoDTO dto) {
 		pedidoService.criarPedido(dto);
 		return ResponseEntity.ok("Pedido criado com sucesso.");
+	}
+
+	@PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
+	public ResponseEntity<String> criarPedidoTexto(@RequestBody String rawBody) {
+		try {
+			CriarPedidoDTO dto = objectMapper.readValue(rawBody, CriarPedidoDTO.class);
+			pedidoService.criarPedido(dto);
+			return ResponseEntity.ok("Pedido criado com sucesso.");
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payload inválido para criação de pedido.");
+		}
 	}
 
 	@PatchMapping("/{pedidoId}/cancelar")
