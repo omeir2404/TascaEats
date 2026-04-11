@@ -50,9 +50,10 @@ public class PedidoService {
             throw new IllegalArgumentException("Clientee não encontrado: " + criarPedidoDto.getClienteId());
         }
 
-        if (restauranteRepository.findById(criarPedidoDto.getRestauranteId()).isEmpty()) {
-            throw new IllegalArgumentException("Restaurante não encontrado: " + criarPedidoDto.getRestauranteId());
-        }
+        var restaurante = restauranteRepository.findById(criarPedidoDto.getRestauranteId())
+            .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + criarPedidoDto.getRestauranteId()));
+
+        restaurante.validarDisponibilidadeParaPedido();
 
         double valorTotal = 0;
 
