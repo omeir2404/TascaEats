@@ -63,7 +63,7 @@
           "name": "A - Login",
           "item": [
             {
-              "name": "A1 - VALID - Core scenario",
+              "name": "A1 - VALID - Login com email registado",
               "request": {
                 "method": "POST",
                 "header": [
@@ -80,7 +80,7 @@
               }
             },
             {
-              "name": "A2 - INVALID-1 - Core negative scenario",
+              "name": "A2 - INVALID - Login com email inexistente",
               "request": {
                 "method": "POST",
                 "header": [
@@ -97,7 +97,7 @@
               }
             },
             {
-              "name": "A3 - INVALID-2 - Core negative scenario",
+              "name": "A3 - INVALID - Login sem password",
               "request": {
                 "method": "POST",
                 "header": [
@@ -119,7 +119,7 @@
           "name": "B - Registo de Utilizadores",
           "item": [
             {
-              "name": "B1 - VALID - Core scenario",
+              "name": "B1 - VALID - Registar cliente com morada",
               "request": {
                 "method": "POST",
                 "header": [
@@ -136,7 +136,7 @@
               }
             },
             {
-              "name": "B2 - INVALID-1 - Core negative scenario",
+              "name": "B2 - INVALID - Registar cliente sem email",
               "request": {
                 "method": "POST",
                 "header": [
@@ -153,7 +153,7 @@
               }
             },
             {
-              "name": "B3 - INVALID-2 - Core negative scenario",
+              "name": "B3 - INVALID - Registar utilizador com tipo invalido",
               "request": {
                 "method": "POST",
                 "header": [
@@ -175,21 +175,21 @@
           "name": "C - Verificar, Atualizar e Remover Utilizadores",
           "item": [
             {
-              "name": "C1 - VALID - Core scenario",
+              "name": "C1 - VALID - Listar utilizadores",
               "request": {
                 "method": "GET",
                 "url": "{{baseUrl}}/api/Utilizadors"
               }
             },
             {
-              "name": "C2 - INVALID-1 - Core negative scenario",
+              "name": "C2 - VALID - Obter utilizador por id existente",
               "request": {
                 "method": "GET",
-                "url": "{{baseUrl}}/api/Utilizadors/{{invalidUserId}}"
+                "url": "{{baseUrl}}/api/Utilizadors/{{clientId}}"
               }
             },
             {
-              "name": "C3 - INVALID-2 - Core negative scenario",
+              "name": "C3 - VALID - Atualizar utilizador existente",
               "request": {
                 "method": "PUT",
                 "header": [
@@ -200,8 +200,39 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"Ana Updated\",\n  \"email\": \"ana.updated@example.com\",\n  \"password\": \"newsecret\",\n  \"type\": \"invalid_type\"\n}"
+                  "raw": "{\n  \"name\": \"Client Video Updated\",\n  \"email\": \"{{clientEmail}}\",\n  \"password\": \"pw456\",\n  \"type\": \"client\"\n}"
                 },
+                "url": "{{baseUrl}}/api/Utilizadors/{{clientId}}"
+              }
+            },
+            {
+              "name": "C4 - INVALID - Atualizar utilizador por id inexistente",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"No User\",\n  \"email\": \"nouser@example.com\",\n  \"password\": \"pw456\",\n  \"type\": \"client\"\n}"
+                },
+                "url": "{{baseUrl}}/api/Utilizadors/{{invalidUserId}}"
+              }
+            },
+            {
+              "name": "C5 - INVALID - Remover utilizador por id inexistente",
+              "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/api/Utilizadors/{{invalidUserId}}"
+              }
+            },
+            {
+              "name": "C6 - VALID - Remover utilizador por id existente",
+              "request": {
+                "method": "DELETE",
                 "url": "{{baseUrl}}/api/Utilizadors/{{userId}}"
               }
             }
@@ -211,14 +242,51 @@
           "name": "D - Buscar Restaurantes",
           "item": [
             {
-              "name": "D1 - VALID - Core scenario",
+              "name": "D1 - VALID - Procurar restaurantes por nome",
               "request": {
                 "method": "GET",
-                "url": "{{baseUrl}}/api/restaurantes"
+                "url": {
+                  "raw": "{{baseUrl}}/api/restaurantes?nome=tasca",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "restaurantes"
+                  ],
+                  "query": [
+                    {
+                      "key": "nome",
+                      "value": "tasca"
+                    }
+                  ]
+                }
               }
             },
             {
-              "name": "D2 - INVALID-1 - Core negative scenario",
+              "name": "D2 - VALID - Procurar restaurantes por cidade",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/restaurantes?cidade=lisboa",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "restaurantes"
+                  ],
+                  "query": [
+                    {
+                      "key": "cidade",
+                      "value": "lisboa"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "D3 - INVALID - Filtrar restaurantes com estado invalido",
               "request": {
                 "method": "GET",
                 "url": {
@@ -238,28 +306,6 @@
                   ]
                 }
               }
-            },
-            {
-              "name": "D3 - INVALID-2 - Core negative scenario",
-              "request": {
-                "method": "GET",
-                "url": {
-                  "raw": "{{baseUrl}}/api/restaurantes?cidade=12345",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "api",
-                    "restaurantes"
-                  ],
-                  "query": [
-                    {
-                      "key": "cidade",
-                      "value": "12345"
-                    }
-                  ]
-                }
-              }
             }
           ]
         },
@@ -267,7 +313,7 @@
           "name": "E - Criacao e Gestao de Restaurantes",
           "item": [
             {
-              "name": "E1 - VALID - Core scenario",
+              "name": "E1 - VALID - Criar restaurante com admin valido",
               "request": {
                 "method": "POST",
                 "header": [
@@ -299,7 +345,38 @@
               }
             },
             {
-              "name": "E2 - INVALID-1 - Core negative scenario",
+              "name": "E2 - VALID - Atualizar restaurante existente",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nome\": \"Tasca Eats Updated\",\n  \"nif\": \"123456789\",\n  \"morada\": {\n    \"rua\": \"Rua Nova\",\n    \"numero\": 11,\n    \"complemento\": \"Loja\",\n    \"codigoPostal\": \"1000-101\",\n    \"cidade\": \"Lisboa\",\n    \"distrito\": \"Lisboa\",\n    \"pais\": \"Portugal\"\n  }\n}"
+                },
+                "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}"
+              }
+            },
+            {
+              "name": "E3 - VALID - Fechar restaurante",
+              "request": {
+                "method": "PATCH",
+                "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/fechar"
+              }
+            },
+            {
+              "name": "E4 - VALID - Abrir restaurante",
+              "request": {
+                "method": "PATCH",
+                "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/abrir"
+              }
+            },
+            {
+              "name": "E5 - INVALID - Criar restaurante com adminEmail invalido",
               "request": {
                 "method": "POST",
                 "header": [
@@ -331,7 +408,7 @@
               }
             },
             {
-              "name": "E3 - INVALID-2 - Core negative scenario",
+              "name": "E6 - INVALID - Obter restaurante por id inexistente",
               "request": {
                 "method": "GET",
                 "url": "{{baseUrl}}/api/restaurantes/{{invalidRestauranteId}}"
@@ -343,7 +420,23 @@
           "name": "F - Gerir Produtos no Cardapio",
           "item": [
             {
-              "name": "F1 - VALID - Core scenario",
+              "name": "F1 - VALID - Criar produto com preco positivo",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "try {",
+                      "  const json = pm.response.json();",
+                      "  if (json && json.id) {",
+                      "    pm.collectionVariables.set(\"transientProdutoId\", json.id);",
+                      "  }",
+                      "} catch (e) {}"
+                    ]
+                  }
+                }
+              ],
               "request": {
                 "method": "POST",
                 "header": [
@@ -360,7 +453,31 @@
               }
             },
             {
-              "name": "F2 - INVALID-1 - Core negative scenario",
+              "name": "F2 - VALID - Atualizar produto existente",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": {{produtoId}},\n  \"nome\": \"Bacalhau Especial\",\n  \"preco\": 13.0,\n  \"descricao\": \"Com extra\"\n}"
+                },
+                "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
+              }
+            },
+            {
+              "name": "F3 - VALID - Remover produto existente (transiente)",
+              "request": {
+                "method": "DELETE",
+                "url": "{{baseUrl}}/api/produtos/{{transientProdutoId}}"
+              }
+            },
+            {
+              "name": "F4 - INVALID - Criar produto com preco negativo",
               "request": {
                 "method": "POST",
                 "header": [
@@ -377,7 +494,7 @@
               }
             },
             {
-              "name": "F3 - INVALID-2 - Core negative scenario",
+              "name": "F5 - INVALID - Atualizar produto por id inexistente",
               "request": {
                 "method": "PUT",
                 "header": [
@@ -388,7 +505,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"nome\": \"No Product\",\n  \"preco\": 13.0,\n  \"descricao\": \"Com extra\"\n}"
+                  "raw": "{\n  \"id\": {{invalidProdutoId}},\n  \"nome\": \"No Product\",\n  \"preco\": 13.0,\n  \"descricao\": \"Com extra\"\n}"
                 },
                 "url": "{{baseUrl}}/api/produtos/{{invalidProdutoId}}"
               }
@@ -399,25 +516,11 @@
           "name": "G - Buscar Produtos",
           "item": [
             {
-              "name": "G1 - VALID - Core scenario",
-              "request": {
-                "method": "GET",
-                "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
-              }
-            },
-            {
-              "name": "G2 - INVALID-1 - Core negative scenario",
-              "request": {
-                "method": "GET",
-                "url": "{{baseUrl}}/api/produtos/{{invalidProdutoId}}"
-              }
-            },
-            {
-              "name": "G3 - INVALID-2 - Core negative scenario",
+              "name": "G1 - VALID - Listar produtos de um restaurante",
               "request": {
                 "method": "GET",
                 "url": {
-                  "raw": "{{baseUrl}}/api/produtos?restauranteId={{invalidRestauranteId}}",
+                  "raw": "{{baseUrl}}/api/produtos?restauranteId={{restauranteId}}",
                   "host": [
                     "{{baseUrl}}"
                   ],
@@ -428,10 +531,24 @@
                   "query": [
                     {
                       "key": "restauranteId",
-                      "value": "{{invalidRestauranteId}}"
+                      "value": "{{restauranteId}}"
                     }
                   ]
                 }
+              }
+            },
+            {
+              "name": "G2 - VALID - Obter produto por id existente",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
+              }
+            },
+            {
+              "name": "G3 - INVALID - Obter produto por id inexistente",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/produtos/{{invalidProdutoId}}"
               }
             }
           ]
@@ -440,7 +557,7 @@
           "name": "H - Criacao de Pedido",
           "item": [
             {
-              "name": "H1 - VALID - Core scenario",
+              "name": "H1 - VALID - Criar pedido com cliente/restaurante/produto validos",
               "request": {
                 "method": "POST",
                 "header": [
@@ -457,7 +574,7 @@
               }
             },
             {
-              "name": "H2 - INVALID-1 - Core negative scenario",
+              "name": "H2 - INVALID - Criar pedido com produto inexistente",
               "request": {
                 "method": "POST",
                 "header": [
@@ -474,7 +591,7 @@
               }
             },
             {
-              "name": "H3 - INVALID-2 - Core negative scenario",
+              "name": "H3 - INVALID - Criar pedido com restaurante inexistente",
               "request": {
                 "method": "POST",
                 "header": [
@@ -496,7 +613,7 @@
           "name": "I - Processamento de Pagamento",
           "item": [
             {
-              "name": "I1 - VALID - Core scenario",
+              "name": "I1 - VALID - Processar pagamento para pedido valido",
               "request": {
                 "method": "POST",
                 "header": [
@@ -513,7 +630,7 @@
               }
             },
             {
-              "name": "I2 - INVALID-1 - Core negative scenario",
+              "name": "I2 - INVALID - Processar pagamento para pedido inexistente",
               "request": {
                 "method": "POST",
                 "header": [
@@ -530,7 +647,7 @@
               }
             },
             {
-              "name": "I3 - INVALID-2 - Core negative scenario",
+              "name": "I3 - INVALID - Processar pagamento com tipo invalido",
               "request": {
                 "method": "POST",
                 "header": [
@@ -552,21 +669,28 @@
           "name": "J - Atualizacao de Estado do Pedido",
           "item": [
             {
-              "name": "J1 - VALID - Core scenario",
+              "name": "J1 - VALID - Iniciar preparacao de pedido pago",
               "request": {
                 "method": "PATCH",
                 "url": "{{baseUrl}}/entregas/pedido/{{pedidoId}}/iniciar-preparacao"
               }
             },
             {
-              "name": "J2 - INVALID-1 - Core negative scenario",
+              "name": "J2 - VALID - Marcar pedido como pronto",
+              "request": {
+                "method": "PATCH",
+                "url": "{{baseUrl}}/entregas/pedido/{{pedidoId}}/marcar-pronto"
+              }
+            },
+            {
+              "name": "J3 - INVALID - Iniciar preparacao com pedido inexistente",
               "request": {
                 "method": "PATCH",
                 "url": "{{baseUrl}}/entregas/pedido/{{invalidPedidoId}}/iniciar-preparacao"
               }
             },
             {
-              "name": "J3 - INVALID-2 - Core negative scenario",
+              "name": "J4 - INVALID - Marcar pronto com pedido inexistente",
               "request": {
                 "method": "PATCH",
                 "url": "{{baseUrl}}/entregas/pedido/{{invalidPedidoId}}/marcar-pronto"
@@ -578,7 +702,7 @@
           "name": "K - Atribuicao de Entregador e Fluxo de Entrega",
           "item": [
             {
-              "name": "K1 - VALID - Core scenario",
+              "name": "K1 - VALID - Atribuir entregador a pedido pronto",
               "request": {
                 "method": "POST",
                 "header": [
@@ -595,7 +719,7 @@
               }
             },
             {
-              "name": "K2 - INVALID-1 - Core negative scenario",
+              "name": "K2 - INVALID - Atribuir entregador a pedido inexistente",
               "request": {
                 "method": "POST",
                 "header": [
@@ -612,7 +736,7 @@
               }
             },
             {
-              "name": "K3 - INVALID-2 - Core negative scenario",
+              "name": "K3 - INVALID - Registar recolha com pedido inexistente",
               "request": {
                 "method": "PATCH",
                 "url": "{{baseUrl}}/entregas/pedido/{{invalidPedidoId}}/recolha"
@@ -624,21 +748,21 @@
           "name": "L - Cancelamento de Pedido",
           "item": [
             {
-              "name": "L1 - VALID - Core scenario",
+              "name": "L1 - VALID - Cancelar pedido em estado permitido",
               "request": {
                 "method": "PATCH",
                 "url": "{{baseUrl}}/pedidos/{{pedidoId}}/cancelar"
               }
             },
             {
-              "name": "L2 - INVALID-1 - Core negative scenario",
+              "name": "L2 - INVALID - Cancelar pedido inexistente",
               "request": {
                 "method": "PATCH",
                 "url": "{{baseUrl}}/pedidos/{{invalidPedidoId}}/cancelar"
               }
             },
             {
-              "name": "L3 - INVALID-2 - Core negative scenario",
+              "name": "L3 - INVALID - Cancelar pedido com id mal formatado",
               "request": {
                 "method": "PATCH",
                 "url": "{{baseUrl}}/pedidos/abc/cancelar"
@@ -655,7 +779,7 @@
           "name": "4.1A - Regras de Negocio (Video)",
           "item": [
             {
-              "name": "R1 - INVALID - Cancelar pedido em preparo",
+              "name": "4.1A-R1 - INVALID - Cancelar pedido em preparo",
               "request": {
                 "method": "PATCH",
                 "description": "Pre-condicao: colocar pedido em A_PREPARAR com /entregas/pedido/{pedidoId}/iniciar-preparacao. Resultado esperado: erro de regra de negocio (409).",
@@ -663,7 +787,7 @@
               }
             },
             {
-              "name": "R2 - VALID+INVALID - Soft delete de produto",
+              "name": "4.1A-R2 - VALID - Soft delete de produto",
               "request": {
                 "method": "DELETE",
                 "description": "Passo 1: apagar produto (soft delete). Passo 2: tentar alterar disponibilidade do mesmo produto e validar erro de regra de negocio.",
@@ -671,7 +795,7 @@
               }
             },
             {
-              "name": "R2b - INVALID - Alterar disponibilidade apos soft delete",
+              "name": "4.1A-R2b - INVALID - Alterar disponibilidade apos soft delete",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -688,7 +812,7 @@
               }
             },
             {
-              "name": "R3 - INVALID - Criar pedido em restaurante fechado",
+              "name": "4.1A-R3 - INVALID - Criar pedido em restaurante fechado",
               "request": {
                 "method": "POST",
                 "description": "Pre-condicao: fechar restaurante com /api/restaurantes/{restauranteId}/fechar. Resultado esperado: erro de regra de negocio (409).",
@@ -706,7 +830,7 @@
               }
             },
             {
-              "name": "R4 - INVALID - Criar pedido com produto esgotado",
+              "name": "4.1A-R4 - INVALID - Criar pedido com produto esgotado",
               "request": {
                 "method": "POST",
                 "description": "Pre-condicao: colocar produto indisponivel com PATCH /api/produtos/{produtoId}/disponibilidade {disponivel:false}. Resultado esperado: erro de regra de negocio (409).",
@@ -724,7 +848,7 @@
               }
             },
             {
-              "name": "R5 - INVALID - Associar entrega sem entregadores disponiveis",
+              "name": "4.1A-R5 - INVALID - Associar entrega sem entregadores disponiveis",
               "request": {
                 "method": "POST",
                 "description": "Pre-condicao: todos os entregadores com available=false e pedido em PRONTO_PARA_ENTREGA. Resultado esperado: erro de regra de negocio (409).",
@@ -747,7 +871,7 @@
           "name": "4.1B - Perguntas de Negocio (Checklist)",
           "item": [
             {
-              "name": "Q1 - Restaurantes com maior volume de vendas",
+              "name": "4.1B-Q1 - CHECKLIST - Restaurantes com maior volume de vendas",
               "request": {
                 "method": "GET",
                 "description": "Checklist de validacao BD: executar query SQL para ranking de restaurantes por valor_total de pedidos pagos/entregues.",
@@ -755,7 +879,7 @@
               }
             },
             {
-              "name": "Q2 - Morada do restaurante e cliente com mais vendas/pedidos",
+              "name": "4.1B-Q2 - CHECKLIST - Morada do restaurante e cliente com mais vendas/pedidos",
               "request": {
                 "method": "GET",
                 "description": "Checklist de validacao BD: cruzar tabelas de pedidos, restaurantes e utilizadores para obter top restaurante e top cliente.",
@@ -763,7 +887,7 @@
               }
             },
             {
-              "name": "Q3 - Media de pedidos por cliente por mes",
+              "name": "4.1B-Q3 - CHECKLIST - Media de pedidos por cliente por mes",
               "request": {
                 "method": "GET",
                 "description": "Checklist de validacao BD: agrupar pedidos por cliente e mes e calcular media mensal.",
@@ -771,7 +895,7 @@
               }
             },
             {
-              "name": "Q4 - Produtos mais vendidos",
+              "name": "4.1B-Q4 - CHECKLIST - Produtos mais vendidos",
               "request": {
                 "method": "GET",
                 "description": "Checklist de validacao BD: usar relacao pedido_produtos/pedido_produto para contar vendas por produto.",
@@ -779,7 +903,7 @@
               }
             },
             {
-              "name": "Q5 - Metodo de pagamento mais utilizado",
+              "name": "4.1B-Q5 - CHECKLIST - Metodo de pagamento mais utilizado",
               "request": {
                 "method": "GET",
                 "description": "Checklist de validacao BD: agrupar pagamentos por tipo e ordenar por frequencia.",
@@ -787,7 +911,7 @@
               }
             },
             {
-              "name": "Q6 - Clientes registados sem compras",
+              "name": "4.1B-Q6 - CHECKLIST - Clientes registados sem compras",
               "request": {
                 "method": "GET",
                 "description": "Checklist de validacao BD: listar clientes sem registos na tabela de pedidos (LEFT JOIN + IS NULL).",

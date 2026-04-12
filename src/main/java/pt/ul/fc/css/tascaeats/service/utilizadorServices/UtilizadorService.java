@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
@@ -108,7 +109,11 @@ public class UtilizadorService {
         if (!UtilizadorRepository.existsById(id)) {
             return false;
         }
-        UtilizadorRepository.deleteById(id);
+        try {
+            UtilizadorRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("Utilizador is referenced by other records");
+        }
         return true;
     }
 

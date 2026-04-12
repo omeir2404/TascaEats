@@ -115,11 +115,15 @@ public class UtilizadorController {
 
     @DeleteMapping("/Utilizadors/{id}")
     public ResponseEntity<Object> deleteUtilizador(@PathVariable("id") Long id) {
-        boolean deleted = UtilizadorService.deleteUtilizador(id);
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(UTILIZADOR_NOT_FOUND));
+        try {
+            boolean deleted = UtilizadorService.deleteUtilizador(id);
+            if (!deleted) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(UTILIZADOR_NOT_FOUND));
+            }
+            return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error(e.getMessage()));
         }
-        return ResponseEntity.noContent().build();
     }
 
     private String sanitizeForOutput(String value) {
