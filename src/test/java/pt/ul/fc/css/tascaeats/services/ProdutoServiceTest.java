@@ -8,23 +8,12 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.services;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Fail.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
@@ -37,8 +26,17 @@ import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.service.produtoService.ProdutoService;
 
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Fail.fail;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
-public class ProdutoServiceTest {
+class ProdutoServiceTest {
 
     @Mock
     private IProdutoRepository produtoRepository;
@@ -94,6 +92,23 @@ public class ProdutoServiceTest {
 
         assertTrue(produto.isDisponivel());
         assertFalse(produto.isApagado());
+    }
+
+
+    //D0) Listar todos os produtos deve devolver o que vem do repositório.
+    @Test
+    @DisplayName("D0: Listar todos os produtos deve devolver a lista do repositório.")
+    void listarProdutosDeveDevolverTodosOsProdutos() {
+        Produto produto1 = produtoValido();
+        Produto produto2 = new Produto("Bolo", 4.5, "Sobremesa", restauranteValido());
+        when(produtoRepository.findAll()).thenReturn(List.of(produto1, produto2));
+
+        List<Produto> result = produtoService.listarProdutos();
+
+        assertEquals(2, result.size());
+        assertEquals("Massa", result.get(0).getNome());
+        assertEquals("Bolo", result.get(1).getNome());
+        verify(produtoRepository).findAll();
     }
 
 

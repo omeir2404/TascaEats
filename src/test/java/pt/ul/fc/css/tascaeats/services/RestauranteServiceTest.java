@@ -8,21 +8,12 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.services;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Fail.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
@@ -35,6 +26,15 @@ import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IRestauranteAdminRepository;
 import pt.ul.fc.css.tascaeats.service.restauranteServices.RestauranteService;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RestauranteServiceTest {
@@ -226,6 +226,23 @@ public class RestauranteServiceTest {
         assertThat(created.getEstado()).isEqualTo(EstadoRestaurante.FECHADO);
         assertThat(created.getCatalogoEntregas()).isNotNull();
         assertThat(created.getAdministrador()).isSameAs(admin);
+    }
+
+
+    //I0) Listar restaurantes deve devolver a lista do repositório.
+    @Test
+    @DisplayName("I0: Listar restaurantes deve devolver a lista do repositório.")
+    void listarRestaurantesDeveDevolverTodosOsRestaurantes() {
+        Restaurante restaurante1 = restauranteSimples("Restaurante A", "111111111");
+        Restaurante restaurante2 = restauranteSimples("Restaurante B", "222222222");
+        when(restauranteRepository.findAll()).thenReturn(java.util.List.of(restaurante1, restaurante2));
+
+        var result = restauranteService.listarRestaurantes();
+
+        assertEquals(2, result.size());
+        assertThat(result.get(0).getNome()).isEqualTo("Restaurante A");
+        assertThat(result.get(1).getNome()).isEqualTo("Restaurante B");
+        verify(restauranteRepository).findAll();
     }
 
 
@@ -571,5 +588,9 @@ public class RestauranteServiceTest {
         morada.setDistrito(cidade);
         morada.setPais("Portugal");
         return morada;
+    }
+
+    private Restaurante restauranteSimples(String nome, String nif) {
+        return new Restaurante(nome, nif, morada("Rua Teste", 1, "1000-001", "Lisboa"), adminValido(), new CatalogoEntregas());
     }
 }

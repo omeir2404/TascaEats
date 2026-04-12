@@ -8,36 +8,29 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.controllers;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.servlet.ServletException;
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO;
 import pt.ul.fc.css.tascaeats.service.pedidoService.PedidoService;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PedidoController.class)
 @SuppressWarnings("null")
@@ -67,6 +60,20 @@ class PedidoControllerTest {
     }
 
     @Test
+    @DisplayName("A1: POST /pedidos com texto JSON válido deve criar pedido.")
+    void shouldCreatePedidoWhenRawJsonTextIsValid() throws Exception {
+        String rawJson = objectMapper.writeValueAsString(new CriarPedidoDTO(1L, 2L, List.of(10L, 11L)));
+
+        mockMvc.perform(post("/pedidos")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content(rawJson))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Pedido criado com sucesso."));
+
+        verify(pedidoService).criarPedido(any(CriarPedidoDTO.class));
+    }
+
+    @Test
     @DisplayName("B: POST /pedidos com payload inválido deve retornar erro HTTP apropriado.")
     void shouldReturnBadRequestWhenPayloadIsInvalid() throws Exception {
         Map<String, Object> payloadInvalido = Map.of(
@@ -77,6 +84,15 @@ class PedidoControllerTest {
         mockMvc.perform(post("/pedidos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(payloadInvalido)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("B1: POST /pedidos com texto inválido deve retornar 400.")
+    void shouldReturnBadRequestWhenRawTextPayloadIsInvalid() throws Exception {
+        mockMvc.perform(post("/pedidos")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("{ invalid json"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -92,7 +108,7 @@ class PedidoControllerTest {
 
     @Test
     @DisplayName("D: PATCH /pedidos/{id}/cancelar com erro de negócio deve retornar 4xx/5xx conforme handler.")
-    void shouldPropagateBusinessErrorWhenCancellingPedido() throws Exception {
+    void shouldPropagateBusinessErrorWhenCancellingPedido() {
         doThrow(new IllegalStateException("Pedido no estado A_PREPARAR não pode ser cancelado."))
             .when(pedidoService).cancelarPedido(51L);
 

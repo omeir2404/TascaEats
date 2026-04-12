@@ -207,6 +207,23 @@ class UtilizadorServiceTest {
     }
 
     @Test
+    @DisplayName("Case: manage Utilizadors update entregador also updates availability")
+    void shouldUpdateAvailabilityWhenUpdatingEntregador() {
+        Entregador existing = new Entregador("Driver", "driver@example.com", "secret");
+        existing.setId(9L);
+        existing.setAvailable(true);
+        when(UtilizadorRepository.findById(9L)).thenReturn(Optional.of(existing));
+        when(UtilizadorRepository.save(any(Utilizador.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Utilizador updated = UtilizadorService.updateEntregador(9L, update("Driver Updated", "driver@example.com", "newPass", "driver", null, false));
+
+        assertThat(updated).isInstanceOf(Entregador.class);
+        assertThat(((Entregador) updated).isAvailable()).isFalse();
+        assertThat(updated.getName()).isEqualTo("Driver Updated");
+        verify(UtilizadorRepository).save(existing);
+    }
+
+    @Test
     @DisplayName("Case: manage Utilizadors update Utilizador fails when email already exists")
     void shouldFailUpdateWhenEmailAlreadyExists() {
         Cliente existing = client(1L, "ana@example.com", "Ana");
