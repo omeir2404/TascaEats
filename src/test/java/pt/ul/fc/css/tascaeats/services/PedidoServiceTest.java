@@ -98,7 +98,7 @@ public class PedidoServiceTest {
 			pedidoService.criarPedido(dto);
 			fail("Cliente inexistente.");
 		} catch (IllegalArgumentException e) {
-			assertEquals("Clientee não encontrado: 1", e.getMessage());
+			assertEquals("Cliente não encontrado: 1", e.getMessage());
 		}
 	}
 

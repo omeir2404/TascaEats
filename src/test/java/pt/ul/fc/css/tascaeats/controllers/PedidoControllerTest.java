@@ -97,6 +97,21 @@ class PedidoControllerTest {
     }
 
     @Test
+    @DisplayName("B2: POST /pedidos deve rejeitar utilizador que não seja cliente.")
+    void shouldReturnBadRequestWhenOrderCreatorIsNotCliente() throws Exception {
+        CriarPedidoDTO dto = new CriarPedidoDTO(99L, 2L, List.of(10L, 11L));
+
+        doThrow(new IllegalArgumentException("Apenas clientes podem criar pedidos."))
+                .when(pedidoService).criarPedido(any(CriarPedidoDTO.class));
+
+        mockMvc.perform(post("/pedidos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Apenas clientes podem criar pedidos."));
+    }
+
+    @Test
     @DisplayName("C: PATCH /pedidos/{id}/cancelar com sucesso deve retornar 200.")
     void shouldCancelPedidoWhenRequestIsValid() throws Exception {
         mockMvc.perform(patch("/pedidos/50/cancelar"))

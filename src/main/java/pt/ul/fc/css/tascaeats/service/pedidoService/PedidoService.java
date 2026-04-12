@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
 import pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
@@ -54,8 +55,11 @@ public class PedidoService {
             throw new IllegalArgumentException("O pedido deve conter pelo menos um produto.");
         }
 
-        if (utilizadorRepository.findById(criarPedidoDto.getClienteId()).isEmpty()) {
-            throw new IllegalArgumentException("Clientee não encontrado: " + criarPedidoDto.getClienteId());
+        var utilizador = utilizadorRepository.findById(criarPedidoDto.getClienteId())
+            .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + criarPedidoDto.getClienteId()));
+
+        if (!(utilizador instanceof Cliente)) {
+            throw new IllegalArgumentException("Apenas clientes podem criar pedidos.");
         }
 
         var restaurante = restauranteRepository.findById(criarPedidoDto.getRestauranteId())

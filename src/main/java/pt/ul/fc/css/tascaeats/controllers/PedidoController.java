@@ -44,8 +44,12 @@ public class PedidoController {
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> criarPedido(@Valid @RequestBody CriarPedidoDTO dto) {
-		pedidoService.criarPedido(dto);
-		return ResponseEntity.ok("Pedido criado com sucesso.");
+		try {
+			pedidoService.criarPedido(dto);
+			return ResponseEntity.ok("Pedido criado com sucesso.");
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 
 	@PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
