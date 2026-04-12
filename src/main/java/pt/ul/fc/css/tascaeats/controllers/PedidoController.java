@@ -46,7 +46,7 @@ public class PedidoController {
 	public ResponseEntity<String> criarPedido(@Valid @RequestBody CriarPedidoDTO dto) {
 		try {
 			pedidoService.criarPedido(dto);
-			return ResponseEntity.ok("Pedido criado com sucesso.");
+			return ResponseEntity.status(HttpStatus.CREATED).body("Pedido criado com sucesso.");
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
@@ -57,7 +57,7 @@ public class PedidoController {
 		try {
 			CriarPedidoDTO dto = objectMapper.readValue(rawBody, CriarPedidoDTO.class);
 			pedidoService.criarPedido(dto);
-			return ResponseEntity.ok("Pedido criado com sucesso.");
+			return ResponseEntity.status(HttpStatus.CREATED).body("Pedido criado com sucesso.");
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		} catch (Exception e) {

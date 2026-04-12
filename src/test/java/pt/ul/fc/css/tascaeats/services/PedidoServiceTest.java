@@ -102,6 +102,24 @@ public class PedidoServiceTest {
 		}
 	}
 
+	// C1) criarPedido com utilizador não-cliente deve falhar.
+	@Test
+	@DisplayName("C1: Criar pedido com utilizador que não é cliente deve falhar.")
+	void criarPedidoWithNonClienteUser() {
+		CriarPedidoDTO dto = criarPedidoDTOValido();
+
+		when(utilizadorRepository.findById(1L)).thenReturn(Optional.of(adminValido()));
+
+		try {
+			pedidoService.criarPedido(dto);
+			fail("Apenas clientes podem criar pedidos.");
+		} catch (IllegalArgumentException e) {
+			assertEquals("Apenas clientes podem criar pedidos.", e.getMessage());
+		}
+
+		verify(pedidoRepository, never()).save(any(Pedido.class));
+	}
+
 	// D) criarPedido com restaurante inexistente deve falhar.
 	@Test
 	@DisplayName("D: Criar pedido com restaurante inexistente deve falhar.")

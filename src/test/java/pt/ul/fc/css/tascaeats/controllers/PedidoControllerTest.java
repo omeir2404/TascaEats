@@ -46,14 +46,14 @@ class PedidoControllerTest {
     private PedidoService pedidoService;
 
     @Test
-    @DisplayName("A: POST /pedidos com payload válido deve retornar 200 e mensagem de sucesso.")
+    @DisplayName("A: POST /pedidos com payload válido deve retornar 201 e mensagem de sucesso.")
     void shouldCreatePedidoWhenPayloadIsValid() throws Exception {
         CriarPedidoDTO dto = new CriarPedidoDTO(1L, 2L, List.of(10L, 11L));
 
         mockMvc.perform(post("/pedidos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().string("Pedido criado com sucesso."));
 
         verify(pedidoService).criarPedido(any(CriarPedidoDTO.class));
@@ -67,7 +67,7 @@ class PedidoControllerTest {
         mockMvc.perform(post("/pedidos")
                         .contentType(MediaType.TEXT_PLAIN)
                         .content(rawJson))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().string("Pedido criado com sucesso."));
 
         verify(pedidoService).criarPedido(any(CriarPedidoDTO.class));

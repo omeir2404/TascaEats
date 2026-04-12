@@ -74,26 +74,6 @@ public class Pedido {
         this.hora = LocalTime.now();
     }
 
-// ###################### Gestão de Itens ######################################################################
-
-    public void recalcularValorTotal(){
-        for(Long itemId : this.produtosIds){
-            // get valor do produto de catalogoProdutos (ex CatalogoProduto.getItemValue(itemId))
-            valorTotal += itemId;// INCORRETO SO PARA A FUNCAO NAO RECLAMAR, devia ser o valor do item nao o ID
-        }
-    }
-
-    public void adicionarProduto(Long produtoID){
-        this.produtosIds.add(produtoID);
-        recalcularValorTotal();
-    }
-
-    public void removerProduto(Long produtoID){
-        this.produtosIds.remove(produtoID);
-        recalcularValorTotal();
-    }
-
-
 // ###################### Estados e regras de negocio ###########################################################
 
     public void confirmarPagamento() {
