@@ -4,6 +4,10 @@ Required collection variables:
 - baseUrl (default: http://localhost:8080)
 Optional collection variables:
 - adminPassword, clientPassword, driverPassword, userUpdatePassword
+- seedPaidOnlyOrders (default: 1)
+- seedPreparingOrders (default: 1)
+- seedDeliveredOrders (default: 2)
+- seedCancelledOrders (default: 1)
 
 This script runs a core end-to-end sequence:
 1) Register admin/client/driver
@@ -26,6 +30,20 @@ const adminPassword = pm.collectionVariables.get("adminPassword") || "pw123";
 const clientPassword = pm.collectionVariables.get("clientPassword") || "pw123";
 const driverPassword = pm.collectionVariables.get("driverPassword") || "pw123";
 const userUpdatePassword = pm.collectionVariables.get("userUpdatePassword") || "pw456";
+
+function intVar(name, fallback) {
+  const raw = pm.collectionVariables.get(name);
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return fallback;
+  }
+  return parsed;
+}
+
+const seedPaidOnlyOrders = Math.max(0, intVar("seedPaidOnlyOrders", 1));
+const seedPreparingOrders = Math.max(0, intVar("seedPreparingOrders", 1));
+const seedDeliveredOrders = Math.max(0, intVar("seedDeliveredOrders", 2));
+const seedCancelledOrders = Math.max(0, intVar("seedCancelledOrders", 1));
 
 function send(method, path, body, expectedStatus) {
   const hasBody = body !== undefined && body !== null;
@@ -250,7 +268,7 @@ function restaurantAddress() {
       pm.expect(listByRestaurant.json.length >= 1).to.eql(true);
     });
 
-    // H) Create order
+    // H) Create base order
     const clientId = clientReg.json && clientReg.json.id;
     await send("POST", "/pedidos", {
       clienteId: clientId,
@@ -270,6 +288,79 @@ function restaurantAddress() {
       pm.expect(pedidoId).to.exist;
     });
     pm.collectionVariables.set("pedidoId", String(pedidoId));
+
+    // Seed additional orders for richer simulation states.
+    const extraOrderIds = [];
+    const extraOrderCount = seedPaidOnlyOrders + seedPreparingOrders + seedDeliveredOrders + seedCancelledOrders;
+
+    for (let i = 0; i < extraOrderCount; i += 1) {
+      await send("POST", "/pedidos", {
+        clienteId: clientId,
+        restauranteId: restauranteId,
+        produtosIds: [produtoId]
+      }, [200, 201]);
+
+      const byClient = await send("GET", `/pedidos?clienteId=${clientId}`, null, 200);
+      if (Array.isArray(byClient.json) && byClient.json.length > 0) {
+        const latest = byClient.json[byClient.json.length - 1];
+        if (latest && latest.id) {
+          extraOrderIds.push(Number(latest.id));
+        }
+      }
+    }
+
+    const uniqueExtraOrderIds = [...new Set(extraOrderIds)];
+    let cursor = 0;
+    const pick = (n) => {
+      const chunk = uniqueExtraOrderIds.slice(cursor, cursor + n);
+      cursor += chunk.length;
+      return chunk;
+    };
+
+    const deliveredOrderIds = pick(seedDeliveredOrders);
+    const preparingOrderIds = pick(seedPreparingOrders);
+    const paidOnlyOrderIds = pick(seedPaidOnlyOrders);
+    const cancelledOrderIds = pick(seedCancelledOrders);
+
+    for (let i = 0; i < cancelledOrderIds.length; i += 1) {
+      await send("PATCH", `/pedidos/${cancelledOrderIds[i]}/cancelar`, null, 200);
+    }
+
+    const payOrder = async (orderId) => {
+      await send("POST", "/pagamentos", {
+        pedidoId: orderId,
+        tipoPagamento: "DINHEIRO",
+        detalhes: {
+          valorRecebido: 20.0
+        }
+      }, 200);
+    };
+
+    for (let i = 0; i < paidOnlyOrderIds.length; i += 1) {
+      await payOrder(paidOnlyOrderIds[i]);
+    }
+
+    for (let i = 0; i < preparingOrderIds.length; i += 1) {
+      const orderId = preparingOrderIds[i];
+      await payOrder(orderId);
+      await send("PATCH", `/entregas/pedido/${orderId}/iniciar-preparacao`, null, 200);
+    }
+
+    for (let i = 0; i < deliveredOrderIds.length; i += 1) {
+      const orderId = deliveredOrderIds[i];
+      await payOrder(orderId);
+      await send("PATCH", `/entregas/pedido/${orderId}/iniciar-preparacao`, null, 200);
+      await send("PATCH", `/entregas/pedido/${orderId}/marcar-pronto`, null, 200);
+      await send("POST", "/entregas/atribuir", { pedidoId: orderId }, 200);
+      await send("PATCH", `/entregas/pedido/${orderId}/recolha`, null, 200);
+      await send("PATCH", `/entregas/pedido/${orderId}/entrega-final`, null, 200);
+    }
+
+    pm.collectionVariables.set("seededPedidoIds", uniqueExtraOrderIds.join(","));
+    pm.collectionVariables.set("seededPedidosDelivered", deliveredOrderIds.join(","));
+    pm.collectionVariables.set("seededPedidosPreparing", preparingOrderIds.join(","));
+    pm.collectionVariables.set("seededPedidosPaid", paidOnlyOrderIds.join(","));
+    pm.collectionVariables.set("seededPedidosCancelled", cancelledOrderIds.join(","));
 
     // I) Payment
     await send("POST", "/pagamentos", {

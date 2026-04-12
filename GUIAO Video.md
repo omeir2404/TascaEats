@@ -180,3 +180,73 @@ docker compose down
 - Casos A-L mostrados no Postman.
 - Casos válidos e inválidos demonstrados.
 - Vídeo contínuo, sem cortes.
+
+I’ll create a ready-to-run SQL file with the 6 business queries and make it robust to your schema names, then I’ll give you exact commands to execute it against your Postgres container.
+
+Searched for regex `@Table\(|@Entity|class Pagamento|class Cliente|class Restaurante|class Pedido|class Produto` (`**/src/main/java/**`), 20 results
+
+Read [](file:///home/oharoon/Desktop/TascaEats/docker-compose.yml)
+
+Read [](file:///home/oharoon/Desktop/TascaEats/src/main/resources/application.properties)
+
+Searched for files matching `**/src/main/java/**/*pagamento*`, no matches
+
+Searched for regex `@Table\(|@Entity|class Pagamento|extends Pagamento|tipo|metodo` (`**/src/main/java/pt/ul/fc/css/tascaeats/domain/pagamento/**`), 16 results
+
+Ran terminal command:  docker compose ps --services --status running
+
+Read [](file:///home/oharoon/Desktop/TascaEats/src/main/java/pt/ul/fc/css/tascaeats/domain/utilizador/Cliente.java)
+
+Read [](file:///home/oharoon/Desktop/TascaEats/src/main/java/pt/ul/fc/css/tascaeats/domain/pagamento/Pagamento.java)
+
+Read [](file:///home/oharoon/Desktop/TascaEats/src/main/java/pt/ul/fc/css/tascaeats/domain/restaurante/Restaurante.java#1-1), lines 1 to 120
+
+I checked your entity mappings and now I’ll add a SQL script with the 6 validation queries tailored to your schema, then I’ll give you exact commands to run it in Docker/Postgres.
+
+Created [](file:///home/oharoon/Desktop/TascaEats/video_validation_queries.sql)
+
+Ran terminal command:  wc -l video_validation_queries.sql && head -n 20 video_validation_queries.sql
+
+Created the SQL file:
+1. video_validation_queries.sql
+
+It includes all 4.1 DB/business questions:
+1. Top restaurants by sales volume
+2. Address of top-selling restaurant
+3. Address of client with most orders
+4. Average orders per client per month
+5. Most sold products
+6. Most used payment method
+7. Clients registered with no purchases
+
+How to run in your DB (Docker Compose)
+1. Start stack (if not running):
+```bash
+./run.sh
+```
+
+2. Run all queries from file:
+```bash
+docker compose exec -T pgserver psql -U Utilizador -d postgres -f video_validation_queries.sql
+```
+
+3. If your .env uses different credentials/db:
+```bash
+docker compose exec -T pgserver psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f video_validation_queries.sql
+```
+
+How to run one query manually (interactive)
+1. Open psql:
+```bash
+docker compose exec pgserver psql -U Utilizador -d postgres
+```
+
+2. Paste any query block from video_validation_queries.sql, run it, then exit:
+```sql
+\q
+```
+## RUN all queries in terminal via docker in one go
+```
+cat video_validation_queries.sql | docker compose exec -T pgserver psql -U Utilizador -d postgres
+```
+

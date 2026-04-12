@@ -649,1104 +649,149 @@
       ]
     },
     {
-      "name": "A - Login",
+      "name": "4.1 - Validacao (Enunciado)",
       "item": [
         {
-          "name": "A1 - VALID - Login",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"secret\"\n}"
-            },
-            "url": "{{baseUrl}}/api/login"
-          }
-        },
-        {
-          "name": "A2 - INVALID - Login wrong password",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"wrong\"\n}"
-            },
-            "url": "{{baseUrl}}/api/login"
-          }
-        },
-        {
-          "name": "A3 - INVALID - Login missing password",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"user@example.com\"\n}"
-            },
-            "url": "{{baseUrl}}/api/login"
-          }
-        }
-      ]
-    },
-    {
-      "name": "B - Registo de Utilizadores",
-      "item": [
-        {
-          "name": "B1 - VALID - Register client",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Ana\",\n  \"email\": \"ana.video@example.com\",\n  \"password\": \"secret\",\n  \"type\": \"client\",\n  \"address\": {\n    \"rua\": \"Rua A\",\n    \"numero\": 10,\n    \"complemento\": \"1o Dto\",\n    \"codigoPostal\": \"1000-100\",\n    \"cidade\": \"Lisboa\",\n    \"distrito\": \"Lisboa\",\n    \"pais\": \"Portugal\"\n  }\n}"
-            },
-            "url": "{{baseUrl}}/api/register"
-          }
-        },
-        {
-          "name": "B2 - INVALID - Register missing email",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Ana\",\n  \"password\": \"secret\",\n  \"type\": \"client\"\n}"
-            },
-            "url": "{{baseUrl}}/api/register"
-          }
-        },
-        {
-          "name": "B3 - INVALID - Register invalid user type",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Ana\",\n  \"email\": \"ana.invalidtype@example.com\",\n  \"password\": \"secret\",\n  \"type\": \"superuser\"\n}"
-            },
-            "url": "{{baseUrl}}/api/register"
-          }
-        }
-      ]
-    },
-    {
-      "name": "C - Verificar, Atualizar e Remover Utilizadores",
-      "item": [
-        {
-          "name": "C1 - VALID - List users",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/Utilizadors"
-          }
-        },
-        {
-          "name": "C2 - INVALID - Get user by invalid id",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/Utilizadors/{{invalidUserId}}"
-          }
-        },
-        {
-          "name": "C3 - VALID - Get user by id",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/Utilizadors/{{userId}}"
-          }
-        },
-        {
-          "name": "C4 - INVALID - Update user invalid type",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Ana Updated\",\n  \"email\": \"ana.updated@example.com\",\n  \"password\": \"newsecret\",\n  \"type\": \"invalid_type\"\n}"
-            },
-            "url": "{{baseUrl}}/api/Utilizadors/{{userId}}"
-          }
-        },
-        {
-          "name": "C5 - VALID - Update user",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Ana Updated\",\n  \"email\": \"ana.updated@example.com\",\n  \"password\": \"newsecret\",\n  \"type\": \"client\"\n}"
-            },
-            "url": "{{baseUrl}}/api/Utilizadors/{{userId}}"
-          }
-        },
-        {
-          "name": "C6 - INVALID - Delete invalid user",
-          "request": {
-            "method": "DELETE",
-            "url": "{{baseUrl}}/api/Utilizadors/{{invalidUserId}}"
-          }
-        },
-        {
-          "name": "C7 - VALID - Delete user",
-          "request": {
-            "method": "DELETE",
-            "url": "{{baseUrl}}/api/Utilizadors/{{userId}}"
-          }
-        }
-      ]
-    },
-    {
-      "name": "D - Buscar Restaurantes",
-      "item": [
-        {
-          "name": "D1 - VALID - List restaurants",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/restaurantes"
-          }
-        },
-        {
-          "name": "D2 - INVALID - Search restaurants invalid state",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/restaurantes?estado=INVALIDO",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "restaurantes"
-              ],
-              "query": [
-                {
-                  "key": "estado",
-                  "value": "INVALIDO"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "D3 - VALID - Search restaurants by name",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/restaurantes?nome=tasca",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "restaurantes"
-              ],
-              "query": [
-                {
-                  "key": "nome",
-                  "value": "tasca"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "D4 - VALID - Search restaurants by city",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/restaurantes?cidade=lisboa",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "restaurantes"
-              ],
-              "query": [
-                {
-                  "key": "cidade",
-                  "value": "lisboa"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "D5 - VALID - Filter restaurants by state",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/restaurantes?estado=ABERTO",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "restaurantes"
-              ],
-              "query": [
-                {
-                  "key": "estado",
-                  "value": "ABERTO"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "D6 - INVALID - Search restaurants invalid city type",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/restaurantes?cidade=12345",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "restaurantes"
-              ],
-              "query": [
-                {
-                  "key": "cidade",
-                  "value": "12345"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "E - Criacao e Gestao de Restaurantes",
-      "item": [
-        {
-          "name": "E1 - VALID - Create restaurant",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"Tasca Eats\",\n  \"nif\": \"123456789\",\n  \"morada\": {\n    \"rua\": \"Rua da Tasca\",\n    \"numero\": 10,\n    \"complemento\": \"1o Dto\",\n    \"codigoPostal\": \"1000-100\",\n    \"cidade\": \"Lisboa\",\n    \"distrito\": \"Lisboa\",\n    \"pais\": \"Portugal\"\n  }\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/restaurantes?adminEmail={{adminEmail}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "restaurantes"
-              ],
-              "query": [
-                {
-                  "key": "adminEmail",
-                  "value": "{{adminEmail}}"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "E2 - INVALID - Create restaurant invalid admin email",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"Tasca Invalid\",\n  \"nif\": \"123456789\",\n  \"morada\": {\n    \"rua\": \"Rua da Tasca\",\n    \"numero\": 10,\n    \"complemento\": \"1o Dto\",\n    \"codigoPostal\": \"1000-100\",\n    \"cidade\": \"Lisboa\",\n    \"distrito\": \"Lisboa\",\n    \"pais\": \"Portugal\"\n  }\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/restaurantes?adminEmail={{invalidAdminEmail}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "restaurantes"
-              ],
-              "query": [
-                {
-                  "key": "adminEmail",
-                  "value": "{{invalidAdminEmail}}"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "E3 - VALID - Get restaurant by id",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}"
-          }
-        },
-        {
-          "name": "E4 - INVALID - Get restaurant by invalid id",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/restaurantes/{{invalidRestauranteId}}"
-          }
-        },
-        {
-          "name": "E5 - VALID - Update restaurant",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"Tasca Eats Updated\",\n  \"nif\": \"123456789\",\n  \"morada\": {\n    \"rua\": \"Rua Nova\",\n    \"numero\": 11,\n    \"complemento\": \"Loja\",\n    \"codigoPostal\": \"1000-101\",\n    \"cidade\": \"Lisboa\",\n    \"distrito\": \"Lisboa\",\n    \"pais\": \"Portugal\"\n  }\n}"
-            },
-            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}"
-          }
-        },
-        {
-          "name": "E6 - INVALID - Update restaurant invalid id",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"Will Fail\",\n  \"nif\": \"123456789\",\n  \"morada\": {\n    \"rua\": \"Rua Nova\",\n    \"numero\": 11,\n    \"complemento\": \"Loja\",\n    \"codigoPostal\": \"1000-101\",\n    \"cidade\": \"Lisboa\",\n    \"distrito\": \"Lisboa\",\n    \"pais\": \"Portugal\"\n  }\n}"
-            },
-            "url": "{{baseUrl}}/api/restaurantes/{{invalidRestauranteId}}"
-          }
-        },
-        {
-          "name": "E7 - VALID - Update restaurant state",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"ABERTO\"\n}"
-            },
-            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/estado"
-          }
-        },
-        {
-          "name": "E8 - INVALID - Update restaurant state invalid value",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"INVALIDO\"\n}"
-            },
-            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/estado"
-          }
-        },
-        {
-          "name": "E9 - VALID - Open restaurant",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/abrir"
-          }
-        },
-        {
-          "name": "E10 - INVALID - Open invalid restaurant",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/api/restaurantes/{{invalidRestauranteId}}/abrir"
-          }
-        },
-        {
-          "name": "E11 - VALID - Close restaurant",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/fechar"
-          }
-        },
-        {
-          "name": "E12 - INVALID - Close invalid restaurant",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/api/restaurantes/{{invalidRestauranteId}}/fechar"
-          }
-        }
-      ]
-    },
-    {
-      "name": "F - Gerir Produtos no Cardapio",
-      "item": [
-        {
-          "name": "F1 - VALID - Create product for restaurant",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"Bacalhau\",\n  \"preco\": 12.5,\n  \"descricao\": \"Prato do dia\"\n}"
-            },
-            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/produtos"
-          }
-        },
-        {
-          "name": "F2 - INVALID - Create product with negative price",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"Bacalhau\",\n  \"preco\": -1,\n  \"descricao\": \"Prato do dia\"\n}"
-            },
-            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/produtos"
-          }
-        },
-        {
-          "name": "F3 - VALID - Update product",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"Bacalhau Especial\",\n  \"preco\": 13.0,\n  \"descricao\": \"Com extra\"\n}"
-            },
-            "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
-          }
-        },
-        {
-          "name": "F4 - INVALID - Update invalid product",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nome\": \"No Product\",\n  \"preco\": 13.0,\n  \"descricao\": \"Com extra\"\n}"
-            },
-            "url": "{{baseUrl}}/api/produtos/{{invalidProdutoId}}"
-          }
-        },
-        {
-          "name": "F5 - VALID - Update product availability",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"disponivel\": true\n}"
-            },
-            "url": "{{baseUrl}}/api/produtos/{{produtoId}}/disponibilidade"
-          }
-        },
-        {
-          "name": "F6 - INVALID - Update availability invalid product",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"disponivel\": true\n}"
-            },
-            "url": "{{baseUrl}}/api/produtos/{{invalidProdutoId}}/disponibilidade"
-          }
-        },
-        {
-          "name": "F7 - VALID - Delete product",
-          "request": {
-            "method": "DELETE",
-            "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
-          }
-        },
-        {
-          "name": "F8 - INVALID - Delete invalid product",
-          "request": {
-            "method": "DELETE",
-            "url": "{{baseUrl}}/api/produtos/{{invalidProdutoId}}"
-          }
-        }
-      ]
-    },
-    {
-      "name": "G - Buscar Produtos",
-      "item": [
-        {
-          "name": "G1 - VALID - Get product by id",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
-          }
-        },
-        {
-          "name": "G2 - INVALID - Get product by invalid id",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/produtos/{{invalidProdutoId}}"
-          }
-        },
-        {
-          "name": "G3 - VALID - List products",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/api/produtos"
-          }
-        },
-        {
-          "name": "G4 - VALID - Search products by name",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/produtos?nome=bac",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "produtos"
-              ],
-              "query": [
-                {
-                  "key": "nome",
-                  "value": "bac"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "G5 - INVALID - Search products with unknown restaurant",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/produtos?restauranteId={{invalidRestauranteId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "produtos"
-              ],
-              "query": [
-                {
-                  "key": "restauranteId",
-                  "value": "{{invalidRestauranteId}}"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "G6 - VALID - List products by restaurant",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/produtos?restauranteId={{restauranteId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "produtos"
-              ],
-              "query": [
-                {
-                  "key": "restauranteId",
-                  "value": "{{restauranteId}}"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "G7 - VALID - List active products",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/produtos?ativos=true",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "produtos"
-              ],
-              "query": [
-                {
-                  "key": "ativos",
-                  "value": "true"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "G8 - VALID - List available products",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/produtos?disponiveis=true",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "produtos"
-              ],
-              "query": [
-                {
-                  "key": "disponiveis",
-                  "value": "true"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "G9 - INVALID - List products invalid restaurant id type",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/produtos?restauranteId=abc",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "produtos"
-              ],
-              "query": [
-                {
-                  "key": "restauranteId",
-                  "value": "abc"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "H - Criacao de Pedido",
-      "item": [
-        {
-          "name": "H1 - VALID - Create order",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"restauranteId\": {{restauranteId}},\n  \"produtosIds\": [{{produtoId}}]\n}"
-            },
-            "url": "{{baseUrl}}/pedidos"
-          }
-        },
-        {
-          "name": "H2 - INVALID - Create order with invalid product",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"restauranteId\": {{restauranteId}},\n  \"produtosIds\": [{{invalidProdutoId}}]\n}"
-            },
-            "url": "{{baseUrl}}/pedidos"
-          }
-        },
-        {
-          "name": "H3 - INVALID - Create order with invalid restaurant",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"restauranteId\": {{invalidRestauranteId}},\n  \"produtosIds\": [{{produtoId}}]\n}"
-            },
-            "url": "{{baseUrl}}/pedidos"
-          }
-        }
-      ]
-    },
-    {
-      "name": "I - Processamento de Pagamento",
-      "item": [
-        {
-          "name": "I1 - VALID - Process payment",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"pedidoId\": {{pedidoId}},\n  \"tipoPagamento\": \"DINHEIRO\",\n  \"detalhes\": {\n    \"valorRecebido\": 20.0\n  }\n}"
-            },
-            "url": "{{baseUrl}}/pagamentos"
-          }
-        },
-        {
-          "name": "I2 - INVALID - Process payment invalid order",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"pedidoId\": {{invalidPedidoId}},\n  \"tipoPagamento\": \"DINHEIRO\",\n  \"detalhes\": {\n    \"valorRecebido\": 20.0\n  }\n}"
-            },
-            "url": "{{baseUrl}}/pagamentos"
-          }
-        },
-        {
-          "name": "I3 - INVALID - Process payment invalid type",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"pedidoId\": {{pedidoId}},\n  \"tipoPagamento\": \"TIPO_INVALIDO\",\n  \"detalhes\": {\n    \"valorRecebido\": 20.0\n  }\n}"
-            },
-            "url": "{{baseUrl}}/pagamentos"
-          }
-        }
-      ]
-    },
-    {
-      "name": "J - Atualizacao de Estado do Pedido",
-      "item": [
-        {
-          "name": "J1 - VALID - Start preparation",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/entregas/pedido/{{pedidoId}}/iniciar-preparacao"
-          }
-        },
-        {
-          "name": "J2 - INVALID - Start preparation invalid order",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/entregas/pedido/{{invalidPedidoId}}/iniciar-preparacao"
-          }
-        },
-        {
-          "name": "J3 - VALID - Mark order ready",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/entregas/pedido/{{pedidoId}}/marcar-pronto"
-          }
-        },
-        {
-          "name": "J4 - INVALID - Mark order ready invalid order",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/entregas/pedido/{{invalidPedidoId}}/marcar-pronto"
-          }
-        }
-      ]
-    },
-    {
-      "name": "K - Atribuicao de Entregador e Fluxo de Entrega",
-      "item": [
-        {
-          "name": "K1 - VALID - Assign driver",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"pedidoId\": {{pedidoId}}\n}"
-            },
-            "url": "{{baseUrl}}/entregas/atribuir"
-          }
-        },
-        {
-          "name": "K2 - INVALID - Assign driver invalid order",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"pedidoId\": {{invalidPedidoId}}\n}"
-            },
-            "url": "{{baseUrl}}/entregas/atribuir"
-          }
-        },
-        {
-          "name": "K3 - VALID - Register pickup",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/entregas/pedido/{{pedidoId}}/recolha"
-          }
-        },
-        {
-          "name": "K4 - INVALID - Register pickup invalid order",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/entregas/pedido/{{invalidPedidoId}}/recolha"
-          }
-        },
-        {
-          "name": "K5 - VALID - Register final delivery",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/entregas/pedido/{{pedidoId}}/entrega-final"
-          }
-        },
-        {
-          "name": "K6 - INVALID - Register final delivery invalid order",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/entregas/pedido/{{invalidPedidoId}}/entrega-final"
-          }
-        }
-      ]
-    },
-    {
-      "name": "L - Cancelamento de Pedido",
-      "item": [
-        {
-          "name": "L1 - VALID - Cancel order",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/pedidos/{{pedidoId}}/cancelar"
-          }
-        },
-        {
-          "name": "L2 - INVALID - Cancel invalid order",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/pedidos/{{invalidPedidoId}}/cancelar"
-          }
-        },
-        {
-          "name": "L3 - INVALID - Cancel order malformed id",
-          "request": {
-            "method": "PATCH",
-            "url": "{{baseUrl}}/pedidos/abc/cancelar"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Extras",
-      "item": [
-        {
-          "name": "M - Consultar Pedidos",
+          "name": "4.1A - Regras de Negocio (Video)",
           "item": [
             {
-              "name": "M1 - VALID - List orders",
+              "name": "R1 - INVALID - Cancelar pedido em preparo",
               "request": {
-                "method": "GET",
+                "method": "PATCH",
+                "description": "Pre-condicao: colocar pedido em A_PREPARAR com /entregas/pedido/{pedidoId}/iniciar-preparacao. Resultado esperado: erro de regra de negocio (409).",
+                "url": "{{baseUrl}}/pedidos/{{pedidoId}}/cancelar"
+              }
+            },
+            {
+              "name": "R2 - VALID+INVALID - Soft delete de produto",
+              "request": {
+                "method": "DELETE",
+                "description": "Passo 1: apagar produto (soft delete). Passo 2: tentar alterar disponibilidade do mesmo produto e validar erro de regra de negocio.",
+                "url": "{{baseUrl}}/api/produtos/{{produtoId}}"
+              }
+            },
+            {
+              "name": "R2b - INVALID - Alterar disponibilidade apos soft delete",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"disponivel\": true\n}"
+                },
+                "url": "{{baseUrl}}/api/produtos/{{produtoId}}/disponibilidade"
+              }
+            },
+            {
+              "name": "R3 - INVALID - Criar pedido em restaurante fechado",
+              "request": {
+                "method": "POST",
+                "description": "Pre-condicao: fechar restaurante com /api/restaurantes/{restauranteId}/fechar. Resultado esperado: erro de regra de negocio (409).",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"restauranteId\": {{restauranteId}},\n  \"produtosIds\": [{{produtoId}}]\n}"
+                },
                 "url": "{{baseUrl}}/pedidos"
               }
             },
             {
-              "name": "M2 - VALID - List orders by client",
+              "name": "R4 - INVALID - Criar pedido com produto esgotado",
               "request": {
-                "method": "GET",
-                "url": {
-                  "raw": "{{baseUrl}}/pedidos?clienteId={{clienteId}}",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "pedidos"
-                  ],
-                  "query": [
-                    {
-                      "key": "clienteId",
-                      "value": "{{clienteId}}"
-                    }
-                  ]
-                }
+                "method": "POST",
+                "description": "Pre-condicao: colocar produto indisponivel com PATCH /api/produtos/{produtoId}/disponibilidade {disponivel:false}. Resultado esperado: erro de regra de negocio (409).",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"restauranteId\": {{restauranteId}},\n  \"produtosIds\": [{{produtoId}}]\n}"
+                },
+                "url": "{{baseUrl}}/pedidos"
               }
             },
             {
-              "name": "M3 - VALID - List orders by state",
+              "name": "R5 - INVALID - Associar entrega sem entregadores disponiveis",
+              "request": {
+                "method": "POST",
+                "description": "Pre-condicao: todos os entregadores com available=false e pedido em PRONTO_PARA_ENTREGA. Resultado esperado: erro de regra de negocio (409).",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"pedidoId\": {{pedidoId}}\n}"
+                },
+                "url": "{{baseUrl}}/entregas/atribuir"
+              }
+            }
+          ]
+        },
+        {
+          "name": "4.1B - Perguntas de Negocio (Checklist)",
+          "item": [
+            {
+              "name": "Q1 - Restaurantes com maior volume de vendas",
               "request": {
                 "method": "GET",
-                "url": {
-                  "raw": "{{baseUrl}}/pedidos?estado=CRIADO",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "pedidos"
-                  ],
-                  "query": [
-                    {
-                      "key": "estado",
-                      "value": "CRIADO"
-                    }
-                  ]
-                }
+                "description": "Checklist de validacao BD: executar query SQL para ranking de restaurantes por valor_total de pedidos pagos/entregues.",
+                "url": "{{baseUrl}}/pedidos"
               }
             },
             {
-              "name": "M4 - INVALID - List orders invalid state",
+              "name": "Q2 - Morada do restaurante e cliente com mais vendas/pedidos",
               "request": {
                 "method": "GET",
-                "url": {
-                  "raw": "{{baseUrl}}/pedidos?estado=ESTADO_INVALIDO",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "pedidos"
-                  ],
-                  "query": [
-                    {
-                      "key": "estado",
-                      "value": "ESTADO_INVALIDO"
-                    }
-                  ]
-                }
+                "description": "Checklist de validacao BD: cruzar tabelas de pedidos, restaurantes e utilizadores para obter top restaurante e top cliente.",
+                "url": "{{baseUrl}}/api/restaurantes"
               }
             },
             {
-              "name": "M5 - INVALID - List orders invalid client id type",
+              "name": "Q3 - Media de pedidos por cliente por mes",
               "request": {
                 "method": "GET",
-                "url": {
-                  "raw": "{{baseUrl}}/pedidos?clienteId=abc",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "pedidos"
-                  ],
-                  "query": [
-                    {
-                      "key": "clienteId",
-                      "value": "abc"
-                    }
-                  ]
-                }
+                "description": "Checklist de validacao BD: agrupar pedidos por cliente e mes e calcular media mensal.",
+                "url": "{{baseUrl}}/pedidos"
+              }
+            },
+            {
+              "name": "Q4 - Produtos mais vendidos",
+              "request": {
+                "method": "GET",
+                "description": "Checklist de validacao BD: usar relacao pedido_produtos/pedido_produto para contar vendas por produto.",
+                "url": "{{baseUrl}}/api/produtos"
+              }
+            },
+            {
+              "name": "Q5 - Metodo de pagamento mais utilizado",
+              "request": {
+                "method": "GET",
+                "description": "Checklist de validacao BD: agrupar pagamentos por tipo e ordenar por frequencia.",
+                "url": "{{baseUrl}}/pagamentos"
+              }
+            },
+            {
+              "name": "Q6 - Clientes registados sem compras",
+              "request": {
+                "method": "GET",
+                "description": "Checklist de validacao BD: listar clientes sem registos na tabela de pedidos (LEFT JOIN + IS NULL).",
+                "url": "{{baseUrl}}/api/Utilizadors"
               }
             }
           ]
