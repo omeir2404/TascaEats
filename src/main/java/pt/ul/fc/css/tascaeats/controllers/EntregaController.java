@@ -8,6 +8,9 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.controllers;
 
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,33 +42,33 @@ public class EntregaController {
 			Entrega entrega = entregaService.atribuirEntregador(dto);
 			return ResponseEntity.ok(toResumoDTO(entrega));
 		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+			return mapArgumentError(e);
 		} catch (IllegalStateException e) {
-			return ResponseEntity.status(409).body(java.util.Map.of("error", e.getMessage()));
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		}
 	}
 
 	@PatchMapping("/pedido/{pedidoId}/iniciar-preparacao")
-	public ResponseEntity<String> iniciarPreparacao(@PathVariable Long pedidoId) {
+	public ResponseEntity<Object> iniciarPreparacao(@PathVariable Long pedidoId) {
 		try {
 			Pedido pedido = entregaService.iniciarPreparacao(pedidoId);
 			return ResponseEntity.ok("Pedido " + pedido.getId() + " em preparação.");
 		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return mapArgumentError(e);
 		} catch (IllegalStateException e) {
-			return ResponseEntity.status(409).body(e.getMessage());
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		}
 	}
 
 	@PatchMapping("/pedido/{pedidoId}/marcar-pronto")
-	public ResponseEntity<String> marcarPedidoComoPronto(@PathVariable Long pedidoId) {
+	public ResponseEntity<Object> marcarPedidoComoPronto(@PathVariable Long pedidoId) {
 		try {
 			Pedido pedido = entregaService.marcarPedidoComoPronto(pedidoId);
 			return ResponseEntity.ok("Pedido " + pedido.getId() + " pronto para entrega.");
 		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return mapArgumentError(e);
 		} catch (IllegalStateException e) {
-			return ResponseEntity.status(409).body(e.getMessage());
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		}
 	}
 
@@ -75,9 +78,9 @@ public class EntregaController {
 			Entrega entrega = entregaService.registarRecolha(pedidoId);
 			return ResponseEntity.ok(toResumoDTO(entrega));
 		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+			return mapArgumentError(e);
 		} catch (IllegalStateException e) {
-			return ResponseEntity.status(409).body(java.util.Map.of("error", e.getMessage()));
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		}
 	}
 
@@ -87,10 +90,25 @@ public class EntregaController {
 			Entrega entrega = entregaService.registarEntregaFinal(pedidoId);
 			return ResponseEntity.ok(toResumoDTO(entrega));
 		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+			return mapArgumentError(e);
 		} catch (IllegalStateException e) {
-			return ResponseEntity.status(409).body(java.util.Map.of("error", e.getMessage()));
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		}
+	}
+
+	private ResponseEntity<Object> mapArgumentError(IllegalArgumentException e) {
+		if (isNotFoundMessage(e.getMessage())) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+		}
+		return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+	}
+
+	private boolean isNotFoundMessage(String message) {
+		if (message == null) {
+			return false;
+		}
+		String normalized = message.toLowerCase();
+		return normalized.contains("não encontrado") || normalized.contains("nao encontrado");
 	}
 
 	private EntregaResumoDTO toResumoDTO(Entrega entrega) {

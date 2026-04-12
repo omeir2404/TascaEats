@@ -8,7 +8,10 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.controllers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,50 +47,86 @@ public class PedidoController {
 	}
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> criarPedido(@Valid @RequestBody CriarPedidoDTO dto) {
+	public ResponseEntity<Object> criarPedido(@Valid @RequestBody CriarPedidoDTO dto) {
 		try {
 			pedidoService.criarPedido(dto);
 			return ResponseEntity.status(HttpStatus.CREATED).body("Pedido criado com sucesso.");
 		} catch (IllegalStateException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return mapArgumentError(e);
 		}
 	}
 
 	@PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
-	public ResponseEntity<String> criarPedidoTexto(@RequestBody String rawBody) {
+	public ResponseEntity<Object> criarPedidoTexto(@RequestBody String rawBody) {
 		try {
 			CriarPedidoDTO dto = objectMapper.readValue(rawBody, CriarPedidoDTO.class);
 			pedidoService.criarPedido(dto);
 			return ResponseEntity.status(HttpStatus.CREATED).body("Pedido criado com sucesso.");
 		} catch (IllegalStateException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return mapArgumentError(e);
 		} catch (JsonProcessingException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payload inválido para criação de pedido.");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(Map.of("error", "Payload inválido para criação de pedido."));
 		}
 	}
 
 	@PatchMapping("/{pedidoId}/cancelar")
-	public ResponseEntity<String> cancelarPedido(@PathVariable Long pedidoId) {
+	public ResponseEntity<Object> cancelarPedido(@PathVariable Long pedidoId) {
 		try {
 			pedidoService.cancelarPedido(pedidoId);
 			return ResponseEntity.ok("Pedido cancelado com sucesso.");
 		} catch (IllegalStateException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
+			return mapArgumentError(e);
 		}
 	}
 
 	@GetMapping
-	public ResponseEntity<List<Pedido>> listarPedidos(
+	public ResponseEntity<Object> listarPedidos(
 			@RequestParam(required = false) Long clienteId,
 			@RequestParam(required = false) EstadoPedido estado) {
-		List<Pedido> pedidos = pedidoService.listarPedidos(clienteId, estado);
-		return ResponseEntity.ok(pedidos);
+		try {
+			List<Pedido> pedidos = pedidoService.listarPedidos(clienteId, estado);
+			List<Map<String, Object>> resposta = new ArrayList<>();
+
+			for (Pedido pedido : pedidos) {
+				Map<String, Object> item = new HashMap<>();
+				item.put("id", pedido.getId());
+				item.put("data", pedido.getData());
+				item.put("hora", pedido.getHora());
+				item.put("valorTotal", pedido.getValorTotal());
+				item.put("estado", pedido.getEstado());
+				item.put("clienteId", pedido.getclienteId());
+				item.put("restauranteId", pedido.getRestauranteId());
+				resposta.add(item);
+			}
+
+			return ResponseEntity.ok(resposta);
+		} catch (IllegalArgumentException e) {
+			return mapArgumentError(e);
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+		}
+	}
+
+	private ResponseEntity<Object> mapArgumentError(IllegalArgumentException e) {
+		if (isNotFoundMessage(e.getMessage())) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+		}
+		return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+	}
+
+	private boolean isNotFoundMessage(String message) {
+		if (message == null) {
+			return false;
+		}
+		String normalized = message.toLowerCase();
+		return normalized.contains("não encontrado") || normalized.contains("nao encontrado");
 	}
 
 }
