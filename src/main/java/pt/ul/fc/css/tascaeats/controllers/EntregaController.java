@@ -50,14 +50,8 @@ public class EntregaController {
 
 	@PatchMapping("/pedido/{pedidoId}/iniciar-preparacao")
 	public ResponseEntity<Object> iniciarPreparacao(@PathVariable Long pedidoId) {
-		try {
-			Pedido pedido = entregaService.iniciarPreparacao(pedidoId);
-			return ResponseEntity.ok("Pedido " + pedido.getId() + " em preparação.");
-		} catch (IllegalArgumentException e) {
-			return mapArgumentError(e);
-		} catch (IllegalStateException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-		}
+		Pedido pedido = entregaService.iniciarPreparacao(pedidoId);
+		return ResponseEntity.ok("Pedido " + pedido.getId() + " em preparação.");
 	}
 
 	@PatchMapping("/pedido/{pedidoId}/marcar-pronto")

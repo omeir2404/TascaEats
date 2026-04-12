@@ -54,7 +54,7 @@ public class PedidoController {
 		} catch (IllegalStateException e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		} catch (IllegalArgumentException e) {
-			return mapArgumentError(e);
+			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
 
@@ -67,7 +67,7 @@ public class PedidoController {
 		} catch (IllegalStateException e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		} catch (IllegalArgumentException e) {
-			return mapArgumentError(e);
+			return ResponseEntity.badRequest().body(e.getMessage());
 		} catch (JsonProcessingException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body(Map.of("error", "Payload inválido para criação de pedido."));
@@ -76,14 +76,8 @@ public class PedidoController {
 
 	@PatchMapping("/{pedidoId}/cancelar")
 	public ResponseEntity<Object> cancelarPedido(@PathVariable Long pedidoId) {
-		try {
-			pedidoService.cancelarPedido(pedidoId);
-			return ResponseEntity.ok("Pedido cancelado com sucesso.");
-		} catch (IllegalStateException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-		} catch (IllegalArgumentException e) {
-			return mapArgumentError(e);
-		}
+		pedidoService.cancelarPedido(pedidoId);
+		return ResponseEntity.ok("Pedido cancelado com sucesso.");
 	}
 
 	@GetMapping
