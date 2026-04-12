@@ -1,13 +1,14 @@
 # TascaEats Fase 1
 
-## LINK DO VIDEO
-- https://drive.google.com/drive/folders/13frYUwmqDdxDYaoB1LOq3DhkCax7dhJe?usp=sharing
-
 ## Grupo 25
 
 - Omeir Haroon (61810)
 - Isa David (61871)
 - Diogo Roque (61857)
+
+## LINK DO VÍDEO
+- https://drive.google.com/drive/folders/13frYUwmqDdxDYaoB1LOq3DhkCax7dhJe?usp=sharing
+
 
 ## Índice
 
@@ -30,7 +31,6 @@
     - [Entregas](#entregas)
   - [Regras de negócio](#regras-de-negócio)
   - [Testes](#testes)
-  - [Vídeo de demonstração](#vídeo-de-demonstração)
 
 ## Tecnologias
 
@@ -172,7 +172,3 @@ Existem testes de:
 - Repositórios (`@DataJpaTest`)
 
 Diretório principal: `src/test/java/pt/ul/fc/css/tascaeats`
-
-## Vídeo de demonstração
-
-- Vídeo 1 (casos A-L): `COLOCAR_LINK_AQUI`
