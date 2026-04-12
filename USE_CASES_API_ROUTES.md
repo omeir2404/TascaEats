@@ -30,7 +30,7 @@ Base URL: `http://localhost:8080`
 | G) Listar produtos ativos | List non-deleted products | `GET` | `/api/produtos` | `ativos=true` | - | Uses active filter. |
 | G) Listar produtos disponiveis | List available products | `GET` | `/api/produtos` | `disponiveis=true` | - | Uses availability filter. |
 | G) Listar todos produtos | List all products | `GET` | `/api/produtos` | - | - | No filters applied. |
-| H) Criacao de pedido | Create order | `POST` | `/pedidos` | - | `CriarPedidoDTO` | Creates order from client, restaurant, products. |
+| H) Criacao de pedido | Create order | `POST` | `/pedidos` | - | `CriarPedidoDTO` | Creates order from client, restaurant, products. Returns `201 Created`. |
 | L) Cancelamento de pedido | Cancel order | `PATCH` | `/pedidos/{pedidoId}/cancelar` | - | - | Allowed states validated in service. |
 | N) Consultar pedidos | List orders | `GET` | `/pedidos` | `clienteId`, `estado` | - | Optional filters. |
 | I) Processamento de pagamento | Process payment | `POST` | `/pagamentos` | - | `ProcessarPagamentoDTO` | Moves order to paid state. |
