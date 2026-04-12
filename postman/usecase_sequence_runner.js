@@ -256,7 +256,7 @@ function restaurantAddress() {
       clienteId: clientId,
       restauranteId: restauranteId,
       produtosIds: [produtoId]
-    }, 200);
+    }, [200, 201]);
 
     const pedidos = await send("GET", `/pedidos?clienteId=${clientId}`, null, 200);
     pm.test("Order list is not empty", function () {

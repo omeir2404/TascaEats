@@ -297,7 +297,7 @@ function restaurantAddress(idx) {
             clienteId: currentClient.id,
             restauranteId: restaurant.id,
             produtosIds: selectedProducts
-          }, 200);
+          }, [200, 201]);
         }
       }
     }
@@ -368,7 +368,7 @@ function restaurantAddress(idx) {
       clienteId: clientId,
       restauranteId: firstRestaurantId,
       produtosIds: [firstProductId]
-    }, 200);
+    }, [200, 201]);
 
     const pedidos = await send("GET", `/pedidos?clienteId=${clientId}`, null, 200);
     pm.test("Order list is not empty", function () {

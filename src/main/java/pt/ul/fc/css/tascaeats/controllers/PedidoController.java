@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.validation.Valid;
@@ -47,6 +48,8 @@ public class PedidoController {
 		try {
 			pedidoService.criarPedido(dto);
 			return ResponseEntity.status(HttpStatus.CREATED).body("Pedido criado com sucesso.");
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
@@ -58,17 +61,25 @@ public class PedidoController {
 			CriarPedidoDTO dto = objectMapper.readValue(rawBody, CriarPedidoDTO.class);
 			pedidoService.criarPedido(dto);
 			return ResponseEntity.status(HttpStatus.CREATED).body("Pedido criado com sucesso.");
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
-		} catch (Exception e) {
+		} catch (JsonProcessingException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payload inválido para criação de pedido.");
 		}
 	}
 
 	@PatchMapping("/{pedidoId}/cancelar")
 	public ResponseEntity<String> cancelarPedido(@PathVariable Long pedidoId) {
-		pedidoService.cancelarPedido(pedidoId);
-		return ResponseEntity.ok("Pedido cancelado com sucesso.");
+		try {
+			pedidoService.cancelarPedido(pedidoId);
+			return ResponseEntity.ok("Pedido cancelado com sucesso.");
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 
 	@GetMapping

@@ -47,26 +47,50 @@ public class EntregaController {
 
 	@PatchMapping("/pedido/{pedidoId}/iniciar-preparacao")
 	public ResponseEntity<String> iniciarPreparacao(@PathVariable Long pedidoId) {
-		Pedido pedido = entregaService.iniciarPreparacao(pedidoId);
-		return ResponseEntity.ok("Pedido " + pedido.getId() + " em preparação.");
+		try {
+			Pedido pedido = entregaService.iniciarPreparacao(pedidoId);
+			return ResponseEntity.ok("Pedido " + pedido.getId() + " em preparação.");
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(409).body(e.getMessage());
+		}
 	}
 
 	@PatchMapping("/pedido/{pedidoId}/marcar-pronto")
 	public ResponseEntity<String> marcarPedidoComoPronto(@PathVariable Long pedidoId) {
-		Pedido pedido = entregaService.marcarPedidoComoPronto(pedidoId);
-		return ResponseEntity.ok("Pedido " + pedido.getId() + " pronto para entrega.");
+		try {
+			Pedido pedido = entregaService.marcarPedidoComoPronto(pedidoId);
+			return ResponseEntity.ok("Pedido " + pedido.getId() + " pronto para entrega.");
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(409).body(e.getMessage());
+		}
 	}
 
 	@PatchMapping("/pedido/{pedidoId}/recolha")
-	public ResponseEntity<EntregaResumoDTO> registarRecolha(@PathVariable Long pedidoId) {
-		Entrega entrega = entregaService.registarRecolha(pedidoId);
-		return ResponseEntity.ok(toResumoDTO(entrega));
+	public ResponseEntity<Object> registarRecolha(@PathVariable Long pedidoId) {
+		try {
+			Entrega entrega = entregaService.registarRecolha(pedidoId);
+			return ResponseEntity.ok(toResumoDTO(entrega));
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(409).body(java.util.Map.of("error", e.getMessage()));
+		}
 	}
 
 	@PatchMapping("/pedido/{pedidoId}/entrega-final")
-	public ResponseEntity<EntregaResumoDTO> registarEntregaFinal(@PathVariable Long pedidoId) {
-		Entrega entrega = entregaService.registarEntregaFinal(pedidoId);
-		return ResponseEntity.ok(toResumoDTO(entrega));
+	public ResponseEntity<Object> registarEntregaFinal(@PathVariable Long pedidoId) {
+		try {
+			Entrega entrega = entregaService.registarEntregaFinal(pedidoId);
+			return ResponseEntity.ok(toResumoDTO(entrega));
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(409).body(java.util.Map.of("error", e.getMessage()));
+		}
 	}
 
 	private EntregaResumoDTO toResumoDTO(Entrega entrega) {

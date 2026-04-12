@@ -134,6 +134,8 @@ public class ProdutoController {
         try {
             produtoService.apagarProduto(id);
             return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(ERROR_FIELD, e.getMessage()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, PRODUTO_NOT_FOUND));
         }

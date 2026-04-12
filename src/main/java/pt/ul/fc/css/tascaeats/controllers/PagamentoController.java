@@ -10,6 +10,7 @@ package pt.ul.fc.css.tascaeats.controllers;
 
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +36,8 @@ public class PagamentoController {
         try {
             pagamentoService.processarPagamento(dto);
             return ResponseEntity.ok("Pagamento processado com sucesso.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

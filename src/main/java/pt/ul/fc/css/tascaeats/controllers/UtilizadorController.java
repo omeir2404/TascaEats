@@ -42,7 +42,7 @@ import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService;
 public class UtilizadorController {
 
     private final UtilizadorService UtilizadorService;
-    private static final String Utilizador_NOT_FOUND = "Utilizador not found";
+    private static final String UTILIZADOR_NOT_FOUND = "Utilizador not found";
 
     public UtilizadorController(UtilizadorService UtilizadorService) {
         this.UtilizadorService = UtilizadorService;
@@ -90,7 +90,7 @@ public class UtilizadorController {
     public ResponseEntity<Object> getUtilizadorById(@PathVariable("id") Long id) {
         Utilizador Utilizador = UtilizadorService.getUtilizadorById(id);
         if (Utilizador == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(Utilizador_NOT_FOUND));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(UTILIZADOR_NOT_FOUND));
         }
         return ResponseEntity.ok(toUtilizadorResponse(Utilizador));
     }
@@ -99,10 +99,15 @@ public class UtilizadorController {
     public ResponseEntity<Object> updateUtilizador(@PathVariable("id") Long id,
                                              @RequestBody UtilizadorUpdateDTO dto) {
         try {
+            if (dto == null) {
+                return ResponseEntity.badRequest().body(error("Request body is required"));
+            }
             if (dto.getType() != null && dto.getType().equalsIgnoreCase("driver")) {
                 return respondWithUpdatedUtilizador(UtilizadorService.updateEntregador(id, dto));
             }
             return respondWithUpdatedUtilizador(UtilizadorService.updateUtilizador(id, dto));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(error(e.getMessage()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(error("Utilizador update conflict"));
         }
@@ -112,7 +117,7 @@ public class UtilizadorController {
     public ResponseEntity<Object> deleteUtilizador(@PathVariable("id") Long id) {
         boolean deleted = UtilizadorService.deleteUtilizador(id);
         if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(Utilizador_NOT_FOUND));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(UTILIZADOR_NOT_FOUND));
         }
         return ResponseEntity.noContent().build();
     }
@@ -123,7 +128,7 @@ public class UtilizadorController {
 
     private ResponseEntity<Object> respondWithUpdatedUtilizador(Utilizador updated) {
         if (updated == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(Utilizador_NOT_FOUND));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(UTILIZADOR_NOT_FOUND));
         }
         return ResponseEntity.ok(toUtilizadorResponse(updated));
     }
