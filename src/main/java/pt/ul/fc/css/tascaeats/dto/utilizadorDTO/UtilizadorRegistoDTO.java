@@ -30,6 +30,8 @@ public class UtilizadorRegistoDTO {
         this.address = address;
     }
 
+    // ###################### GETTERS e SETTERS #####################################################################
+
     public String getName() {
         return name;
     }

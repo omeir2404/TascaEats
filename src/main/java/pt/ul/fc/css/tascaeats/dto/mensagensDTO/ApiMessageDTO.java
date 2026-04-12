@@ -18,6 +18,8 @@ public class ApiMessageDTO {
         this.message = message;
     }
 
+    // ###################### GETTERS e SETTERS #####################################################################
+
     public String getMessage() {
         return message;
     }

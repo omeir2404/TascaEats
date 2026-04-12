@@ -47,7 +47,7 @@ public class MoradaDTO {
 	private String pais;
 
 
-    // *********GETTERS E SETTERS**********
+	// ###################### GETTERS e SETTERS #####################################################################
 
     //Rua
 	public String getRua() {

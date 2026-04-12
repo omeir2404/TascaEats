@@ -30,6 +30,8 @@ public class UtilizadorRespostaDTO {
         this.address = address;
     }
 
+    // ###################### GETTERS e SETTERS #####################################################################
+
     public Long getId() {
         return id;
     }

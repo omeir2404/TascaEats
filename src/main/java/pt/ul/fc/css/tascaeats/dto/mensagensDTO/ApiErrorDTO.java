@@ -18,6 +18,8 @@ public class ApiErrorDTO {
         this.error = error;
     }
 
+    // ###################### GETTERS e SETTERS #####################################################################
+
     public String getError() {
         return error;
     }

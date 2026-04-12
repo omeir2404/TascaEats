@@ -19,6 +19,8 @@ public class UtilizadorLoginDTO {
         this.password = password;
     }
 
+    // ###################### GETTERS e SETTERS #####################################################################
+
     public String getEmail() {
         return email;
     }

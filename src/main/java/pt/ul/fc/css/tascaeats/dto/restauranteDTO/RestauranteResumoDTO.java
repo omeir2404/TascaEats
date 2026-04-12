@@ -17,7 +17,7 @@ public class RestauranteResumoDTO {
 	private EstadoRestaurante estado;
 
 
-	// *********GETTERS E SETTERS**********
+	// ###################### GETTERS e SETTERS #####################################################################
 
 	//Id
 	public Long getId() {

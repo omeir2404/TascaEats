@@ -28,7 +28,7 @@ public class AtualizarProdutoDTO {
 	private String descricao;
 
 
-    // *********GETTERS E SETTERS**********
+	// ###################### GETTERS e SETTERS #####################################################################
 
     // Id
     public Long getId() {

@@ -31,6 +31,8 @@ public class MoradaResponseDTO {
     }
 
 
+    // ###################### GETTERS e SETTERS #####################################################################
+
     public String getRua() {
         return rua;
     }

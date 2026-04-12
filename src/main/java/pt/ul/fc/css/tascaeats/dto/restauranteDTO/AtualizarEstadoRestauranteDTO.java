@@ -17,7 +17,7 @@ public class AtualizarEstadoRestauranteDTO{
     private EstadoRestaurante estado;
 
 
-    // *********GETTERS E SETTERS**********
+    // ###################### GETTERS e SETTERS #####################################################################
 
     public EstadoRestaurante getEstado(){
         return estado;

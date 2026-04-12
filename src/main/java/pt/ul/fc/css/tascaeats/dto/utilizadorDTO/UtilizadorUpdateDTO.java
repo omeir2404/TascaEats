@@ -32,6 +32,8 @@ public class UtilizadorUpdateDTO {
         this.available = available;
     }
 
+    // ###################### GETTERS e SETTERS #####################################################################
+
     public String getName() {
         return name;
     }

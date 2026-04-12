@@ -24,6 +24,8 @@ public class UtilizadorRegistoRespostaDTO {
         this.type = type;
     }
 
+    // ###################### GETTERS e SETTERS #####################################################################
+
     public String getMessage() {
         return message;
     }

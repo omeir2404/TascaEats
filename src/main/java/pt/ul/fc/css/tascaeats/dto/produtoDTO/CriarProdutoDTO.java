@@ -25,7 +25,7 @@ public class CriarProdutoDTO {
 	private String descricao;
 
 
-    // *********GETTERS E SETTERS**********
+	// ###################### GETTERS e SETTERS #####################################################################
 
     //Nome
 	public String getNome() {

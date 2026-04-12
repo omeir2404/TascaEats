@@ -16,7 +16,7 @@ public class AtualizarDisponibilidadeProdutoDTO{
     private Boolean disponivel;
 
 
-    // *********GETTERS E SETTERS**********
+    // ###################### GETTERS e SETTERS #####################################################################
 
     public Boolean getDisponivel(){
         return disponivel;

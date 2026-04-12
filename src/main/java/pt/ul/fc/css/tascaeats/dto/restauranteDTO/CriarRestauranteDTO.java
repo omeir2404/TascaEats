@@ -26,7 +26,7 @@ public class CriarRestauranteDTO {
 	private MoradaDTO morada;
 
 
-	// *********GETTERS E SETTERS**********
+	// ###################### GETTERS e SETTERS #####################################################################
 
 	//Nome
 	public String getNome() {
