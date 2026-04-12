@@ -1,6 +1,7 @@
 # TascaEats Fase 1
 
-Projeto da **Fase 1** de CSS, focado numa plataforma de delivery com utilizadores, restaurantes, produtos, pedidos, pagamentos e entregas.
+## LINK DO VIDEO
+- https://drive.google.com/drive/folders/13frYUwmqDdxDYaoB1LOq3DhkCax7dhJe?usp=sharing
 
 ## Grupo 25
 
@@ -10,14 +11,26 @@ Projeto da **Fase 1** de CSS, focado numa plataforma de delivery com utilizadore
 
 ## Índice
 
-- [Tecnologias](#tecnologias)
-- [Arquitetura](#arquitetura)
-- [Como executar](#como-executar)
-- [API e Swagger](#api-e-swagger)
-- [Funcionalidades implementadas](#funcionalidades-implementadas)
-- [Regras de negócio](#regras-de-negócio)
-- [Testes](#testes)
-- [Vídeo de demonstração](#vídeo-de-demonstração)
+- [TascaEats Fase 1](#tascaeats-fase-1)
+  - [LINK DO VIDEO](#link-do-video)
+  - [Grupo 25](#grupo-25)
+  - [Índice](#índice)
+  - [Tecnologias](#tecnologias)
+  - [Arquitetura](#arquitetura)
+  - [Como executar:](#como-executar)
+    - [Docker](#docker)
+    - [Docker daemon indisponível](#docker-daemon-indisponível)
+  - [API e Swagger](#api-e-swagger)
+  - [Funcionalidades implementadas:](#funcionalidades-implementadas)
+    - [Utilizadores](#utilizadores)
+    - [Restaurantes](#restaurantes)
+    - [Produtos](#produtos)
+    - [Pedidos](#pedidos)
+    - [Pagamentos](#pagamentos)
+    - [Entregas](#entregas)
+  - [Regras de negócio](#regras-de-negócio)
+  - [Testes](#testes)
+  - [Vídeo de demonstração](#vídeo-de-demonstração)
 
 ## Tecnologias
 
