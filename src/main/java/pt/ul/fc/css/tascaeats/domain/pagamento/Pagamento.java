@@ -48,6 +48,8 @@ public abstract class Pagamento {
         this.referenciaPagamento = referenciaPagamento;
     }
 
+    // ################### MÉTODOS DE NEGÓCIO ######################################################################
+
     public abstract void validarDetalhes();
 
     public abstract String obterInstrucoesPagamento();

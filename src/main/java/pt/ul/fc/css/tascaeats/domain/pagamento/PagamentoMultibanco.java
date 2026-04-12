@@ -32,6 +32,9 @@ public class PagamentoMultibanco extends Pagamento {
         this.referencia = referencia;
     }
 
+
+    // ################### MÉTODOS DE NEGÓCIO ######################################################################
+
     @Override
     public void validarDetalhes() {
         if (entidade == null || !entidade.matches("\\d{5}")) {

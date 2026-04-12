@@ -30,6 +30,9 @@ public class PagamentoMBWay extends Pagamento {
         this.numeroTelemovel = numeroTelemovel;
     }
 
+
+    // ################### MÉTODOS DE NEGÓCIO ######################################################################
+
     @Override
     public void validarDetalhes() {
         if (this.numeroTelemovel == null || this.numeroTelemovel.length() != 9 || this.numeroTelemovel.charAt(0) != '9') {

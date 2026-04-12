@@ -29,6 +29,8 @@ public class PagamentoCartao extends Pagamento {
         this.numeroCartao = numeroCartao;
     }
 
+    // ################### MÉTODOS DE NEGÓCIO ######################################################################
+
     @Override
     public void validarDetalhes() {
         if (this.numeroCartao == null || !this.numeroCartao.matches("\\d{16}")) {

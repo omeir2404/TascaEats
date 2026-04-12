@@ -31,6 +31,8 @@ public class PagamentoDinheiro extends Pagamento {
         this.valorRecebido = valorRecebido;
     }
 
+    // ################### MÉTODOS DE NEGÓCIO ######################################################################
+
     @Override
     public void validarDetalhes() {
         if (valorRecebido < getValor()) {

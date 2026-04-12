@@ -74,7 +74,7 @@ public class Pedido {
         this.hora = LocalTime.now();
     }
 
-// ###################### Estados e regras de negocio ###########################################################
+// ################### MÉTODOS DE NEGÓCIO ######################################################################
 
     public void confirmarPagamento() {
         if (this.estado != EstadoPedido.CRIADO) {
