@@ -13,10 +13,10 @@ Dividi as responsabilidades em etapas lógicas e sequenciais, mencionando exatam
 #### Passo 1: Atualização do Modelo de Domínio (Entidades JPA)
 A tua primeira tarefa é adaptar as classes da pasta `src/main/java/.../domain` para suportarem as novas regras exigidas pelo cliente.
 
-* [ ] **1.1. Refatorar Moradas do Cliente:**
+* [x] **1.1. Refatorar Moradas do Cliente:**
   * **Ficheiros:** `domain/utilizador/Cliente.java` e `domain/utilizador/Morada.java`.
   * **Ação:** Alterar a relação de `1:1` para `1:N`. Um cliente passa a ter uma lista de moradas associadas, podendo escolher uma existente ou usar uma nova num pedido
-* [ ] **1.2. Refatorar Entidade Pedido:**
+* [x] **1.2. Refatorar Entidade Pedido:**
   * **Ficheiros:** `domain/pedido/Pedido.java`.
   * **Ação:** Modificar a estrutura do pedido para garantir que pode conter produtos de diferentes restaurantes em simultâneo
 * [ ] **1.3. Especificar Pagamentos:**

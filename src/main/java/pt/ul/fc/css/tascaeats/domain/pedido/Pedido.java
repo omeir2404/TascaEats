@@ -48,15 +48,21 @@ public class Pedido {
     @Column(nullable = false)
     private EstadoPedido estado;
 
-    @Column(name = "cliente_id")
+    @Column(name = "cliente_id", nullable = false)
     private Long clienteId;
-    @Column(name = "restaurante_id")
-    private Long restauranteId;
+
+    //@Column(name = "restaurante_id")
+    //private Long restauranteId;
 
     @ElementCollection
     @CollectionTable(name = "pedido_produtos", joinColumns = @JoinColumn(name = "pedido_id"))
     @Column(name = "produto_id")
     private List<Long> produtosIds = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "pedido_restaurantes", joinColumns = @JoinColumn(name = "pedido_id"))
+    @Column(name = "restaurante_id")
+    private List<Long> restaurantesIds = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "pagamento_id")
@@ -65,16 +71,22 @@ public class Pedido {
     public Pedido() {
     }
 
-    public Pedido(Long id, Long clientId, Long restauranteId) {
+    public Pedido(Long id, Long clientId) {
         this.id = id;
         this.clienteId = clientId;
-        this.restauranteId = restauranteId;
         this.estado = EstadoPedido.CRIADO;
         this.data = LocalDate.now();
         this.hora = LocalTime.now();
     }
 
 // ################### MÉTODOS DE NEGÓCIO ######################################################################
+
+    public void adicionarProduto(Long produtoId, Long restauranteId){
+        produtosIds.add(produtoId);
+        if(!restaurantesIds.contains(restauranteId)){
+            restaurantesIds.add(restauranteId);
+        }
+    }
 
     public void confirmarPagamento() {
         if (this.estado != EstadoPedido.CRIADO) {
@@ -165,20 +177,12 @@ public class Pedido {
         this.estado = estado;
     }
 
-    public Long getclienteId() {
+    public Long getClienteId() {
         return clienteId;
     }
 
-    public void setclienteId(Long clienteId) {
+    public void setClienteId(Long clienteId) {
         this.clienteId = clienteId;
-    }
-
-    public Long getRestauranteId() {
-        return restauranteId;
-    }
-
-    public void setRestauranteId(Long restauranteId) {
-        this.restauranteId = restauranteId;
     }
 
     public List<Long> getProdutosIds() {
@@ -188,6 +192,8 @@ public class Pedido {
     public void setProdutosIds(List<Long> produtosIds) {
         this.produtosIds = produtosIds;
     }
+
+    public List<Long> getRestaurantesIds() { return restaurantesIds;}
 
     public Pagamento getPagamento() {
         return pagamento;
