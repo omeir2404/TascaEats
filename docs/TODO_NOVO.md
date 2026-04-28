@@ -119,10 +119,10 @@ Antes de ligar dados, precisas de ter a "cara" da aplicação pronta nas pastas 
 * [x] **1.1. Validar Dependências:**
   * **Ficheiro:** `pom.xml`.
   * **Ação:** Confirmar se as dependências do `spring-boot-starter-thymeleaf` e `spring-boot-starter-web` estão corretamente configuradas para compilar o HTML.
-* [ ] **1.2. Estruturar Ficheiros Estáticos:**
+* [x] **1.2. Estruturar Ficheiros Estáticos:**
   * **Pasta:** `src/main/resources/static/`.
   * **Ação:** Criar os ficheiros de estilos CSS, *scripts* JavaScript (se necessário para interatividade base) e armazenar imagens/logótipos do *TascaEats*.
-* [ ] **1.3. Criar os Layouts Thymeleaf (Templates):**
+* [x] **1.3. Criar os Layouts Thymeleaf (Templates):**
   * **Pasta:** `src/main/resources/templates/`.
   * **Ação:** Criar os ficheiros `.html`. É recomendável criar um ficheiro base (ex: `layout.html` ou *fragments*) com o cabeçalho e rodapé, para não repetires código em todas as páginas.
 
@@ -131,7 +131,7 @@ Antes de ligar dados, precisas de ter a "cara" da aplicação pronta nas pastas 
 #### Passo 2: Implementação dos Controladores Web (Spring MVC)
 Para não haver mistura com a API REST que já têm, vais criar os teus próprios controladores focados em devolver páginas HTML.
 
-* [ ] **2.1. Criar os Controladores de Vista:**
+* [x] **2.1. Criar os Controladores de Vista:**
   * **Pasta:** `src/main/java/.../web/`.
   * **Ação:** Criar classes como `WebRestauranteController.java` ou `WebUtilizadorController.java` (anotadas com `@Controller`).
 * [ ] **2.2. Estabelecer Comunicação REST:**
