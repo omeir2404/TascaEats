@@ -17,7 +17,7 @@ import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 
 public interface IPedidoRepository extends JpaRepository<Pedido, Long> {
     List<Pedido> findByClienteId(Long clienteId);
-    List<Pedido> findByRestauranteId(Long restauranteId);
+    List<Pedido> findByRestaurantesIdsContaining(Long id);
     List<Pedido> findByEstado(EstadoPedido estado);
     List<Pedido> findByClienteIdAndEstado(Long clienteId, EstadoPedido estado);
     boolean existsByIdAndEstado(Long id, EstadoPedido estado);

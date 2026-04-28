@@ -1,16 +1,21 @@
-package pt.ul.fc.css.tascaeats.web;
+package pt.ul.fc.css.tascaeats.controllers; // Pacote corrigido
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService; // [cite: 304]
+import org.springframework.web.client.RestTemplate; // Usar RestTemplate em vez de Service
 
 @Controller
 public class WebUtilizadorController {
 
-    private final UtilizadorService utilizadorService;
+    private final RestTemplate restTemplate;
 
-    public WebUtilizadorController(UtilizadorService utilizadorService) {
-        this.utilizadorService = utilizadorService;
+    // Vai buscar o URL do backend injetado pelo Docker
+    @Value("${BACKEND_API_URL:http://localhost:8080}")
+    private String backendUrl;
+
+    public WebUtilizadorController(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
     // Página de Login (Mock - Caso A)
