@@ -9,31 +9,39 @@
 package pt.ul.fc.css.tascaeats.domain.utilizador;
 
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Cliente extends Utilizador {
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "address_id")
-    private Morada address;
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Morada> addresses = new ArrayList<>();
 
     public Cliente(String name, String email, String password, Morada address) {
         super(name, email, password);
-        this.address = address;
     }
     
     public Cliente() {}
 
-    public Morada getAddress() {
-        return address;
+    public List <Morada> getAddresses(){
+        return addresses;
     }
 
-    public void setAddress(Morada address) {
-        this.address = address;
+    public void setAddresses(List<Morada> addresses){
+        this.addresses = addresses;
+    }
+
+    public void addAdresses(Morada address){
+        addresses.add(address);
+        address.setClient(this);
+    }
+
+    public void removeAdresses(Morada address){
+        addresses.remove(address);
+        address.setClient(null);
     }
 
 }
