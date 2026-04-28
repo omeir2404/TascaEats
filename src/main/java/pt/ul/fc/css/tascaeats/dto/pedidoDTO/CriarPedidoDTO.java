@@ -13,33 +13,52 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 
 
 public class CriarPedidoDTO {
 
     @JsonProperty("clienteId")
-    @JsonAlias({"clienteeId"})
-    @NotNull(message = "Clientee Id é obrigatório")
-    @Positive(message = "Clientee Id deve ser maior que 0")
+    @NotNull(message = "Cliente Id é obrigatório")
     private Long clienteId;
 
-    @NotNull(message = "Restaurante Id é obrigatório")
-    @Positive(message = "Restaurante Id deve ser maior que 0")
-    private Long restauranteId;
+    @NotEmpty(message = "A lista de itens não pode estar vazia")
+    @Valid
+    private List<ItemPedidoDTO> itens;
 
-    @NotEmpty(message = "A lista de produtos não pode estar vazia")
-    private List<@NotNull(message = "Produto Id não pode ser nulo") @Positive(message = "Produto Id deve ser maior que 0") Long> produtosIds;
+    @Nullable
+    private Long moradaId;
+
+    @Nullable
+    @Valid
+    private MoradaDTO moradaNova;
+
+
+    // *********CONSTRUTORES**********
 
     public CriarPedidoDTO(){}
 
-    public CriarPedidoDTO(Long clientId, Long restauranteId, List<Long> produtosIds){
-        this.clienteId = clientId;
-        this.restauranteId = restauranteId;
-        this.produtosIds = produtosIds;
+    public CriarPedidoDTO(Long clienteId, List<ItemPedidoDTO> itens){
+        this.clienteId = clienteId;
+        this.itens = itens;
     }
+
+    public CriarPedidoDTO(Long clienteId, List<ItemPedidoDTO> itens, @Nullable Long moradaId){
+        this.clienteId = clienteId;
+        this.itens = itens;
+        this.moradaId = moradaId;
+    }
+
+    public CriarPedidoDTO(Long clienteId, List<ItemPedidoDTO> itens, @Nullable MoradaDTO moradaNova){
+        this.clienteId = clienteId;
+        this.itens = itens;
+        this.moradaNova = moradaNova;
+    }
+
 
     // ###################### GETTERS e SETTERS #####################################################################
 
@@ -51,26 +70,36 @@ public class CriarPedidoDTO {
         this.clienteId = clienteId;
     }
 
-    public Long getRestauranteId() {
-        return restauranteId;
+    public List<ItemPedidoDTO> getItens() {
+        return itens;
     }
 
-    public void setRestauranteId(Long restauranteId) {
-        this.restauranteId = restauranteId;
+    public void setItens(List<ItemPedidoDTO> itens) {
+        this.itens = itens;
     }
 
-    public List<Long> getProdutosIds() {
-        return produtosIds;
+    @Nullable
+    public Long getMoradaId() {
+        return moradaId;
     }
 
-    public void setProdutosIds(List<Long> produtosIds) {
-        this.produtosIds = produtosIds;
+    public void setMoradaId(@Nullable Long moradaId) {
+        this.moradaId = moradaId;
     }
 
+    @Nullable
+    public MoradaDTO getMoradaNova() {
+        return moradaNova;
+    }
+
+    public void setMoradaNova(@Nullable MoradaDTO moradaNova) {
+        this.moradaNova = moradaNova;
+    }
 
     @Override
     public String toString(){
         return "CriarPedidoDTO{" + "clienteId=" + clienteId +
-                    ", restauranteId=" + restauranteId + ", produtosIds=" + produtosIds +"}";
+                    ", itens=" + itens +
+                    ", moradaId=" + moradaId + ", moradaNova=" + moradaNova +"}";
     }
 }
