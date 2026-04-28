@@ -27,7 +27,7 @@ A tua primeira tarefa é adaptar as classes da pasta `src/main/java/.../domain` 
   * **Ficheiros:** Criar `Avaliacao.java` na pasta `domain/avaliacao`.
   * **Ação:** Implementar a entidade que permite ao cliente avaliar o restaurante após realizar uma compra
   . Ligar esta entidade a `Restaurante` e `Pedido`/`Cliente`.
-* [ ] **1.5. Criar a Entidade Menu Partilhado:**
+* [x] **1.5. Criar a Entidade Menu Partilhado:**
   * **Ficheiros:** Criar `Menu.java` na pasta `domain/menu`.
   * **Ação:** Criar a estrutura que permite partilhar um menu entre diversos restaurantes
   Garantir no mapeamento JPA que uma alteração num item deste menu se reflete em todos os restaurantes que o partilham
