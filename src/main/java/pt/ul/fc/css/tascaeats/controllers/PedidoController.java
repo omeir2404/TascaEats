@@ -95,8 +95,9 @@ public class PedidoController {
 				item.put("hora", pedido.getHora());
 				item.put("valorTotal", pedido.getValorTotal());
 				item.put("estado", pedido.getEstado());
-				item.put("clienteId", pedido.getclienteId());
-				item.put("restauranteId", pedido.getRestauranteId());
+				item.put("clienteId", pedido.getClienteId());
+				item.put("restaurantesIds", pedido.getRestaurantesIds());
+				item.put("produtosIds", pedido.getProdutosIds());
 				resposta.add(item);
 			}
 
