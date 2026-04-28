@@ -51,4 +51,51 @@ public class Avaliacao {
         this.pedido = pedido;
     }
 
+
+    // *********GETTERS E SETTERS**********
+
+    public long getId(){
+        return id;
+    }
+
+    public int getClassificacao(){
+        return classificacao;
+    }
+
+    public void setClassificacao(int classificacao){
+        this.classificacao = classificacao;
+    }
+
+    public String getComentario(){
+        return comentario;
+    }
+
+    public void setComentario(String comentario){
+        this.comentario = comentario;
+    }
+
+    public Cliente getCliente(){
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente){
+        this.cliente = cliente;
+    }
+
+    public Restaurante getRestaurante() {
+        return restaurante;
+    }
+
+    public void setRestaurante(Restaurante restaurante) {
+        this.restaurante = restaurante;
+    }
+
+    public Pedido getPedido() {
+        return pedido;
+    }
+
+    public void setPedido(Pedido pedido) {
+        this.pedido = pedido;
+    }
+
 }
