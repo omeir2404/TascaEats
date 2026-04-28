@@ -71,6 +71,22 @@ public class PedidoService {
             throw new IllegalArgumentException("Apenas uma das opções deve ser fornecida: moradaId OU moradaNova.");
         }
 
+        // Se usar morada existente, validar que pertence ao cliente
+        if (criarPedidoDto.getMoradaId() != null) {
+            boolean moradaValida = cliente.getAddresses().stream()
+                .anyMatch(m -> m.getId().equals(criarPedidoDto.getMoradaId()));
+            if (!moradaValida) {
+                throw new IllegalArgumentException("Morada não encontrada ou não pertence ao cliente: " + criarPedidoDto.getMoradaId());
+            }
+        }
+
+        // Se for fornecida uma nova morada, criar e associar ao cliente (persistido ao salvar o cliente)
+        if (criarPedidoDto.getMoradaNova() != null) {
+            Morada nova = novaMoradaDeDTO(criarPedidoDto.getMoradaNova());
+            cliente.addAdresses(nova);
+            // Guardar a nova morada associada ao cliente
+            utilizadorRepository.save(cliente);
+        }
 
         double valorTotal = 0;
         java.util.Set<Long> restaurantesValidados = new java.util.HashSet<>();
