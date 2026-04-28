@@ -2,42 +2,190 @@
 
 O teu trabalho focar-se-á nos pacotes `domain`, `dto`, `repository` e `service`.
 
-**Fase A: Refatoração do Modelo de Domínio (`src/main/java/.../domain`)**
-* [ ] **Entidade Menu Partilhado:** Criar as classes de menu na pasta vazia `domain/menu`
-. Garantir que um menu pode ser partilhado por vários restaurantes e que as modificações se refletem em todos
-* [ ] **Entidade Avaliação:** Criar as classes necessárias na pasta vazia `domain/avaliacao` para suportar a avaliação do restaurante
-* [ ] **Atualizar Moradas:** Editar `domain/utilizador/Cliente.java` e `Morada.java` para suportar uma relação de 1:N (múltiplas moradas)
-* [ ] **Atualizar Pagamentos:** Editar `PagamentoMultibanco.java`, `PagamentoMBWay.java` e `PagamentoDinheiro.java` para adicionar os novos atributos: bandeira do cartão, número de telemóvel e informação sobre o troco
-* [ ] **Atualizar Pedidos:** Editar `domain/pedido/Pedido.java` para suportar produtos vindos de diferentes restaurantes num só pedido
+Aqui está a reestruturação detalhada e passo a passo para as tarefas do **Membro 1 (Backend, Domínio e Filtros)**. 
 
-**Fase B: Lógica de Negócio (`src/main/java/.../service`)**
-* [ ] **Automatizar Entregadores:** Editar `EntregaService.java` e `PedidoService.java` para associar automaticamente um entregador (válido) a um pedido
-* [ ] **Atualizar DTOs:** Modificar ou criar novos DTOs em `dto/` para suportar as novas entidades e atributos nas respostas da API.
-
-**Fase C: Sistema de Buscas e Filtros (`src/main/java/.../repository`)**
-* [ ] **Implementar Filtros Complexos:** Utilizar o *CriteriaBuilder* ou anotações `@Query` nos ficheiros de repositório (ex: `IRestauranteRepository.java`, `IProdutoRepository.java`) para suportar todos os filtros exigidos 
-* [ ] **Validar Queries de Negócio:** Garantir que as queries respondem às novas perguntas (média do troco, item mais pedido, etc.) Adicionar os testes adequados na pasta `src/test/java/.../repositories`
+Dividi as responsabilidades em etapas lógicas e sequenciais, mencionando exatamente os ficheiros da vossa estrutura (`tree.txt`) que precisam de ser alterados ou criados, para que possas começar a programar imediatamente.
 
 ---
 
-### ## Membro 2: Interface Web com Thymeleaf (O "Web Developer")
+### 🛠️ Membro 1: Backend, Domínio e Filtros (O "Arquiteto de Dados")
 
-O teu trabalho focar-se-á nos pacotes `web`, na pasta `resources` e parcialmente nos `controllers`.
+#### Passo 1: Atualização do Modelo de Domínio (Entidades JPA)
+A tua primeira tarefa é adaptar as classes da pasta `src/main/java/.../domain` para suportarem as novas regras exigidas pelo cliente.
 
-**Fase A: Setup de Views e Estilos (`src/main/resources/`)**
-* [ ] **Ficheiros Estáticos:** Adicionar CSS, JS e Imagens na pasta `resources/static`
-* [ ] **Templates Thymeleaf:** Criar os ficheiros HTML (ex: `index.html`, `restaurantes.html`) na pasta `resources/templates`
-
-**Fase B: Desenvolvimento Frontend Web (`src/main/java/.../web`)**
-* [ ] **Criar Web Controllers:** Preencher a pasta `web` com controladores Spring MVC (anotados com `@Controller`, não `@RestController`) que intercetam as rotas do browser e devolvem as *views* do Thymeleaf compiladas
-* [ ] **Casos de Uso Azuis (Consultas):** Implementar as páginas e a ligação ao backend para os filtros de pesquisa
-* [ ] **Casos de Uso Castanhos (Híbridos):** Desenhar as páginas partilhadas (ex: Login, Registos)
-
-**Fase C: Integração e Testes**
-* [ ] **Manter a API REST Intacta:** Garantir que o trabalho no frontend não parte os controladores REST antigos existentes em `controllers/`
-* [ ] **Vídeo Web:** Gravar a demonstração mostrando as funcionalidades implementadas e executadas a partir do browser
+* [ ] **1.1. Refatorar Moradas do Cliente:**
+  * **Ficheiros:** `domain/utilizador/Cliente.java` e `domain/utilizador/Morada.java`.
+  * **Ação:** Alterar a relação de `1:1` para `1:N`. Um cliente passa a ter uma lista de moradas associadas, podendo escolher uma existente ou usar uma nova num pedido
+* [ ] **1.2. Refatorar Entidade Pedido:**
+  * **Ficheiros:** `domain/pedido/Pedido.java`.
+  * **Ação:** Modificar a estrutura do pedido para garantir que pode conter produtos de diferentes restaurantes em simultâneo
+* [ ] **1.3. Especificar Pagamentos:**
+  * **Ficheiros:** `PagamentoMultibanco.java`, `PagamentoMBWay.java` e `PagamentoDinheiro.java` (em `domain/pagamento/`).
+  * **Ação:** Adicionar os atributos específicos de cada tipo: guardar a bandeira do cartão no Multibanco, o número de telemóvel no MBWay, e a informação do troco no pagamento em Numerário
+  Não precisas de implementar a lógica de processamento real
+* [ ] **1.4. Criar a Entidade Avaliação:**
+  * **Ficheiros:** Criar `Avaliacao.java` na pasta `domain/avaliacao`.
+  * **Ação:** Implementar a entidade que permite ao cliente avaliar o restaurante após realizar uma compra
+  . Ligar esta entidade a `Restaurante` e `Pedido`/`Cliente`.
+* [ ] **1.5. Criar a Entidade Menu Partilhado:**
+  * **Ficheiros:** Criar `Menu.java` na pasta `domain/menu`.
+  * **Ação:** Criar a estrutura que permite partilhar um menu entre diversos restaurantes
+  Garantir no mapeamento JPA que uma alteração num item deste menu se reflete em todos os restaurantes que o partilham
 
 ---
+
+#### Passo 2: Atualização da Transferência de Dados (DTOs)
+Como o domínio mudou, os dados que entram e saem da API também mudam.
+
+* [ ] **2.1. Atualizar Pedido DTOs:**
+  * **Ficheiros:** `dto/pedidoDTO/CriarPedidoDTO.java`.
+  * **Ação:** Ajustar para suportar a seleção da morada de entrega (nova ou existente) e a lista de produtos de múltiplos restaurantes.
+* [ ] **2.2. Atualizar Pagamento DTOs:**
+  * **Ficheiros:** `dto/pagamentoDTO/ProcessarPagamentoDTO.java`.
+  * **Ação:** Incluir campos opcionais para receber a bandeira do cartão, número do MBWay e valor para troco.
+* [ ] **2.3. Criar DTOs para Menu e Avaliação:**
+  * **Ficheiros:** Criar pastas `menuDTO` e `avaliacaoDTO` em `dto/` e adicionar os respetivos DTOs de criação e resposta.
+
+---
+
+#### Passo 3: Implementação da Lógica de Negócio (Services)
+Agora tens de dar vida às regras de negócio na pasta `src/main/java/.../service`.
+
+* [ ] **3.1. Automatizar Atribuição de Entregador:**
+  * **Ficheiros:** `EntregaService.java` e/ou `PedidoService.java`.
+  * **Ação:** Desenvolver o algoritmo que encontra o entregador válido/disponível mais adequado e o associa automaticamente a um pedido quando este fica pronto, sem intervenção humana
+* [ ] **3.2. Lógica de Menus:**
+  * **Ficheiros:** Criar `MenuService.java`.
+  * **Ação:** Permitir a gestão de menus (criar, atualizar) e a associação explícita destes menus aos restaurantes pretendidos
+
+---
+
+#### Passo 4: Implementação do Sistema de Buscas e Filtros (Repositories)
+O cliente pediu procuras mais avançadas
+Terás de usar Spring Data JPA (Specification API, Criteria API ou anotações `@Query`) na pasta `src/main/java/.../repository`.
+
+* [ ] **4.1. Filtros de Utilizador (`utilizadorRepository/`):**
+  * **Ação:** Implementar buscas por nome, tipo de utilizador 
+  , número de pedidos realizados (só para clientes) 
+  e número de entregas realizadas (só para entregadores)
+* [ ] **4.2. Filtros de Restaurante (`IRestauranteRepository.java`):**
+  * **Ação:** Implementar buscas por nome 
+  , número de pedidos realizados 
+  , número de avaliações recebidas 
+  , morada 
+  , tipo de cozinha 
+  , horário de funcionamento (aberto/fechado) 
+   e preço médio dos pratos
+  .
+* [ ] **4.3. Filtros de Produtos (`IProdutoRepository.java`):**
+  * **Ação:** Implementar buscas por nome 
+  , preço 
+  , categoria 
+  , disponibilidade (acessível apenas a admin/entregadores) 
+   e popularidade (número de vezes pedido num intervalo de tempo)
+  .
+* [ ] **4.4. Filtros de Menu (Criar `IMenuRepository.java`):**
+  * **Ação:** Implementar buscas por nome 
+  , número de produtos associados 
+   e preço médio dos produtos associados
+  .
+
+---
+
+#### Passo 5: Validação de Queries Complexas (Perguntas de Negócio)
+Para garantir que a base de dados ficou bem modelada, o sistema tem de ser capaz de responder às seguintes questões analíticas
+
+* [ ] **5.1.** Calcular a média do troco nos pagamentos em numerário
+* [ ] **5.2.** Descobrir qual é o item mais pedido de um determinado restaurante
+* [ ] **5.3.** Identificar o entregador com mais entregas realizadas para um restaurante específico
+* [ ] **5.4.** Descobrir qual o restaurante mais popular de uma franquia específica
+* [ ] **5.5.** Identificar o cliente que fez mais pedidos num intervalo de tempo específico
+* **Ação:** Traduzir estas questões para métodos nos Repositórios (usando agregações como `COUNT`, `AVG`, `GROUP BY`) e validar o seu funcionamento via testes unitários em `src/test/java/.../repositories/`.
+
+---
+
+Aqui está o plano de ação detalhado e passo a passo para o **Membro 2 (Interface Web com Thymeleaf)**, mapeado diretamente para os requisitos do projeto e para a vossa atual estrutura de pastas.
+
+---
+
+### 🌐 Membro 2: Interface Web com Thymeleaf (O "Web Developer")
+
+A tua missão principal é construir a aplicação de *browser* com renderização *server-side* utilizando Thymeleaf
+Esta interface deve ser capaz de realizar as consultas à informação do sistema e comunicar com o backend via *endpoints* REST
+
+#### Passo 1: Configuração Base e Estrutura Visual
+Antes de ligar dados, precisas de ter a "cara" da aplicação pronta nas pastas do Spring Boot.
+
+* [ ] **1.1. Validar Dependências:**
+  * **Ficheiro:** `pom.xml`.
+  * **Ação:** Confirmar se as dependências do `spring-boot-starter-thymeleaf` e `spring-boot-starter-web` estão corretamente configuradas para compilar o HTML.
+* [ ] **1.2. Estruturar Ficheiros Estáticos:**
+  * **Pasta:** `src/main/resources/static/`.
+  * **Ação:** Criar os ficheiros de estilos CSS, *scripts* JavaScript (se necessário para interatividade base) e armazenar imagens/logótipos do *TascaEats*.
+* [ ] **1.3. Criar os Layouts Thymeleaf (Templates):**
+  * **Pasta:** `src/main/resources/templates/`.
+  * **Ação:** Criar os ficheiros `.html`. É recomendável criar um ficheiro base (ex: `layout.html` ou *fragments*) com o cabeçalho e rodapé, para não repetires código em todas as páginas.
+
+---
+
+#### Passo 2: Implementação dos Controladores Web (Spring MVC)
+Para não haver mistura com a API REST que já têm, vais criar os teus próprios controladores focados em devolver páginas HTML.
+
+* [ ] **2.1. Criar os Controladores de Vista:**
+  * **Pasta:** `src/main/java/.../web/`.
+  * **Ação:** Criar classes como `WebRestauranteController.java` ou `WebUtilizadorController.java` (anotadas com `@Controller`).
+* [ ] **2.2. Estabelecer Comunicação REST:**
+  * **Ficheiros:** Os teus controladores Web.
+  * **Ação:** Como a interface web tem de comunicar com o backend através de *endpoints* REST
+  , os teus controladores web ou o teu JavaScript no frontend devem fazer chamadas HTTP (usando `RestTemplate`, `WebClient`, ou a API `fetch` no *browser*) para os *controllers* já existentes na pasta `src/main/java/.../controllers/`.
+
+---
+
+#### Passo 3: Implementar Casos de Uso "Azuis" (Consultas e Filtros)
+O cliente pediu especificamente uma interface web interativa para realizar consultas e buscas complexas
+.
+
+* [ ] **3.1. Ecrã de Pesquisa de Restaurantes (Caso E):**
+  * **Ação:** Criar a página HTML e ligá-la ao backend para permitir procurar restaurantes utilizando os novos filtros: por nome, pedidos realizados, avaliações, morada, tipo de cozinha, horário de funcionamento e preço médio 
+* [ ] **3.2. Ecrã de Pesquisa de Produtos (Caso I):**
+  * **Ação:** Criar a página HTML que liste produtos de um restaurante, aplicando os filtros: por nome, preço, categoria, disponibilidade e popularidade 
+* [ ] **3.3. Ecrã de Visualização de Menus e Utilizadores:**
+  * **Ação:** Desenvolver páginas de consulta para aplicar os filtros de Menu (nome, número de produtos, preço médio) 
+  e Filtros de Utilizador 
+
+---
+
+#### Passo 4: Implementar Casos de Uso "Castanhos" (Partilhados)
+Estes são os casos de uso transversais, que precisam de existir tanto na versão Web como na versão Nativa
+
+* [ ] **4.1. Autenticação e Registos (Casos A, B, C, D):**
+  * **Ação:** Construir os formulários de *Login* (fazendo *mock* onde qualquer palavra-passe é aceite se o utilizador for válido 
+  , e as páginas de registo, verificação, atualização e remoção para Clientes, Administradores e Entregadores 
+* [ ] **4.2. Fluxo de Pedidos (Casos J, K, L, M, N):**
+  * **Ação:** Criar as interfaces visuais para a criação de um pedido 
+   registo do pagamento (recolhendo bandeira do cartão ou telemóvel conforme o tipo) 
+  , atualização do estado 
+  , visualização da atribuição do entregador 
+   e cancelamento
+  .
+* [ ] **4.3. Avaliação de Restaurantes:**
+  * **Ação:** Incluir na interface um formulário para que o cliente possa avaliar o restaurante após uma compra
+
+---
+
+#### Passo 5: Testes, Usabilidade e Demonstração
+O vosso projeto será fortemente penalizado se falhar na execução ou se a usabilidade for pobre
+
+* [ ] **5.1. Refinar a Usabilidade:**
+  * **Ação:** Garantir que a interface desenhada cumpre os objetivos de forma intuitiva e proporciona uma experiência de utilizador consistente
+* [ ] **5.2. Testar no Docker Localmente:**
+  * **Ação:** Correr a aplicação usando o vosso ficheiro `docker-compose.yml` localmente
+  . Aceder ao *browser* (`http://localhost:8080` ou similar) e testar todos os formulários e ecrãs para detetar possíveis problemas de integração.
+* [ ] **5.3. Gravar o Vídeo Demonstrativo Web:**
+  * **Ação:** Preparar e gravar o vídeo da Fase 2 focado exclusivamente na interface Web
+  . Demonstrar com clareza o funcionamento real, a aplicação dos filtros e explicar o trabalho desenvolvido pelo grupo
+* [ ] **5.4. Adicionar o Link do Vídeo:**
+  * **Ação:** Adicionar o link final do vídeo da interface web no ficheiro `README.md`
 
 ### ## Membro 3: Interface Nativa com JavaFX (O "Native Developer")
 
