@@ -179,5 +179,49 @@ public class PedidoService {
         return pedidoRepository.findAll();
     }
 
+    // Converter MoradaDTO to domain Morada
+    private Morada novaMoradaDeDTO(pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("A morada é obrigatória.");
+        }
 
+        String rua = dto.getRua();
+        if (rua == null || rua.isBlank()) {
+            throw new IllegalArgumentException("A rua da morada é obrigatória.");
+        }
+
+        Integer numero = dto.getNumero();
+        String complemento = dto.getComplemento() != null ? dto.getComplemento().trim() : null;
+        String pais = dto.getPais();
+        if (pais == null || pais.isBlank()) {
+            throw new IllegalArgumentException("O país é obrigatório.");
+        }
+        String distrito = dto.getDistrito();
+        if (distrito == null || distrito.isBlank()) {
+            throw new IllegalArgumentException("O distrito é obrigatório.");
+        }
+        String cidade = dto.getCidade();
+        if (cidade == null || cidade.isBlank()) {
+            throw new IllegalArgumentException("A cidade é obrigatória.");
+        }
+        String codigoPostal = dto.getCodigoPostal();
+        if (codigoPostal == null || codigoPostal.isBlank()) {
+            throw new IllegalArgumentException("O código postal é obrigatório.");
+        }
+
+        if (numero == null || numero <= 0) {
+            throw new IllegalArgumentException("O número da porta não pode ser negativo e tem de existir.");
+        }
+
+        Morada morada = new Morada();
+        morada.setRua(rua.trim());
+        morada.setNumero(numero);
+        morada.setComplemento(complemento);
+        morada.setPais(pais.trim());
+        morada.setDistrito(distrito.trim());
+        morada.setCidade(cidade.trim());
+        morada.setCodigoPostal(codigoPostal.trim());
+
+        return morada;
+    }
 }
