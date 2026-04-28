@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    </head>
+<body>
+    <header th:fragment="cabecalho">
+        <div>
+            <h1>🍔 TascaEats</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Início</a></li>
+                <li><a th:href="@{/restaurantes}">Restaurantes</a></li>
+                <li><a th:href="@{/pedidos}">Meus Pedidos</a></li>
+                <li><a th:href="@{/login}">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+</body>
+</html>

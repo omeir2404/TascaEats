@@ -116,7 +116,7 @@ Esta interface deve ser capaz de realizar as consultas à informação do sistem
 #### Passo 1: Configuração Base e Estrutura Visual
 Antes de ligar dados, precisas de ter a "cara" da aplicação pronta nas pastas do Spring Boot.
 
-* [ ] **1.1. Validar Dependências:**
+* [x] **1.1. Validar Dependências:**
   * **Ficheiro:** `pom.xml`.
   * **Ação:** Confirmar se as dependências do `spring-boot-starter-thymeleaf` e `spring-boot-starter-web` estão corretamente configuradas para compilar o HTML.
 * [ ] **1.2. Estruturar Ficheiros Estáticos:**

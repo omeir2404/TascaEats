@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TascaEats - Delivery de Comida</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main>
+        <h2>Bem-vindo ao TascaEats!</h2>
+        <p>Encontre a melhor comida perto de si. Explore os nossos restaurantes parceiros e faça o seu pedido.</p>
+        <br>
+        <a th:href="@{/restaurantes}">
+            <button>Procurar Restaurantes</button>
+        </a>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>
