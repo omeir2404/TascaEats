@@ -23,7 +23,7 @@ A tua primeira tarefa é adaptar as classes da pasta `src/main/java/.../domain` 
   * **Ficheiros:** `PagamentoMultibanco.java`, `PagamentoMBWay.java` e `PagamentoDinheiro.java` (em `domain/pagamento/`).
   * **Ação:** Adicionar os atributos específicos de cada tipo: guardar a bandeira do cartão no Multibanco, o número de telemóvel no MBWay, e a informação do troco no pagamento em Numerário
   Não precisas de implementar a lógica de processamento real
-* [ ] **1.4. Criar a Entidade Avaliação:**
+* [x] **1.4. Criar a Entidade Avaliação:**
   * **Ficheiros:** Criar `Avaliacao.java` na pasta `domain/avaliacao`.
   * **Ação:** Implementar a entidade que permite ao cliente avaliar o restaurante após realizar uma compra
   . Ligar esta entidade a `Restaurante` e `Pedido`/`Cliente`.
