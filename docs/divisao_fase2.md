@@ -38,3 +38,28 @@ Algumas regras simples ajudam a garantir que a avaliação da participação sej
 - **Atualizar antes de submeter**: usar `git pull --rebase` para trazer as últimas alterações da `main` e resolver conflitos localmente antes do Pull/Merge Request.
 - **Pre-commit / formatação automática**: ativar pre-commit hooks e usar `format-code.sh` para evitar diffs por estilo (espaços/linhas).
 - **Separação clara de diretórios**: designar áreas de responsabilidade (ex.: `src/main/resources/templates` para o Membro 2, `src/main/.../ui` para o Membro 3) para reduzir conflitos.
+
+
+# Mudancas nos diretorios
+```
+.
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── pt.ul.fc.css.tascaeats
+│   │   │       ├── controllers          # Manter para a REST API (usada pela Web)
+│   │   │       ├── web                  # NOVO: Controladores Spring MVC/Thymeleaf (retornam views HTML)
+│   │   │       ├── grpc                 # NOVO: Implementação dos serviços gRPC gerados
+│   │   │       ├── domain
+│   │   │       │   ├── avaliacao        # NOVO: Entidades de avaliação do restaurante
+│   │   │       │   ├── menu             # NOVO: Entidades para Menus partilhados
+│   │   │       │   ...
+│   │   │       ├── ui                   # NOVO: Código fonte da interface JavaFX (Controllers, Views)
+│   │   │       │   └── javafx
+│   │   ├── proto                        # NOVO: Diretório para ficheiros .proto (contratos gRPC)
+│   │   │   └── tascaeats.proto
+│   │   └── resources
+│   │       ├── application.properties
+│   │       ├── static                   # NOVO: Ficheiros estáticos para Thymeleaf (CSS, JS, Imagens)
+│   │       └── templates                # NOVO: Ficheiros .html do Thymeleaf
+```

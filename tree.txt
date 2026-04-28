@@ -7,18 +7,16 @@
 │   ├── CSS- Modelo de Domínio-Casos de Uso.jpg
 │   ├── CSS- Modelo de Domínio-Diagrama de Classes.jpg
 │   ├── CSS- Modelo de Domínio-Modelo de Domínio.jpg
-│   ├── GUIAO Video.md
+│   ├── divisao_fase2.md
+│   ├── fase2.pdf
 │   ├── p1.pdf
 │   ├── postman
 │   │   ├── TascaEats.postman_collection.json
 │   │   ├── TascaEats_video.postman_collection.json
 │   │   └── use_case_sequence.js
 │   ├── setup.sh
-│   ├── TO-DO
-│   ├── TODO.md
-│   ├── USE_CASES_API_ROUTES.md
+│   ├── TODO_NOVO.md
 │   └── video_validation_queries.sql
-├── fase2.pdf
 ├── format-code.sh
 ├── mvnw.cmd
 ├── pom.xml
@@ -43,8 +41,10 @@
 │   │   │                       │   ├── RestauranteController.java
 │   │   │                       │   └── UtilizadorController.java
 │   │   │                       ├── domain
+│   │   │                       │   ├── avaliacao
 │   │   │                       │   ├── entrega
 │   │   │                       │   │   └── Entrega.java
+│   │   │                       │   ├── menu
 │   │   │                       │   ├── pagamento
 │   │   │                       │   │   ├── PagamentoCartao.java
 │   │   │                       │   │   ├── PagamentoDinheiro.java
@@ -99,6 +99,7 @@
 │   │   │                       │       ├── UtilizadorRegistoRespostaDTO.java
 │   │   │                       │       ├── UtilizadorRespostaDTO.java
 │   │   │                       │       └── UtilizadorUpdateDTO.java
+│   │   │                       ├── grpc
 │   │   │                       ├── repository
 │   │   │                       │   ├── entregaRepository
 │   │   │                       │   │   └── IEntregaRepository.java
@@ -130,9 +131,17 @@
 │   │   │                       │   └── utilizadorServices
 │   │   │                       │       ├── AutorService.java
 │   │   │                       │       └── UtilizadorService.java
-│   │   │                       └── TascaEatsApplication.java
+│   │   │                       ├── TascaEatsApplication.java
+│   │   │                       ├── ui
+│   │   │                       │   └── javafx
+│   │   │                       └── web
 │   │   └── resources
 │   │       └── application.properties
+│   ├── proto
+│   │   └── tascaeats
+│   ├── resources
+│   │   ├── static
+│   │   └── templates
 │   └── test
 │       ├── java
 │       │   └── pt
@@ -196,8 +205,10 @@
 │   │                       │   ├── RestauranteController.class
 │   │                       │   └── UtilizadorController.class
 │   │                       ├── domain
+│   │                       │   ├── avaliacao
 │   │                       │   ├── entrega
 │   │                       │   │   └── Entrega.class
+│   │                       │   ├── menu
 │   │                       │   ├── pagamento
 │   │                       │   │   ├── PagamentoCartao.class
 │   │                       │   │   ├── Pagamento.class
@@ -252,6 +263,7 @@
 │   │                       │       ├── UtilizadorRegistoRespostaDTO.class
 │   │                       │       ├── UtilizadorRespostaDTO.class
 │   │                       │       └── UtilizadorUpdateDTO.class
+│   │                       ├── grpc
 │   │                       ├── repository
 │   │                       │   ├── entregaRepository
 │   │                       │   │   └── IEntregaRepository.class
@@ -283,7 +295,10 @@
 │   │                       │   └── utilizadorServices
 │   │                       │       ├── AutorService.class
 │   │                       │       └── UtilizadorService.class
-│   │                       └── TascaEatsApplication.class
+│   │                       ├── TascaEatsApplication.class
+│   │                       ├── ui
+│   │                       │   └── javafx
+│   │                       └── web
 │   ├── generated-sources
 │   │   └── annotations
 │   ├── generated-test-sources
@@ -358,4 +373,4 @@
 │                               └── UtilizadorServiceTest.class
 └── tree.txt
 
-117 directories, 242 files
+134 directories, 240 files
