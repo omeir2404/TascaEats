@@ -1,13 +1,172 @@
 .
+├── backend
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── src
+│       ├── main
+│       │   ├── java
+│       │   │   └── pt
+│       │   │       └── ul
+│       │   │           └── fc
+│       │   │               └── css
+│       │   │                   └── tascaeats
+│       │   │                       ├── config
+│       │   │                       │   └── OpenApiConfig.java
+│       │   │                       ├── controllers
+│       │   │                       │   ├── EntregaController.java
+│       │   │                       │   ├── PagamentoController.java
+│       │   │                       │   ├── PedidoController.java
+│       │   │                       │   ├── ProdutoController.java
+│       │   │                       │   ├── RestauranteController.java
+│       │   │                       │   └── UtilizadorController.java
+│       │   │                       ├── domain
+│       │   │                       │   ├── avaliacao
+│       │   │                       │   │   └── Avaliacao.java
+│       │   │                       │   ├── entrega
+│       │   │                       │   │   └── Entrega.java
+│       │   │                       │   ├── menu
+│       │   │                       │   │   └── Menu.java
+│       │   │                       │   ├── pagamento
+│       │   │                       │   │   ├── PagamentoDinheiro.java
+│       │   │                       │   │   ├── Pagamento.java
+│       │   │                       │   │   ├── PagamentoMBWay.java
+│       │   │                       │   │   └── PagamentoMultibanco.java
+│       │   │                       │   ├── pedido
+│       │   │                       │   │   ├── EstadoPedido.java
+│       │   │                       │   │   └── Pedido.java
+│       │   │                       │   ├── produto
+│       │   │                       │   │   └── Produto.java
+│       │   │                       │   ├── restaurante
+│       │   │                       │   │   ├── CatalogoEntregas.java
+│       │   │                       │   │   ├── EstadoRestaurante.java
+│       │   │                       │   │   └── Restaurante.java
+│       │   │                       │   └── utilizador
+│       │   │                       │       ├── Cliente.java
+│       │   │                       │       ├── Entregador.java
+│       │   │                       │       ├── Morada.java
+│       │   │                       │       ├── RestauranteAdmin.java
+│       │   │                       │       └── Utilizador.java
+│       │   │                       ├── dto
+│       │   │                       │   ├── entregaDTO
+│       │   │                       │   │   ├── AtribuirEntregadorDTO.java
+│       │   │                       │   │   └── EntregaResumoDTO.java
+│       │   │                       │   ├── mensagensDTO
+│       │   │                       │   │   ├── ApiErrorDTO.java
+│       │   │                       │   │   └── ApiMessageDTO.java
+│       │   │                       │   ├── moradaDTO
+│       │   │                       │   │   ├── MoradaDTO.java
+│       │   │                       │   │   └── MoradaResponseDTO.java
+│       │   │                       │   ├── pagamentoDTO
+│       │   │                       │   │   └── ProcessarPagamentoDTO.java
+│       │   │                       │   ├── pedidoDTO
+│       │   │                       │   │   ├── AtualizarEstadoPedidoDTO.java
+│       │   │                       │   │   ├── CriarPedidoDTO.java
+│       │   │                       │   │   ├── ItemPedidoDTO.java
+│       │   │                       │   │   └── PedidoConfirmacaoDTO.java
+│       │   │                       │   ├── produtoDTO
+│       │   │                       │   │   ├── AtualizarDisponibilidadeProdutoDTO.java
+│       │   │                       │   │   ├── AtualizarProdutoDTO.java
+│       │   │                       │   │   ├── CriarProdutoDTO.java
+│       │   │                       │   │   └── ProdutoDTO.java
+│       │   │                       │   ├── restauranteDTO
+│       │   │                       │   │   ├── AtualizarEstadoRestauranteDTO.java
+│       │   │                       │   │   ├── AtualizarRestauranteDTO.java
+│       │   │                       │   │   ├── CriarRestauranteDTO.java
+│       │   │                       │   │   ├── RestauranteDTO.java
+│       │   │                       │   │   └── RestauranteResumoDTO.java
+│       │   │                       │   └── utilizadorDTO
+│       │   │                       │       ├── UtilizadorLoginDTO.java
+│       │   │                       │       ├── UtilizadorRegistoDTO.java
+│       │   │                       │       ├── UtilizadorRegistoRespostaDTO.java
+│       │   │                       │       ├── UtilizadorRespostaDTO.java
+│       │   │                       │       └── UtilizadorUpdateDTO.java
+│       │   │                       ├── repository
+│       │   │                       │   ├── entregaRepository
+│       │   │                       │   │   └── IEntregaRepository.java
+│       │   │                       │   ├── pagamentoRepository
+│       │   │                       │   │   └── IPagamentoRepository.java
+│       │   │                       │   ├── pedidoRepository
+│       │   │                       │   │   └── IPedidoRepository.java
+│       │   │                       │   ├── produtoRepository
+│       │   │                       │   │   └── IProdutoRepository.java
+│       │   │                       │   ├── restauranteRepository
+│       │   │                       │   │   └── IRestauranteRepository.java
+│       │   │                       │   └── utilizadorRepository
+│       │   │                       │       ├── IClienteRepository.java
+│       │   │                       │       ├── IEntregadorRepository.java
+│       │   │                       │       ├── IRestauranteAdminRepository.java
+│       │   │                       │       └── IUtilizadorRepository.java
+│       │   │                       ├── service
+│       │   │                       │   ├── entregaService
+│       │   │                       │   │   └── EntregaService.java
+│       │   │                       │   ├── pagamentoServices
+│       │   │                       │   │   ├── PagamentoFactory.java
+│       │   │                       │   │   └── PagamentoService.java
+│       │   │                       │   ├── pedidoService
+│       │   │                       │   │   └── PedidoService.java
+│       │   │                       │   ├── produtoService
+│       │   │                       │   │   └── ProdutoService.java
+│       │   │                       │   ├── restauranteServices
+│       │   │                       │   │   └── RestauranteService.java
+│       │   │                       │   └── utilizadorServices
+│       │   │                       │       ├── AutorService.java
+│       │   │                       │       └── UtilizadorService.java
+│       │   │                       └── TascaEatsApplication.java
+│       │   └── resources
+│       │       └── application.properties
+│       └── test
+│           ├── java
+│           │   └── pt
+│           │       └── ul
+│           │           └── fc
+│           │               └── css
+│           │                   └── tascaeats
+│           │                       ├── controllers
+│           │                       │   ├── EntregaControllerTest.java
+│           │                       │   ├── PagamentoControllerTest.java
+│           │                       │   ├── PedidoControllerTest.java
+│           │                       │   ├── ProdutoControllerTest.java
+│           │                       │   ├── RestauranteControllerTest.java
+│           │                       │   └── UserControllerTest.java
+│           │                       ├── domain
+│           │                       │   ├── EntregaTest.java
+│           │                       │   ├── EstadoPedidoTest.java
+│           │                       │   ├── EstadoRestauranteTest.java
+│           │                       │   ├── PagamentoDinheiroTest.java
+│           │                       │   ├── PagamentoMBWayTest.java
+│           │                       │   ├── PagamentoMultibancoTest.java
+│           │                       │   ├── PagamentoTest.java
+│           │                       │   ├── PedidoTest.java
+│           │                       │   ├── ProdutoTest.java
+│           │                       │   └── RestauranteTest.java
+│           │                       ├── repositories
+│           │                       │   ├── IEntregaRepositoryTest.java
+│           │                       │   ├── IPagamentoRepositoryTest.java
+│           │                       │   ├── IPedidoRepositoryTest.java
+│           │                       │   ├── IProdutoRepositoryTest.java
+│           │                       │   ├── IRestauranteAdminRepositoryTest.java
+│           │                       │   └── IRestauranteRepositoryTest.java
+│           │                       └── services
+│           │                           ├── EntregaServiceTest.java
+│           │                           ├── PagamentoFactoryTest.java
+│           │                           ├── PagamentoServiceTest.java
+│           │                           ├── PdfAlignmentExtraRulesTest.java
+│           │                           ├── PedidoServiceTest.java
+│           │                           ├── ProdutoServiceTest.java
+│           │                           ├── RestauranteServiceTest.java
+│           │                           ├── UseCasesAToLServiceTest.java
+│           │                           └── UserServiceTest.java
+│           └── resources
+│               └── application.properties
 ├── bootstrapdb.sql
 ├── docker-compose.yml
-├── Dockerfile
 ├── docs
 │   ├── clean_docker.sh
 │   ├── CSS- Modelo de Domínio-Casos de Uso.jpg
 │   ├── CSS- Modelo de Domínio-Diagrama de Classes.jpg
 │   ├── CSS- Modelo de Domínio-Modelo de Domínio.jpg
 │   ├── divisao_fase2.md
+│   ├── divisao_web_backend.md
 │   ├── fase2.pdf
 │   ├── p1.pdf
 │   ├── postman
@@ -19,358 +178,42 @@
 │   └── video_validation_queries.sql
 ├── format-code.sh
 ├── mvnw.cmd
-├── pom.xml
 ├── postgres.dockerfile
 ├── README.md
 ├── run.sh
-├── src
-│   ├── main
-│   │   ├── java
-│   │   │   └── pt
-│   │   │       └── ul
-│   │   │           └── fc
-│   │   │               └── css
-│   │   │                   └── tascaeats
-│   │   │                       ├── config
-│   │   │                       │   └── OpenApiConfig.java
-│   │   │                       ├── controllers
-│   │   │                       │   ├── EntregaController.java
-│   │   │                       │   ├── PagamentoController.java
-│   │   │                       │   ├── PedidoController.java
-│   │   │                       │   ├── ProdutoController.java
-│   │   │                       │   ├── RestauranteController.java
-│   │   │                       │   └── UtilizadorController.java
-│   │   │                       ├── domain
-│   │   │                       │   ├── avaliacao
-│   │   │                       │   ├── entrega
-│   │   │                       │   │   └── Entrega.java
-│   │   │                       │   ├── menu
-│   │   │                       │   ├── pagamento
-│   │   │                       │   │   ├── PagamentoCartao.java
-│   │   │                       │   │   ├── PagamentoDinheiro.java
-│   │   │                       │   │   ├── Pagamento.java
-│   │   │                       │   │   ├── PagamentoMBWay.java
-│   │   │                       │   │   └── PagamentoMultibanco.java
-│   │   │                       │   ├── pedido
-│   │   │                       │   │   ├── EstadoPedido.java
-│   │   │                       │   │   └── Pedido.java
-│   │   │                       │   ├── produto
-│   │   │                       │   │   └── Produto.java
-│   │   │                       │   ├── restaurante
-│   │   │                       │   │   ├── CatalogoEntregas.java
-│   │   │                       │   │   ├── EstadoRestaurante.java
-│   │   │                       │   │   └── Restaurante.java
-│   │   │                       │   └── utilizador
-│   │   │                       │       ├── Cliente.java
-│   │   │                       │       ├── Entregador.java
-│   │   │                       │       ├── Morada.java
-│   │   │                       │       ├── RestauranteAdmin.java
-│   │   │                       │       └── Utilizador.java
-│   │   │                       ├── dto
-│   │   │                       │   ├── entregaDTO
-│   │   │                       │   │   ├── AtribuirEntregadorDTO.java
-│   │   │                       │   │   └── EntregaResumoDTO.java
-│   │   │                       │   ├── mensagensDTO
-│   │   │                       │   │   ├── ApiErrorDTO.java
-│   │   │                       │   │   └── ApiMessageDTO.java
-│   │   │                       │   ├── moradaDTO
-│   │   │                       │   │   ├── MoradaDTO.java
-│   │   │                       │   │   └── MoradaResponseDTO.java
-│   │   │                       │   ├── pagamentoDTO
-│   │   │                       │   │   └── ProcessarPagamentoDTO.java
-│   │   │                       │   ├── pedidoDTO
-│   │   │                       │   │   ├── AtualizarEstadoPedidoDTO.java
-│   │   │                       │   │   ├── CriarPedidoDTO.java
-│   │   │                       │   │   └── PedidoConfirmacaoDTO.java
-│   │   │                       │   ├── produtoDTO
-│   │   │                       │   │   ├── AtualizarDisponibilidadeProdutoDTO.java
-│   │   │                       │   │   ├── AtualizarProdutoDTO.java
-│   │   │                       │   │   ├── CriarProdutoDTO.java
-│   │   │                       │   │   └── ProdutoDTO.java
-│   │   │                       │   ├── restauranteDTO
-│   │   │                       │   │   ├── AtualizarEstadoRestauranteDTO.java
-│   │   │                       │   │   ├── AtualizarRestauranteDTO.java
-│   │   │                       │   │   ├── CriarRestauranteDTO.java
-│   │   │                       │   │   ├── RestauranteDTO.java
-│   │   │                       │   │   └── RestauranteResumoDTO.java
-│   │   │                       │   └── utilizadorDTO
-│   │   │                       │       ├── UtilizadorLoginDTO.java
-│   │   │                       │       ├── UtilizadorRegistoDTO.java
-│   │   │                       │       ├── UtilizadorRegistoRespostaDTO.java
-│   │   │                       │       ├── UtilizadorRespostaDTO.java
-│   │   │                       │       └── UtilizadorUpdateDTO.java
-│   │   │                       ├── grpc
-│   │   │                       ├── repository
-│   │   │                       │   ├── entregaRepository
-│   │   │                       │   │   └── IEntregaRepository.java
-│   │   │                       │   ├── pagamentoRepository
-│   │   │                       │   │   └── IPagamentoRepository.java
-│   │   │                       │   ├── pedidoRepository
-│   │   │                       │   │   └── IPedidoRepository.java
-│   │   │                       │   ├── produtoRepository
-│   │   │                       │   │   └── IProdutoRepository.java
-│   │   │                       │   ├── restauranteRepository
-│   │   │                       │   │   └── IRestauranteRepository.java
-│   │   │                       │   └── utilizadorRepository
-│   │   │                       │       ├── IClienteRepository.java
-│   │   │                       │       ├── IEntregadorRepository.java
-│   │   │                       │       ├── IRestauranteAdminRepository.java
-│   │   │                       │       └── IUtilizadorRepository.java
-│   │   │                       ├── service
-│   │   │                       │   ├── entregaService
-│   │   │                       │   │   └── EntregaService.java
-│   │   │                       │   ├── pagamentoServices
-│   │   │                       │   │   ├── PagamentoFactory.java
-│   │   │                       │   │   └── PagamentoService.java
-│   │   │                       │   ├── pedidoService
-│   │   │                       │   │   └── PedidoService.java
-│   │   │                       │   ├── produtoService
-│   │   │                       │   │   └── ProdutoService.java
-│   │   │                       │   ├── restauranteServices
-│   │   │                       │   │   └── RestauranteService.java
-│   │   │                       │   └── utilizadorServices
-│   │   │                       │       ├── AutorService.java
-│   │   │                       │       └── UtilizadorService.java
-│   │   │                       ├── TascaEatsApplication.java
-│   │   │                       ├── ui
-│   │   │                       │   └── javafx
-│   │   │                       └── web
-│   │   └── resources
-│   │       └── application.properties
-│   ├── proto
-│   │   └── tascaeats
-│   ├── resources
-│   │   ├── static
-│   │   └── templates
-│   └── test
-│       ├── java
-│       │   └── pt
-│       │       └── ul
-│       │           └── fc
-│       │               └── css
-│       │                   └── tascaeats
-│       │                       ├── controllers
-│       │                       │   ├── EntregaControllerTest.java
-│       │                       │   ├── PagamentoControllerTest.java
-│       │                       │   ├── PedidoControllerTest.java
-│       │                       │   ├── ProdutoControllerTest.java
-│       │                       │   ├── RestauranteControllerTest.java
-│       │                       │   └── UserControllerTest.java
-│       │                       ├── domain
-│       │                       │   ├── EntregaTest.java
-│       │                       │   ├── EstadoPedidoTest.java
-│       │                       │   ├── EstadoRestauranteTest.java
-│       │                       │   ├── PagamentoCartaoTest.java
-│       │                       │   ├── PagamentoDinheiroTest.java
-│       │                       │   ├── PagamentoMBWayTest.java
-│       │                       │   ├── PagamentoMultibancoTest.java
-│       │                       │   ├── PagamentoTest.java
-│       │                       │   ├── PedidoTest.java
-│       │                       │   ├── ProdutoTest.java
-│       │                       │   └── RestauranteTest.java
-│       │                       ├── repositories
-│       │                       │   ├── IEntregaRepositoryTest.java
-│       │                       │   ├── IPagamentoRepositoryTest.java
-│       │                       │   ├── IPedidoRepositoryTest.java
-│       │                       │   ├── IProdutoRepositoryTest.java
-│       │                       │   ├── IRestauranteAdminRepositoryTest.java
-│       │                       │   └── IRestauranteRepositoryTest.java
-│       │                       └── services
-│       │                           ├── EntregaServiceTest.java
-│       │                           ├── PagamentoFactoryTest.java
-│       │                           ├── PagamentoServiceTest.java
-│       │                           ├── PdfAlignmentExtraRulesTest.java
-│       │                           ├── PedidoServiceTest.java
-│       │                           ├── ProdutoServiceTest.java
-│       │                           ├── RestauranteServiceTest.java
-│       │                           ├── UseCasesAToLServiceTest.java
-│       │                           └── UserServiceTest.java
-│       └── resources
-│           └── application.properties
 ├── target
-│   ├── classes
-│   │   ├── application.properties
-│   │   └── pt
-│   │       └── ul
-│   │           └── fc
-│   │               └── css
-│   │                   └── tascaeats
-│   │                       ├── config
-│   │                       │   └── OpenApiConfig.class
-│   │                       ├── controllers
-│   │                       │   ├── EntregaController.class
-│   │                       │   ├── PagamentoController.class
-│   │                       │   ├── PedidoController.class
-│   │                       │   ├── ProdutoController.class
-│   │                       │   ├── RestauranteController.class
-│   │                       │   └── UtilizadorController.class
-│   │                       ├── domain
-│   │                       │   ├── avaliacao
-│   │                       │   ├── entrega
-│   │                       │   │   └── Entrega.class
-│   │                       │   ├── menu
-│   │                       │   ├── pagamento
-│   │                       │   │   ├── PagamentoCartao.class
-│   │                       │   │   ├── Pagamento.class
-│   │                       │   │   ├── PagamentoDinheiro.class
-│   │                       │   │   ├── PagamentoMBWay.class
-│   │                       │   │   └── PagamentoMultibanco.class
-│   │                       │   ├── pedido
-│   │                       │   │   ├── EstadoPedido.class
-│   │                       │   │   └── Pedido.class
-│   │                       │   ├── produto
-│   │                       │   │   └── Produto.class
-│   │                       │   ├── restaurante
-│   │                       │   │   ├── CatalogoEntregas.class
-│   │                       │   │   ├── EstadoRestaurante.class
-│   │                       │   │   └── Restaurante.class
-│   │                       │   └── utilizador
-│   │                       │       ├── Cliente.class
-│   │                       │       ├── Entregador.class
-│   │                       │       ├── Morada.class
-│   │                       │       ├── RestauranteAdmin.class
-│   │                       │       └── Utilizador.class
-│   │                       ├── dto
-│   │                       │   ├── entregaDTO
-│   │                       │   │   ├── AtribuirEntregadorDTO.class
-│   │                       │   │   └── EntregaResumoDTO.class
-│   │                       │   ├── mensagensDTO
-│   │                       │   │   ├── ApiErrorDTO.class
-│   │                       │   │   └── ApiMessageDTO.class
-│   │                       │   ├── moradaDTO
-│   │                       │   │   ├── MoradaDTO.class
-│   │                       │   │   └── MoradaResponseDTO.class
-│   │                       │   ├── pagamentoDTO
-│   │                       │   │   └── ProcessarPagamentoDTO.class
-│   │                       │   ├── pedidoDTO
-│   │                       │   │   ├── AtualizarEstadoPedidoDTO.class
-│   │                       │   │   ├── CriarPedidoDTO.class
-│   │                       │   │   └── PedidoConfirmacaoDTO.class
-│   │                       │   ├── produtoDTO
-│   │                       │   │   ├── AtualizarDisponibilidadeProdutoDTO.class
-│   │                       │   │   ├── AtualizarProdutoDTO.class
-│   │                       │   │   ├── CriarProdutoDTO.class
-│   │                       │   │   └── ProdutoDTO.class
-│   │                       │   ├── restauranteDTO
-│   │                       │   │   ├── AtualizarEstadoRestauranteDTO.class
-│   │                       │   │   ├── AtualizarRestauranteDTO.class
-│   │                       │   │   ├── CriarRestauranteDTO.class
-│   │                       │   │   ├── RestauranteDTO.class
-│   │                       │   │   └── RestauranteResumoDTO.class
-│   │                       │   └── utilizadorDTO
-│   │                       │       ├── UtilizadorLoginDTO.class
-│   │                       │       ├── UtilizadorRegistoDTO.class
-│   │                       │       ├── UtilizadorRegistoRespostaDTO.class
-│   │                       │       ├── UtilizadorRespostaDTO.class
-│   │                       │       └── UtilizadorUpdateDTO.class
-│   │                       ├── grpc
-│   │                       ├── repository
-│   │                       │   ├── entregaRepository
-│   │                       │   │   └── IEntregaRepository.class
-│   │                       │   ├── pagamentoRepository
-│   │                       │   │   └── IPagamentoRepository.class
-│   │                       │   ├── pedidoRepository
-│   │                       │   │   └── IPedidoRepository.class
-│   │                       │   ├── produtoRepository
-│   │                       │   │   └── IProdutoRepository.class
-│   │                       │   ├── restauranteRepository
-│   │                       │   │   └── IRestauranteRepository.class
-│   │                       │   └── utilizadorRepository
-│   │                       │       ├── IClienteRepository.class
-│   │                       │       ├── IEntregadorRepository.class
-│   │                       │       ├── IRestauranteAdminRepository.class
-│   │                       │       └── IUtilizadorRepository.class
-│   │                       ├── service
-│   │                       │   ├── entregaService
-│   │                       │   │   └── EntregaService.class
-│   │                       │   ├── pagamentoServices
-│   │                       │   │   ├── PagamentoFactory.class
-│   │                       │   │   └── PagamentoService.class
-│   │                       │   ├── pedidoService
-│   │                       │   │   └── PedidoService.class
-│   │                       │   ├── produtoService
-│   │                       │   │   └── ProdutoService.class
-│   │                       │   ├── restauranteServices
-│   │                       │   │   └── RestauranteService.class
-│   │                       │   └── utilizadorServices
-│   │                       │       ├── AutorService.class
-│   │                       │       └── UtilizadorService.class
-│   │                       ├── TascaEatsApplication.class
-│   │                       ├── ui
-│   │                       │   └── javafx
-│   │                       └── web
 │   ├── generated-sources
 │   │   └── annotations
-│   ├── generated-test-sources
-│   │   └── test-annotations
-│   ├── maven-archiver
-│   │   └── pom.properties
-│   ├── maven-status
-│   │   └── maven-compiler-plugin
-│   │       ├── compile
-│   │       │   └── default-compile
-│   │       │       ├── createdFiles.lst
-│   │       │       └── inputFiles.lst
-│   │       └── testCompile
-│   │           └── default-testCompile
-│   │               ├── createdFiles.lst
-│   │               └── inputFiles.lst
-│   ├── surefire-reports
-│   │   ├── pt.ul.fc.css.tascaeats.controllers.UtilizadorControllerTest.txt
-│   │   ├── pt.ul.fc.css.tascaeats.services.ProdutoServiceTest.txt
-│   │   ├── pt.ul.fc.css.tascaeats.services.RestauranteServiceTest.txt
-│   │   ├── pt.ul.fc.css.tascaeats.services.UseCasesAToLServiceTest.txt
-│   │   ├── pt.ul.fc.css.tascaeats.services.UtilizadorServiceTest.txt
-│   │   ├── TEST-pt.ul.fc.css.tascaeats.controllers.UtilizadorControllerTest.xml
-│   │   ├── TEST-pt.ul.fc.css.tascaeats.services.ProdutoServiceTest.xml
-│   │   ├── TEST-pt.ul.fc.css.tascaeats.services.RestauranteServiceTest.xml
-│   │   ├── TEST-pt.ul.fc.css.tascaeats.services.UseCasesAToLServiceTest.xml
-│   │   └── TEST-pt.ul.fc.css.tascaeats.services.UtilizadorServiceTest.xml
-│   ├── tascaeats-1.0.jar
-│   ├── tascaeats-1.0.jar.original
-│   └── test-classes
-│       ├── application.properties
-│       └── pt
-│           └── ul
-│               └── fc
-│                   └── css
-│                       └── tascaeats
-│                           ├── controllers
-│                           │   ├── EntregaControllerTest.class
-│                           │   ├── PagamentoControllerTest.class
-│                           │   ├── PedidoControllerTest.class
-│                           │   ├── ProdutoControllerTest.class
-│                           │   ├── RestauranteControllerTest.class
-│                           │   └── UtilizadorControllerTest.class
-│                           ├── domain
-│                           │   ├── EntregaTest.class
-│                           │   ├── EstadoPedidoTest.class
-│                           │   ├── EstadoRestauranteTest.class
-│                           │   ├── PagamentoCartaoTest.class
-│                           │   ├── PagamentoDinheiroTest.class
-│                           │   ├── PagamentoMBWayTest.class
-│                           │   ├── PagamentoMultibancoTest.class
-│                           │   ├── PagamentoTest.class
-│                           │   ├── PedidoTest.class
-│                           │   ├── ProdutoTest.class
-│                           │   └── RestauranteTest.class
-│                           ├── repositories
-│                           │   ├── IEntregaRepositoryTest.class
-│                           │   ├── IPagamentoRepositoryTest.class
-│                           │   ├── IPedidoRepositoryTest.class
-│                           │   ├── IProdutoRepositoryTest.class
-│                           │   ├── IRestauranteAdminRepositoryTest.class
-│                           │   └── IRestauranteRepositoryTest.class
-│                           └── services
-│                               ├── EntregaServiceTest.class
-│                               ├── PagamentoFactoryTest.class
-│                               ├── PagamentoServiceTest.class
-│                               ├── PdfAlignmentExtraRulesTest.class
-│                               ├── PedidoServiceTest.class
-│                               ├── ProdutoServiceTest.class
-│                               ├── RestauranteServiceTest.class
-│                               ├── UseCasesAToLServiceTest.class
-│                               └── UtilizadorServiceTest.class
-└── tree.txt
+│   └── generated-test-sources
+│       └── test-annotations
+├── tree.txt
+└── web
+    ├── Dockerfile
+    ├── pom.xml
+    └── src
+        └── main
+            ├── java
+            │   └── pt
+            │       └── ul
+            │           └── fc
+            │               └── css
+            │                   └── tascaeats
+            │                       ├── controllers
+            │                       │   ├── webRestauranteController.java
+            │                       │   └── WebUtilizadorController.java
+            │                       ├── tree.txtcd
+            │                       └── WebApplication.java
+            └── resources
+                ├── static
+                │   ├── css
+                │   │   └── style.css
+                │   └── js
+                │       └── main.js
+                └── templates
+                    ├── fragments
+                    │   ├── footer.html
+                    │   └── header.html
+                    ├── index.html
+                    └── restaurantes.html
 
-134 directories, 240 files
+80 directories, 137 files
