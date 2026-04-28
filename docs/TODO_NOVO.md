@@ -19,7 +19,7 @@ A tua primeira tarefa é adaptar as classes da pasta `src/main/java/.../domain` 
 * [x] **1.2. Refatorar Entidade Pedido:**
   * **Ficheiros:** `domain/pedido/Pedido.java`.
   * **Ação:** Modificar a estrutura do pedido para garantir que pode conter produtos de diferentes restaurantes em simultâneo
-* [ ] **1.3. Especificar Pagamentos:**
+* [x] **1.3. Especificar Pagamentos:**
   * **Ficheiros:** `PagamentoMultibanco.java`, `PagamentoMBWay.java` e `PagamentoDinheiro.java` (em `domain/pagamento/`).
   * **Ação:** Adicionar os atributos específicos de cada tipo: guardar a bandeira do cartão no Multibanco, o número de telemóvel no MBWay, e a informação do troco no pagamento em Numerário
   Não precisas de implementar a lógica de processamento real

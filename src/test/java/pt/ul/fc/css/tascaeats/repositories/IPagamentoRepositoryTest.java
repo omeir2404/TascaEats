@@ -18,7 +18,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import jakarta.persistence.EntityManager;
 import pt.ul.fc.css.tascaeats.domain.pagamento.Pagamento;
-import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoCartao;
 import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoDinheiro;
 import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMBWay;
 import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco;
