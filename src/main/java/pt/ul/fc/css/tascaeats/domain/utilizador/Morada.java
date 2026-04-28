@@ -27,7 +27,8 @@ public class Morada {
     private String codigoPostal;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "address")
+    @ManyToOne
+    @JoinColumn(name = "cliente_id")
     private Cliente client;
 
     public Long getId() {
