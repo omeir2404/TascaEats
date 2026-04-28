@@ -43,12 +43,11 @@ public class PagamentoFactory {
                 pagamento = new PagamentoDinheiro( null, valor, dataPagamento, referenciaPagamento, getDoubleObrigatorio(detalhes, "valorRecebido"));
                 break;
             case "MULTIBANCO":
+                // Adicionada a leitura obrigatória da "bandeiraCartao" exigida na Fase 2
                 pagamento = new PagamentoMultibanco( null, valor, dataPagamento, referenciaPagamento, getStringObrigatorio(detalhes, "entidade"),
-                        getStringObrigatorio(detalhes, "referencia"));
+                        getStringObrigatorio(detalhes, "referencia"), getStringObrigatorio(detalhes, "bandeiraCartao"));
                 break;
-            case "CARTAO":
-                pagamento = new PagamentoCartao( null, valor, dataPagamento, referenciaPagamento, getStringObrigatorio(detalhes, "numeroCartao"));
-                break;
+            // O caso "CARTAO" foi apagado porque não existe no vosso projeto.
             default:
                 throw new IllegalArgumentException("Tipo de pagamento não suportado: " + upperPagamentoType);
         }

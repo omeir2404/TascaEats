@@ -152,7 +152,9 @@ public class UtilizadorController {
             dto.setAvailable(driver.isAvailable());
         }
         if (Utilizador instanceof Cliente client) {
-            dto.setAddress(toMoradaResponse(client.getAddress()));
+            // Vai buscar a primeira morada da lista (se existir) para manter a retrocompatibilidade com a API
+            Morada moradaPrincipal = client.getAddresses().isEmpty() ? null : client.getAddresses().get(0);
+            dto.setAddress(toMoradaResponse(moradaPrincipal));
         }
 
         return dto;

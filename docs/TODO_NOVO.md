@@ -104,6 +104,28 @@ Para garantir que a base de dados ficou bem modelada, o sistema tem de ser capaz
 
 ---
 
+# membro 1 extra (se der tempo senao quem conseguir)
+
+O Trabalho de Casa para o Membro 1 (Backend)
+
+O projeto vai correr no Docker, mas o vosso grupo não se pode esquecer de consertar os testes localmente antes de submeter o projeto, pois os testes fazem parte da nota (ver enunciado: "O repositório deve aceitar apenas código com o nível de qualidade aceite pela equipa (ex.: pre-commit, testes).").  
+
+A pessoa responsável pelo backend deverá abrir o VS Code / IntelliJ e corrigir os testes guiando-se pelos mesmos erros que resolvemos há pouco. Aqui está a lista do que ele tem de alterar nos testes:
+
+    Testes do Cliente: Substituir client.setAddress(morada) por client.addAdresses(morada) e client.getAddress() por client.getAddresses().get(0).
+
+    Testes do PagamentoMultibanco: Onde diz new PagamentoMultibanco(id, valor, data, ref, entidade, ref_entidade), passar a incluir a bandeira no final (ex: "VISA").
+
+    Remover "PagamentoCartao": Apagar qualquer referência a PagamentoCartao nos testes da Factory.
+
+    Testes do Pedido: O Pedido e o CriarPedidoDTO mudaram de construtor (porque agora suportam vários restaurantes). Os testes têm de ser atualizados para passar os novos argumentos corretos.
+
+Faz a alteração do -DskipTests no backend/Dockerfile e diz-me se a aplicação finalmente arrancou no Docker!
+
+---
+
+---
+
 Aqui está o plano de ação detalhado e passo a passo para o **Membro 2 (Interface Web com Thymeleaf)**, mapeado diretamente para os requisitos do projeto e para a vossa atual estrutura de pastas.
 
 ---
