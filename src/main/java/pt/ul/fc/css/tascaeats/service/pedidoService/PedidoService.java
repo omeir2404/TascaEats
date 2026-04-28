@@ -72,7 +72,46 @@ public class PedidoService {
         }
 
 
-        
+        double valorTotal = 0;
+        java.util.Set<Long> restaurantesValidados = new java.util.HashSet<>();
+
+        // Validar itens e calcular valor total
+        for (ItemPedidoDTO item : criarPedidoDto.getItens()) {
+            if (item.getProdutoId() == null || item.getProdutoId() <= 0) {
+                throw new IllegalArgumentException("Produto Id inválido no item.");
+            }
+
+            if (item.getRestauranteId() == null || item.getRestauranteId() <= 0) {
+                throw new IllegalArgumentException("Restaurante Id inválido no item.");
+            }
+
+            if (item.getQuantidade() == null || item.getQuantidade() <= 0) {
+                throw new IllegalArgumentException("Quantidade inválida no item: deve ser maior que 0.");
+            }
+
+            // Validar produto
+            Produto produto = produtoRepository.findById(item.getProdutoId())
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + item.getProdutoId()));
+
+            produto.validarDisponibilidadeParaPedido();
+
+            // Verificar que o produto pertence ao restaurante indicado no item
+            if (produto.getRestaurante() == null || !produto.getRestaurante().getId().equals(item.getRestauranteId())) {
+                throw new IllegalArgumentException("O produto " + item.getProdutoId() + " não pertence ao restaurante " + item.getRestauranteId());
+            }
+
+            // Validar restaurante (uma única vez por restaurante)
+            if (!restaurantesValidados.contains(item.getRestauranteId())) {
+                Restaurante restaurante = restauranteRepository.findById(item.getRestauranteId())
+                    .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + item.getRestauranteId()));
+
+                restaurante.validarDisponibilidadeParaPedido();
+                restaurantesValidados.add(item.getRestauranteId());
+            }
+
+            // Acumular valor total (quantidade * preço)
+            valorTotal += item.getQuantidade() * produto.getPreco();
+        }
 
         // Criar pedido
         Pedido pedido = new Pedido(null, criarPedidoDto.getClienteId());
