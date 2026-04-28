@@ -22,6 +22,8 @@ import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import java.util.ArrayList;
+
+import pt.ul.fc.css.tascaeats.domain.menu.Menu;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 
@@ -60,6 +62,10 @@ public class Produto{
     @ManyToMany
     @JoinTable(name = "pedido_produto", joinColumns = @JoinColumn(name= "produto_id"), inverseJoinColumns= @JoinColumn(name = "pedido_id"))
     private List<Pedido> pedidos = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "menu_id")
+    private Menu menu;
     
 
     // *********CONSTRUTORES**********
