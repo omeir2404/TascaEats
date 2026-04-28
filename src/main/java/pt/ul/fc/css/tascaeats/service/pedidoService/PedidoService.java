@@ -16,8 +16,11 @@ import org.springframework.stereotype.Service;
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO;
+import pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
@@ -47,42 +50,42 @@ public class PedidoService {
             throw new IllegalArgumentException("Cliente Id inválido.");
         }
 
-        if (criarPedidoDto.getRestauranteId() == null || criarPedidoDto.getRestauranteId() <= 0) {
-            throw new IllegalArgumentException("Restaurante Id inválido.");
+        if (criarPedidoDto.getItens() == null || criarPedidoDto.getItens().isEmpty()) {
+            throw new IllegalArgumentException("O pedido deve conter pelo menos um item.");
         }
 
-        if (criarPedidoDto.getProdutosIds() == null || criarPedidoDto.getProdutosIds().isEmpty()) {
-            throw new IllegalArgumentException("O pedido deve conter pelo menos um produto.");
-        }
-
+        // Validar cliente
         var utilizador = utilizadorRepository.findById(criarPedidoDto.getClienteId())
             .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + criarPedidoDto.getClienteId()));
-
         if (!(utilizador instanceof Cliente)) {
             throw new IllegalArgumentException("Apenas clientes podem criar pedidos.");
         }
+        Cliente cliente = (Cliente) utilizador;
 
-        var restaurante = restauranteRepository.findById(criarPedidoDto.getRestauranteId())
-            .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + criarPedidoDto.getRestauranteId()));
-
-        restaurante.validarDisponibilidadeParaPedido();
-
-        double valorTotal = 0;
-
-        for (Long produtoId : criarPedidoDto.getProdutosIds()) {
-            Optional<Produto> produtoOptional  = produtoRepository.findById(produtoId);
-            if (produtoOptional.isEmpty()) {
-                throw new IllegalArgumentException("Produto não encontrado: " + produtoId);
-            }
-            var produto = produtoOptional.get();
-            produto.validarDisponibilidadeParaPedido();
-
-            valorTotal += produto.getPreco();
+        // Validar morada: deve existir uma opção (ID de morada existente ou nova morada)
+        if (criarPedidoDto.getMoradaId() == null && criarPedidoDto.getMoradaNova() == null) {
+            throw new IllegalArgumentException("Deve ser fornecida uma morada de entrega (ID de morada existente ou dados de nova morada).");
         }
 
-        // O Null é pq o Id vai ser gerado.
-        Pedido pedido = new Pedido(null, criarPedidoDto.getClienteId(), criarPedidoDto.getRestauranteId());
+        if (criarPedidoDto.getMoradaId() != null && criarPedidoDto.getMoradaNova() != null) {
+            throw new IllegalArgumentException("Apenas uma das opções deve ser fornecida: moradaId OU moradaNova.");
+        }
+
+
+        
+
+        // Criar pedido
+        Pedido pedido = new Pedido(null, criarPedidoDto.getClienteId());
         pedido.setValorTotal(valorTotal);
+
+        // Adicionar produtos ao pedido
+        for (ItemPedidoDTO item : criarPedidoDto.getItens()) {
+            // Adicionar quantidade de vezes (ou ajustar a lógica conforme necessário)
+            for (int i = 0; i < item.getQuantidade(); i++) {
+                pedido.adicionarProduto(item.getProdutoId(), item.getRestauranteId());
+            }
+        }
+
         pedidoRepository.save(pedido);
     }
 
@@ -120,4 +123,6 @@ public class PedidoService {
 
         return pedidoRepository.findAll();
     }
+
+
 }
