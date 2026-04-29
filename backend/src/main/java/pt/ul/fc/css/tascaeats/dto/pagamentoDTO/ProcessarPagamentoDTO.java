@@ -53,21 +53,23 @@
         public ProcessarPagamentoDTO() {
         }
 
-        public ProcessarPagamentoDTO(Long pedidoId, String tipoPagamento, String bnandeiraCartao, String numeroMbway,
-                                     Double valorTroco, Map<String, Object> detalhes) {
-            this.pedidoId = pedidoId;
-            this.tipoPagamento = tipoPagamento;
-            this.detalhes = detalhes;
+        public ProcessarPagamentoDTO(Long pedidoId, String tipoPagamento, Map<String, Object> detalhes) {
+            this(pedidoId, tipoPagamento, detalhes, null, null, null);
         }
 
         public ProcessarPagamentoDTO(Long pedidoId, String tipoPagamento, Map<String, Object> detalhes,
-                                     String bandeiraCartao, String numeroMbWay, Double valorParaTroco) {
+                                     String bandeiraCartao, String numeroMbway, Double valorTroco) {
             this.pedidoId = pedidoId;
             this.tipoPagamento = tipoPagamento;
             this.detalhes = detalhes;
             this.bandeiraCartao = bandeiraCartao;
-            this.numeroMbWay = numeroMbWay;
-            this.valorParaTroco = valorParaTroco;
+            this.numeroMbway = numeroMbway;
+            this.valorTroco = valorTroco;
+        }
+
+        public ProcessarPagamentoDTO(Long pedidoId, String tipoPagamento, String bandeiraCartao, String numeroMbway,
+                                     Double valorTroco, Map<String, Object> detalhes) {
+            this(pedidoId, tipoPagamento, detalhes, bandeiraCartao, numeroMbway, valorTroco);
         }
 
         // ###################### GETTERS e SETTERS #####################################################################
@@ -88,17 +90,17 @@
             this.tipoPagamento = tipoPagamento;
         }
 
-        public String getBandeiraCartao(){ return bandeiraCartao;}
+        public String getBandeiraCartao() { return bandeiraCartao; }
 
-        public void setBandeiraCartao(String bandeiraCartao){ this.bandeiraCartao = bandeiraCartao;}
+        public void setBandeiraCartao(String bandeiraCartao) { this.bandeiraCartao = bandeiraCartao; }
 
-        public String getNumeroMbway(){ return numeroMbway;}
+        public String getNumeroMbway() { return numeroMbway; }
 
-        public void setNumeroMbway(String numeroMbway){ this.numeroMbway = numeroMbway;}
+        public void setNumeroMbway(String numeroMbway) { this.numeroMbway = numeroMbway; }
 
-        public Double getValorTroco(){ return valorTroco;}
+        public Double getValorTroco() { return valorTroco; }
 
-        public void setValorTroco(Double valorTroco){ this.valorTroco = valorTroco;}
+        public void setValorTroco(Double valorTroco) { this.valorTroco = valorTroco; }
 
         public Map<String, Object> getDetalhes() {
             return detalhes;
@@ -111,7 +113,7 @@
         @Override
         public String toString() {
             return "ProcessarPagamentoDTO{" + "pedidoId=" + pedidoId + ", tipoPagamento='" + tipoPagamento + '\'' +
-                    ", bandeiraCartao='" + bandeiraCartao + '\'' + ", numeroMbWay='" + numeroMbWay + '\'' +
-                    ", valorParaTroco=" + valorParaTroco + ", detalhes=" + detalhes + '}';
+                    ", bandeiraCartao='" + bandeiraCartao + '\'' + ", numeroMbway='" + numeroMbway + '\'' +
+                    ", valorTroco=" + valorTroco + ", detalhes=" + detalhes + '}';
         }
     }
