@@ -183,14 +183,14 @@ Estes são os casos de uso transversais, que precisam de existir tanto na versã
 * [x] **4.1. Autenticação e Registos (Casos A, B, C, D):**
   * **Ação:** Construir os formulários de *Login* (fazendo *mock* onde qualquer palavra-passe é aceite se o utilizador for válido 
   , e as páginas de registo, verificação, atualização e remoção para Clientes, Administradores e Entregadores 
-* [ ] **4.2. Fluxo de Pedidos (Casos J, K, L, M, N):**
+* [x] **4.2. Fluxo de Pedidos (Casos J, K, L, M, N):**
   * **Ação:** Criar as interfaces visuais para a criação de um pedido 
    registo do pagamento (recolhendo bandeira do cartão ou telemóvel conforme o tipo) 
   , atualização do estado 
   , visualização da atribuição do entregador 
    e cancelamento
   .
-* [ ] **4.3. Avaliação de Restaurantes:**
+* [x] **4.3. Avaliação de Restaurantes:**
   * **Ação:** Incluir na interface um formulário para que o cliente possa avaliar o restaurante após uma compra
 
 ---
