@@ -33,10 +33,23 @@ public abstract class Pagamento {
 
     @Column(nullable = false)
     private double valor;
+
     @Column(name = "data_pagamento", nullable = false)
     private LocalDate dataPagamento;
+
     @Column(name = "referencia_pagamento")
     private String referenciaPagamento;
+
+    @Column(name = "bandeira_cartao")
+    private String bandeiraCartao;
+
+    @Column(name = "numero_mbway")
+    private String numeroMbWay;
+
+    @Column(name = "valor_troco")
+    private Double valorTroco;
+
+    // *********CONSTRUTORES**********
 
     protected Pagamento() {
     }
@@ -48,13 +61,26 @@ public abstract class Pagamento {
         this.referenciaPagamento = referenciaPagamento;
     }
 
+    public Pagamento(Long id, double valor, LocalDate dataPagamento, String referenciaPagamento,
+                     String bandeiraCartao, String numeroMbWay, Double valorTroco) {
+        this.id = id;
+        this.valor = valor;
+        this.dataPagamento = dataPagamento;
+        this.referenciaPagamento = referenciaPagamento;
+        this.bandeiraCartao = bandeiraCartao;
+        this.numeroMbWay = numeroMbWay;
+        this.valorTroco = valorTroco;
+    }
+
     // ################### MÉTODOS DE NEGÓCIO ######################################################################
 
     public abstract void validarDetalhes();
 
     public abstract String obterInstrucoesPagamento();
 
-// ###################### GETTERS e SETTERS #####################################################################
+
+    // ###################### GETTERS e SETTERS #####################################################################
+
     public Long getId() {
         return id;
     }
@@ -86,4 +112,17 @@ public abstract class Pagamento {
     public void setReferenciaPagamento(String referenciaPagamento) {
         this.referenciaPagamento = referenciaPagamento;
     }
+
+    public String getBandeiraCartao() { return bandeiraCartao;}
+
+    public void setBandeiraCartao(String bandeiraCartao) { this.bandeiraCartao = bandeiraCartao;}
+
+    public String getNumeroMbWay() {return numeroMbWay;}
+
+    public void setNumeroMbWay(String numeroMbWay) {this.numeroMbWay = numeroMbWay;}
+
+    public Double getValorTroco() {return valorTroco;}
+
+    public void setValorTroco(Double valorTroco) {this.valorTroco = valorTroco;}
+
 }
