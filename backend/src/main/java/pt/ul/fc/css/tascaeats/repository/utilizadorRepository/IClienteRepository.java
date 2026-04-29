@@ -13,4 +13,8 @@ import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
 
 public interface IClienteRepository extends JpaRepository<Cliente, Long> {
      Cliente findByEmail(String email);
+
+     // Número de pedidos realizados por cada cliente
+     @Query("SELECT c FROM Cliente c WHERE size(c.pedidos) = :num")
+     List<Cliente> findByNumeroDePedidos(@Param("num") int num);
 }

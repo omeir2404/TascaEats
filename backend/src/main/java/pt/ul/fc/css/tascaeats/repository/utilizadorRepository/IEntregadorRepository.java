@@ -14,4 +14,8 @@ import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
 public interface IEntregadorRepository extends JpaRepository<Entregador, Long> {
      Entregador findByEmail(String email);
      Entregador findByAvailable(boolean available);
+
+     // Filtra entregadores pelo número de entregas realizadas
+     @Query("SELECT e FROM Entregador e WHERE size(e.entregas) = :num")
+     List<Entregador> findByNumeroDeEntregas(@Param("num") int num);
 }
