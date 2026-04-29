@@ -1,6 +1,7 @@
 package pt.ul.fc.css.tascaeats.controllers;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -25,78 +26,130 @@ public class WebRestauranteController {
         this.restTemplate = restTemplate;
     }
 
-    // 1. Default page: Loads all restaurants
-    @GetMapping("/restaurantes")
-    public String listarRestaurantes(Model model) {
-        String url = backendUrl + "/api/restaurantes";
+    // #######################  APAGAR ESTE BLOCO E DESCOMENTAR O DE BAIXO ########################################################################
 
-        try {
-            List restaurantes = restTemplate.getForObject(url, List.class);
-            model.addAttribute("restaurantes", restaurantes);
-        } catch (Exception e) {
-            model.addAttribute("restaurantes", null);
-            model.addAttribute("erro", "Could not connect to the backend API.");
+    // --- TEMPORARY MOCK DATA GENERATOR ---
+    private List<Map<String, Object>> getMockRestaurantes() {
+        return List.of(
+            Map.of("id", 1, "nome", "Tasca do Zé", "tipoCozinha", "PORTUGUESA", "estado", "ABERTO", "numeroAvaliacoes", 150),
+            Map.of("id", 2, "nome", "Bella Napoli", "tipoCozinha", "ITALIANA", "estado", "FECHADO", "numeroAvaliacoes", 85),
+            Map.of("id", 3, "nome", "Sushi Zen", "tipoCozinha", "JAPONESA", "estado", "ABERTO", "numeroAvaliacoes", 320),
+            Map.of("id", 4, "nome", "Café Central", "tipoCozinha", "PORTUGUESA", "estado", "ABERTO", "numeroAvaliacoes", 12)
+        );
         }
 
+        // 1. Default page: Loads all mock restaurants
+    @GetMapping("/restaurantes")
+    public String listarRestaurantes(Model model) {
+        // TEMPORARY: Bypass backend and use mock data
+        model.addAttribute("restaurantes", getMockRestaurantes());
         return "restaurantes";
     }
 
-    // 2. Search page: Handles the form submission with filters
+    // 2. Search page: Advanced filters
     @GetMapping("/restaurantes/pesquisa")
     public String pesquisarRestaurantes(
             @RequestParam(required = false) String nome,
-            @RequestParam(required = false) String tipoCozinha,
-            @RequestParam(required = false) String estado,
-            @RequestParam(required = false) Integer pedidosRealizados,
-            @RequestParam(required = false) Double avaliacaoMinima,
-            @RequestParam(required = false) String morada,
-            @RequestParam(required = false) Double precoMedio,
+            // ... other params ...
             Model model) {
 
-        // Base URL for the backend search endpoint
-        String url = backendUrl + "/api/restaurantes/pesquisa";
-
-        // UriComponentsBuilder helps safely attach query parameters to the URL
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
-
-        if (nome != null && !nome.isBlank()) builder.queryParam("nome", nome);
-        if (tipoCozinha != null && !tipoCozinha.isBlank()) builder.queryParam("tipoCozinha", tipoCozinha);
-        if (estado != null && !estado.isBlank()) builder.queryParam("estado", estado);
-        if (pedidosRealizados != null) builder.queryParam("pedidosRealizados", pedidosRealizados);
-        if (avaliacaoMinima != null) builder.queryParam("avaliacaoMinima", avaliacaoMinima);
-        if (morada != null && !morada.isBlank()) builder.queryParam("morada", morada);
-        if (precoMedio != null) builder.queryParam("precoMedio", precoMedio);
-
-        try {
-            // Call the backend with the built URL (e.g., http://backend:8080/api/restaurantes/pesquisa?nome=Tasca&...)
-            List restaurantes = restTemplate.getForObject(builder.toUriString(), List.class);
-            model.addAttribute("restaurantes", restaurantes);
-        } catch (Exception e) {
-            model.addAttribute("restaurantes", null);
-            model.addAttribute("erro", "Could not fetch search results from the backend.");
-        }
-
-        // Return the same HTML view, but now populated with filtered data
+        // TEMPORARY: Bypass backend and use mock data
+        // Note: For testing the UI, we just return all of them. 
+        // Real filtering will happen in the backend later.
+        model.addAttribute("restaurantes", getMockRestaurantes());
         return "pesquisa";
     }
-    /**
-     * API Proxy for the Live Search Dropdown.
-     * Returns JSON directly to the frontend JavaScript.
-     */
+// 3. Live Search API for JavaScript Dropdown
     @GetMapping("/api/web/live-search")
     @ResponseBody
     public ResponseEntity<?> liveSearch(@RequestParam String nome) {
-        // Call the backend API
-        String targetUrl = backendUrl + "/api/restaurantes/pesquisa?nome=" + nome;
         
-        try {
-            // Fetch as a generic Object so Spring formats it nicely as JSON
-            Object searchResults = restTemplate.getForObject(targetUrl, Object.class);
-            return ResponseEntity.ok(searchResults);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error fetching live results");
-        }
+        // Grab the full list of mock restaurants
+        List<Map<String, Object>> todosOsRestaurantes = getMockRestaurantes();
+        
+        // Filter the list to only include restaurants where the name contains the search string
+        List<Map<String, Object>> restaurantesFiltrados = todosOsRestaurantes.stream()
+                .filter(restaurante -> restaurante.get("nome").toString().toLowerCase().contains(nome.toLowerCase()))
+                .toList();
+
+        // Return the filtered list to the frontend JS
+        return ResponseEntity.ok(restaurantesFiltrados);
     }
+// ###########################################################################################################################################
+
+
+    //     // 1. Default page: Loads all restaurants
+    //     @GetMapping("/restaurantes")
+    //     public String listarRestaurantes(Model model) {
+    //         String url = backendUrl + "/api/restaurantes";
+
+    //         try {
+    //             List restaurantes = restTemplate.getForObject(url, List.class);
+    //             model.addAttribute("restaurantes", restaurantes);
+    //         } catch (Exception e) {
+    //             model.addAttribute("restaurantes", null);
+    //             model.addAttribute("erro", "Could not connect to the backend API.");
+    //         }
+
+    //         return "restaurantes";
+    //     }
+
+    //     // 2. Search page: Handles the form submission with filters
+    //     @GetMapping("/restaurantes/pesquisa")
+    //     public String pesquisarRestaurantes(
+    //             @RequestParam(required = false) String nome,
+    //             @RequestParam(required = false) String tipoCozinha,
+    //             @RequestParam(required = false) String estado,
+    //             @RequestParam(required = false) Integer pedidosRealizados,
+    //             @RequestParam(required = false) Double avaliacaoMinima,
+    //             @RequestParam(required = false) String morada,
+    //             @RequestParam(required = false) Double precoMedio,
+    //             Model model) {
+
+    //         // Base URL for the backend search endpoint
+    //     String url = backendUrl + "/api/restaurantes/pesquisa";
+
+    //     // UriComponentsBuilder helps safely attach query parameters to the URL
+    //     UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
+
+    //     if (nome != null && !nome.isBlank()) builder.queryParam("nome", nome);
+    //     if (tipoCozinha != null && !tipoCozinha.isBlank()) builder.queryParam("tipoCozinha", tipoCozinha);
+    //     if (estado != null && !estado.isBlank()) builder.queryParam("estado", estado);
+    //     if (pedidosRealizados != null) builder.queryParam("pedidosRealizados", pedidosRealizados);
+    //     if (avaliacaoMinima != null) builder.queryParam("avaliacaoMinima", avaliacaoMinima);
+    //     if (morada != null && !morada.isBlank()) builder.queryParam("morada", morada);
+    //     if (precoMedio != null) builder.queryParam("precoMedio", precoMedio);
+
+    //     try {
+    //         // Call the backend with the built URL (e.g., http://backend:8080/api/restaurantes/pesquisa?nome=Tasca&...)
+    //         List restaurantes = restTemplate.getForObject(builder.toUriString(), List.class);
+    //         model.addAttribute("restaurantes", restaurantes);
+    //     } catch (Exception e) {
+    //         model.addAttribute("restaurantes", null);
+    //         model.addAttribute("erro", "Could not fetch search results from the backend.");
+    //     }
+
+    //     // Return the same HTML view, but now populated with filtered data
+    //     return "pesquisa";
+    // }
+    // /**
+    //  * API Proxy for the Live Search Dropdown.
+    //  * Returns JSON directly to the frontend JavaScript.
+    //  */
+    // @GetMapping("/api/web/live-search")
+    // @ResponseBody
+    // public ResponseEntity<?> liveSearch(@RequestParam String nome) {
+    //     // Call the backend API
+    //     String targetUrl = backendUrl + "/api/restaurantes/pesquisa?nome=" + nome;
+        
+    //     try {
+    //         // Fetch as a generic Object so Spring formats it nicely as JSON
+    //         Object searchResults = restTemplate.getForObject(targetUrl, Object.class);
+    //         return ResponseEntity.ok(searchResults);
+    //     } catch (Exception e) {
+    //         return ResponseEntity.status(500).body("Error fetching live results");
+    //     }
+    // }
 
     @GetMapping("/restaurantes/{id}/produtos")
     public String listarProdutos(@PathVariable Long id, Model model) {
