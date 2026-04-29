@@ -7,6 +7,12 @@
 //        - Diogo Roque                61857                    #
 // ##############################################################
 
+package pt.ul.fc.css.tascaeats.dto.menuDTO;
+
+import java.util.List;
+
+import jakarta.validation.constraints.NotBlank;
+
 public class menuDTO{
 
     private Long id;

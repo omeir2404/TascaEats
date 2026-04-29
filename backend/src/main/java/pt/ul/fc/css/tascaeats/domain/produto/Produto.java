@@ -182,6 +182,14 @@ public class Produto{
         this.restaurante = restaurante;
     }
 
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public void setMenu(Menu menu) {
+        this.menu = menu;
+    }
+
     public List<Pedido> getPedidos() {
         return pedidos;
     }

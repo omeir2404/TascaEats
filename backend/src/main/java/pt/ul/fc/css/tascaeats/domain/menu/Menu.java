@@ -55,5 +55,27 @@ public class Menu {
         return produtos;
     }
 
+    public void adicionarProduto(Produto produto) {
+        if (produto == null) {
+            throw new IllegalArgumentException("O produto é obrigatório.");
+        }
+        if (!produtos.contains(produto)) {
+            produtos.add(produto);
+        }
+        if (produto.getMenu() != this) {
+            produto.setMenu(this);
+        }
+    }
+
+    public void removerProduto(Produto produto) {
+        if (produto == null) {
+            return;
+        }
+        produtos.remove(produto);
+        if (produto.getMenu() == this) {
+            produto.setMenu(null);
+        }
+    }
+
 
 }
