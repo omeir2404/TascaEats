@@ -91,10 +91,32 @@ Se surgir um erro semelhante a `failed to connect to the docker API ...`, inicia
 sudo systemctl start docker
 ```
 
+### GUI nativa com JavaFX
+
+A aplicação desktop JavaFX está no módulo `web` e consome a API REST do backend.
+
+1. Iniciar o backend normalmente (Docker ou `spring-boot:run`).
+2. No diretório `web`, arrancar a GUI:
+
+```bash
+BACKEND_API_URL=http://localhost:8080 mvn javafx:run
+```
+
+Se o backend estiver noutro endereço, ajustar a variável `BACKEND_API_URL`.
+
 ## API e Swagger
 
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 - Rotas e exemplos de payload: `USE_CASES_API_ROUTES.md`
+
+## Dashboard de implementação da webapp
+
+A aplicação web agora disponibiliza uma página-resumo com o estado dos casos de uso por interface:
+
+- `/` ou `/status` — tabela com o que está implementado, parcial ou pendente na web browser e na app JavaFX.
+
+Esta página é útil para acompanhar o trabalho em conjunto com o backend e perceber rapidamente o que falta em cada
+cliente.
 
 ## Funcionalidades implementadas:
 

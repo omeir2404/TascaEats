@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TascaEats - Delivery de Comida</title>
+    <title>TascaEats - Estado da Implementação</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -11,12 +11,84 @@
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
     <main>
-        <h2>Bem-vindo ao TascaEats!</h2>
-        <p>Encontre a melhor comida perto de si. Explore os nossos restaurantes parceiros e faça o seu pedido.</p>
-        <br>
-        <a th:href="@{/restaurantes}">
-            <button>Procurar Restaurantes</button>
-        </a>
+        <section class="hero card">
+            <div>
+                <p class="eyebrow">TascaEats · acompanhamento da entrega</p>
+                <h2>Estado dos casos de uso por interface</h2>
+                <p>
+                    O backend já está em andamento pela equipa. Esta página resume o que já existe
+                    na web browser e na app nativa JavaFX, e o que ainda falta fazer em cada uma.
+                </p>
+            </div>
+
+            <div class="hero-actions">
+                <a class="button-link" th:href="@{/restaurantes}">Ver restaurantes</a>
+                <a class="button-link button-secondary" th:href="@{/status}">Atualizar estado</a>
+            </div>
+        </section>
+
+        <section class="summary-grid">
+            <div class="summary-card">
+                <span class="summary-label">Web browser</span>
+                <strong th:text="${browserDone}">0</strong>
+                <span>implementados</span>
+                <small><span th:text="${browserPartial}">0</span> parciais · <span th:text="${browserPending}">0</span>
+                    pendentes</small>
+            </div>
+            <div class="summary-card">
+                <span class="summary-label">JavaFX nativa</span>
+                <strong th:text="${nativeDone}">0</strong>
+                <span>implementados</span>
+                <small><span th:text="${nativePartial}">0</span> parciais · <span th:text="${nativePending}">0</span>
+                    pendentes</small>
+            </div>
+        </section>
+
+        <section class="card table-card">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Mapa de trabalho</p>
+                    <h3>Casos de uso e estado atual</h3>
+                </div>
+                <div class="legend">
+                    <span class="status-pill status-done">Implementado</span>
+                    <span class="status-pill status-partial">Parcial</span>
+                    <span class="status-pill status-pending">Pendente</span>
+                    <span class="status-pill status-na">N/A</span>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="status-table">
+                    <thead>
+                    <tr>
+                        <th>Caso</th>
+                        <th>Descrição</th>
+                        <th>Web browser</th>
+                        <th>Notas web</th>
+                        <th>JavaFX</th>
+                        <th>Notas nativa</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${useCases}">
+                        <td th:text="${item.code}">A</td>
+                        <td th:text="${item.title}">Login com autenticação</td>
+                        <td>
+                            <span class="status-pill" th:classappend="${item.browserCssClass}"
+                                  th:text="${item.browserStatus}">Pendente</span>
+                        </td>
+                        <td th:text="${item.browserNotes}">Notas</td>
+                        <td>
+                            <span class="status-pill" th:classappend="${item.nativeCssClass}"
+                                  th:text="${item.nativeStatus}">Pendente</span>
+                        </td>
+                        <td th:text="${item.nativeNotes}">Notas</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>

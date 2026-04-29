@@ -12,6 +12,8 @@
     <name>TascaEats Web App</name>
     <properties>
         <java.version>17</java.version>
+        <javafx.version>17.0.10</javafx.version>
+        <javafx.platform>linux</javafx.platform>
     </properties>
     <dependencies>
         <dependency>
@@ -22,12 +24,29 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>${javafx.platform}</classifier>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>pt.ul.fc.css.tascaeats.WebApplication</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>pt.ul.fc.css.tascaeats.ui.NativeAppGUI</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
