@@ -99,7 +99,9 @@
                             <span th:unless="${user.ativo}" class="status-badge status-inactive">Inactive</span>
                         </td>
                         <td>
-                            <button style="padding: 5px 10px; font-size: 12px;">Edit</button>
+                            <a th:href="@{/perfil/{id}(id=${user.id})}">
+                                <button style="padding: 5px 10px; font-size: 12px;">Edit</button>
+                            </a>
                         </td>
                     </tr>
                 </tbody>

@@ -8,14 +8,21 @@
             <h1>🍔 TascaEats</h1>
         </div>
         <nav>
-            <ul>
-                <li><a th:href="@{/}">Início</a></li>
-                <li><a th:href="@{/restaurantes}">Restaurantes</a></li>
-                <a th:href="@{/menus}">Explore Menus</a>
-                <li><a th:href="@{/pedidos}">Meus Pedidos</a></li>
-                <a th:href="@{/utilizadores}">System Users</a>
-                <li><a th:href="@{/login}">Login</a></li>
-            </ul>
+            <li><a th:href="@{/restaurantes}">Restaurants</a></li>
+            <li><a th:href="@{/menus}">Explore Menus</a></li>
+            <li><a th:href="@{/utilizadores}">System Users</a></li>
+            
+            <span th:if="${session.loggedUser == null}">
+                <a th:href="@{/login}">Login</a>
+            </span>
+
+            <span th:if="${session.loggedUser != null}">
+                <a th:href="@{/perfil/{id}(id=${session.loggedUser.id})}" 
+                th:text="'👤 ' + ${session.loggedUser.nome}" 
+                style="color: #ff6600; font-weight: bold;">Profile</a>
+                
+                <li><a th:href="@{/logout}">Logout</a></li>
+            </span>
         </nav>
     </header>
 </body>

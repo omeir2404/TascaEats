@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .auth-container { max-width: 400px; margin: 50px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .auth-container input { width: 100%; padding: 10px; margin: 10px 0 20px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .auth-container button { width: 100%; padding: 12px; }
+        .error-message { color: red; background: #ffe6e6; padding: 10px; border-radius: 4px; margin-bottom: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main>
+        <div class="auth-container">
+            <h2 style="text-align: center;">Welcome Back</h2>
+            
+            <div th:if="${error != null}" class="error-message" th:text="${error}"></div>
+
+            <form th:action="@{/login}" method="POST">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required placeholder="Ex: joao@email.com">
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter any password">
+
+                <button type="submit">Log In</button>
+            </form>
+            
+            <p style="text-align: center; margin-top: 20px;">
+                Don't have an account? <a th:href="@{/registo}" style="color: #ff6600;">Register here</a>
+            </p>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+</body>
+</html>
