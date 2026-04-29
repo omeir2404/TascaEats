@@ -167,7 +167,7 @@ Para não haver mistura com a API REST que já têm, vais criar os teus próprio
 O cliente pediu especificamente uma interface web interativa para realizar consultas e buscas complexas
 .
 
-* [ ] **3.1. Ecrã de Pesquisa de Restaurantes (Caso E):**
+* [x] **3.1. Ecrã de Pesquisa de Restaurantes (Caso E):**
   * **Ação:** Criar a página HTML e ligá-la ao backend para permitir procurar restaurantes utilizando os novos filtros: por nome, pedidos realizados, avaliações, morada, tipo de cozinha, horário de funcionamento e preço médio 
 * [ ] **3.2. Ecrã de Pesquisa de Produtos (Caso I):**
   * **Ação:** Criar a página HTML que liste produtos de um restaurante, aplicando os filtros: por nome, preço, categoria, disponibilidade e popularidade 

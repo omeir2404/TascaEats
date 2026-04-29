@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Search - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main>
+        <h2>Advanced Search</h2>
+        
+        <div class="filtro-container">
+            <form th:action="@{/restaurantes/pesquisa}" method="GET">
+                <div class="form-group">
+                    <label for="nome">Name:</label>
+                    <input type="text" id="nome" name="nome" th:value="${param.nome}" placeholder="Ex: Tasca do Zé">
+                </div>
+                
+                <div class="form-group">
+                    <label for="tipoCozinha">Cuisine:</label>
+                    <select id="tipoCozinha" name="tipoCozinha">
+                        <option value="">All</option>
+                        <option value="PORTUGUESA">Portuguese</option>
+                        <option value="ITALIANA">Italian</option>
+                        <option value="JAPONESA">Japanese</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="estado">Status:</label>
+                    <select id="estado" name="estado">
+                        <option value="">Any</option>
+                        <option value="ABERTO">Open</option>
+                        <option value="FECHADO">Closed</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pedidosRealizados">Min Orders:</label>
+                    <input type="number" id="pedidosRealizados" name="pedidosRealizados" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="avaliacaoMinima">Min Rating:</label>
+                    <input type="number" id="avaliacaoMinima" name="avaliacaoMinima" min="0" max="5" step="0.1">
+                </div>
+
+                <div class="form-group">
+                    <label for="morada">City/Street:</label>
+                    <input type="text" id="morada" name="morada">
+                </div>
+
+                <div class="form-group">
+                    <label for="precoMedio">Max Avg Price (€):</label>
+                    <input type="number" id="precoMedio" name="precoMedio" min="0" step="0.5">
+                </div>
+
+                <button type="submit">Filter Results</button>
+            </form>
+        </div>
+
+        <hr style="margin: 30px 0;">
+
+        <div class="grid-restaurantes">
+            <div class="card" th:each="restaurante : ${restaurantes}">
+                <h3 th:text="${restaurante.nome}">Restaurant Name</h3>
+                <p><strong>Cuisine:</strong> <span th:text="${restaurante.tipoCozinha}">Type</span></p>
+                <p><strong>Status:</strong> <span th:text="${restaurante.estado}">Open</span></p>
+                <p><strong>Rating:</strong> <span th:text="${restaurante.numeroAvaliacoes}">0</span></p>
+                <br>
+                <a th:href="@{/restaurantes/{id}(id=${restaurante.id})}">
+                    <button>View Menu</button>
+                </a>
+            </div>
+            
+            <div th:if="${restaurantes == null or restaurantes.empty}">
+                <p>No restaurants match your detailed filters.</p>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+</body>
+</html>

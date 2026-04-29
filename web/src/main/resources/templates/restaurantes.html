@@ -1,64 +1,47 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurantes - TascaEats</title>
+    <title>Restaurants - TascaEats</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
     <main>
-        <h2>Pesquisar Restaurantes</h2>
+        <div th:replace="~{fragments/search-bar :: live-search}"></div>
+
+        <div id="defaultViews">
+            <h3>Your Favorites & Recents</h3>
+            <div class="grid-restaurantes" style="margin-bottom: 40px;">
+                <div class="card" style="background-color: #fff8f0; border-color: #ffcc99;">
+                    <h3>Tasca do Zé</h3>
+                    <p>⭐ 4.8 - Portuguese</p>
+                    <p><em>You reviewed this recently!</em></p>
+                    <a th:href="@{/restaurantes/1/produtos}"><button>Order Again</button></a>
+                </div>
+            </div>
+
+            <h3>Featured Restaurants</h3>
+            <div class="grid-restaurantes">
+                <div class="card" th:each="restaurante : ${restaurantes}">
+                    <h3 th:text="${restaurante.nome}">Restaurant Name</h3>
+                    <p><strong>Cuisine:</strong> <span th:text="${restaurante.tipoCozinha}">Type</span></p>
+                    <p><strong>Status:</strong> <span th:text="${restaurante.estado}">Open</span></p>
+                    <br>
+                    <a th:href="@{/restaurantes/{id}/produtos(id=${restaurante.id})}">
+                        <button>View Menu</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="liveGridContainer" style="display: none;">
+            <h3>Search Results</h3>
+            <div id="liveGridResults" class="grid-restaurantes">
+                </div>
+        </div>
         
-        <div class="filtro-container">
-            <form th:action="@{/restaurantes/pesquisa}" method="GET">
-                <div class="form-group">
-                    <label for="nome">Nome:</label>
-                    <input type="text" id="nome" name="nome" placeholder="Ex: Tasca do Zé">
-                </div>
-                
-                <div class="form-group">
-                    <label for="tipoCozinha">Tipo de Cozinha:</label>
-                    <select id="tipoCozinha" name="tipoCozinha">
-                        <option value="">Todos</option>
-                        <option value="PORTUGUESA">Portuguesa</option>
-                        <option value="ITALIANA">Italiana</option>
-                        <option value="JAPONESA">Japonesa</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="estado">Horário:</label>
-                    <select id="estado" name="estado">
-                        <option value="">Qualquer</option>
-                        <option value="ABERTO">Aberto</option>
-                        <option value="FECHADO">Fechado</option>
-                    </select>
-                </div>
-
-                <button type="submit">Pesquisar</button>
-            </form>
-        </div>
-
-        <div class="grid-restaurantes">
-            <div class="card" th:each="restaurante : ${restaurantes}">
-                <h3 th:text="${restaurante.nome}">Nome do Restaurante</h3>
-                <p><strong>Cozinha:</strong> <span th:text="${restaurante.tipoCozinha}">Tipo</span></p>
-                <p><strong>Estado:</strong> <span th:text="${restaurante.estado}">Aberto</span></p>
-                <p><strong>Avaliações:</strong> <span th:text="${restaurante.numeroAvaliacoes}">0</span></p>
-                <br>
-                <a th:href="@{/restaurantes/{id}(id=${restaurante.id})}">
-                    <button>Ver Menu</button>
-                </a>
-            </div>
-            
-            <div th:if="${restaurantes == null or restaurantes.empty}">
-                <p>Não foram encontrados restaurantes com esses filtros.</p>
-            </div>
-        </div>
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>

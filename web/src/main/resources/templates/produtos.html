@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main>
+        <h2 th:text="'Menu: ' + ${restauranteNome}">Restaurant Name</h2>
+
+        <div class="filtro-container">
+            <form th:action="@{/restaurantes/{id}/produtos/search(id=${restauranteId})}" method="GET">
+                
+                <div class="form-group">
+                    <label for="nome">Product Name:</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Burger">
+                </div>
+
+                <div class="form-group">
+                    <label for="precoMax">Max Price (€):</label>
+                    <input type="number" id="precoMax" name="precoMax" step="0.50" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria">Category:</label>
+                    <select id="categoria" name="categoria">
+                        <option value="">All</option>
+                        <option value="DRINK">Drink</option>
+                        <option value="MAIN_COURSE">Main Course</option>
+                        <option value="DESSERT">Dessert</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="disponivel">Only Available:</label>
+                    <input type="checkbox" id="disponivel" name="disponivel" value="true">
+                </div>
+
+                <div class="form-group">
+                    <label for="popularidade">Popularity (Min Rating):</label>
+                    <input type="number" id="popularidade" name="popularidade" min="0" max="5" step="0.1">
+                </div>
+
+                <button type="submit">Filter Menu</button>
+            </form>
+        </div>
+
+        <div class="grid-produtos">
+            <div class="card" th:each="produto : ${produtos}">
+                <h3 th:text="${produto.nome}">Product Name</h3>
+                <p><strong>Price:</strong> <span th:text="${produto.preco} + '€'">0.00€</span></p>
+                <p><strong>Category:</strong> <span th:text="${produto.categoria}">Category</span></p>
+                <p th:if="${produto.disponivel}" style="color: green;">Available</p>
+                <p th:unless="${produto.disponivel}" style="color: red;">Out of stock</p>
+                
+                <form th:action="@{/carrinho/adicionar}" method="POST" th:if="${produto.disponivel}">
+                    <input type="hidden" name="produtoId" th:value="${produto.id}">
+                    <button type="submit">Add to Cart</button>
+                </form>
+            </div>
+
+            <div th:if="${produtos == null or produtos.empty}">
+                <p>No products found with these filters.</p>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+</body>
+</html>
