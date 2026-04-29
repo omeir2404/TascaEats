@@ -37,7 +37,7 @@ A tua primeira tarefa é adaptar as classes da pasta `src/main/java/.../domain` 
 #### Passo 2: Atualização da Transferência de Dados (DTOs)
 Como o domínio mudou, os dados que entram e saem da API também mudam.
 
-* [ ] **2.1. Atualizar Pedido DTOs:**
+* [x] **2.1. Atualizar Pedido DTOs:**
   * **Ficheiros:** `dto/pedidoDTO/CriarPedidoDTO.java`.
   * **Ação:** Ajustar para suportar a seleção da morada de entrega (nova ou existente) e a lista de produtos de múltiplos restaurantes.
 * [ ] **2.2. Atualizar Pagamento DTOs:**
