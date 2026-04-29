@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users Management - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        tr:hover {
+            background-color: #fdfdfd;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-active { background-color: #d4edda; color: #155724; }
+        .status-inactive { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main>
+        <h2>System Users</h2>
+
+        <div class="filtro-container">
+            <form th:action="@{/utilizadores}" method="GET">
+                
+                <div class="form-group">
+                    <label for="nome">Search Name:</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: João" th:value="${nome}">
+                </div>
+
+                <div class="form-group">
+                    <label for="papel">System Role:</label>
+                    <select id="papel" name="papel">
+                        <option value="" th:selected="${papel == null or papel == ''}">All Roles</option>
+                        <option value="CLIENT" th:selected="${papel == 'CLIENT'}">Client</option>
+                        <option value="ADMIN" th:selected="${papel == 'ADMIN'}">Admin</option>
+                        <option value="COURIER" th:selected="${papel == 'COURIER'}">Courier</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="apenasAtivos">Active Users Only:</label>
+                    <input type="checkbox" id="apenasAtivos" name="apenasAtivos" value="true" th:checked="${apenasAtivos}">
+                </div>
+
+                <button type="submit" style="display: none;">Filter Users</button>
+            </form>
+        </div>
+
+        <hr style="margin: 30px 0;">
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${utilizadores}">
+                        <td th:text="${user.id}">1</td>
+                        <td th:text="${user.nome}">Name</td>
+                        <td th:text="${user.email}">Email</td>
+                        <td th:text="${user.papel}">Role</td>
+                        <td>
+                            <span th:if="${user.ativo}" class="status-badge status-active">Active</span>
+                            <span th:unless="${user.ativo}" class="status-badge status-inactive">Inactive</span>
+                        </td>
+                        <td>
+                            <button style="padding: 5px 10px; font-size: 12px;">Edit</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${utilizadores == null or utilizadores.empty}" style="padding: 20px; text-align: center;">
+                <p>No users found matching these filters.</p>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+    
+    <script th:src="@{/js/main.js}"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const filterForm = document.querySelector('.filtro-container form');
+            if (!filterForm) return;
+
+            const instantInputs = filterForm.querySelectorAll('select, input[type="checkbox"]');
+            instantInputs.forEach(input => {
+                input.addEventListener('change', () => filterForm.submit());
+            });
+
+            let typingTimer;
+            const textInputs = filterForm.querySelectorAll('input[type="text"]');
+            
+            textInputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(() => filterForm.submit(), 600);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
