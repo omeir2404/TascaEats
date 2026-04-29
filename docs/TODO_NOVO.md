@@ -54,7 +54,7 @@ Agora tens de dar vida às regras de negócio na pasta `src/main/java/.../servic
 * [ ] **3.1. Automatizar Atribuição de Entregador:**
   * **Ficheiros:** `EntregaService.java` e/ou `PedidoService.java`.
   * **Ação:** Desenvolver o algoritmo que encontra o entregador válido/disponível mais adequado e o associa automaticamente a um pedido quando este fica pronto, sem intervenção humana
-* [ ] **3.2. Lógica de Menus:**
+* [x] **3.2. Lógica de Menus:**
   * **Ficheiros:** Criar `MenuService.java`.
   * **Ação:** Permitir a gestão de menus (criar, atualizar) e a associação explícita destes menus aos restaurantes pretendidos
 
