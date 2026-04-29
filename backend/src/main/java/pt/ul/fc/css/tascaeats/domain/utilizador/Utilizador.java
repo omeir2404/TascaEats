@@ -29,7 +29,7 @@ public abstract class Utilizador {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    private String name;
+    private String nome;
 
     @Column(unique = true)
     private String email;
@@ -41,14 +41,14 @@ public abstract class Utilizador {
 
     protected Utilizador(long id, String name, String email, String password) {
         this.id = id;
-        this.name = name;
+        this.nome = name;
         this.email = email;
         this.password = password;
     }
 
 
     protected Utilizador(String name, String email, String password) {
-        this.name = name;
+        this.nome = name;
         this.email = email;
         this.password = password;
     }
@@ -62,11 +62,11 @@ public abstract class Utilizador {
     }
 
     public String getName() {
-        return name;
+        return nome;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.nome = name;
     }
 
     public String getEmail() {

@@ -39,7 +39,8 @@
 │       │   │                       │   ├── restaurante
 │       │   │                       │   │   ├── CatalogoEntregas.java
 │       │   │                       │   │   ├── EstadoRestaurante.java
-│       │   │                       │   │   └── Restaurante.java
+│       │   │                       │   │   ├── Restaurante.java
+│       │   │                       │   │   └── TipoRestaurante.java
 │       │   │                       │   └── utilizador
 │       │   │                       │       ├── Cliente.java
 │       │   │                       │       ├── Entregador.java
@@ -47,12 +48,16 @@
 │       │   │                       │       ├── RestauranteAdmin.java
 │       │   │                       │       └── Utilizador.java
 │       │   │                       ├── dto
+│       │   │                       │   ├── avaliacaoDTO
+│       │   │                       │   │   └── avaliacaoDTO.java
 │       │   │                       │   ├── entregaDTO
 │       │   │                       │   │   ├── AtribuirEntregadorDTO.java
 │       │   │                       │   │   └── EntregaResumoDTO.java
 │       │   │                       │   ├── mensagensDTO
 │       │   │                       │   │   ├── ApiErrorDTO.java
 │       │   │                       │   │   └── ApiMessageDTO.java
+│       │   │                       │   ├── menuDTO
+│       │   │                       │   │   └── MenuDTO.java
 │       │   │                       │   ├── moradaDTO
 │       │   │                       │   │   ├── MoradaDTO.java
 │       │   │                       │   │   └── MoradaResponseDTO.java
@@ -83,6 +88,8 @@
 │       │   │                       ├── repository
 │       │   │                       │   ├── entregaRepository
 │       │   │                       │   │   └── IEntregaRepository.java
+│       │   │                       │   ├── menuRepository
+│       │   │                       │   │   └── IMenuRepository.java
 │       │   │                       │   ├── pagamentoRepository
 │       │   │                       │   │   └── IPagamentoRepository.java
 │       │   │                       │   ├── pedidoRepository
@@ -99,6 +106,8 @@
 │       │   │                       ├── service
 │       │   │                       │   ├── entregaService
 │       │   │                       │   │   └── EntregaService.java
+│       │   │                       │   ├── menuService
+│       │   │                       │   │   └── MenuService.java
 │       │   │                       │   ├── pagamentoServices
 │       │   │                       │   │   ├── PagamentoFactory.java
 │       │   │                       │   │   └── PagamentoService.java
@@ -181,39 +190,136 @@
 ├── postgres.dockerfile
 ├── README.md
 ├── run.sh
+├── src
+│   ├── main
+│   │   └── java
+│   │       └── pt
+│   │           └── ul
+│   │               └── fc
+│   │                   └── css
+│   │                       └── tascaeats
+│   │                           ├── domain
+│   │                           │   ├── avaliacao
+│   │                           │   └── menu
+│   │                           ├── grpc
+│   │                           └── ui
+│   │                               └── javafx
+│   └── proto
+│       └── tascaeats
 ├── target
+│   ├── classes
+│   │   └── pt
+│   │       └── ul
+│   │           └── fc
+│   │               └── css
+│   │                   └── tascaeats
+│   │                       ├── config
+│   │                       ├── controllers
+│   │                       ├── domain
+│   │                       │   ├── avaliacao
+│   │                       │   ├── entrega
+│   │                       │   ├── menu
+│   │                       │   ├── pagamento
+│   │                       │   ├── pedido
+│   │                       │   ├── produto
+│   │                       │   ├── restaurante
+│   │                       │   └── utilizador
+│   │                       ├── dto
+│   │                       │   ├── entregaDTO
+│   │                       │   ├── mensagensDTO
+│   │                       │   ├── moradaDTO
+│   │                       │   ├── pagamentoDTO
+│   │                       │   ├── pedidoDTO
+│   │                       │   ├── produtoDTO
+│   │                       │   ├── restauranteDTO
+│   │                       │   └── utilizadorDTO
+│   │                       ├── grpc
+│   │                       ├── repository
+│   │                       │   ├── entregaRepository
+│   │                       │   ├── pagamentoRepository
+│   │                       │   ├── pedidoRepository
+│   │                       │   ├── produtoRepository
+│   │                       │   ├── restauranteRepository
+│   │                       │   └── utilizadorRepository
+│   │                       ├── service
+│   │                       │   ├── entregaService
+│   │                       │   ├── pagamentoServices
+│   │                       │   ├── pedidoService
+│   │                       │   ├── produtoService
+│   │                       │   ├── restauranteServices
+│   │                       │   └── utilizadorServices
+│   │                       ├── ui
+│   │                       │   └── javafx
+│   │                       └── web
 │   ├── generated-sources
 │   │   └── annotations
-│   └── generated-test-sources
-│       └── test-annotations
+│   ├── generated-test-sources
+│   │   └── test-annotations
+│   ├── maven-archiver
+│   │   └── pom.properties
+│   ├── maven-status
+│   │   └── maven-compiler-plugin
+│   │       ├── compile
+│   │       │   └── default-compile
+│   │       │       ├── createdFiles.lst
+│   │       │       └── inputFiles.lst
+│   │       └── testCompile
+│   │           └── default-testCompile
+│   │               ├── createdFiles.lst
+│   │               └── inputFiles.lst
+│   ├── surefire-reports
+│   │   ├── pt.ul.fc.css.tascaeats.controllers.UtilizadorControllerTest.txt
+│   │   ├── pt.ul.fc.css.tascaeats.services.ProdutoServiceTest.txt
+│   │   ├── pt.ul.fc.css.tascaeats.services.RestauranteServiceTest.txt
+│   │   ├── pt.ul.fc.css.tascaeats.services.UseCasesAToLServiceTest.txt
+│   │   ├── pt.ul.fc.css.tascaeats.services.UtilizadorServiceTest.txt
+│   │   ├── TEST-pt.ul.fc.css.tascaeats.controllers.UtilizadorControllerTest.xml
+│   │   ├── TEST-pt.ul.fc.css.tascaeats.services.ProdutoServiceTest.xml
+│   │   ├── TEST-pt.ul.fc.css.tascaeats.services.RestauranteServiceTest.xml
+│   │   ├── TEST-pt.ul.fc.css.tascaeats.services.UseCasesAToLServiceTest.xml
+│   │   └── TEST-pt.ul.fc.css.tascaeats.services.UtilizadorServiceTest.xml
+│   ├── tascaeats-1.0.jar
+│   ├── tascaeats-1.0.jar.original
+│   └── test-classes
+│       └── pt
+│           └── ul
+│               └── fc
+│                   └── css
+│                       └── tascaeats
+│                           ├── controllers
+│                           ├── domain
+│                           ├── repositories
+│                           └── services
 ├── tree.txt
-└── web
-    ├── Dockerfile
-    ├── pom.xml
-    └── src
-        └── main
-            ├── java
-            │   └── pt
-            │       └── ul
-            │           └── fc
-            │               └── css
-            │                   └── tascaeats
-            │                       ├── controllers
-            │                       │   ├── webRestauranteController.java
-            │                       │   └── WebUtilizadorController.java
-            │                       ├── tree.txtcd
-            │                       └── WebApplication.java
-            └── resources
-                ├── static
-                │   ├── css
-                │   │   └── style.css
-                │   └── js
-                │       └── main.js
-                └── templates
-                    ├── fragments
-                    │   ├── footer.html
-                    │   └── header.html
-                    ├── index.html
-                    └── restaurantes.html
+├── web
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── src
+│       ├── main
+│       │   ├── java
+│       │   │   └── pt
+│       │   │       └── ul
+│       │   │           └── fc
+│       │   │               └── css
+│       │   │                   └── tascaeats
+│       │   │                       ├── controllers
+│       │   │                       │   ├── WebRestauranteController.java
+│       │   │                       │   └── WebUtilizadorController.java
+│       │   │                       └── WebApplication.java
+│       │   └── resources
+│       │       ├── static
+│       │       │   ├── css
+│       │       │   │   └── style.css
+│       │       │   └── js
+│       │       │       └── main.js
+│       │       └── templates
+│       │           ├── fragments
+│       │           │   ├── footer.html
+│       │           │   └── header.html
+│       │           ├── index.html
+│       │           └── restaurantes.html
+│       └── test
+│           └── java
+└── with.java
 
-80 directories, 137 files
+164 directories, 159 files

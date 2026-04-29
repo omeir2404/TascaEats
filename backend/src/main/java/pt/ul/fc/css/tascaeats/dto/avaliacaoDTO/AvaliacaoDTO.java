@@ -6,8 +6,13 @@
 //        - Isa David                  61871                    #
 //        - Diogo Roque                61857                    #
 // ##############################################################
+package pt.ul.fc.css.tascaeats.dto.avaliacaoDTO;
 
-public class avaliacaoDTO {
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
+public class AvaliacaoDTO {
 
     private Long id;
 
@@ -24,12 +29,12 @@ public class avaliacaoDTO {
     private Long restauranteId;
 
     @NotNull(message = "O ID do pedido é obrigatório")
-    private Pedido pedido;
+    private Long pedidoId;
 
     public AvaliacaoDTO() {
     }
 
-    public AvalicaoDTO(Long id, int classificacao, String comentario, Long clienteId, Long restauranteId, Long pedidoId){
+    public AvaliacaoDTO(Long id, int classificacao, String comentario, Long clienteId, Long restauranteId, Long pedidoId){
         this.id = id;
         this.classificacao = classificacao;
         this.comentario = comentario;

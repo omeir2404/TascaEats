@@ -1,0 +1,580 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< pt.ul.fc.css:tascaeats >-----------------------
+[INFO] Building Springboot TascaEats 1.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.0:resources (default-resources) @ tascaeats ---
+[INFO] Copying 1 resource
+[INFO] Copying 0 resource
+[INFO] 
+[INFO] --- compiler:3.10.1:compile (default-compile) @ tascaeats ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.0:testResources (default-testResources) @ tascaeats ---
+[INFO] Copying 1 resource
+[INFO] 
+[INFO] --- compiler:3.10.1:testCompile (default-testCompile) @ tascaeats ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 31 source files to /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/target/test-classes
+[INFO] Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[330,17] cannot find symbol
+  symbol:   method setAddress(<nulltype>)
+  location: variable existing of type pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[336,39] cannot find symbol
+  symbol:   method getAddress()
+  location: class pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[348,39] cannot find symbol
+  symbol:   method getAddress()
+  location: class pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[360,39] cannot find symbol
+  symbol:   method getAddress()
+  location: class pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[372,39] cannot find symbol
+  symbol:   method getAddress()
+  location: class pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[404,15] cannot find symbol
+  symbol:   method setAddress(pt.ul.fc.css.tascaeats.domain.utilizador.Morada)
+  location: variable client of type pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/EntregaControllerTest.java:[64,28] cannot find symbol
+  symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+  location: variable entregaService of type pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/EntregaControllerTest.java:[73,31] cannot find symbol
+  symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+  location: class pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/EntregaControllerTest.java:[144,38] cannot find symbol
+  symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+  location: class pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/EntregaControllerTest.java:[163,25] no suitable constructor found for Pedido(java.lang.Long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[90,60] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[99,31] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[132,26] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[134,26] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[151,23] cannot find symbol
+  symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+  location: variable entregaService of type pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[153,48] cannot find symbol
+  symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+  location: variable entregaService of type pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPagamentoRepositoryTest.java:[57,42] no suitable constructor found for PagamentoMultibanco(<nulltype>,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String)
+    constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco(java.lang.Long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String,java.lang.String) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPagamentoRepositoryTest.java:[58,9] cannot find symbol
+  symbol:   class PagamentoCartao
+  location: class pt.ul.fc.css.tascaeats.repositories.IPagamentoRepositoryTest
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPagamentoRepositoryTest.java:[58,38] cannot find symbol
+  symbol:   class PagamentoCartao
+  location: class pt.ul.fc.css.tascaeats.repositories.IPagamentoRepositoryTest
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPagamentoRepositoryTest.java:[79,37] cannot find symbol
+  symbol:   class PagamentoCartao
+  location: class pt.ul.fc.css.tascaeats.repositories.IPagamentoRepositoryTest
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/PagamentoMultibancoTest.java:[27,41] no suitable constructor found for PagamentoMultibanco(long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String)
+    constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco(java.lang.Long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String,java.lang.String) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/PagamentoMultibancoTest.java:[35,41] no suitable constructor found for PagamentoMultibanco(long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String)
+    constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco(java.lang.Long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String,java.lang.String) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/PagamentoMultibancoTest.java:[44,41] no suitable constructor found for PagamentoMultibanco(long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String)
+    constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco(java.lang.Long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String,java.lang.String) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IEntregaRepositoryTest.java:[87,25] no suitable constructor found for Pedido(<nulltype>,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/EntregaTest.java:[89,25] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/PagamentoDinheiroTest.java:[30,36] cannot find symbol
+  symbol:   method getTroco()
+  location: variable pagamento of type pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoDinheiro
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/UserControllerTest.java:[144,19] cannot find symbol
+  symbol:   method setAddress(pt.ul.fc.css.tascaeats.domain.utilizador.Morada)
+  location: variable Utilizador of type pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPedidoRepositoryTest.java:[43,47] cannot find symbol
+  symbol:   method getclienteId()
+  location: variable p of type pt.ul.fc.css.tascaeats.domain.pedido.Pedido
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPedidoRepositoryTest.java:[53,51] cannot find symbol
+  symbol:   method findByRestauranteId(long)
+  location: variable pedidoRepository of type pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPedidoRepositoryTest.java:[56,47] cannot find symbol
+  symbol:   method getRestauranteId()
+  location: variable p of type pt.ul.fc.css.tascaeats.domain.pedido.Pedido
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPedidoRepositoryTest.java:[82,37] cannot find symbol
+  symbol:   method getclienteId()
+  location: class pt.ul.fc.css.tascaeats.domain.pedido.Pedido
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPedidoRepositoryTest.java:[99,25] no suitable constructor found for Pedido(<nulltype>,java.lang.Long,java.lang.Long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[79,20] cannot find symbol
+  symbol:   method setProdutosIds(java.util.List<java.lang.Object>)
+  location: variable dto of type pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[234,33] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[248,33] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[264,33] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[282,33] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[300,33] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[316,33] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[322,47] cannot find symbol
+  symbol:   method getclienteId()
+  location: class pt.ul.fc.css.tascaeats.domain.pedido.Pedido
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[330,33] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[346,34] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[347,34] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[360,24] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/PedidoTest.java:[117,25] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PagamentoFactoryTest.java:[78,26] cannot find symbol
+  symbol:   class PagamentoCartao
+  location: class pt.ul.fc.css.tascaeats.services.PagamentoFactoryTest
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/PedidoControllerTest.java:[51,30] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/PedidoControllerTest.java:[65,58] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/PedidoControllerTest.java:[102,30] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/PedidoControllerTest.java:[197,25] no suitable constructor found for Pedido(java.lang.Long,java.lang.Long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PagamentoServiceTest.java:[150,25] no suitable constructor found for Pedido(java.lang.Long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[329,30] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[345,60] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[360,60] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[375,60] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+    constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+      (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[384,25] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[412,25] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[428,25] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[441,25] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[453,41] cannot find symbol
+  symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+  location: variable entregaService of type pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[463,25] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[474,48] cannot find symbol
+  symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+  location: variable entregaService of type pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[483,25] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[496,25] no suitable constructor found for Pedido(long,long,long)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+      (actual and formal argument lists differ in length)
+    constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+      (actual and formal argument lists differ in length)
+[INFO] 64 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.799 s
+[INFO] Finished at: 2026-04-29T14:50:14+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.10.1:testCompile (default-testCompile) on project tascaeats: Compilation failure: Compilation failure: 
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[330,17] cannot find symbol
+[ERROR]   symbol:   method setAddress(<nulltype>)
+[ERROR]   location: variable existing of type pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[336,39] cannot find symbol
+[ERROR]   symbol:   method getAddress()
+[ERROR]   location: class pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[348,39] cannot find symbol
+[ERROR]   symbol:   method getAddress()
+[ERROR]   location: class pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[360,39] cannot find symbol
+[ERROR]   symbol:   method getAddress()
+[ERROR]   location: class pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[372,39] cannot find symbol
+[ERROR]   symbol:   method getAddress()
+[ERROR]   location: class pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UserServiceTest.java:[404,15] cannot find symbol
+[ERROR]   symbol:   method setAddress(pt.ul.fc.css.tascaeats.domain.utilizador.Morada)
+[ERROR]   location: variable client of type pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/EntregaControllerTest.java:[64,28] cannot find symbol
+[ERROR]   symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+[ERROR]   location: variable entregaService of type pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/EntregaControllerTest.java:[73,31] cannot find symbol
+[ERROR]   symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+[ERROR]   location: class pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/EntregaControllerTest.java:[144,38] cannot find symbol
+[ERROR]   symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+[ERROR]   location: class pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/EntregaControllerTest.java:[163,25] no suitable constructor found for Pedido(java.lang.Long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[90,60] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[99,31] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[132,26] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[134,26] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[151,23] cannot find symbol
+[ERROR]   symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+[ERROR]   location: variable entregaService of type pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PdfAlignmentExtraRulesTest.java:[153,48] cannot find symbol
+[ERROR]   symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+[ERROR]   location: variable entregaService of type pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPagamentoRepositoryTest.java:[57,42] no suitable constructor found for PagamentoMultibanco(<nulltype>,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco(java.lang.Long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String,java.lang.String) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPagamentoRepositoryTest.java:[58,9] cannot find symbol
+[ERROR]   symbol:   class PagamentoCartao
+[ERROR]   location: class pt.ul.fc.css.tascaeats.repositories.IPagamentoRepositoryTest
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPagamentoRepositoryTest.java:[58,38] cannot find symbol
+[ERROR]   symbol:   class PagamentoCartao
+[ERROR]   location: class pt.ul.fc.css.tascaeats.repositories.IPagamentoRepositoryTest
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPagamentoRepositoryTest.java:[79,37] cannot find symbol
+[ERROR]   symbol:   class PagamentoCartao
+[ERROR]   location: class pt.ul.fc.css.tascaeats.repositories.IPagamentoRepositoryTest
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/PagamentoMultibancoTest.java:[27,41] no suitable constructor found for PagamentoMultibanco(long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco(java.lang.Long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String,java.lang.String) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/PagamentoMultibancoTest.java:[35,41] no suitable constructor found for PagamentoMultibanco(long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco(java.lang.Long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String,java.lang.String) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/PagamentoMultibancoTest.java:[44,41] no suitable constructor found for PagamentoMultibanco(long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco.PagamentoMultibanco(java.lang.Long,double,java.time.LocalDate,java.lang.String,java.lang.String,java.lang.String,java.lang.String) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IEntregaRepositoryTest.java:[87,25] no suitable constructor found for Pedido(<nulltype>,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/EntregaTest.java:[89,25] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/PagamentoDinheiroTest.java:[30,36] cannot find symbol
+[ERROR]   symbol:   method getTroco()
+[ERROR]   location: variable pagamento of type pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoDinheiro
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/UserControllerTest.java:[144,19] cannot find symbol
+[ERROR]   symbol:   method setAddress(pt.ul.fc.css.tascaeats.domain.utilizador.Morada)
+[ERROR]   location: variable Utilizador of type pt.ul.fc.css.tascaeats.domain.utilizador.Cliente
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPedidoRepositoryTest.java:[43,47] cannot find symbol
+[ERROR]   symbol:   method getclienteId()
+[ERROR]   location: variable p of type pt.ul.fc.css.tascaeats.domain.pedido.Pedido
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPedidoRepositoryTest.java:[53,51] cannot find symbol
+[ERROR]   symbol:   method findByRestauranteId(long)
+[ERROR]   location: variable pedidoRepository of type pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPedidoRepositoryTest.java:[56,47] cannot find symbol
+[ERROR]   symbol:   method getRestauranteId()
+[ERROR]   location: variable p of type pt.ul.fc.css.tascaeats.domain.pedido.Pedido
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPedidoRepositoryTest.java:[82,37] cannot find symbol
+[ERROR]   symbol:   method getclienteId()
+[ERROR]   location: class pt.ul.fc.css.tascaeats.domain.pedido.Pedido
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/repositories/IPedidoRepositoryTest.java:[99,25] no suitable constructor found for Pedido(<nulltype>,java.lang.Long,java.lang.Long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[79,20] cannot find symbol
+[ERROR]   symbol:   method setProdutosIds(java.util.List<java.lang.Object>)
+[ERROR]   location: variable dto of type pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[234,33] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[248,33] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[264,33] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[282,33] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[300,33] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[316,33] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[322,47] cannot find symbol
+[ERROR]   symbol:   method getclienteId()
+[ERROR]   location: class pt.ul.fc.css.tascaeats.domain.pedido.Pedido
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[330,33] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[346,34] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[347,34] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PedidoServiceTest.java:[360,24] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/domain/PedidoTest.java:[117,25] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PagamentoFactoryTest.java:[78,26] cannot find symbol
+[ERROR]   symbol:   class PagamentoCartao
+[ERROR]   location: class pt.ul.fc.css.tascaeats.services.PagamentoFactoryTest
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/PedidoControllerTest.java:[51,30] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/PedidoControllerTest.java:[65,58] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/PedidoControllerTest.java:[102,30] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/controllers/PedidoControllerTest.java:[197,25] no suitable constructor found for Pedido(java.lang.Long,java.lang.Long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/PagamentoServiceTest.java:[150,25] no suitable constructor found for Pedido(java.lang.Long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[329,30] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[345,60] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[360,60] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[375,60] no suitable constructor found for CriarPedidoDTO(long,long,java.util.List<java.lang.Long>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,java.lang.Long) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO.CriarPedidoDTO(java.lang.Long,java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>,pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO) is not applicable
+[ERROR]       (argument mismatch; long cannot be converted to java.util.List<pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO>)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[384,25] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[412,25] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[428,25] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[441,25] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[453,41] cannot find symbol
+[ERROR]   symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+[ERROR]   location: variable entregaService of type pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[463,25] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[474,48] cannot find symbol
+[ERROR]   symbol:   method atribuirEntregador(pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO)
+[ERROR]   location: variable entregaService of type pt.ul.fc.css.tascaeats.service.entregaService.EntregaService
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[483,25] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] /home/oharoon/Desktop/FCUL/CSS/tascaeats/backend/src/test/java/pt/ul/fc/css/tascaeats/services/UseCasesAToLServiceTest.java:[496,25] no suitable constructor found for Pedido(long,long,long)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido() is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR]     constructor pt.ul.fc.css.tascaeats.domain.pedido.Pedido.Pedido(java.lang.Long,java.lang.Long) is not applicable
+[ERROR]       (actual and formal argument lists differ in length)
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

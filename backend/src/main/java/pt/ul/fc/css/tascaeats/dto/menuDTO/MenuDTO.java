@@ -13,7 +13,7 @@ import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class menuDTO{
+public class MenuDTO{
 
     private Long id;
 
@@ -22,11 +22,11 @@ public class menuDTO{
 
     private List<Long> produtosIds;
 
-    public menuDTO(){
+    public MenuDTO(){
 
     }
 
-    public menuDTO(Long id, String nome, List<Long> produtosIds) {
+    public MenuDTO(Long id, String nome, List<Long> produtosIds) {
         this.id = id;
         this.nome = nome;
         this.produtosIds = produtosIds;
