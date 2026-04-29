@@ -12,15 +12,20 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.restaurante.TipoRestaurante;
 
 public interface IRestauranteRepository extends JpaRepository<Restaurante, Long> {
 
 	List<Restaurante> findByNomeContainingIgnoreCase(String nome);
 
 	List<Restaurante> findByMoradaCidadeIgnoreCase(String cidade);
+
+	List<Restaurante> findByTipoRestaurante(TipoRestaurante tipoRestaurante);
 
 	Optional<Restaurante> findByNif(String nif);
 

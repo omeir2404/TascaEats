@@ -114,7 +114,7 @@ public enum TipoCozinha {
 ```
 
 ### 7. Update `Restaurante.java` Entity
-- [ ] Add the following missing fields to map to the frontend search parameters:
+- [x] Add the following missing fields to map to the frontend search parameters:
 ```java
 @NotNull
 @Enumerated(EnumType.STRING)
@@ -130,8 +130,8 @@ private Double avaliacaoMedia = 0.0;
 @Column(name = "preco_medio")
 private Double precoMedio = 0.0;
 ```
-- [ ] Update Getters and Setters for these new fields (or verify Lombok annotations cover them).
-- [ ] Update any custom constructors to initialize or accept these new properties.
+- [x] Update Getters and Setters for these new fields (or verify Lombok annotations cover them).
+- [x] Update any custom constructors to initialize or accept these new properties.
 
 ### 8. Handle Database Constraints for Mock Data
 Currently, `morada`, `catalogoEntregas`, `administrador`, and `menu` are set to `nullable = false`. This crashes the Spring Boot `mockData.sql` script because those related records are not being inserted first. Please apply one of the following solutions:
