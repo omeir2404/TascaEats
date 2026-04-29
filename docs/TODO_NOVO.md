@@ -64,7 +64,8 @@ Agora tens de dar vida às regras de negócio na pasta `src/main/java/.../servic
 O cliente pediu procuras mais avançadas
 Terás de usar Spring Data JPA (Specification API, Criteria API ou anotações `@Query`) na pasta `src/main/java/.../repository`.
 
-* [ ] **4.1. Filtros de Utilizador (`utilizadorRepository/`):**
+* [ ] **Ver como interligar os filtros com a interface web (Thymeleaf) e a API REST existente, para garantir que as buscas são acessíveis tanto na versão Web como na versão Nativa.**
+* [x] **4.1. Filtros de Utilizador (`utilizadorRepository/`):**
   * **Ação:** Implementar buscas por nome, tipo de utilizador 
   , número de pedidos realizados (só para clientes) 
   e número de entregas realizadas (só para entregadores)
@@ -84,7 +85,7 @@ Terás de usar Spring Data JPA (Specification API, Criteria API ou anotações `
   , disponibilidade (acessível apenas a admin/entregadores) 
    e popularidade (número de vezes pedido num intervalo de tempo)
   .
-* [ ] **4.4. Filtros de Menu (Criar `IMenuRepository.java`):**
+* [x] **4.4. Filtros de Menu (Criar `IMenuRepository.java`):**
   * **Ação:** Implementar buscas por nome 
   , número de produtos associados 
    e preço médio dos produtos associados
@@ -105,7 +106,7 @@ Para garantir que a base de dados ficou bem modelada, o sistema tem de ser capaz
 ---
 
 ### 6. Create the Cuisine Enum
-- [ ] Create a new `TipoCozinha` Enum in the domain or enums package.
+- [x] Create a new `TipoCozinha` Enum in the domain or enums package.
 ```java
 public enum TipoCozinha {
     PORTUGUESA, ITALIANA, JAPONESA, HAMBURGUERIA, VEGETARIANA, OUTRA
