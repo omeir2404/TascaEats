@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .orders-list { max-width: 800px; margin: 40px auto; }
+        .order-card { 
+            background: white; border: 1px solid #ddd; border-radius: 8px; 
+            padding: 20px; margin-bottom: 20px; display: flex; 
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-delivered { background-color: #d4edda; color: #155724; }
+        .status-cancelled { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main>
+        <div class="orders-list">
+            <h2>My Order History</h2>
+            <hr style="margin-bottom: 20px;">
+
+            <div th:if="${pedidos == null or pedidos.empty}">
+                <p>You haven't placed any orders yet. Go explore some restaurants!</p>
+                <a th:href="@{/restaurantes}"><button>Find Food</button></a>
+            </div>
+
+            <div class="order-card" th:each="pedido : ${pedidos}">
+                <div>
+                    <h3 style="margin-top: 0; color: #ff6600;" th:text="${pedido.restauranteNome}">Restaurant Name</h3>
+                    <p style="margin: 5px 0; color: #666;">
+                        <strong>Date:</strong> <span th:text="${pedido.data}">Date</span> | 
+                        <strong>Total:</strong> <span th:text="${pedido.total} + '€'">0.00€</span>
+                    </p>
+                    <span th:class="'status-badge ' + 
+                        (${pedido.estado == 'PENDING'} ? 'status-pending' : 
+                        (${pedido.estado == 'DELIVERED'} ? 'status-delivered' : 'status-cancelled'))"
+                        th:text="${pedido.estado}">STATUS</span>
+                </div>
+                
+                <div>
+                    <a th:href="@{/pedidos/{id}(id=${pedido.id})}">
+                        <button>View Details</button>
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+</body>
+</html>

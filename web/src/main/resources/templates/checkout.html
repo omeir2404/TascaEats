@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .checkout-container { max-width: 500px; margin: 40px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .payment-method { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px; cursor: pointer; }
+        .payment-method:hover { background-color: #f9f9f9; }
+        .hidden-details { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc; }
+        .form-group { margin-bottom: 15px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;}
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main>
+        <div class="checkout-container">
+            <h2>Complete your Order</h2>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Order Summary</h4>
+                
+                <ul style="list-style-type: none; padding: 0; margin: 0;">
+                    <li th:each="item : ${itens}" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee;">
+                        <span th:text="${item.quantidade} + 'x ' + ${item.nome}">1x Product Name</span>
+                        <span th:text="${item.preco} + '€'">0.00€</span>
+                    </li>
+                </ul>
+            </div>
+
+            <h3 style="color: #ff6600; text-align: right;">Total: <span th:text="${total} + '€'">0.00€</span></h3>
+            <hr style="margin: 20px 0;">
+
+            <form th:action="@{/checkout/processar}" method="POST" id="checkoutForm">
+                
+                <h4>Select Payment Method</h4>
+
+                <div class="payment-method">
+                    <label style="cursor: pointer; display: block;">
+                        <input type="radio" name="metodoPagamento" value="MBWAY" onchange="togglePaymentDetails()" required> 
+                        <strong>📱 MBWay</strong>
+                    </label>
+                    <div id="mbwayDetails" class="hidden-details">
+                        <div class="form-group">
+                            <label>Phone Number:</label>
+                            <input type="tel" name="telemovel" placeholder="Ex: 912345678" pattern="[0-9]{9}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-method">
+                    <label style="cursor: pointer; display: block;">
+                        <input type="radio" name="metodoPagamento" value="CREDIT_CARD" onchange="togglePaymentDetails()"> 
+                        <strong>💳 Credit/Debit Card</strong>
+                    </label>
+                    <div id="cardDetails" class="hidden-details">
+                        <div class="form-group">
+                            <label>Card Brand:</label>
+                            <select name="bandeiraCartao">
+                                <option value="VISA">Visa</option>
+                                <option value="MASTERCARD">Mastercard</option>
+                                <option value="AMEX">American Express</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Card Number (Mock):</label>
+                            <input type="text" placeholder="**** **** **** ****">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" style="width: 100%; margin-top: 20px; padding: 15px; font-size: 16px;">Confirm Payment & Order</button>
+            </form>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+
+    <script>
+        function togglePaymentDetails() {
+            const method = document.querySelector('input[name="metodoPagamento"]:checked').value;
+            const mbwayDiv = document.getElementById('mbwayDetails');
+            const cardDiv = document.getElementById('cardDetails');
+
+            mbwayDiv.style.display = method === 'MBWAY' ? 'block' : 'none';
+            cardDiv.style.display = method === 'CREDIT_CARD' ? 'block' : 'none';
+            
+            // Require fields conditionally
+            document.querySelector('input[name="telemovel"]').required = method === 'MBWAY';
+            document.querySelector('select[name="bandeiraCartao"]').required = method === 'CREDIT_CARD';
+        }
+    </script>
+</body>
+</html>

@@ -180,7 +180,7 @@ O cliente pediu especificamente uma interface web interativa para realizar consu
 #### Passo 4: Implementar Casos de Uso "Castanhos" (Partilhados)
 Estes são os casos de uso transversais, que precisam de existir tanto na versão Web como na versão Nativa
 
-* [ ] **4.1. Autenticação e Registos (Casos A, B, C, D):**
+* [x] **4.1. Autenticação e Registos (Casos A, B, C, D):**
   * **Ação:** Construir os formulários de *Login* (fazendo *mock* onde qualquer palavra-passe é aceite se o utilizador for válido 
   , e as páginas de registo, verificação, atualização e remoção para Clientes, Administradores e Entregadores 
 * [ ] **4.2. Fluxo de Pedidos (Casos J, K, L, M, N):**

@@ -15,7 +15,7 @@
             <span th:if="${session.loggedUser == null}">
                 <a th:href="@{/login}">Login</a>
             </span>
-
+            <li><a th:href="@{/meus-pedidos}">My Orders</a></li>
             <span th:if="${session.loggedUser != null}">
                 <a th:href="@{/perfil/{id}(id=${session.loggedUser.id})}" 
                 th:text="'👤 ' + ${session.loggedUser.nome}" 
