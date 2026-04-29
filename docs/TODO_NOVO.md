@@ -104,6 +104,59 @@ Para garantir que a base de dados ficou bem modelada, o sistema tem de ser capaz
 
 ---
 
+### 6. Create the Cuisine Enum
+- [ ] Create a new `TipoCozinha` Enum in the domain or enums package.
+```java
+public enum TipoCozinha {
+    PORTUGUESA, ITALIANA, JAPONESA, HAMBURGUERIA, VEGETARIANA, OUTRA
+}
+```
+
+### 7. Update `Restaurante.java` Entity
+- [ ] Add the following missing fields to map to the frontend search parameters:
+```java
+@NotNull
+@Enumerated(EnumType.STRING)
+@Column(name = "tipo_cozinha", nullable = false)
+private TipoCozinha tipoCozinha;
+
+@Column(name = "numero_avaliacoes")
+private Integer numeroAvaliacoes = 0;
+
+@Column(name = "avaliacao_media")
+private Double avaliacaoMedia = 0.0;
+
+@Column(name = "preco_medio")
+private Double precoMedio = 0.0;
+```
+- [ ] Update Getters and Setters for these new fields (or verify Lombok annotations cover them).
+- [ ] Update any custom constructors to initialize or accept these new properties.
+
+### 8. Handle Database Constraints for Mock Data
+Currently, `morada`, `catalogoEntregas`, `administrador`, and `menu` are set to `nullable = false`. This crashes the Spring Boot `mockData.sql` script because those related records are not being inserted first. Please apply one of the following solutions:
+- [ ] **Option A (Fastest for Frontend UI Testing):** Temporarily change to `nullable = true` on the `@JoinColumn` annotations for those four relationships. This allows the frontend to boot and test the UI grid immediately.
+- [ ] **Option B (Strict Database Integrity):** Keep `nullable = false`, but write the prerequisite SQL `INSERT` statements for `Morada`, `RestauranteAdmin`, `Menu`, and `CatalogoEntregas` inside `mockData.sql` *before* the `INSERT INTO restaurante` statements.
+
+### 9. Implement/Verify the Search Endpoint
+- [ ] Ensure the backend `RestauranteController` has the `/api/restaurantes/pesquisa` endpoint implemented.
+- [ ] Ensure the endpoint accepts the corresponding parameters to interact with the database:
+
+```java
+
+@GetMapping("/pesquisa")
+public ResponseEntity<List<Restaurante>> pesquisarRestaurantes(
+        @RequestParam(required = false) String nome,
+        @RequestParam(required = false) TipoCozinha tipoCozinha,
+        @RequestParam(required = false) EstadoRestaurante estado,
+        @RequestParam(required = false) Integer pedidosRealizados,
+        @RequestParam(required = false) Double avaliacaoMinima,
+        @RequestParam(required = false) String morada,
+        @RequestParam(required = false) Double precoMedio) {
+    // ... search logic
+}
+```
+--
+
 # membro 1 extra (se der tempo senao quem conseguir)
 
 O Trabalho de Casa para o Membro 1 (Backend)
