@@ -84,35 +84,35 @@
                 
                 <div class="form-group">
                     <label for="nome">Product Name:</label>
-                    <input type="text" id="nome" name="nome" placeholder="Ex: Burger">
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Burger" th:value="${nome}">
                 </div>
 
                 <div class="form-group">
                     <label for="precoMax">Max Price (€):</label>
-                    <input type="number" id="precoMax" name="precoMax" step="0.50" min="0">
+                    <input type="number" id="precoMax" name="precoMax" step="0.50" min="0" th:value="${precoMax}">
                 </div>
 
                 <div class="form-group">
                     <label for="categoria">Category:</label>
                     <select id="categoria" name="categoria">
-                        <option value="">All</option>
-                        <option value="DRINK">Drink</option>
-                        <option value="MAIN_COURSE">Main Course</option>
-                        <option value="DESSERT">Dessert</option>
+                        <option value="" th:selected="${categoria == null or categoria == ''}">All</option>
+                        <option value="DRINK" th:selected="${categoria == 'DRINK'}">Drink</option>
+                        <option value="MAIN_COURSE" th:selected="${categoria == 'MAIN_COURSE'}">Main Course</option>
+                        <option value="DESSERT" th:selected="${categoria == 'DESSERT'}">Dessert</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label for="disponivel">Only Available:</label>
-                    <input type="checkbox" id="disponivel" name="disponivel" value="true">
+                    <input type="checkbox" id="disponivel" name="disponivel" value="true" th:checked="${disponivel}">
                 </div>
 
                 <div class="form-group">
                     <label for="popularidade">Popularity (Min Rating):</label>
-                    <input type="number" id="popularidade" name="popularidade" min="0" max="5" step="0.1">
+                    <input type="number" id="popularidade" name="popularidade" min="0" max="5" step="0.1" th:value="${popularidade}">
                 </div>
 
-                <button type="submit">Filter Menu</button>
+                <button type="submit" style="display: none;">Filter Menu</button>
             </form>
         </div>
 
@@ -175,6 +175,32 @@
             // Toggle the 'flipped' class to trigger the CSS rotation
             card.classList.toggle('flipped');
         }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const filterForm = document.querySelector('.filtro-container form');
+            if (!filterForm) return;
+
+            // 1. Instant submit for Dropdowns and Checkboxes
+            const instantInputs = filterForm.querySelectorAll('select, input[type="checkbox"]');
+            instantInputs.forEach(input => {
+                input.addEventListener('change', () => filterForm.submit());
+            });
+
+            // 2. Delayed submit for Text and Number typing (Debounce)
+            let typingTimer;
+            const typingInterval = 600; // Wait 0.6 seconds after typing stops
+            const textInputs = filterForm.querySelectorAll('input[type="text"], input[type="number"]');
+            
+            textInputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(() => {
+                        filterForm.submit();
+                    }, typingInterval);
+                });
+            });
+        });
     </script>
 </body>
 </html>

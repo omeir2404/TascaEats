@@ -127,11 +127,36 @@ public class WebRestauranteController {
             @RequestParam(required = false) Double popularidade,
             Model model) {
 
-        // TEMPORARY: Bypass backend and just return the mock menu for testing the UI
-        model.addAttribute("produtos", getMockProdutos(id));
-        model.addAttribute("restauranteId", id);
-        model.addAttribute("restauranteNome", "Mocked Restaurant #" + id);
+        // 1. Grab the full mock menu for this specific restaurant
+        List<Map<String, Object>> todosProdutos = getMockProdutos(id);
 
+        // 2. Filter the data based on the parameters sent by the HTML form
+        List<Map<String, Object>> produtosFiltrados = todosProdutos.stream()
+            // Filter by Name (if provided)
+            .filter(p -> nome == null || nome.isBlank() || p.get("nome").toString().toLowerCase().contains(nome.toLowerCase()))
+            
+            // Filter by Max Price (if provided)
+            .filter(p -> precoMax == null || ((Double) p.get("preco")) <= precoMax)
+            
+            // Filter by Category (if provided)
+            .filter(p -> categoria == null || categoria.isBlank() || p.get("categoria").toString().equalsIgnoreCase(categoria))
+            
+            // Filter by Availability (if checkbox is checked, only show available items)
+            .filter(p -> !disponivel || (Boolean) p.get("disponivel") == true)
+            
+            .toList();
+
+        // 3. Send the filtered list back to the frontend
+        model.addAttribute("produtos", produtosFiltrados);
+        model.addAttribute("restauranteId", id);
+        model.addAttribute("restauranteNome", id == 1 ? "Tasca do Zé" : (id == 3 ? "Sushi Zen" : "Mocked Restaurant"));
+
+        // ---> NEW: Send the active filters back to the HTML <---
+        model.addAttribute("nome", nome);
+        model.addAttribute("precoMax", precoMax);
+        model.addAttribute("categoria", categoria);
+        model.addAttribute("disponivel", disponivel);
+        model.addAttribute("popularidade", popularidade);
         return "produtos";
     }
 // #################################################  NAO APAGAR O QUE ESTA ABAIXO   ##########################################################################################
