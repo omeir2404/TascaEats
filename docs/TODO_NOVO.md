@@ -40,7 +40,7 @@ Como o domínio mudou, os dados que entram e saem da API também mudam.
 * [x] **2.1. Atualizar Pedido DTOs:**
   * **Ficheiros:** `dto/pedidoDTO/CriarPedidoDTO.java`.
   * **Ação:** Ajustar para suportar a seleção da morada de entrega (nova ou existente) e a lista de produtos de múltiplos restaurantes.
-* [ ] **2.2. Atualizar Pagamento DTOs:**
+* [x] **2.2. Atualizar Pagamento DTOs:**
   * **Ficheiros:** `dto/pagamentoDTO/ProcessarPagamentoDTO.java`.
   * **Ação:** Incluir campos opcionais para receber a bandeira do cartão, número do MBWay e valor para troco.
 * [ ] **2.3. Criar DTOs para Menu e Avaliação:**
