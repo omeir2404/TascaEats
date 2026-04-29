@@ -1,42 +1,50 @@
-<main>
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 10%;">
-        <h1 style="color: #1a73e8; font-weight: 800;">Our Meals</h1>
-        <div class="search-container">
-            <input type="text" placeholder="search by name" style="padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd;">
-        </div>
-    </div>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurants - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <div class="category-bar">
-        <div class="category-item active"><span>All</span></div>
-        <div class="category-item"><span>Rice</span></div>
-        <div class="category-item"><span>Burger</span></div>
-        <div class="category-item"><span>Pizza</span></div>
-        <div class="category-item"><span>Noodle</span></div>
-        <div class="category-item"><span>Drink</span></div>
-    </div>
+    <main>
+        <div th:replace="~{fragments/search-bar :: live-search}"></div>
 
-    <div class="grid-meals">
-        <div class="meal-card" th:each="produto : ${produtos}">
-            <img th:src="${produto.imagemUrl != null ? produto.imagemUrl : 'https://via.placeholder.com/400x300'}" class="meal-img">
-
-            <div class="meal-info">
-                <span class="fav-icon">♥</span>
-                <h4 th:text="${produto.nome}">Spaghetti Bolognese</h4>
-
-                <div class="rating">
-                    ★★★★★ <span style="color: #ccc; font-size: 10px;">156 Comments</span>
+        <div id="defaultViews">
+            <h3>Your Favorites & Recents</h3>
+            <div class="grid-restaurantes" style="margin-bottom: 40px;">
+                <div class="card" style="background-color: #fff8f0; border-color: #ffcc99;">
+                    <h3>Tasca do Zé</h3>
+                    <p>⭐ 4.8 - Portuguese</p>
+                    <p><em>You reviewed this recently!</em></p>
+                    <a th:href="@{/restaurantes/1/produtos}"><button>Order Again</button></a>
                 </div>
+            </div>
 
-                <div class="location">
-                    📍 <span th:text="${produto.restaurante.cidade}">Jakarta, Indonesia</span>
-                </div>
-
-                <div class="price">
-                    $ <span th:text="${produto.preco}">4.99</span>
+            <h3>Featured Restaurants</h3>
+            <div class="grid-restaurantes">
+                <div class="card" th:each="restaurante : ${restaurantes}">
+                    <h3 th:text="${restaurante.nome}">Restaurant Name</h3>
+                    <p><strong>Cuisine:</strong> <span th:text="${restaurante.tipoCozinha}">Type</span></p>
+                    <p><strong>Status:</strong> <span th:text="${restaurante.estado}">Open</span></p>
+                    <br>
+                    <a th:href="@{/restaurantes/{id}/produtos(id=${restaurante.id})}">
+                        <button>View Menu</button>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
 
-    <button class="btn-view-more">View More</button>
-</main>
+        <div id="liveGridContainer" style="display: none;">
+            <h3>Search Results</h3>
+            <div id="liveGridResults" class="grid-restaurantes">
+                </div>
+        </div>
+        
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>
