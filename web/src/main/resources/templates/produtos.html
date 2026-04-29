@@ -4,6 +4,74 @@
     <meta charset="UTF-8">
     <title>Menu - TascaEats</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    
+    <style>
+        .grid-produtos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .flip-card {
+            background-color: transparent;
+            height: 280px;
+            perspective: 1000px; /* Required for 3D effect */
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        /* Class added by JavaScript to trigger the flip */
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* The back face needs to be rotated initially */
+        .flip-card-back {
+            transform: rotateY(180deg);
+            background-color: #fcfcfc;
+            overflow-y: auto;
+        }
+
+        /* The Flip Button in the top right corner */
+        .btn-flip {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+        }
+        
+        .btn-flip:hover {
+            color: #ff6600;
+        }
+    </style>
 </head>
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
@@ -48,18 +116,46 @@
             </form>
         </div>
 
+        <hr style="margin: 30px 0;">
+
         <div class="grid-produtos">
-            <div class="card" th:each="produto : ${produtos}">
-                <h3 th:text="${produto.nome}">Product Name</h3>
-                <p><strong>Price:</strong> <span th:text="${produto.preco} + '€'">0.00€</span></p>
-                <p><strong>Category:</strong> <span th:text="${produto.categoria}">Category</span></p>
-                <p th:if="${produto.disponivel}" style="color: green;">Available</p>
-                <p th:unless="${produto.disponivel}" style="color: red;">Out of stock</p>
-                
-                <form th:action="@{/carrinho/adicionar}" method="POST" th:if="${produto.disponivel}">
-                    <input type="hidden" name="produtoId" th:value="${produto.id}">
-                    <button type="submit">Add to Cart</button>
-                </form>
+            <div class="flip-card" th:each="produto : ${produtos}">
+                <div class="flip-card-inner">
+                    
+                    <div class="flip-card-front">
+                        <button type="button" class="btn-flip" onclick="toggleFlip(this)" title="View Details">ℹ️</button>
+                        
+                        <div>
+                            <h3 th:text="${produto.nome}">Product Name</h3>
+                            <p><strong>Price:</strong> <span th:text="${produto.preco} + '€'">0.00€</span></p>
+                            <p><strong>Category:</strong> <span th:text="${produto.categoria}">Category</span></p>
+                            <p th:if="${produto.disponivel}" style="color: green; font-weight: bold;">Available</p>
+                            <p th:unless="${produto.disponivel}" style="color: red; font-weight: bold;">Out of stock</p>
+                        </div>
+                        
+                        <form th:action="@{/carrinho/adicionar}" method="POST" th:if="${produto.disponivel}">
+                            <input type="hidden" name="produtoId" th:value="${produto.id}">
+                            <button type="submit" style="width: 100%;">Add to Cart</button>
+                        </form>
+                    </div>
+
+                    <div class="flip-card-back">
+                        <button type="button" class="btn-flip" onclick="toggleFlip(this)" title="Go Back">↩️</button>
+                        
+                        <div>
+                            <h3 style="margin-top: 0; color: #ff6600;">Details</h3>
+                            
+                            <p><strong>Description:</strong></p>
+                            <p style="font-size: 14px; color: #555;" 
+                               th:text="${produto.descricao != null ? produto.descricao : 'No description provided for this item.'}"></p>
+                            
+                            <p style="margin-top: 15px;"><strong>Allergens:</strong></p>
+                            <p style="font-size: 14px; color: #d9534f;" 
+                               th:text="${produto.alergenios != null ? produto.alergenios : 'None listed.'}"></p>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
             <div th:if="${produtos == null or produtos.empty}">
@@ -69,5 +165,16 @@
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>
+    
+    <script th:src="@{/js/main.js}"></script>
+    
+    <script>
+        function toggleFlip(buttonElement) {
+            // Find the closest parent container with the 'flip-card' class
+            const card = buttonElement.closest('.flip-card');
+            // Toggle the 'flipped' class to trigger the CSS rotation
+            card.classList.toggle('flipped');
+        }
+    </script>
 </body>
 </html>

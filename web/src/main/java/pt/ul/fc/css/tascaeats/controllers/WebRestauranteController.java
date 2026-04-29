@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 public class WebRestauranteController {
@@ -37,6 +36,37 @@ public class WebRestauranteController {
             Map.of("id", 4, "nome", "Café Central", "tipoCozinha", "PORTUGUESA", "estado", "ABERTO", "numeroAvaliacoes", 12)
         );
         }
+// --- TEMPORARY MOCK PRODUCTS GENERATOR ---
+    private List<Map<String, Object>> getMockProdutos(Long restauranteId) {
+        if (restauranteId == 1) { // Tasca do Zé
+            return List.of(
+                Map.of(
+                    "id", 1, "nome", "Bacalhau à Brás", "preco", 12.50, "categoria", "MAIN_COURSE", "disponivel", true,
+                    "descricao", "Traditional Portuguese dish made with shredded cod, onions, and scrambled eggs.", "alergenios", "Fish, Eggs"
+                ),
+                Map.of(
+                    "id", 2, "nome", "Super Bock 33cl", "preco", 2.00, "categoria", "DRINK", "disponivel", true,
+                    "descricao", "Refreshing cold Portuguese beer.", "alergenios", "Gluten"
+                ),
+                Map.of(
+                    "id", 3, "nome", "Pastel de Nata", "preco", 1.50, "categoria", "DESSERT", "disponivel", false,
+                    "descricao", "Famous Portuguese egg custard tart pastry.", "alergenios", "Eggs, Milk, Gluten"
+                )
+            );
+        } else if (restauranteId == 3) { // Sushi Zen
+            return List.of(
+                Map.of(
+                    "id", 4, "nome", "Combinado Salmon 15 peças", "preco", 22.00, "categoria", "MAIN_COURSE", "disponivel", true,
+                    "descricao", "Chef's selection of 15 premium fresh salmon pieces.", "alergenios", "Fish"
+                ),
+                Map.of(
+                    "id", 5, "nome", "Chá Verde", "preco", 3.00, "categoria", "DRINK", "disponivel", true,
+                    "descricao", "Authentic Japanese hot green tea.", "alergenios", "None"
+                )
+            );
+        }
+        return List.of(); // Return empty menu for other restaurants
+    }
 
         // 1. Default page: Loads all mock restaurants
     @GetMapping("/restaurantes")
@@ -75,7 +105,36 @@ public class WebRestauranteController {
         // Return the filtered list to the frontend JS
         return ResponseEntity.ok(restaurantesFiltrados);
     }
-// ###########################################################################################################################################
+
+
+    @GetMapping("/restaurantes/{id}/produtos")
+    public String listarProdutos(@PathVariable Long id, Model model) {
+        // TEMPORARY: Bypass backend and use mock products
+        model.addAttribute("produtos", getMockProdutos(id));
+        model.addAttribute("restauranteId", id);
+        model.addAttribute("restauranteNome", "Mocked Restaurant #" + id); 
+        
+        return "produtos";
+    }
+
+    @GetMapping("/restaurantes/{id}/produtos/search")
+    public String pesquisarProdutos(
+            @PathVariable Long id,
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) Double precoMax,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false, defaultValue = "false") Boolean disponivel,
+            @RequestParam(required = false) Double popularidade,
+            Model model) {
+
+        // TEMPORARY: Bypass backend and just return the mock menu for testing the UI
+        model.addAttribute("produtos", getMockProdutos(id));
+        model.addAttribute("restauranteId", id);
+        model.addAttribute("restauranteNome", "Mocked Restaurant #" + id);
+
+        return "produtos";
+    }
+// #################################################  NAO APAGAR O QUE ESTA ABAIXO   ##########################################################################################
 
 
     //     // 1. Default page: Loads all restaurants
@@ -151,52 +210,52 @@ public class WebRestauranteController {
     //     }
     // }
 
-    @GetMapping("/restaurantes/{id}/produtos")
-    public String listarProdutos(@PathVariable Long id, Model model) {
-        // 1. Fetch products from backend for this restaurant
-        String url = backendUrl + "/api/restaurantes/" + id + "/produtos";
+    // @GetMapping("/restaurantes/{id}/produtos")
+    // public String listarProdutos(@PathVariable Long id, Model model) {
+    //     // 1. Fetch products from backend for this restaurant
+    //     String url = backendUrl + "/api/restaurantes/" + id + "/produtos";
         
-        try {
-            List produtos = restTemplate.getForObject(url, List.class);
-            model.addAttribute("produtos", produtos);
-            model.addAttribute("restauranteId", id);
-            // You might want to fetch the restaurant name as well
-            model.addAttribute("restauranteNome", "Restaurant #" + id); 
-        } catch (Exception e) {
-            model.addAttribute("erro", "Could not load menu.");
-        }
+    //     try {
+    //         List produtos = restTemplate.getForObject(url, List.class);
+    //         model.addAttribute("produtos", produtos);
+    //         model.addAttribute("restauranteId", id);
+    //         // You might want to fetch the restaurant name as well
+    //         model.addAttribute("restauranteNome", "Restaurant #" + id); 
+    //     } catch (Exception e) {
+    //         model.addAttribute("erro", "Could not load menu.");
+    //     }
         
-        return "produtos";
-    }
+    //     return "produtos";
+    // }
 
-    @GetMapping("/restaurantes/{id}/produtos/search")
-    public String pesquisarProdutos(
-            @PathVariable Long id,
-            @RequestParam(required = false) String nome,
-            @RequestParam(required = false) Double precoMax,
-            @RequestParam(required = false) String categoria,
-            @RequestParam(required = false, defaultValue = "false") Boolean disponivel,
-            @RequestParam(required = false) Double popularidade,
-            Model model) {
+    // @GetMapping("/restaurantes/{id}/produtos/search")
+    // public String pesquisarProdutos(
+    //         @PathVariable Long id,
+    //         @RequestParam(required = false) String nome,
+    //         @RequestParam(required = false) Double precoMax,
+    //         @RequestParam(required = false) String categoria,
+    //         @RequestParam(required = false, defaultValue = "false") Boolean disponivel,
+    //         @RequestParam(required = false) Double popularidade,
+    //         Model model) {
 
-        // 2. Build the Backend API URL with query params
-        String url = backendUrl + "/api/restaurantes/" + id + "/produtos/search";
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
+    //     // 2. Build the Backend API URL with query params
+    //     String url = backendUrl + "/api/restaurantes/" + id + "/produtos/search";
+    //     UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
 
-        if (nome != null && !nome.isBlank()) builder.queryParam("nome", nome);
-        if (precoMax != null) builder.queryParam("precoMax", precoMax);
-        if (categoria != null && !categoria.isBlank()) builder.queryParam("categoria", categoria);
-        if (disponivel) builder.queryParam("disponivel", true);
-        if (popularidade != null) builder.queryParam("popularidade", popularidade);
+    //     if (nome != null && !nome.isBlank()) builder.queryParam("nome", nome);
+    //     if (precoMax != null) builder.queryParam("precoMax", precoMax);
+    //     if (categoria != null && !categoria.isBlank()) builder.queryParam("categoria", categoria);
+    //     if (disponivel) builder.queryParam("disponivel", true);
+    //     if (popularidade != null) builder.queryParam("popularidade", popularidade);
 
-        try {
-            List produtos = restTemplate.getForObject(builder.toUriString(), List.class);
-            model.addAttribute("produtos", produtos);
-            model.addAttribute("restauranteId", id);
-        } catch (Exception e) {
-            model.addAttribute("erro", "Search failed.");
-        }
+    //     try {
+    //         List produtos = restTemplate.getForObject(builder.toUriString(), List.class);
+    //         model.addAttribute("produtos", produtos);
+    //         model.addAttribute("restauranteId", id);
+    //     } catch (Exception e) {
+    //         model.addAttribute("erro", "Search failed.");
+    //     }
 
-        return "produtos";
-    }
+    //     return "produtos";
+    // }
 }
