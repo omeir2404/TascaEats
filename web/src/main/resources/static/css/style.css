@@ -1,123 +1,166 @@
-/* Reset básico */
+/* Importando uma fonte mais moderna */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Poppins', sans-serif;
+}
+
+:root {
+    --primary-blue: #00a8ad; /* O tom de azul da imagem */
+    --accent-orange: #ff5722;
+    --text-dark: #2d3436;
+    --bg-light: #ffffff;
 }
 
 body {
-    background-color: #f8f9fa;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    background-color: #fff;
+    color: var(--text-dark);
 }
 
-/* Cabeçalho */
+/* Header Curvo e Estilizado */
 header {
-    background-color: #ff5722;
+    background: var(--primary-blue);
     color: white;
-    padding: 1rem 2rem;
+    padding: 2rem 10%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* Criando a curva orgânica da imagem */
+    border-bottom-left-radius: 100px 30px;
+    position: relative;
+    overflow: hidden;
 }
 
 header h1 {
-    font-size: 1.5rem;
+    font-weight: 800;
+    font-size: 1.8rem;
+    z-index: 2;
 }
 
-nav ul {
+header nav ul {
     list-style: none;
     display: flex;
-    gap: 1.5rem;
+    gap: 2rem;
+    z-index: 2;
 }
 
-nav a {
+header nav a {
     color: white;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.9rem;
 }
 
-nav a:hover {
-    text-decoration: underline;
+/* Seção de Busca (Hero) */
+.hero-search {
+    padding: 4rem 10%;
+    text-align: left;
 }
 
-/* Conteúdo Principal */
+.hero-search h2 {
+    font-size: 3rem;
+    color: var(--primary-blue);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    max-width: 500px;
+}
+
+/* Grid de Categorias/Features (Os ícones azuis da imagem) */
+.features-section {
+    display: flex;
+    justify-content: space-around;
+    padding: 3rem 10%;
+    text-align: center;
+}
+
+.feature-item img {
+    width: 80px;
+    margin-bottom: 1rem;
+}
+
+/* Grid de Restaurantes (Cards Estilo "Our Meals") */
 main {
-    flex: 1;
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
+    padding: 2rem 10%;
 }
 
-/* Formulários e Filtros */
-.filtro-container {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+h3 {
+    font-size: 2rem;
     margin-bottom: 2rem;
+    color: var(--primary-blue);
+    text-align: center;
 }
 
-.filtro-container form {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    align-items: flex-end;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-input, select, button {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-button {
-    background-color: #ff5722;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-button:hover {
-    background-color: #e64a19;
-}
-
-/* Grelha de Restaurantes */
 .grid-restaurantes {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
 }
 
 .card {
     background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+    border: none;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+}
+
+/* Placeholder para Imagem (Já que seu objeto não tem imagem ainda) */
+.card::before {
+    content: "";
+    display: block;
+    height: 180px;
+    background: #eee url('https://via.placeholder.com/400x300?text=Food+Image') center/cover;
+}
+
+.card-content {
+    padding: 1.2rem;
 }
 
 .card h3 {
-    color: #ff5722;
+    font-size: 1.2rem;
+    text-align: left;
     margin-bottom: 0.5rem;
+    color: var(--text-dark);
 }
 
-/* Rodapé */
-footer {
-    background-color: #333;
+.card p {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Botão Estilo "Check Out" da imagem */
+button, .btn-view {
+    background-color: #2b82c9;
     color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 80%;
+    margin: 1rem auto;
+    display: block;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #1a5a8e;
+}
+
+footer {
+    background: #333;
+    color: white;
+    padding: 3rem;
     text-align: center;
-    padding: 1rem;
-    margin-top: auto;
+    margin-top: 4rem;
 }
