@@ -65,4 +65,10 @@ public class avaliacaoDTO {
 
     public void setPedidoId(Long pedidoId) { this.pedidoId = pedidoId; }
 
+    @Override
+    public String toString() {
+        return "CriarAvaliacaoDTO{" + "classificacao=" + classificacao + ", comentario='" + comentario + '\'' +
+                ", clienteId=" + clienteId + ", restauranteId=" + restauranteId + ", pedidoId=" + pedidoId + '}';
+    }
+
 }
