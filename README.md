@@ -104,19 +104,23 @@ BACKEND_API_URL=http://localhost:8080 mvn javafx:run
 
 Se o backend estiver noutro endereço, ajustar a variável `BACKEND_API_URL`.
 
+#### Funcionalidades atuais
+
+- **Visão de Restaurantes**: lista, pesquisa por nome/estado, detalhes de cada restaurante
+- **Visão de Casos de Uso**: comparação do estado de implementação entre web browser e native JavaFX
+- **Menu de navegação**: alternar entre vistas; botão Sair para encerrar
+
 ## API e Swagger
 
 - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
 - Rotas e exemplos de payload: `USE_CASES_API_ROUTES.md`
 
-## Dashboard de implementação da webapp
+## Nota sobre o desenvolvimento
 
-A aplicação web agora disponibiliza uma página-resumo com o estado dos casos de uso por interface:
-
-- `/` ou `/status` — tabela com o que está implementado, parcial ou pendente na web browser e na app JavaFX.
-
-Esta página é útil para acompanhar o trabalho em conjunto com o backend e perceber rapidamente o que falta em cada
-cliente.
+- A **webapp browser (Thymeleaf)** está a ser desenvolvida por um colega. Use o módulo `web` com a webapp base que
+  ficou (ficheiros restaurantes.html e 404.html).
+- A **app nativa JavaFX** dispõe de uma aba "Casos de Uso" onde se pode acompanhar o progresso de implementação dos
+  diferentes caso de uso.
 
 ## Funcionalidades implementadas:
 

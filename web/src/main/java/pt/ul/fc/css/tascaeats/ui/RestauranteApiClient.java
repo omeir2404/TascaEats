@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -14,6 +15,12 @@ import org.springframework.web.util.UriComponentsBuilder;
  * Cliente HTTP simples para consumir a API REST do backend.
  */
 public class RestauranteApiClient {
+
+    /**
+     * Resultado de pesquisa de restaurantes, com indicação se foi necessário usar fallback local.
+     */
+    public record RestaurantSearchResult(List<RestauranteResumo> restaurantes, boolean fallbackUsado, String mensagem) {
+    }
 
     private static final ParameterizedTypeReference<List<Map<String, Object>>> LIST_TYPE = new ParameterizedTypeReference<>() {
     };
@@ -54,6 +61,24 @@ public class RestauranteApiClient {
         return restaurantes;
     }
 
+    /**
+     * Pesquisa restaurantes mas, se o backend devolver 404 ou estiver indisponível,
+     * devolve dados demo para permitir testar a interface.
+     */
+    public RestaurantSearchResult listarRestaurantesComFallback(String nome, String estado) {
+        try {
+            List<RestauranteResumo> restaurantes = listarRestaurantes(nome, estado);
+            String mensagem = restaurantes.isEmpty()
+                    ? "Nenhum restaurante encontrado."
+                    : restaurantes.size() + " restaurante(s) carregado(s) com sucesso.";
+            return new RestaurantSearchResult(restaurantes, false, mensagem);
+        } catch (RestClientException ex) {
+            List<RestauranteResumo> demo = filtrarDemoRestaurantes(nome, estado);
+            String mensagem = "Backend devolveu 404/erro temporário — a usar dados demo para testar os ecrãs.";
+            return new RestaurantSearchResult(demo, true, mensagem);
+        }
+    }
+
     private RestauranteResumo toResumo(Map<String, Object> item) {
         Long id = null;
         Object rawId = item.get("id");
@@ -78,6 +103,31 @@ public class RestauranteApiClient {
             value = value.substring(0, value.length() - 1);
         }
         return value;
+    }
+
+    private List<RestauranteResumo> filtrarDemoRestaurantes(String nome, String estado) {
+        List<RestauranteResumo> demo = demoRestaurantes();
+        String nomeNormalizado = nome == null ? "" : nome.trim().toLowerCase();
+        String estadoNormalizado = estado == null ? "" : estado.trim().toUpperCase();
+
+        List<RestauranteResumo> filtrados = new ArrayList<>();
+        for (RestauranteResumo resumo : demo) {
+            boolean matchNome = nomeNormalizado.isBlank() || resumo.nome().toLowerCase().contains(nomeNormalizado);
+            boolean matchEstado = estadoNormalizado.isBlank() || resumo.estado().equalsIgnoreCase(estadoNormalizado);
+            if (matchNome && matchEstado) {
+                filtrados.add(resumo);
+            }
+        }
+        return filtrados;
+    }
+
+    private List<RestauranteResumo> demoRestaurantes() {
+        return List.of(
+                new RestauranteResumo(1L, "Tasca do Zé", "ABERTO"),
+                new RestauranteResumo(2L, "Sabor da Vila", "FECHADO"),
+                new RestauranteResumo(3L, "Casa da Avó", "RESERVADO"),
+                new RestauranteResumo(4L, "Maré Alta", "ABERTO")
+        );
     }
 }
 
