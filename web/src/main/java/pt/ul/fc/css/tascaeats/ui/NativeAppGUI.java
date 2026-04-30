@@ -140,10 +140,10 @@ public class NativeAppGUI extends Application {
         contentArea.getChildren().add(createOrdersPane());
     }
 
-    private void showStatusPane() {
-        contentArea.getChildren().clear();
-        contentArea.getChildren().add(createStatusContent());
-    }
+//    private void showStatusPane() {
+//        contentArea.getChildren().clear();
+//        contentArea.getChildren().add(createStatusContent());
+//    }
 
     // ========== Caso A: Login ==========
     private VBox createLoginPane() {
@@ -375,30 +375,30 @@ public class NativeAppGUI extends Application {
         return container;
     }
 
-    private VBox createStatusContent() {
-        VBox container = new VBox(12);
-        container.setPadding(new Insets(20));
-        container.setStyle("-fx-background-color: #f8f9fa;");
-        VBox.setVgrow(container, Priority.ALWAYS);
-
-        // Cabeçalho
-        VBox header = new VBox(8);
-        Label title = new Label("Comparação de Casos de Uso");
-        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #222;");
-        Label subtitle = new Label("Estado de implementação por interface");
-        subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #666;");
-        header.getChildren().addAll(title, subtitle);
-
-        // Legenda de cores
-        HBox legend = createLegend();
-
-        // Tabela de status
-        TableView<UseCaseRow> table = createStatusTable();
-        VBox.setVgrow(table, Priority.ALWAYS);
-
-        container.getChildren().addAll(header, legend, table);
-        return container;
-    }
+//    private VBox createStatusContent() {
+//        VBox container = new VBox(12);
+//        container.setPadding(new Insets(20));
+//        container.setStyle("-fx-background-color: #f8f9fa;");
+//        VBox.setVgrow(container, Priority.ALWAYS);
+//
+//        // Cabeçalho
+//        VBox header = new VBox(8);
+//        Label title = new Label("Comparação de Casos de Uso");
+//        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #222;");
+//        Label subtitle = new Label("Estado de implementação por interface");
+//        subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #666;");
+//        header.getChildren().addAll(title, subtitle);
+//
+//        // Legenda de cores
+//        HBox legend = createLegend();
+//
+//        // Tabela de status
+//        TableView<UseCaseRow> table = createStatusTable();
+//        VBox.setVgrow(table, Priority.ALWAYS);
+//
+//        container.getChildren().addAll(header, legend, table);
+//        return container;
+//    }
 
     private HBox createLegend() {
         HBox legend = new HBox(16);
