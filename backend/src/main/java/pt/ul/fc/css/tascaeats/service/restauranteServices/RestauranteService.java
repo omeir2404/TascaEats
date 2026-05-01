@@ -8,12 +8,16 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.service.restauranteServices;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
@@ -24,6 +28,7 @@ import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
+import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IRestauranteAdminRepository;
 
@@ -32,10 +37,14 @@ import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IRestauranteAdminR
 public class RestauranteService {
 
 	private final IRestauranteRepository restauranteRepository;
+	private final IPedidoRepository pedidoRepository;
 	private final IRestauranteAdminRepository administradorRepository;
 
-	public RestauranteService(IRestauranteRepository restauranteRepository, IRestauranteAdminRepository administradorRepository) {
+	public RestauranteService(IRestauranteRepository restauranteRepository,
+							  IPedidoRepository pedidoRepository,
+							  IRestauranteAdminRepository administradorRepository) {
 		this.restauranteRepository = restauranteRepository;
+		this.pedidoRepository = pedidoRepository;
 		this.administradorRepository = administradorRepository;
 	}
 
@@ -157,19 +166,88 @@ public class RestauranteService {
 												   EstadoRestaurante estado,
 												   Integer pedidosRealizados,
 												   Double avaliacaoMinima,
+												   Integer numeroAvaliacoesMinimo,
 												   String morada,
 												   Double precoMedio) {
-		String nomeNormalizado = (nome == null || nome.isBlank()) ? null : nome.trim();
-		String moradaNormalizada = (morada == null || morada.isBlank()) ? null : morada.trim();
-		return restauranteRepository.pesquisarRestaurantes(
-				nomeNormalizado,
-				tipoRestaurante,
-				estado,
-				pedidosRealizados,
-				avaliacaoMinima,
-				moradaNormalizada,
-				precoMedio
+		String nomeNormalizado = normalizarTexto(nome);
+		String moradaNormalizada = normalizarTexto(morada);
+
+		List<Restaurante> candidatos = obterRestaurantesCandidatos(nomeNormalizado, tipoRestaurante, estado);
+		Map<Long, Long> pedidosPorRestaurante = null;
+
+		if (pedidosRealizados != null) {
+			pedidosPorRestaurante = contarPedidosPorRestaurante();
+		}
+
+		final Map<Long, Long> pedidos = pedidosPorRestaurante;
+		return candidatos.stream()
+				.filter(restaurante -> pedidosRealizados == null || pedidos.getOrDefault(restaurante.getId(), 0L) >= pedidosRealizados)
+				.filter(restaurante -> avaliacaoMinima == null || restaurante.getAvaliacaoMedia() >= avaliacaoMinima)
+				.filter(restaurante -> numeroAvaliacoesMinimo == null || restaurante.getNumeroAvaliacoes() >= numeroAvaliacoesMinimo)
+				.filter(restaurante -> correspondeMorada(restaurante, moradaNormalizada))
+				.filter(restaurante -> precoMedio == null || restaurante.getPrecoMedio() <= precoMedio)
+				.toList();
+	}
+
+	private List<Restaurante> obterRestaurantesCandidatos(String nomeNormalizado, TipoRestaurante tipoRestaurante, EstadoRestaurante estado) {
+		if (nomeNormalizado != null) {
+			return restauranteRepository.findByNomeContainingIgnoreCase(nomeNormalizado);
+		} else if (estado != null) {
+			return restauranteRepository.findByEstado(estado);
+		} else if (tipoRestaurante != null) {
+			return restauranteRepository.findByTipoRestaurante(tipoRestaurante);
+		} else {
+			return restauranteRepository.findAll();
+		}
+	}
+
+	private Map<Long, Long> contarPedidosPorRestaurante() {
+		Map<Long, Long> contagem = new HashMap<>();
+		for (Pedido pedido : pedidoRepository.findAll()) {
+			for (Long restauranteId : pedido.getRestaurantesIds()) {
+				contagem.merge(restauranteId, 1L, Long::sum);
+			}
+		}
+		return contagem;
+	}
+
+	private boolean correspondeMorada(Restaurante restaurante, String moradaNormalizada) {
+		if (moradaNormalizada == null) {
+			return true;
+		}
+		if (restaurante.getMorada() == null) {
+			return false;
+		}
+		String textoMorada = juntarTexto(
+				restaurante.getMorada().getRua(),
+				restaurante.getMorada().getCidade(),
+				restaurante.getMorada().getDistrito(),
+				restaurante.getMorada().getPais(),
+				restaurante.getMorada().getCodigoPostal()
 		);
+		return textoMorada.contains(moradaNormalizada);
+	}
+
+	private String juntarTexto(String... partes) {
+		StringBuilder texto = new StringBuilder();
+		for (String parte : partes) {
+			String parteNormalizada = normalizarTexto(parte);
+			if (parteNormalizada == null) {
+				continue;
+			}
+			if (!texto.isEmpty()) {
+				texto.append(' ');
+			}
+			texto.append(parteNormalizada);
+		}
+		return texto.toString();
+	}
+
+	private String normalizarTexto(String texto) {
+		if (texto == null || texto.isBlank()) {
+			return null;
+		}
+		return texto.trim().toLowerCase(Locale.ROOT);
 	}
 
     private void validarNif(String nif, Long idIgnorar) {
@@ -204,7 +282,7 @@ public class RestauranteService {
 
 		String rua = stringNormalizada(dto.getRua(), "A rua da morada é obrigatória.");
 		Integer numero = dto.getNumero();
-		String complemento = dto.getComplemento() != null ? dto.getComplemento().trim() : null; // O complemento é opcional, então pode ser nulo.
+		String complemento = dto.getComplemento() == null ? null : dto.getComplemento().trim(); // O complemento é opcional, então pode ser nulo.
 		String pais = stringNormalizada(dto.getPais(), "O país é obrigatório.");
 		String distrito = stringNormalizada(dto.getDistrito(), "O distrito é obrigatório.");
 		String cidade = stringNormalizada(dto.getCidade(), "A cidade é obrigatória.");

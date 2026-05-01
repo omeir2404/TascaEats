@@ -69,7 +69,7 @@ Terás de usar Spring Data JPA (Specification API, Criteria API ou anotações `
   * **Ação:** Implementar buscas por nome, tipo de utilizador 
   , número de pedidos realizados (só para clientes) 
   e número de entregas realizadas (só para entregadores)
-* [ ] **4.2. Filtros de Restaurante (`IRestauranteRepository.java`):**
+* [x] **4.2. Filtros de Restaurante (`IRestauranteRepository.java`):**
   * **Ação:** Implementar buscas por nome 
   , número de pedidos realizados 
   , número de avaliações recebidas 
@@ -78,6 +78,7 @@ Terás de usar Spring Data JPA (Specification API, Criteria API ou anotações `
   , horário de funcionamento (aberto/fechado) 
    e preço médio dos pratos
   .
+  * **Status:** Completado com otimização de queries: candidatos iniciais filtrados via repository, remaining criteria filtragem em memória.
 * [ ] **4.3. Filtros de Produtos (`IProdutoRepository.java`):**
   * **Ação:** Implementar buscas por nome 
   , preço 
@@ -133,10 +134,7 @@ private Double precoMedio = 0.0;
 - [x] Update Getters and Setters for these new fields (or verify Lombok annotations cover them).
 - [x] Update any custom constructors to initialize or accept these new properties.
 
-### 8. Handle Database Constraints for Mock Data
-Currently, `morada`, `catalogoEntregas`, `administrador`, and `menu` are set to `nullable = false`. This crashes the Spring Boot `mockData.sql` script because those related records are not being inserted first. Please apply one of the following solutions:
-- [ ] **Option A (Fastest for Frontend UI Testing):** Temporarily change to `nullable = true` on the `@JoinColumn` annotations for those four relationships. This allows the frontend to boot and test the UI grid immediately.
-- [ ] **Option B (Strict Database Integrity):** Keep `nullable = false`, but write the prerequisite SQL `INSERT` statements for `Morada`, `RestauranteAdmin`, `Menu`, and `CatalogoEntregas` inside `mockData.sql` *before* the `INSERT INTO restaurante` statements.
+
 
 ### 9. Implement/Verify the Search Endpoint
 - [x] Ensure the backend `RestauranteController` has the `/api/restaurantes/pesquisa` endpoint implemented.

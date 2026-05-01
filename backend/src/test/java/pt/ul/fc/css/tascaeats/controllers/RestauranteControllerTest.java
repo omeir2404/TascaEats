@@ -280,7 +280,7 @@ class RestauranteControllerTest {
     @Test
     @DisplayName("O: GET /api/restaurantes/pesquisa?nome usa o endpoint de pesquisa")
     void shouldSearchRestaurantesThroughPesquisaEndpoint() throws Exception {
-        when(restauranteService.pesquisarRestaurantes("tasca", null, null, null, null, null, null))
+        when(restauranteService.pesquisarRestaurantes("tasca", null, null, null, null, null, null, null))
                 .thenReturn(List.of(restaurante(9L, "Tasca Pesquisa", "123456789", EstadoRestaurante.ABERTO)));
 
         mockMvc.perform(get("/api/restaurantes/pesquisa").param("nome", "tasca"))
@@ -288,7 +288,7 @@ class RestauranteControllerTest {
                 .andExpect(jsonPath("$[0].nome").value("Tasca Pesquisa"))
                 .andExpect(jsonPath("$[0].estado").value("ABERTO"));
 
-        verify(restauranteService).pesquisarRestaurantes("tasca", null, null, null, null, null, null);
+        verify(restauranteService).pesquisarRestaurantes("tasca", null, null, null, null, null, null, null);
     }
 
     @Test
@@ -300,6 +300,7 @@ class RestauranteControllerTest {
                 EstadoRestaurante.ABERTO,
                 10,
                 4.5,
+                null,
                 "Lisboa",
                 20.0
         )).thenReturn(List.of(restaurante(10L, "Tasca Filtro", "987654321", EstadoRestaurante.ABERTO)));
@@ -321,6 +322,7 @@ class RestauranteControllerTest {
                 EstadoRestaurante.ABERTO,
                 10,
                 4.5,
+                null,
                 "Lisboa",
                 20.0
         );

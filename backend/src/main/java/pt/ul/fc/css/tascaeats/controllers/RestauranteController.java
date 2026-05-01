@@ -138,6 +138,7 @@ public class RestauranteController {
                                                                            @RequestParam(required = false) EstadoRestaurante estado,
                                                                            @RequestParam(required = false) Integer pedidosRealizados,
                                                                            @RequestParam(required = false) Double avaliacaoMinima,
+                                                                           @RequestParam(required = false) Integer numeroAvaliacoes,
                                                                            @RequestParam(required = false) String morada,
                                                                            @RequestParam(required = false) Double precoMedio) {
         List<Restaurante> restaurantes = restauranteService.pesquisarRestaurantes(
@@ -146,6 +147,7 @@ public class RestauranteController {
                 estado,
                 pedidosRealizados,
                 avaliacaoMinima,
+                numeroAvaliacoes,
                 morada,
                 precoMedio
         );
