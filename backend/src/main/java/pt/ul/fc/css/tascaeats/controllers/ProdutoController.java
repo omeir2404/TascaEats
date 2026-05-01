@@ -8,6 +8,7 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.controllers;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,6 +122,24 @@ public class ProdutoController {
         } else {
             produtos = produtoService.listarProdutos();
         }
+
+        List<Map<String, Object>> response = produtos.stream()
+                .map(this::resumoProduto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
+    // Pesquisar produtos com filtros
+    @GetMapping("/produtos/pesquisa")
+    public ResponseEntity<List<Map<String, Object>>> pesquisarProdutos(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) Double preco,
+            @RequestParam(required = false) Long menuId,
+            @RequestParam(required = false) Boolean disponivel,
+            @RequestParam(required = false) LocalDate dataInicio,
+            @RequestParam(required = false) LocalDate dataFim) {
+
+        List<Produto> produtos = produtoService.pesquisarProdutos(nome, preco, menuId, disponivel, dataInicio, dataFim);
 
         List<Map<String, Object>> response = produtos.stream()
                 .map(this::resumoProduto)

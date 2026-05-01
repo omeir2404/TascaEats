@@ -79,13 +79,14 @@ Terás de usar Spring Data JPA (Specification API, Criteria API ou anotações `
    e preço médio dos pratos
   .
   * **Status:** Completado com otimização de queries: candidatos iniciais filtrados via repository, remaining criteria filtragem em memória.
-* [ ] **4.3. Filtros de Produtos (`IProdutoRepository.java`):**
+* [x] **4.3. Filtros de Produtos (`IProdutoRepository.java`):**
   * **Ação:** Implementar buscas por nome 
   , preço 
   , categoria 
   , disponibilidade (acessível apenas a admin/entregadores) 
    e popularidade (número de vezes pedido num intervalo de tempo)
   .
+  * **Status:** Completado com otimização de queries: nome/categoria/disponibilidade como candidatos iniciais, preço e popularidade filtrados em memória.
 * [x] **4.4. Filtros de Menu (Criar `IMenuRepository.java`):**
   * **Ação:** Implementar buscas por nome 
   , número de produtos associados 
