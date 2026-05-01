@@ -51,7 +51,7 @@ Como o domínio mudou, os dados que entram e saem da API também mudam.
 #### Passo 3: Implementação da Lógica de Negócio (Services)
 Agora tens de dar vida às regras de negócio na pasta `src/main/java/.../service`.
 
-* [ ] **3.1. Automatizar Atribuição de Entregador:**
+* [x] **3.1. Automatizar Atribuição de Entregador:**
   * **Ficheiros:** `EntregaService.java` e/ou `PedidoService.java`.
   * **Ação:** Desenvolver o algoritmo que encontra o entregador válido/disponível mais adequado e o associa automaticamente a um pedido quando este fica pronto, sem intervenção humana
 * [x] **3.2. Lógica de Menus:**
@@ -96,11 +96,11 @@ Terás de usar Spring Data JPA (Specification API, Criteria API ou anotações `
 #### Passo 5: Validação de Queries Complexas (Perguntas de Negócio)
 Para garantir que a base de dados ficou bem modelada, o sistema tem de ser capaz de responder às seguintes questões analíticas
 
-* [ ] **5.1.** Calcular a média do troco nos pagamentos em numerário
-* [ ] **5.2.** Descobrir qual é o item mais pedido de um determinado restaurante
-* [ ] **5.3.** Identificar o entregador com mais entregas realizadas para um restaurante específico
-* [ ] **5.4.** Descobrir qual o restaurante mais popular de uma franquia específica
-* [ ] **5.5.** Identificar o cliente que fez mais pedidos num intervalo de tempo específico
+* [x] **5.1.** Calcular a média do troco nos pagamentos em numerário
+* [x] **5.2.** Descobrir qual é o item mais pedido de um determinado restaurante
+* [x] **5.3.** Identificar o entregador com mais entregas realizadas para um restaurante específico
+* [x] **5.4.** Descobrir qual o restaurante mais popular de uma franquia específica
+* [x] **5.5.** Identificar o cliente que fez mais pedidos num intervalo de tempo específico
 * **Ação:** Traduzir estas questões para métodos nos Repositórios (usando agregações como `COUNT`, `AVG`, `GROUP BY`) e validar o seu funcionamento via testes unitários em `src/test/java/.../repositories/`.
 
 ---
@@ -139,8 +139,8 @@ Currently, `morada`, `catalogoEntregas`, `administrador`, and `menu` are set to 
 - [ ] **Option B (Strict Database Integrity):** Keep `nullable = false`, but write the prerequisite SQL `INSERT` statements for `Morada`, `RestauranteAdmin`, `Menu`, and `CatalogoEntregas` inside `mockData.sql` *before* the `INSERT INTO restaurante` statements.
 
 ### 9. Implement/Verify the Search Endpoint
-- [ ] Ensure the backend `RestauranteController` has the `/api/restaurantes/pesquisa` endpoint implemented.
-- [ ] Ensure the endpoint accepts the corresponding parameters to interact with the database:
+- [x] Ensure the backend `RestauranteController` has the `/api/restaurantes/pesquisa` endpoint implemented.
+- [x] Ensure the endpoint accepts the corresponding parameters to interact with the database:
 
 ```java
 

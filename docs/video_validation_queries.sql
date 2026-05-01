@@ -84,7 +84,7 @@ ORDER BY rc.total_pedidos DESC
 LIMIT 1;
 
 -- ============================================================
--- Q3) Em média, quantos pedidos um cliente realiza por mês?
+-- Q3) Em media, quantos pedidos um cliente realiza por mes?
 -- ============================================================
 WITH pedidos_por_cliente_mes AS (
   SELECT
@@ -103,7 +103,7 @@ ORDER BY media_pedidos_por_mes DESC;
 
 -- ============================================================
 -- Q4) Quais os produtos mais vendidos da plataforma?
--- Nota: este projeto tende a usar tabela de relação pedido_produtos.
+-- Nota: este projeto tende a usar tabela de relacao pedido_produtos.
 -- ============================================================
 SELECT
   pr.id AS produto_id,
@@ -115,7 +115,92 @@ GROUP BY pr.id, pr.nome
 ORDER BY vezes_vendido DESC, pr.id;
 
 -- ============================================================
--- Q5) Qual o método de pagamento mais utilizado pelos clientes?
+-- Q5.1) Calcular a media do troco nos pagamentos em numerario
+-- ============================================================
+SELECT
+  COALESCE(ROUND(AVG(pg.valor_troco)::numeric, 2), 0) AS media_troco
+FROM pagamentos pg
+WHERE pg.tipo_pagamento = 'DINHEIRO'
+  AND pg.valor_troco IS NOT NULL;
+
+-- ============================================================
+-- Q5.2) Descobrir qual e o item mais pedido de um determinado restaurante
+-- Substituir :restaurante_id pelo id do restaurante pretendido.
+-- ============================================================
+SELECT
+  pr.id AS produto_id,
+  pr.nome AS produto_nome,
+  COUNT(*) AS total_pedidos
+FROM pedido_restaurantes prr
+JOIN pedido_produtos pp
+  ON pp.pedido_id = prr.pedido_id
+JOIN produto pr
+  ON pr.id = pp.produto_id
+WHERE prr.restaurante_id = :restaurante_id
+GROUP BY pr.id, pr.nome
+ORDER BY total_pedidos DESC, pr.id
+LIMIT 1;
+
+-- ============================================================
+-- Q5.3) Identificar o entregador com mais entregas realizadas para um restaurante especifico
+-- Substituir :restaurante_id pelo id do restaurante pretendido.
+-- ============================================================
+SELECT
+  e.entregador_id,
+  u.nome AS entregador_nome,
+  u.email AS entregador_email,
+  COUNT(*) AS total_entregas
+FROM entregas e
+JOIN pedidos p
+  ON p.id = e.pedido_id
+JOIN pedido_restaurantes prr
+  ON prr.pedido_id = p.id
+LEFT JOIN utilizadores u
+  ON u.id = e.entregador_id
+WHERE prr.restaurante_id = :restaurante_id
+  AND e.hora_entrega IS NOT NULL
+GROUP BY e.entregador_id, u.nome, u.email
+ORDER BY total_entregas DESC, e.entregador_id
+LIMIT 1;
+
+-- ============================================================
+-- Q5.4) Descobrir qual o restaurante mais popular de uma franquia especifica
+-- Substituir :franquia pelo nome da franquia pretendida.
+-- ============================================================
+SELECT
+  r.id AS restaurante_id,
+  r.nome AS restaurante_nome,
+  r.franquia,
+  COUNT(p.id) AS total_pedidos
+FROM restaurante r
+JOIN pedido_restaurantes prr
+  ON prr.restaurante_id = r.id
+JOIN pedidos p
+  ON p.id = prr.pedido_id
+WHERE r.franquia = :franquia
+GROUP BY r.id, r.nome, r.franquia
+ORDER BY total_pedidos DESC, r.id
+LIMIT 1;
+
+-- ============================================================
+-- Q5.5) Identificar o cliente que fez mais pedidos num intervalo de tempo especifico
+-- Substituir :data_inicio e :data_fim pelas datas pretendidas.
+-- ============================================================
+SELECT
+  p.cliente_id,
+  u.nome AS cliente_nome,
+  u.email AS cliente_email,
+  COUNT(p.id) AS total_pedidos
+FROM pedidos p
+LEFT JOIN utilizadores u
+  ON u.id = p.cliente_id
+WHERE p.data BETWEEN :data_inicio AND :data_fim
+GROUP BY p.cliente_id, u.nome, u.email
+ORDER BY total_pedidos DESC, p.cliente_id
+LIMIT 1;
+
+-- ============================================================
+-- Q5) Qual o metodo de pagamento mais utilizado pelos clientes?
 -- (coluna discriminator: tipo_pagamento)
 -- ============================================================
 SELECT
