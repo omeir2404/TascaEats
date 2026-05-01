@@ -60,19 +60,19 @@ public class Restaurante{
     private Double precoMedio = 0.0;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "morada_id", nullable = false, unique = true)
+    @JoinColumn(name = "morada_id", nullable = true, unique = true)
     private Morada morada; 
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "catalogo_entregas_id", nullable = false)
+    @JoinColumn(name = "catalogo_entregas_id", nullable = true)
     private CatalogoEntregas catalogoEntregas;
 
     @ManyToOne
-    @JoinColumn(name = "administrador_id", nullable = false)
+    @JoinColumn(name = "administrador_id", nullable = true)
     private RestauranteAdmin administrador;
 
     @ManyToOne
-    @JoinColumn(name = "menu_id", nullable = false)
+    @JoinColumn(name = "menu_id", nullable = true)
     private Menu menu;
 
 
