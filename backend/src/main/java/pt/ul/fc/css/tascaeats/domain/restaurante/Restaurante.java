@@ -40,6 +40,9 @@ public class Restaurante{
     @Column(nullable = false, unique = true)
     private String nif;
 
+    @Column(name = "franquia")
+    private String franquia;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -60,19 +63,19 @@ public class Restaurante{
     private Double precoMedio = 0.0;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "morada_id", nullable = true, unique = true)
+    @JoinColumn(name = "morada_id", nullable = false, unique = true)
     private Morada morada; 
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "catalogo_entregas_id", nullable = true)
+    @JoinColumn(name = "catalogo_entregas_id", nullable = false)
     private CatalogoEntregas catalogoEntregas;
 
     @ManyToOne
-    @JoinColumn(name = "administrador_id", nullable = true)
+    @JoinColumn(name = "administrador_id", nullable = false)
     private RestauranteAdmin administrador;
 
     @ManyToOne
-    @JoinColumn(name = "menu_id", nullable = true)
+    @JoinColumn(name = "menu_id", nullable = false)
     private Menu menu;
 
 
@@ -124,6 +127,14 @@ public class Restaurante{
 
     public void setNif(String nif){
         this.nif = nif;
+    }
+
+    public String getFranquia() {
+        return franquia;
+    }
+
+    public void setFranquia(String franquia) {
+        this.franquia = franquia;
     }
 
     //Estado

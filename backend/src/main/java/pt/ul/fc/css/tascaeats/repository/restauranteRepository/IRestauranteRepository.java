@@ -30,4 +30,22 @@ public interface IRestauranteRepository extends JpaRepository<Restaurante, Long>
 	Optional<Restaurante> findByNif(String nif);
 
 	List<Restaurante> findByEstado(EstadoRestaurante estado);
+
+	@Query(value = """
+		SELECT r.*
+		FROM restaurante r
+		WHERE r.id = (
+			SELECT prr.restaurante_id
+			FROM pedido_restaurantes prr
+			JOIN pedidos p
+			  ON p.id = prr.pedido_id
+			JOIN restaurante r2
+			  ON r2.id = prr.restaurante_id
+			WHERE r2.franquia = :franquia
+			GROUP BY prr.restaurante_id
+			ORDER BY COUNT(p.id) DESC, prr.restaurante_id ASC
+			FETCH FIRST 1 ROW ONLY
+		)
+	""", nativeQuery = true)
+	Optional<Restaurante> findRestauranteMaisPopularDaFranquia(@Param("franquia") String franquia);
 }
