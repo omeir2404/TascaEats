@@ -1,178 +1,142 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu - TascaEats</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    
-    <style>
-        .grid-produtos {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .flip-card {
-            background-color: transparent;
-            height: 280px;
-            perspective: 1000px; /* Required for 3D effect */
-        }
-
-        .flip-card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-        }
-
-        /* Class added by JavaScript to trigger the flip */
-        .flip-card.flipped .flip-card-inner {
-            transform: rotateY(180deg);
-        }
-
-        .flip-card-front, .flip-card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 20px;
-            box-sizing: border-box;
-            background-color: white;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        /* The back face needs to be rotated initially */
-        .flip-card-back {
-            transform: rotateY(180deg);
-            background-color: #fcfcfc;
-            overflow-y: auto;
-        }
-
-        /* The Flip Button in the top right corner */
-        .btn-flip {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #666;
-            transition: color 0.3s;
-        }
-        
-        .btn-flip:hover {
-            color: #ff6600;
-        }
-    </style>
 </head>
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main>
-        <h2 th:text="'Menu: ' + ${restauranteNome}">Restaurant Name</h2>
+    <main class="page-shell">
+        <section class="split-intro">
+            <div class="page-intro">
+                <span class="section-eyebrow">Menu</span>
+                <h2 th:text="'Menu: ' + ${restauranteNome}">Restaurant Name</h2>
+                <p>Os produtos passam a estar num layout mais limpo, com filtros separados da grelha e detalhe em cartão reversível.</p>
+            </div>
+            <aside class="intro-aside">
+                <strong>Vista do restaurante</strong>
+                <p>Consulta disponibilidade, categoria e detalhe sem perder a leitura da lista.</p>
+            </aside>
+        </section>
 
-        <div class="filtro-container">
-            <form th:action="@{/restaurantes/{id}/produtos/search(id=${restauranteId})}" method="GET">
-                
-                <div class="form-group">
-                    <label for="nome">Product Name:</label>
-                    <input type="text" id="nome" name="nome" placeholder="Ex: Burger" th:value="${nome}">
-                </div>
+        <section class="filter-shell">
+            <div class="filtro-container">
+                <form th:action="@{/restaurantes/{id}/produtos/search(id=${restauranteId})}" method="GET">
+                    <div class="form-group form-group--wide">
+                        <label for="nome">Nome do produto</label>
+                        <input type="text" id="nome" name="nome" placeholder="Ex: Burger" th:value="${nome}">
+                    </div>
 
-                <div class="form-group">
-                    <label for="precoMax">Max Price (€):</label>
-                    <input type="number" id="precoMax" name="precoMax" step="0.50" min="0" th:value="${precoMax}">
-                </div>
+                    <div class="form-group form-group--medium">
+                        <label for="precoMax">Preco maximo</label>
+                        <input type="number" id="precoMax" name="precoMax" step="0.50" min="0" th:value="${precoMax}">
+                    </div>
 
-                <div class="form-group">
-                    <label for="categoria">Category:</label>
-                    <select id="categoria" name="categoria">
-                        <option value="" th:selected="${categoria == null or categoria == ''}">All</option>
-                        <option value="DRINK" th:selected="${categoria == 'DRINK'}">Drink</option>
-                        <option value="MAIN_COURSE" th:selected="${categoria == 'MAIN_COURSE'}">Main Course</option>
-                        <option value="DESSERT" th:selected="${categoria == 'DESSERT'}">Dessert</option>
-                    </select>
-                </div>
+                    <div class="form-group form-group--medium">
+                        <label for="categoria">Categoria</label>
+                        <select id="categoria" name="categoria">
+                            <option value="" th:selected="${categoria == null or categoria == ''}">Todas</option>
+                            <option value="DRINK" th:selected="${categoria == 'DRINK'}">Bebida</option>
+                            <option value="MAIN_COURSE" th:selected="${categoria == 'MAIN_COURSE'}">Prato principal</option>
+                            <option value="DESSERT" th:selected="${categoria == 'DESSERT'}">Sobremesa</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="disponivel">Only Available:</label>
-                    <input type="checkbox" id="disponivel" name="disponivel" value="true" th:checked="${disponivel}">
-                </div>
+                    <div class="form-group form-group--compact form-checkbox">
+                        <label for="disponivel">Disponivel</label>
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="disponivel" name="disponivel" value="true" th:checked="${disponivel}">
+                            <span>Apenas ativos</span>
+                        </div>
+                    </div>
 
-                <div class="form-group">
-                    <label for="popularidade">Popularity (Min Rating):</label>
-                    <input type="number" id="popularidade" name="popularidade" min="0" max="5" step="0.1" th:value="${popularidade}">
-                </div>
+                    <div class="form-group form-group--compact">
+                        <label for="popularidade">Popularidade min.</label>
+                        <input type="number" id="popularidade" name="popularidade" min="0" max="5" step="0.1" th:value="${popularidade}">
+                    </div>
 
-                <button type="submit" style="display: none;">Filter Menu</button>
-            </form>
-        </div>
+                    <div class="form-actions">
+                        <button type="submit">Filtrar menu</button>
+                    </div>
+                </form>
+            </div>
 
-        <hr style="margin: 30px 0;">
+            <aside class="filter-summary">
+                <span class="section-eyebrow">Detalhe</span>
+                <h3>Mais contexto por produto</h3>
+                <p>Os cartões mostram informação essencial na frente e deixam descrição e alergénios no verso.</p>
+            </aside>
+        </section>
 
         <div class="grid-produtos">
             <div class="flip-card" th:each="produto : ${produtos}">
                 <div class="flip-card-inner">
-                    
                     <div class="flip-card-front">
-                        <button type="button" class="btn-flip" onclick="toggleFlip(this)" title="View Details">ℹ️</button>
-                        
-                        <div>
-                            <h3 th:text="${produto.nome}">Product Name</h3>
-                            <p><strong>Price:</strong> <span th:text="${produto.preco} + '€'">0.00€</span></p>
-                            <p><strong>Category:</strong> <span th:text="${produto.categoria}">Category</span></p>
-                            <p th:if="${produto.disponivel}" style="color: green; font-weight: bold;">Available</p>
-                            <p th:unless="${produto.disponivel}" style="color: red; font-weight: bold;">Out of stock</p>
+                        <button type="button" class="btn-flip" onclick="toggleFlip(this)" title="Ver detalhes">i</button>
+
+                        <div class="section-stack">
+                            <div class="pill-row">
+                                <span class="pill" th:text="${produto.categoria}">Categoria</span>
+                                <span class="status-pill"
+                                      th:classappend="${produto.disponivel} ? ' status-pill--open' : ' status-pill--closed'"
+                                      th:text="${produto.disponivel} ? 'Disponivel' : 'Indisponivel'">Disponivel</span>
+                            </div>
+
+                            <div>
+                                <h3 th:text="${produto.nome}">Product Name</h3>
+                                <p th:text="${produto.preco} + ' EUR'">0.00 EUR</p>
+                            </div>
+
+                            <div class="inline-pills">
+                                <span class="tag">Detalhe no verso</span>
+                            </div>
                         </div>
-                        
+
                         <form th:action="@{/carrinho/adicionar}" method="POST" th:if="${produto.disponivel}">
                             <input type="hidden" name="produtoId" th:value="${produto.id}">
-                            <button type="submit" style="width: 100%;">Add to Cart</button>
+                            <button type="submit" style="width: 100%;">Adicionar ao carrinho</button>
                         </form>
                     </div>
 
                     <div class="flip-card-back">
-                        <button type="button" class="btn-flip" onclick="toggleFlip(this)" title="Go Back">↩️</button>
-                        
-                        <div>
-                            <h3 style="margin-top: 0; color: #ff6600;">Details</h3>
-                            
-                            <p><strong>Description:</strong></p>
-                            <p style="font-size: 14px; color: #555;" 
-                               th:text="${produto.descricao != null ? produto.descricao : 'No description provided for this item.'}"></p>
-                            
-                            <p style="margin-top: 15px;"><strong>Allergens:</strong></p>
-                            <p style="font-size: 14px; color: #d9534f;" 
-                               th:text="${produto.alergenios != null ? produto.alergenios : 'None listed.'}"></p>
+                        <button type="button" class="btn-flip" onclick="toggleFlip(this)" title="Voltar">x</button>
+
+                        <div class="section-stack">
+                            <div>
+                                <span class="section-eyebrow">Detalhes</span>
+                                <h3 th:text="${produto.nome}">Produto</h3>
+                            </div>
+
+                            <div>
+                                <p><strong>Descricao</strong></p>
+                                <p th:text="${produto.descricao != null ? produto.descricao : 'Sem descricao disponivel.'}"></p>
+                            </div>
+
+                            <div>
+                                <p><strong>Alergenios</strong></p>
+                                <p th:text="${produto.alergenios != null ? produto.alergenios : 'Nenhum indicado.'}"></p>
+                            </div>
                         </div>
                     </div>
-
                 </div>
             </div>
 
-            <div th:if="${produtos == null or produtos.empty}">
-                <p>No products found with these filters.</p>
+            <div class="empty-state" th:if="${produtos == null or produtos.empty}">
+                <p>Nao foram encontrados produtos com estes filtros.</p>
             </div>
         </div>
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>
-    
+
     <script th:src="@{/js/main.js}"></script>
-    
+
     <script>
         function toggleFlip(buttonElement) {
-            // Find the closest parent container with the 'flip-card' class
             const card = buttonElement.closest('.flip-card');
-            // Toggle the 'flipped' class to trigger the CSS rotation
             card.classList.toggle('flipped');
         }
     </script>
@@ -181,17 +145,15 @@
             const filterForm = document.querySelector('.filtro-container form');
             if (!filterForm) return;
 
-            // 1. Instant submit for Dropdowns and Checkboxes
             const instantInputs = filterForm.querySelectorAll('select, input[type="checkbox"]');
             instantInputs.forEach(input => {
                 input.addEventListener('change', () => filterForm.submit());
             });
 
-            // 2. Delayed submit for Text and Number typing (Debounce)
             let typingTimer;
-            const typingInterval = 600; // Wait 0.6 seconds after typing stops
+            const typingInterval = 600;
             const textInputs = filterForm.querySelectorAll('input[type="text"], input[type="number"]');
-            
+
             textInputs.forEach(input => {
                 input.addEventListener('input', () => {
                     clearTimeout(typingTimer);

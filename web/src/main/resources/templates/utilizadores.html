@@ -1,116 +1,112 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Users Management - TascaEats</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilizadores - TascaEats</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-            margin-top: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            color: #333;
-        }
-        tr:hover {
-            background-color: #fdfdfd;
-        }
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .status-active { background-color: #d4edda; color: #155724; }
-        .status-inactive { background-color: #f8d7da; color: #721c24; }
-    </style>
 </head>
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main>
-        <h2>System Users</h2>
-
-        <div class="filtro-container">
-            <form th:action="@{/utilizadores}" method="GET">
-                
-                <div class="form-group">
-                    <label for="nome">Search Name:</label>
-                    <input type="text" id="nome" name="nome" placeholder="Ex: João" th:value="${nome}">
-                </div>
-
-                <div class="form-group">
-                    <label for="papel">System Role:</label>
-                    <select id="papel" name="papel">
-                        <option value="" th:selected="${papel == null or papel == ''}">All Roles</option>
-                        <option value="CLIENT" th:selected="${papel == 'CLIENT'}">Client</option>
-                        <option value="ADMIN" th:selected="${papel == 'ADMIN'}">Admin</option>
-                        <option value="COURIER" th:selected="${papel == 'COURIER'}">Courier</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="apenasAtivos">Active Users Only:</label>
-                    <input type="checkbox" id="apenasAtivos" name="apenasAtivos" value="true" th:checked="${apenasAtivos}">
-                </div>
-
-                <button type="submit" style="display: none;">Filter Users</button>
-            </form>
-        </div>
-
-        <hr style="margin: 30px 0;">
-
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="user : ${utilizadores}">
-                        <td th:text="${user.id}">1</td>
-                        <td th:text="${user.nome}">Name</td>
-                        <td th:text="${user.email}">Email</td>
-                        <td th:text="${user.papel}">Role</td>
-                        <td>
-                            <span th:if="${user.ativo}" class="status-badge status-active">Active</span>
-                            <span th:unless="${user.ativo}" class="status-badge status-inactive">Inactive</span>
-                        </td>
-                        <td>
-                            <a th:href="@{/perfil/{id}(id=${user.id})}">
-                                <button style="padding: 5px 10px; font-size: 12px;">Edit</button>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div th:if="${utilizadores == null or utilizadores.empty}" style="padding: 20px; text-align: center;">
-                <p>No users found matching these filters.</p>
+    <main class="page-shell">
+        <section class="split-intro">
+            <div class="page-intro">
+                <span class="section-eyebrow">Utilizadores</span>
+                <h2>Gestao de utilizadores</h2>
+                <p>O layout desta área deixa de ser uma tabela solta e passa a ter cabeçalho, filtros e tabela num único conjunto.</p>
             </div>
-        </div>
+            <aside class="intro-aside">
+                <strong>Area de operacao</strong>
+                <p>Pesquisa por nome, filtra por papel e restringe a contas ativas.</p>
+            </aside>
+        </section>
+
+        <section class="filter-shell">
+            <div class="filtro-container">
+                <form th:action="@{/utilizadores}" method="GET">
+                    <div class="form-group form-group--wide">
+                        <label for="nome">Nome</label>
+                        <input type="text" id="nome" name="nome" placeholder="Ex: Joao" th:value="${nome}">
+                    </div>
+
+                    <div class="form-group form-group--medium">
+                        <label for="papel">Papel</label>
+                        <select id="papel" name="papel">
+                            <option value="" th:selected="${papel == null or papel == ''}">Todos</option>
+                            <option value="CLIENT" th:selected="${papel == 'CLIENT'}">Cliente</option>
+                            <option value="ADMIN" th:selected="${papel == 'ADMIN'}">Administrador</option>
+                            <option value="COURIER" th:selected="${papel == 'COURIER'}">Entregador</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group form-group--compact form-checkbox">
+                        <label for="apenasAtivos">Estado</label>
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="apenasAtivos" name="apenasAtivos" value="true" th:checked="${apenasAtivos}">
+                            <span>Apenas ativos</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit">Filtrar utilizadores</button>
+                    </div>
+                </form>
+            </div>
+
+            <aside class="filter-summary">
+                <span class="section-eyebrow">Tabela</span>
+                <h3>Leitura administrativa</h3>
+                <p>O conteúdo está enquadrado como área de gestão em vez de parecer apenas uma tabela HTML sem contexto.</p>
+            </aside>
+        </section>
+
+        <section class="table-shell">
+            <div class="table-header">
+                <div class="section-header">
+                    <div>
+                        <h3>Utilizadores do sistema</h3>
+                        <p>Vista compacta com acesso direto ao perfil de cada conta.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Papel</th>
+                            <th>Estado</th>
+                            <th>Acoes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${utilizadores}">
+                            <td th:text="${user.id}">1</td>
+                            <td th:text="${user.nome}">Name</td>
+                            <td th:text="${user.email}">Email</td>
+                            <td th:text="${user.papel}">Role</td>
+                            <td>
+                                <span th:if="${user.ativo}" class="status-pill status-active">Ativo</span>
+                                <span th:unless="${user.ativo}" class="status-pill status-inactive">Inativo</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/perfil/{id}(id=${user.id})}">
+                                    <button type="button" class="secondary">Editar</button>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="empty-state" th:if="${utilizadores == null or utilizadores.empty}">
+                    <p>Nao existem utilizadores para estes filtros.</p>
+                </div>
+            </div>
+        </section>
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>

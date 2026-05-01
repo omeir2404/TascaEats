@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
-    <div th:fragment="live-search" class="search-container" style="position: relative; width: 100%; max-width: 600px; margin: 0 auto 30px auto; text-align: center;">
-        
-        <form th:action="@{/restaurantes/pesquisa}" method="GET" style="display: flex; gap: 10px; justify-content: center;">
-            <div style="position: relative; width: 100%;">
-                <input type="text" id="liveSearchInput" name="nome" placeholder="Search for a restaurant..." autocomplete="off" 
-                       style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px;">
-                
-                <div id="searchDropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000; text-align: left; max-height: 300px; overflow-y: auto;">
-                    </div>
+    <div th:fragment="live-search" class="search-shell">
+        <div class="search-shell__head">
+            <div>
+                <strong>Pesquisa rapida</strong>
+                <p>Encontra restaurantes por nome e entra logo no menu.</p>
             </div>
-            <button type="submit" style="padding: 12px 24px; border-radius: 8px; cursor: pointer;">Search</button>
+            <a th:href="@{/restaurantes/pesquisa}" class="search-link">Filtros avancados</a>
+        </div>
+
+        <form th:action="@{/restaurantes/pesquisa}" method="GET" class="search-form-inline">
+            <div class="search-input-wrap">
+                <input type="text"
+                       id="liveSearchInput"
+                       name="nome"
+                       placeholder="Pesquisar restaurante"
+                       autocomplete="off">
+
+                <div id="searchDropdown"
+                     style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; max-height: 320px; overflow-y: auto;"></div>
+            </div>
+            <button type="submit">Pesquisar</button>
         </form>
-        
-        <br>
-        <a th:href="@{/restaurantes/pesquisa}" style="color: #ff6600; text-decoration: underline; font-size: 14px;">Advanced Filters</a>
     </div>
 </body>
 </html>

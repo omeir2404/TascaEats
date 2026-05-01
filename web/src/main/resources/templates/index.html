@@ -7,18 +7,157 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main>
+    <main class="page-shell">
+        <section class="hero-panel">
+            <div class="hero-panel__grid">
+                <div class="section-stack">
+                    <span class="hero-kicker">Painel principal</span>
+                    <h2>Uma homepage com mais estrutura, menos aspeto de prototipo.</h2>
+                    <p>
+                        O TascaEats passa a abrir com uma vista de controlo: pesquisa direta,
+                        entradas prioritarias e leitura mais clara dos fluxos principais.
+                    </p>
+
+                    <div class="hero-panel__actions">
+                        <a class="button-link" th:href="@{/restaurantes}">Explorar restaurantes</a>
+                        <a class="button-link secondary" th:href="@{/meus-pedidos}">Ver pedidos</a>
+                    </div>
+
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <strong>Pesquisa</strong>
+                            <span class="stat-label">Entrada imediata em restaurantes e menus.</span>
+                        </div>
+                        <div class="hero-stat">
+                            <strong>Descoberta</strong>
+                            <span class="stat-label">Listas com leitura mais rápida e menos ruído.</span>
+                        </div>
+                        <div class="hero-stat">
+                            <strong>Pedidos</strong>
+                            <span class="stat-label">Histórico e próximos passos visíveis.</span>
+                        </div>
+                        <div class="hero-stat">
+                            <strong>Conta</strong>
+                            <span class="stat-label">Acesso mais direto a perfil e gestão.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="hero-sidecard">
+                    <div>
+                        <span class="section-eyebrow">Agora</span>
+                        <h3>Atalhos prioritarios</h3>
+                    </div>
+                    <div class="spotlight-list">
+                        <div class="spotlight-item">
+                            <strong>Restaurantes</strong>
+                            <span>Lista principal com pesquisa rápida e seleção direta.</span>
+                        </div>
+                        <div class="spotlight-item">
+                            <strong>Menus</strong>
+                            <span>Comparação por nome, tamanho e preço médio.</span>
+                        </div>
+                        <div class="spotlight-item">
+                            <strong>Pedidos</strong>
+                            <span>Estado do percurso de encomenda numa vista única.</span>
+                        </div>
+                    </div>
+                    <a class="button-link secondary" th:href="@{/login}">Entrar na conta</a>
+                </aside>
+            </div>
+        </section>
+
         <div th:replace="~{fragments/search-bar :: live-search}"></div>
 
-        <h2>Bem-vindo ao TascaEats!</h2>
-        <p>Encontre a melhor comida perto de si. Explore os nossos restaurantes parceiros e faça o seu pedido.</p>
-        <br>
-        <a th:href="@{/restaurantes}">
-            <button>Procurar Restaurantes</button>
-        </a>
+        <section class="metric-strip">
+            <article class="metric-card">
+                <strong>1 vista</strong>
+                <p>Homepage organizada para abrir já com direção e contexto.</p>
+            </article>
+            <article class="metric-card">
+                <strong>3 fluxos</strong>
+                <p>Descobrir restaurantes, comparar menus e acompanhar pedidos.</p>
+            </article>
+            <article class="metric-card">
+                <strong>0 ruído</strong>
+                <p>Menos cartões soltos, mais secções com hierarquia real.</p>
+            </article>
+        </section>
+
+        <section class="dashboard-grid">
+            <div class="section-stack">
+                <div class="surface-panel">
+                    <div class="panel-header">
+                        <div>
+                            <span class="section-eyebrow">Descoberta</span>
+                            <h3>Entradas principais</h3>
+                            <p>Blocos maiores, com função clara, para não parecer uma página montada só com cards repetidos.</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-links">
+                        <article class="quick-card">
+                            <span class="tag">Restaurantes</span>
+                            <h3>Começar pela lista completa</h3>
+                            <p>Pesquisa por nome, entra no menu e continua o pedido sem passos intermédios desnecessários.</p>
+                            <div class="card__actions">
+                                <a th:href="@{/restaurantes}"><button>Ver restaurantes</button></a>
+                            </div>
+                        </article>
+
+                        <article class="quick-card">
+                            <span class="tag">Menus</span>
+                            <h3>Comparar antes de entrar</h3>
+                            <p>Vista de menus mais adequada para perceber rapidamente variedade e preço médio.</p>
+                            <div class="card__actions">
+                                <a th:href="@{/menus}"><button>Ver menus</button></a>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="feature-grid">
+                    <article class="surface-panel">
+                        <span class="section-eyebrow">Pesquisa</span>
+                        <h3>Pesquisa rápida logo na homepage</h3>
+                        <p>Sem depender de uma hero vazia. A ação principal está integrada no fluxo.</p>
+                    </article>
+                    <article class="surface-panel">
+                        <span class="section-eyebrow">Listagens</span>
+                        <h3>Layouts mais densos</h3>
+                        <p>Estrutura pensada para comparar, não só para decorar a página.</p>
+                    </article>
+                    <article class="surface-panel">
+                        <span class="section-eyebrow">Sessão</span>
+                        <h3>Autenticação mais tratada</h3>
+                        <p>Login e registo passam a ter composição própria em vez de um bloco solto.</p>
+                    </article>
+                </div>
+            </div>
+
+            <aside class="section-stack">
+                <div class="surface-panel">
+                    <span class="section-eyebrow">Fluxo</span>
+                    <h3>Sequência principal</h3>
+                    <div class="spotlight-list">
+                        <div class="spotlight-item" style="background: var(--surface-soft);">
+                            <strong>1. Encontrar</strong>
+                            <span>Pesquisa ou navegação pela lista de restaurantes.</span>
+                        </div>
+                        <div class="spotlight-item" style="background: var(--surface-soft);">
+                            <strong>2. Escolher</strong>
+                            <span>Entrada no menu com filtros por preço, categoria e disponibilidade.</span>
+                        </div>
+                        <div class="spotlight-item" style="background: var(--surface-soft);">
+                            <strong>3. Acompanhar</strong>
+                            <span>Consulta do histórico e do estado de cada pedido.</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </section>
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>

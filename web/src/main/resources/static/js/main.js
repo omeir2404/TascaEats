@@ -55,19 +55,28 @@ document.addEventListener("DOMContentLoaded", () => {
                         liveGridResults.innerHTML = '';      
 
                         if (restaurantes.length === 0) {
-                            liveGridResults.innerHTML = '<p>No restaurants match your search.</p>';
+                            liveGridResults.innerHTML = '<div class="empty-state"><p>Nao existem restaurantes para esta pesquisa.</p></div>';
                         } else {
                             restaurantes.forEach(rest => {
                                 const card = document.createElement('div');
                                 card.className = 'card';
+                                const tipo = rest.tipoRestaurante || rest.tipoCozinha || 'OUTRO';
+                                const estado = rest.estado || 'Unknown';
+                                const statusClass = estado === 'ABERTO' ? 'status-pill status-pill--open' : 'status-pill status-pill--closed';
                                 card.innerHTML = `
-                                    <h3>${rest.nome}</h3>
-                                    <p><strong>Cuisine:</strong> <span>${rest.tipoCozinha || 'N/A'}</span></p>
-                                    <p><strong>Status:</strong> <span>${rest.estado || 'Unknown'}</span></p>
-                                    <br>
-                                    <a href="/restaurantes/${rest.id}/produtos">
-                                        <button>View Menu</button>
-                                    </a>
+                                    <div class="pill-row">
+                                        <span class="pill">${tipo}</span>
+                                        <span class="${statusClass}">${estado}</span>
+                                    </div>
+                                    <div>
+                                        <h3>${rest.nome}</h3>
+                                        <p>Entrada direta no menu do restaurante.</p>
+                                    </div>
+                                    <div class="card__actions">
+                                        <a href="/restaurantes/${rest.id}/produtos">
+                                            <button>Ver menu</button>
+                                        </a>
+                                    </div>
                                 `;
                                 liveGridResults.appendChild(card);
                             });
@@ -78,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     else if (dropdown) {
                         dropdown.innerHTML = '';
                         if (restaurantes.length === 0) {
-                            dropdown.innerHTML = '<div style="padding: 10px; color: #888;">No restaurants found.</div>';
+                            dropdown.innerHTML = '<div style="padding: 12px; color: #667085;">Nenhum restaurante encontrado.</div>';
                         } else {
                             restaurantes.forEach(rest => {
                                 const item = document.createElement('a');
@@ -94,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                                 item.innerHTML = `
                                     <strong>${rest.nome}</strong> 
-                                    <span style="font-size: 12px; color: #666; float: right;">${rest.tipoCozinha || ''}</span>
+                                    <span style="font-size: 12px; color: #666; float: right;">${rest.tipoRestaurante || rest.tipoCozinha || ''}</span>
                                 `;
                                 dropdown.appendChild(item);
                             });

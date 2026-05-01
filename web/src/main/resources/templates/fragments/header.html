@@ -1,29 +1,40 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    </head>
 <body>
-    <header th:fragment="cabecalho">
-        <div>
-            <h1>🍔 TascaEats</h1>
+    <header th:fragment="cabecalho" class="site-header">
+        <div class="site-header__inner">
+            <a th:href="@{/}" class="brand">
+                <div class="brand-mark">TE</div>
+                <div class="brand-copy">
+                    <strong>TascaEats</strong>
+                    <span>Restaurantes, menus e pedidos num fluxo mais limpo</span>
+                </div>
+            </a>
+
+            <nav class="site-nav" aria-label="Navegacao principal">
+                <a th:href="@{/restaurantes}">Restaurantes</a>
+                <a th:href="@{/menus}">Menus</a>
+                <a th:href="@{/utilizadores}">Utilizadores</a>
+                <a th:href="@{/meus-pedidos}">Pedidos</a>
+            </nav>
+
+            <div class="header-actions">
+                <th:block th:if="${session.loggedUser == null}">
+                    <span class="header-badge">Fluxo unificado</span>
+                    <a class="button-link secondary" th:href="@{/login}">Entrar</a>
+                </th:block>
+
+                <th:block th:if="${session.loggedUser != null}">
+                    <div class="header-user">
+                        <strong th:text="${session.loggedUser.nome}">Perfil</strong>
+                        <span>Conta ativa</span>
+                    </div>
+                    <a class="button-link secondary"
+                       th:href="@{/perfil/{id}(id=${session.loggedUser.id})}">Perfil</a>
+                    <a class="button-link" th:href="@{/logout}">Sair</a>
+                </th:block>
+            </div>
         </div>
-        <nav>
-            <li><a th:href="@{/restaurantes}">Restaurants</a></li>
-            <li><a th:href="@{/menus}">Explore Menus</a></li>
-            <li><a th:href="@{/utilizadores}">System Users</a></li>
-            
-            <span th:if="${session.loggedUser == null}">
-                <a th:href="@{/login}">Login</a>
-            </span>
-            <li><a th:href="@{/meus-pedidos}">My Orders</a></li>
-            <span th:if="${session.loggedUser != null}">
-                <a th:href="@{/perfil/{id}(id=${session.loggedUser.id})}" 
-                th:text="'👤 ' + ${session.loggedUser.nome}" 
-                style="color: #ff6600; font-weight: bold;">Profile</a>
-                
-                <li><a th:href="@{/logout}">Logout</a></li>
-            </span>
-        </nav>
     </header>
 </body>
 </html>

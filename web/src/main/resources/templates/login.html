@@ -1,39 +1,51 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - TascaEats</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .auth-container { max-width: 400px; margin: 50px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .auth-container input { width: 100%; padding: 10px; margin: 10px 0 20px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .auth-container button { width: 100%; padding: 12px; }
-        .error-message { color: red; background: #ffe6e6; padding: 10px; border-radius: 4px; margin-bottom: 20px; text-align: center; }
-    </style>
 </head>
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main>
-        <div class="auth-container">
-            <h2 style="text-align: center;">Welcome Back</h2>
-            
-            <div th:if="${error != null}" class="error-message" th:text="${error}"></div>
+    <main class="page-shell">
+        <section class="auth-layout">
+            <aside class="auth-side">
+                <span class="hero-kicker">Sessao</span>
+                <h2>Entrar na plataforma</h2>
+                <p>Aceder ao perfil, acompanhar pedidos e continuar o fluxo sem voltar à navegação inicial.</p>
+                <ul>
+                    <li>Entrada direta no histórico e estado das encomendas.</li>
+                    <li>Acesso rápido ao perfil e gestão de conta.</li>
+                    <li>Continuidade entre descoberta, menu e checkout.</li>
+                </ul>
+            </aside>
 
-            <form th:action="@{/login}" method="POST">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="Ex: joao@email.com">
+            <div class="auth-card">
+                <div class="page-intro">
+                    <span class="section-eyebrow">Entrar</span>
+                    <h2 style="font-size: 2rem;">Bem-vindo de volta</h2>
+                    <p>Usa as tuas credenciais para retomar a navegação e os pedidos.</p>
+                </div>
 
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Enter any password">
+                <div th:if="${error != null}" class="error-message" th:text="${error}"></div>
 
-                <button type="submit">Log In</button>
-            </form>
-            
-            <p style="text-align: center; margin-top: 20px;">
-                Don't have an account? <a th:href="@{/registo}" style="color: #ff6600;">Register here</a>
-            </p>
-        </div>
+                <form th:action="@{/login}" method="POST">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="Ex: joao@email.com">
+
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Introduz a tua password">
+
+                    <button type="submit">Entrar</button>
+                </form>
+
+                <p class="auth-card__footer">
+                    Ainda nao tens conta? <a th:href="@{/registo}" class="search-link">Criar conta</a>
+                </p>
+            </div>
+        </section>
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>

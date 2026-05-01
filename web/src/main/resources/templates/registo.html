@@ -1,46 +1,59 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Register - TascaEats</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registo - TascaEats</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .auth-container { max-width: 400px; margin: 50px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .auth-container input, .auth-container select { width: 100%; padding: 10px; margin: 10px 0 20px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .auth-container button { width: 100%; padding: 12px; }
-    </style>
 </head>
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main>
-        <div class="auth-container">
-            <h2 style="text-align: center;">Create Account</h2>
+    <main class="page-shell">
+        <section class="auth-layout">
+            <aside class="auth-side">
+                <span class="hero-kicker">Registo</span>
+                <h2>Criar conta</h2>
+                <p>O registo ganha uma composição própria, mais próxima de uma aplicação real e menos de um formulário genérico.</p>
+                <ul>
+                    <li>Escolha direta do papel na plataforma.</li>
+                    <li>Continuidade com login e perfil.</li>
+                    <li>Mesmo estilo estrutural do resto da app.</li>
+                </ul>
+            </aside>
 
-            <form th:action="@{/registo}" method="POST">
-                <label for="nome">Full Name</label>
-                <input type="text" id="nome" name="nome" required placeholder="Ex: Tiago Silva">
+            <div class="auth-card">
+                <div class="page-intro">
+                    <span class="section-eyebrow">Nova conta</span>
+                    <h2 style="font-size: 2rem;">Abrir acesso</h2>
+                    <p>Cria uma conta de cliente, entregador ou administrador.</p>
+                </div>
 
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required placeholder="Ex: tiago@email.com">
+                <form th:action="@{/registo}" method="POST">
+                    <label for="nome">Nome completo</label>
+                    <input type="text" id="nome" name="nome" required placeholder="Ex: Tiago Silva">
 
-                <label for="papel">Account Type</label>
-                <select id="papel" name="papel" required>
-                    <option value="CLIENT">Client (Order Food)</option>
-                    <option value="COURIER">Courier (Deliver Food)</option>
-                    <option value="ADMIN">Administrator</option>
-                </select>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="Ex: tiago@email.com">
 
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                    <label for="papel">Tipo de conta</label>
+                    <select id="papel" name="papel" required>
+                        <option value="CLIENT">Cliente</option>
+                        <option value="COURIER">Entregador</option>
+                        <option value="ADMIN">Administrador</option>
+                    </select>
 
-                <button type="submit">Register</button>
-            </form>
-            
-            <p style="text-align: center; margin-top: 20px;">
-                Already have an account? <a th:href="@{/login}" style="color: #ff6600;">Log in</a>
-            </p>
-        </div>
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Define uma password">
+
+                    <button type="submit">Criar conta</button>
+                </form>
+
+                <p class="auth-card__footer">
+                    Ja tens conta? <a th:href="@{/login}" class="search-link">Entrar</a>
+                </p>
+            </div>
+        </section>
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>

@@ -2,81 +2,126 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Advanced Search - TascaEats</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa Avancada - TascaEats</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main>
-        <h2>Advanced Search</h2>
-        
-        <div class="filtro-container">
-            <form th:action="@{/restaurantes/pesquisa}" method="GET">
-                <div class="form-group">
-                    <label for="nome">Name:</label>
-                    <input type="text" id="nome" name="nome" th:value="${param.nome}" placeholder="Ex: Tasca do Zé">
-                </div>
-                
-                <div class="form-group">
-                    <label for="tipoCozinha">Cuisine:</label>
-                    <select id="tipoCozinha" name="tipoCozinha">
-                        <option value="">All</option>
-                        <option value="PORTUGUESA">Portuguese</option>
-                        <option value="ITALIANA">Italian</option>
-                        <option value="JAPONESA">Japanese</option>
-                    </select>
-                </div>
+    <main class="page-shell">
+        <section class="split-intro">
+            <div class="page-intro">
+                <span class="section-eyebrow">Pesquisa</span>
+                <h2>Pesquisa avancada de restaurantes</h2>
+                <p>Uma secção própria para filtrar com mais detalhe sem parecer apenas um formulário solto em cima de cartões.</p>
+            </div>
+            <aside class="intro-aside">
+                <strong>Controlo fino</strong>
+                <p>Nome, tipo, estado, pedidos, avaliação, morada e preço médio no mesmo painel.</p>
+            </aside>
+        </section>
 
-                <div class="form-group">
-                    <label for="estado">Status:</label>
-                    <select id="estado" name="estado">
-                        <option value="">Any</option>
-                        <option value="ABERTO">Open</option>
-                        <option value="FECHADO">Closed</option>
-                    </select>
-                </div>
+        <section class="filter-shell">
+            <div class="filtro-container">
+                <form th:action="@{/restaurantes/pesquisa}" method="GET">
+                    <div class="form-group form-group--wide">
+                        <label for="nome">Nome</label>
+                        <input type="text" id="nome" name="nome" th:value="${param.nome}" placeholder="Ex: Tasca do Ze">
+                    </div>
 
-                <div class="form-group">
-                    <label for="pedidosRealizados">Min Orders:</label>
-                    <input type="number" id="pedidosRealizados" name="pedidosRealizados" min="0">
-                </div>
+                    <div class="form-group form-group--medium">
+                        <label for="tipoCozinha">Tipo de cozinha</label>
+                        <select id="tipoCozinha" name="tipoCozinha">
+                            <option value="">Todos</option>
+                            <option value="PORTUGUES">Portuguesa</option>
+                            <option value="ITALIANO">Italiana</option>
+                            <option value="JAPONES">Japonesa</option>
+                            <option value="HAMBURGUERIA">Hamburgueria</option>
+                            <option value="VEGETARIANA">Vegetariana</option>
+                            <option value="CHINES">Chinesa</option>
+                            <option value="OUTRO">Outro</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="avaliacaoMinima">Min Rating:</label>
-                    <input type="number" id="avaliacaoMinima" name="avaliacaoMinima" min="0" max="5" step="0.1">
-                </div>
+                    <div class="form-group form-group--medium">
+                        <label for="estado">Estado</label>
+                        <select id="estado" name="estado">
+                            <option value="">Qualquer</option>
+                            <option value="ABERTO">Aberto</option>
+                            <option value="FECHADO">Fechado</option>
+                            <option value="RESERVADO">Reservado</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="morada">City/Street:</label>
-                    <input type="text" id="morada" name="morada">
-                </div>
+                    <div class="form-group form-group--compact">
+                        <label for="pedidosRealizados">Pedidos min.</label>
+                        <input type="number" id="pedidosRealizados" name="pedidosRealizados" min="0" th:value="${param.pedidosRealizados}">
+                    </div>
 
-                <div class="form-group">
-                    <label for="precoMedio">Max Avg Price (€):</label>
-                    <input type="number" id="precoMedio" name="precoMedio" min="0" step="0.5">
-                </div>
+                    <div class="form-group form-group--compact">
+                        <label for="avaliacaoMinima">Avaliacao min.</label>
+                        <input type="number" id="avaliacaoMinima" name="avaliacaoMinima" min="0" max="5" step="0.1" th:value="${param.avaliacaoMinima}">
+                    </div>
 
-                <button type="submit">Filter Results</button>
-            </form>
+                    <div class="form-group form-group--wide">
+                        <label for="morada">Morada ou cidade</label>
+                        <input type="text" id="morada" name="morada" th:value="${param.morada}" placeholder="Lisboa, Rua Augusta...">
+                    </div>
+
+                    <div class="form-group form-group--compact">
+                        <label for="precoMedio">Preco medio max.</label>
+                        <input type="number" id="precoMedio" name="precoMedio" min="0" step="0.5" th:value="${param.precoMedio}">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit">Aplicar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <aside class="filter-summary">
+                <span class="section-eyebrow">Leitura</span>
+                <h3>Resultados com mais estrutura</h3>
+                <p>A vista final separa filtros, resumo e grelha, para a página não ficar achatada.</p>
+            </aside>
+        </section>
+
+        <div class="section-header">
+            <div>
+                <h3>Resultados</h3>
+                <p>Lista filtrada a partir dos parametros enviados ao backend.</p>
+            </div>
         </div>
 
-        <hr style="margin: 30px 0;">
-
         <div class="grid-restaurantes">
-            <div class="card" th:each="restaurante : ${restaurantes}">
-                <h3 th:text="${restaurante.nome}">Restaurant Name</h3>
-                <p><strong>Cuisine:</strong> <span th:text="${restaurante.tipoCozinha}">Type</span></p>
-                <p><strong>Status:</strong> <span th:text="${restaurante.estado}">Open</span></p>
-                <p><strong>Rating:</strong> <span th:text="${restaurante.numeroAvaliacoes}">0</span></p>
-                <br>
-                <a th:href="@{/restaurantes/{id}(id=${restaurante.id})}">
-                    <button>View Menu</button>
-                </a>
-            </div>
-            
-            <div th:if="${restaurantes == null or restaurantes.empty}">
-                <p>No restaurants match your detailed filters.</p>
+            <article class="card" th:each="restaurante : ${restaurantes}">
+                <div class="pill-row">
+                    <span class="pill" th:text="${restaurante.tipoRestaurante != null ? restaurante.tipoRestaurante : restaurante.tipoCozinha}">OUTRO</span>
+                    <span class="status-pill"
+                          th:classappend="${restaurante.estado == 'ABERTO'} ? ' status-pill--open' : ' status-pill--closed'"
+                          th:text="${restaurante.estado}">ABERTO</span>
+                </div>
+
+                <div>
+                    <h3 th:text="${restaurante.nome}">Restaurant Name</h3>
+                    <p th:text="${restaurante.morada != null ? restaurante.morada.cidade : 'Localizacao indisponivel'}">Lisboa</p>
+                </div>
+
+                <div class="inline-pills">
+                    <span class="pill" th:text="'Aval. ' + ${restaurante.avaliacaoMedia}">Aval. 0.0</span>
+                    <span class="tag" th:text="'Preco medio ' + ${restaurante.precoMedio} + ' EUR'">Preco medio</span>
+                </div>
+
+                <div class="card__actions">
+                    <a th:href="@{/restaurantes/{id}/produtos(id=${restaurante.id})}">
+                        <button>Ver menu</button>
+                    </a>
+                </div>
+            </article>
+
+            <div class="empty-state" th:if="${restaurantes == null or restaurantes.empty}">
+                <p>Nao existem restaurantes para estes filtros.</p>
             </div>
         </div>
     </main>
