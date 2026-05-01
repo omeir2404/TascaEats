@@ -27,6 +27,35 @@ public interface IRestauranteRepository extends JpaRepository<Restaurante, Long>
 
 	List<Restaurante> findByTipoRestaurante(TipoRestaurante tipoRestaurante);
 
+	@Query("""
+		SELECT r
+		FROM Restaurante r
+		WHERE (:nome IS NULL OR LOWER(r.nome) LIKE LOWER(CONCAT('%', :nome, '%')))
+		  AND (:tipoRestaurante IS NULL OR r.tipoRestaurante = :tipoRestaurante)
+		  AND (:estado IS NULL OR r.estado = :estado)
+		  AND (:avaliacaoMinima IS NULL OR r.avaliacaoMedia >= :avaliacaoMinima)
+		  AND (:morada IS NULL OR LOWER(CONCAT(
+				COALESCE(r.morada.rua, ''), ' ',
+				COALESCE(r.morada.cidade, ''), ' ',
+				COALESCE(r.morada.distrito, ''), ' ',
+				COALESCE(r.morada.pais, ''), ' ',
+				COALESCE(r.morada.codigoPostal, '')
+		  )) LIKE LOWER(CONCAT('%', :morada, '%')))
+		  AND (:precoMedio IS NULL OR r.precoMedio <= :precoMedio)
+		  AND (:pedidosRealizados IS NULL OR
+				(SELECT COUNT(p.id)
+				 FROM Pedido p
+				 JOIN p.restaurantesIds restauranteId
+				 WHERE restauranteId = r.id) >= :pedidosRealizados)
+	""")
+	List<Restaurante> pesquisarRestaurantes(@Param("nome") String nome,
+											@Param("tipoRestaurante") TipoRestaurante tipoRestaurante,
+											@Param("estado") EstadoRestaurante estado,
+											@Param("pedidosRealizados") Integer pedidosRealizados,
+											@Param("avaliacaoMinima") Double avaliacaoMinima,
+											@Param("morada") String morada,
+											@Param("precoMedio") Double precoMedio);
+
 	Optional<Restaurante> findByNif(String nif);
 
 	List<Restaurante> findByEstado(EstadoRestaurante estado);

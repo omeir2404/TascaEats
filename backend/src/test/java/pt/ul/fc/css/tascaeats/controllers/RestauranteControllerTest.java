@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.restaurante.TipoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
@@ -274,6 +275,55 @@ class RestauranteControllerTest {
                 .andExpect(jsonPath("$[1].nome").value("Tasca B"));
 
         verify(restauranteService).listarRestaurantes();
+    }
+
+    @Test
+    @DisplayName("O: GET /api/restaurantes/pesquisa?nome usa o endpoint de pesquisa")
+    void shouldSearchRestaurantesThroughPesquisaEndpoint() throws Exception {
+        when(restauranteService.pesquisarRestaurantes("tasca", null, null, null, null, null, null))
+                .thenReturn(List.of(restaurante(9L, "Tasca Pesquisa", "123456789", EstadoRestaurante.ABERTO)));
+
+        mockMvc.perform(get("/api/restaurantes/pesquisa").param("nome", "tasca"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("Tasca Pesquisa"))
+                .andExpect(jsonPath("$[0].estado").value("ABERTO"));
+
+        verify(restauranteService).pesquisarRestaurantes("tasca", null, null, null, null, null, null);
+    }
+
+    @Test
+    @DisplayName("P: GET /api/restaurantes/pesquisa aceita filtros avancados")
+    void shouldAcceptAdvancedPesquisaParameters() throws Exception {
+        when(restauranteService.pesquisarRestaurantes(
+                "tasca",
+                TipoRestaurante.ITALIANO,
+                EstadoRestaurante.ABERTO,
+                10,
+                4.5,
+                "Lisboa",
+                20.0
+        )).thenReturn(List.of(restaurante(10L, "Tasca Filtro", "987654321", EstadoRestaurante.ABERTO)));
+
+        mockMvc.perform(get("/api/restaurantes/pesquisa")
+                        .param("nome", "tasca")
+                        .param("tipoCozinha", "ITALIANO")
+                        .param("estado", "ABERTO")
+                        .param("pedidosRealizados", "10")
+                        .param("avaliacaoMinima", "4.5")
+                        .param("morada", "Lisboa")
+                        .param("precoMedio", "20.0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("Tasca Filtro"));
+
+        verify(restauranteService).pesquisarRestaurantes(
+                "tasca",
+                TipoRestaurante.ITALIANO,
+                EstadoRestaurante.ABERTO,
+                10,
+                4.5,
+                "Lisboa",
+                20.0
+        );
     }
 
 

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.restaurante.TipoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
@@ -150,6 +151,27 @@ public class RestauranteService {
 
 
     //Funções auxiliares
+	@Transactional(readOnly = true)
+	public List<Restaurante> pesquisarRestaurantes(String nome,
+												   TipoRestaurante tipoRestaurante,
+												   EstadoRestaurante estado,
+												   Integer pedidosRealizados,
+												   Double avaliacaoMinima,
+												   String morada,
+												   Double precoMedio) {
+		String nomeNormalizado = (nome == null || nome.isBlank()) ? null : nome.trim();
+		String moradaNormalizada = (morada == null || morada.isBlank()) ? null : morada.trim();
+		return restauranteRepository.pesquisarRestaurantes(
+				nomeNormalizado,
+				tipoRestaurante,
+				estado,
+				pedidosRealizados,
+				avaliacaoMinima,
+				moradaNormalizada,
+				precoMedio
+		);
+	}
+
     private void validarNif(String nif, Long idIgnorar) {
         Optional<Restaurante> nifBom = restauranteRepository.findByNif(nif);
         if (nifBom.isPresent()) {
