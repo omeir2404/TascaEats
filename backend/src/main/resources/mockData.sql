@@ -1,9 +1,32 @@
-INSERT INTO utilizadores (nome, email, password)
-SELECT 'Admin Tasca Eats', 'admin.restaurante@tascaeats.local', 'admin123'
+CREATE SEQUENCE IF NOT EXISTS utilizadores_id_seq;
+ALTER TABLE utilizadores ALTER COLUMN id SET DEFAULT nextval('utilizadores_id_seq');
+CREATE SEQUENCE IF NOT EXISTS menus_id_seq;
+CREATE SEQUENCE IF NOT EXISTS morada_utilizador_id_seq;
+CREATE SEQUENCE IF NOT EXISTS catalogo_entregas_id_seq;
+CREATE SEQUENCE IF NOT EXISTS produto_id_seq;
+
+INSERT INTO utilizadores (id, nome, email, password)
+SELECT nextval('utilizadores_id_seq'), 'Admin Tasca Eats', 'admin.restaurante@tascaeats.local', 'admin123'
 WHERE NOT EXISTS (
     SELECT 1
     FROM utilizadores
     WHERE email = 'admin.restaurante@tascaeats.local'
+);
+
+INSERT INTO utilizadores (id, nome, email, password)
+SELECT nextval('utilizadores_id_seq'), 'Cliente Tasca', 'cliente@tascaeats.local', 'cliente123'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM utilizadores
+    WHERE email = 'cliente@tascaeats.local'
+);
+
+INSERT INTO utilizadores (id, nome, email, password)
+SELECT nextval('utilizadores_id_seq'), 'Entregador Tasca', 'courier@tascaeats.local', 'courier123'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM utilizadores
+    WHERE email = 'courier@tascaeats.local'
 );
 
 INSERT INTO restaurante_admin (id)
@@ -16,17 +39,39 @@ WHERE u.email = 'admin.restaurante@tascaeats.local'
       WHERE ra.id = u.id
   );
 
-INSERT INTO menus (nome)
-SELECT 'Menu Tasca Central'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM menus
-    WHERE nome = 'Menu Tasca Central'
-);
+INSERT INTO cliente (id)
+SELECT u.id
+FROM utilizadores u
+WHERE u.email = 'cliente@tascaeats.local'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM cliente c
+      WHERE c.id = u.id
+  );
 
-WITH seeded_morada AS (
-    INSERT INTO morada_utilizador (rua, numero, complemento, pais, distrito, cidade, codigo_postal, cliente_id)
-    SELECT 'Rua da Tasca', 25, 'Loja A', 'Portugal', 'Lisboa', 'Lisboa', '1000-001', NULL
+INSERT INTO entregador (id, available)
+SELECT u.id, true
+FROM utilizadores u
+WHERE u.email = 'courier@tascaeats.local'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM entregador e
+      WHERE e.id = u.id
+  );
+
+WITH seeded_menu_1 AS (
+    INSERT INTO menus (id, nome)
+  SELECT nextval('menus_id_seq'), 'Menu Tasca Central'
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM menus
+        WHERE nome = 'Menu Tasca Central'
+    )
+    RETURNING id
+),
+seeded_morada_1 AS (
+    INSERT INTO morada_utilizador (id, rua, numero, complemento, pais, distrito, cidade, codigo_postal, cliente_id)
+  SELECT nextval('morada_utilizador_id_seq'), 'Rua da Tasca', 25, 'Loja A', 'Portugal', 'Lisboa', 'Lisboa', '1000-001', NULL
     WHERE NOT EXISTS (
         SELECT 1
         FROM restaurante
@@ -34,9 +79,9 @@ WITH seeded_morada AS (
     )
     RETURNING id
 ),
-seeded_catalogo AS (
+seeded_catalogo_1 AS (
     INSERT INTO catalogo_entregas (id)
-    SELECT nextval(pg_get_serial_sequence('catalogo_entregas', 'id'))
+  SELECT nextval('catalogo_entregas_id_seq')
     WHERE NOT EXISTS (
         SELECT 1
         FROM restaurante
@@ -63,20 +108,19 @@ SELECT
     '123456789',
     'Franquia Tasca Eats',
     'ABERTO',
-    'OUTRO',
-    0,
-    0.0,
-    0.0,
-    seeded_morada.id,
-    seeded_catalogo.id,
+    'PORTUGUES',
+    12,
+    4.6,
+    12.5,
+    seeded_morada_1.id,
+    seeded_catalogo_1.id,
     u.id,
     m.id
-FROM seeded_morada
-CROSS JOIN seeded_catalogo
+FROM seeded_morada_1
+CROSS JOIN seeded_catalogo_1
 JOIN utilizadores u
     ON u.email = 'admin.restaurante@tascaeats.local'
-JOIN menus m
-    ON m.nome = 'Menu Tasca Central';
+JOIN seeded_menu_1 m ON true;
 
 INSERT INTO restaurant_admin_restaurants (restaurant_admin_id, restaurant_id)
 SELECT u.id, r.id
@@ -90,3 +134,422 @@ WHERE u.email = 'admin.restaurante@tascaeats.local'
       WHERE rar.restaurant_admin_id = u.id
         AND rar.restaurant_id = r.id
   );
+
+WITH seeded_menu_2 AS (
+    INSERT INTO menus (id, nome)
+  SELECT nextval('menus_id_seq'), 'Menu Sushi Zen'
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM menus
+        WHERE nome = 'Menu Sushi Zen'
+    )
+    RETURNING id
+),
+seeded_morada_2 AS (
+    INSERT INTO morada_utilizador (id, rua, numero, complemento, pais, distrito, cidade, codigo_postal, cliente_id)
+  SELECT nextval('morada_utilizador_id_seq'), 'Avenida do Mar', 10, 'Piso 0', 'Portugal', 'Lisboa', 'Cascais', '2750-001', NULL
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM restaurante
+        WHERE nif = '987654321'
+    )
+    RETURNING id
+),
+seeded_catalogo_2 AS (
+    INSERT INTO catalogo_entregas (id)
+  SELECT nextval('catalogo_entregas_id_seq')
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM restaurante
+        WHERE nif = '987654321'
+    )
+    RETURNING id
+)
+INSERT INTO restaurante (
+    nome,
+    nif,
+    franquia,
+    estado,
+    tipo_restaurante,
+    numero_avaliacoes,
+    avaliacao_media,
+    preco_medio,
+    morada_id,
+    catalogo_entregas_id,
+    administrador_id,
+    menu_id
+)
+SELECT
+    'Sushi Zen',
+    '987654321',
+    'Franquia Tasca Eats',
+    'ABERTO',
+    'JAPONES',
+    8,
+    4.8,
+    18.9,
+    seeded_morada_2.id,
+    seeded_catalogo_2.id,
+    u.id,
+    m.id
+FROM seeded_morada_2
+CROSS JOIN seeded_catalogo_2
+JOIN utilizadores u
+    ON u.email = 'admin.restaurante@tascaeats.local'
+JOIN seeded_menu_2 m ON true;
+
+INSERT INTO restaurant_admin_restaurants (restaurant_admin_id, restaurant_id)
+SELECT u.id, r.id
+FROM utilizadores u
+JOIN restaurante r
+    ON r.nif IN ('123456789', '987654321')
+WHERE u.email = 'admin.restaurante@tascaeats.local'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM restaurant_admin_restaurants rar
+      WHERE rar.restaurant_admin_id = u.id
+        AND rar.restaurant_id = r.id
+  );
+
+INSERT INTO morada_utilizador (id, rua, numero, complemento, pais, distrito, cidade, codigo_postal, cliente_id)
+SELECT nextval('morada_utilizador_id_seq'), 'Rua do Cliente', 5, 'Apt 2B', 'Portugal', 'Lisboa', 'Lisboa', '1000-200', u.id
+FROM utilizadores u
+WHERE u.email = 'cliente@tascaeats.local'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM morada_utilizador mu
+      WHERE mu.cliente_id = u.id
+  );
+
+INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
+SELECT nextval('produto_id_seq'), 'Bacalhau a Bras', 12.50, true, 'Classic Portuguese dish with cod, onions and eggs.', false, r.id, m.id
+FROM restaurante r
+JOIN menus m ON m.nome = 'Menu Tasca Central'
+WHERE r.nif = '123456789'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM produto p
+      WHERE p.nome = 'Bacalhau a Bras'
+        AND p.restaurante_id = r.id
+  );
+
+INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
+SELECT nextval('produto_id_seq'), 'Super Bock 33cl', 2.00, true, 'Cold beer.', false, r.id, m.id
+FROM restaurante r
+JOIN menus m ON m.nome = 'Menu Tasca Central'
+WHERE r.nif = '123456789'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM produto p
+      WHERE p.nome = 'Super Bock 33cl'
+        AND p.restaurante_id = r.id
+  );
+
+INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
+SELECT nextval('produto_id_seq'), 'Pastel de Nata', 1.50, true, 'Portuguese custard tart.', false, r.id, m.id
+FROM restaurante r
+JOIN menus m ON m.nome = 'Menu Tasca Central'
+WHERE r.nif = '123456789'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM produto p
+      WHERE p.nome = 'Pastel de Nata'
+        AND p.restaurante_id = r.id
+  );
+
+INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
+SELECT nextval('produto_id_seq'), 'Combinado Sushi 15 pecas', 22.00, true, 'Chef selection of fresh sushi pieces.', false, r.id, m.id
+FROM restaurante r
+JOIN menus m ON m.nome = 'Menu Sushi Zen'
+WHERE r.nif = '987654321'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM produto p
+      WHERE p.nome = 'Combinado Sushi 15 pecas'
+        AND p.restaurante_id = r.id
+  );
+
+INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
+SELECT nextval('produto_id_seq'), 'Cha Verde', 3.00, true, 'Hot green tea.', false, r.id, m.id
+FROM restaurante r
+JOIN menus m ON m.nome = 'Menu Sushi Zen'
+WHERE r.nif = '987654321'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM produto p
+      WHERE p.nome = 'Cha Verde'
+        AND p.restaurante_id = r.id
+  );
+
+INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
+SELECT nextval('produto_id_seq'), 'Gyoza', 6.50, true, 'Pan-fried dumplings.', false, r.id, m.id
+FROM restaurante r
+JOIN menus m ON m.nome = 'Menu Sushi Zen'
+WHERE r.nif = '987654321'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM produto p
+      WHERE p.nome = 'Gyoza'
+        AND p.restaurante_id = r.id
+  );
+
+-- Additional seed data: more users, restaurants, menus and products
+
+INSERT INTO utilizadores (id, nome, email, password)
+SELECT nextval('utilizadores_id_seq'), 'Cliente Dois', 'cliente2@tascaeats.local', 'cliente223'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM utilizadores
+    WHERE email = 'cliente2@tascaeats.local'
+);
+
+INSERT INTO utilizadores (id, nome, email, password)
+SELECT nextval('utilizadores_id_seq'), 'Entregador Dois', 'courier2@tascaeats.local', 'courier223'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM utilizadores
+    WHERE email = 'courier2@tascaeats.local'
+);
+
+INSERT INTO cliente (id)
+SELECT u.id
+FROM utilizadores u
+WHERE u.email = 'cliente2@tascaeats.local'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM cliente c
+      WHERE c.id = u.id
+  );
+
+INSERT INTO entregador (id, available)
+SELECT u.id, true
+FROM utilizadores u
+WHERE u.email = 'courier2@tascaeats.local'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM entregador e
+      WHERE e.id = u.id
+  );
+
+INSERT INTO morada_utilizador (id, rua, numero, complemento, pais, distrito, cidade, codigo_postal, cliente_id)
+SELECT nextval('morada_utilizador_id_seq'), 'Travessa do Bairro', 12, 'R/c', 'Portugal', 'Porto', 'Porto', '4000-123', u.id
+FROM utilizadores u
+WHERE u.email = 'cliente2@tascaeats.local'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM morada_utilizador mu
+      WHERE mu.cliente_id = u.id
+  );
+
+WITH seeded_menu_3 AS (
+    INSERT INTO menus (id, nome)
+  SELECT nextval('menus_id_seq'), 'Menu Pizzaria Bairro'
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM menus
+        WHERE nome = 'Menu Pizzaria Bairro'
+    )
+    RETURNING id
+),
+seeded_morada_3 AS (
+    INSERT INTO morada_utilizador (id, rua, numero, complemento, pais, distrito, cidade, codigo_postal, cliente_id)
+  SELECT nextval('morada_utilizador_id_seq'), 'Largo da Pizza', 3, NULL, 'Portugal', 'Porto', 'Porto', '4100-001', NULL
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM restaurante
+        WHERE nif = '111222333'
+    )
+    RETURNING id
+),
+seeded_catalogo_3 AS (
+    INSERT INTO catalogo_entregas (id)
+  SELECT nextval('catalogo_entregas_id_seq')
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM restaurante
+        WHERE nif = '111222333'
+    )
+    RETURNING id
+)
+INSERT INTO restaurante (
+    nome,
+    nif,
+    franquia,
+    estado,
+    tipo_restaurante,
+    numero_avaliacoes,
+    avaliacao_media,
+    preco_medio,
+    morada_id,
+    catalogo_entregas_id,
+    administrador_id,
+    menu_id
+)
+SELECT
+    'Pizzaria do Bairro',
+    '111222333',
+    'Franquia Local',
+    'ABERTO',
+    'ITALIANO',
+    20,
+    4.4,
+    11.0,
+    seeded_morada_3.id,
+    seeded_catalogo_3.id,
+    u.id,
+    m.id
+FROM seeded_morada_3
+CROSS JOIN seeded_catalogo_3
+JOIN utilizadores u
+    ON u.email = 'admin.restaurante@tascaeats.local'
+JOIN seeded_menu_3 m ON true;
+
+INSERT INTO restaurant_admin_restaurants (restaurant_admin_id, restaurant_id)
+SELECT u.id, r.id
+FROM utilizadores u
+JOIN restaurante r
+    ON r.nif = '111222333'
+WHERE u.email = 'admin.restaurante@tascaeats.local'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM restaurant_admin_restaurants rar
+      WHERE rar.restaurant_admin_id = u.id
+        AND rar.restaurant_id = r.id
+  );
+
+INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
+SELECT nextval('produto_id_seq'), 'Margherita', 8.50, true, 'Classic pizza with tomato and mozzarella.', false, r.id, m.id
+FROM restaurante r
+JOIN menus m ON m.nome = 'Menu Pizzaria Bairro'
+WHERE r.nif = '111222333'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM produto p
+      WHERE p.nome = 'Margherita'
+        AND p.restaurante_id = r.id
+  );
+
+INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
+SELECT nextval('produto_id_seq'), 'Portuguesa Pizza', 10.00, true, 'Pizza with ham, egg and olives.', false, r.id, m.id
+FROM restaurante r
+JOIN menus m ON m.nome = 'Menu Pizzaria Bairro'
+WHERE r.nif = '111222333'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM produto p
+      WHERE p.nome = 'Portuguesa Pizza'
+        AND p.restaurante_id = r.id
+  );
+
+INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
+SELECT nextval('produto_id_seq'), 'Coca-Cola 33cl', 1.50, true, 'Soft drink.', false, r.id, m.id
+FROM restaurante r
+JOIN menus m ON m.nome = 'Menu Pizzaria Bairro'
+WHERE r.nif = '111222333'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM produto p
+      WHERE p.nome = 'Coca-Cola 33cl'
+        AND p.restaurante_id = r.id
+  );
+
+WITH seeded_menu_4 AS (
+    INSERT INTO menus (id, nome)
+  SELECT nextval('menus_id_seq'), 'Menu Verde'
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM menus
+        WHERE nome = 'Menu Verde'
+    )
+    RETURNING id
+),
+seeded_morada_4 AS (
+    INSERT INTO morada_utilizador (id, rua, numero, complemento, pais, distrito, cidade, codigo_postal, cliente_id)
+  SELECT nextval('morada_utilizador_id_seq'), 'Rua Vegetal', 7, NULL, 'Portugal', 'Coimbra', 'Coimbra', '3000-777', NULL
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM restaurante
+        WHERE nif = '444555666'
+    )
+    RETURNING id
+),
+seeded_catalogo_4 AS (
+    INSERT INTO catalogo_entregas (id)
+  SELECT nextval('catalogo_entregas_id_seq')
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM restaurante
+        WHERE nif = '444555666'
+    )
+    RETURNING id
+)
+INSERT INTO restaurante (
+    nome,
+    nif,
+    franquia,
+    estado,
+    tipo_restaurante,
+    numero_avaliacoes,
+    avaliacao_media,
+    preco_medio,
+    morada_id,
+    catalogo_entregas_id,
+    administrador_id,
+    menu_id
+)
+SELECT
+    'Tasca Verde',
+    '444555666',
+    'Franquia Verde',
+    'ABERTO',
+    'VEGETARIANA',
+    5,
+    4.7,
+    9.5,
+    seeded_morada_4.id,
+    seeded_catalogo_4.id,
+    u.id,
+    m.id
+FROM seeded_morada_4
+CROSS JOIN seeded_catalogo_4
+JOIN utilizadores u
+    ON u.email = 'admin.restaurante@tascaeats.local'
+JOIN seeded_menu_4 m ON true;
+
+INSERT INTO restaurant_admin_restaurants (restaurant_admin_id, restaurant_id)
+SELECT u.id, r.id
+FROM utilizadores u
+JOIN restaurante r
+    ON r.nif = '444555666'
+WHERE u.email = 'admin.restaurante@tascaeats.local'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM restaurant_admin_restaurants rar
+      WHERE rar.restaurant_admin_id = u.id
+        AND rar.restaurant_id = r.id
+  );
+
+INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
+SELECT nextval('produto_id_seq'), 'Burger Veg', 7.50, true, 'Plant-based burger with sauce.', false, r.id, m.id
+FROM restaurante r
+JOIN menus m ON m.nome = 'Menu Verde'
+WHERE r.nif = '444555666'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM produto p
+      WHERE p.nome = 'Burger Veg'
+        AND p.restaurante_id = r.id
+  );
+
+INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
+SELECT nextval('produto_id_seq'), 'Salada Mix', 5.00, true, 'Fresh mixed salad.', false, r.id, m.id
+FROM restaurante r
+JOIN menus m ON m.nome = 'Menu Verde'
+WHERE r.nif = '444555666'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM produto p
+      WHERE p.nome = 'Salada Mix'
+        AND p.restaurante_id = r.id
+  );
+

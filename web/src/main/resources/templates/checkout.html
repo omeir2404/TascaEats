@@ -19,6 +19,8 @@
     <main>
         <div class="checkout-container">
             <h2>Complete your Order</h2>
+
+            <div th:if="${error != null}" class="error-message" th:text="${error}" style="margin-bottom: 16px;"></div>
             
             <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                 <h4 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Order Summary</h4>
@@ -53,12 +55,12 @@
 
                 <div class="payment-method">
                     <label style="cursor: pointer; display: block;">
-                        <input type="radio" name="metodoPagamento" value="CREDIT_CARD" onchange="togglePaymentDetails()"> 
-                        <strong>💳 Credit/Debit Card</strong>
+                        <input type="radio" name="metodoPagamento" value="MULTIBANCO" onchange="togglePaymentDetails()"> 
+                        <strong>💳 Multibanco</strong>
                     </label>
                     <div id="cardDetails" class="hidden-details">
                         <div class="form-group">
-                            <label>Card Brand:</label>
+                            <label>Bandeira do cartao:</label>
                             <select name="bandeiraCartao">
                                 <option value="VISA">Visa</option>
                                 <option value="MASTERCARD">Mastercard</option>
@@ -66,7 +68,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Card Number (Mock):</label>
+                            <label>Referencia gerada automaticamente:</label>
                             <input type="text" placeholder="**** **** **** ****">
                         </div>
                     </div>
@@ -86,11 +88,11 @@
             const cardDiv = document.getElementById('cardDetails');
 
             mbwayDiv.style.display = method === 'MBWAY' ? 'block' : 'none';
-            cardDiv.style.display = method === 'CREDIT_CARD' ? 'block' : 'none';
+            cardDiv.style.display = method === 'MULTIBANCO' ? 'block' : 'none';
             
             // Require fields conditionally
             document.querySelector('input[name="telemovel"]').required = method === 'MBWAY';
-            document.querySelector('select[name="bandeiraCartao"]').required = method === 'CREDIT_CARD';
+            document.querySelector('select[name="bandeiraCartao"]').required = method === 'MULTIBANCO';
         }
     </script>
 </body>

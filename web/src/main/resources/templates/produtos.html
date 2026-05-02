@@ -5,6 +5,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu - TascaEats</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .menu-with-cart {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .cart-panel {
+            position: sticky;
+            top: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 18px;
+            padding: 18px;
+            background: #fffdf8;
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .cart-panel h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .cart-panel__meta {
+            color: #667085;
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+        }
+
+        .cart-items {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 16px 0;
+            display: grid;
+            gap: 12px;
+        }
+
+        .cart-item {
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .cart-item__top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .cart-item__name {
+            font-weight: 700;
+        }
+
+        .cart-item__details {
+            color: #667085;
+            font-size: 0.92rem;
+        }
+
+        .cart-empty {
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #667085;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            margin: 16px 0;
+            padding-top: 16px;
+            border-top: 1px dashed rgba(0, 0, 0, 0.12);
+        }
+
+        .cart-checkout-button,
+        .cart-toggle-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            border: 0;
+            border-radius: 999px;
+            padding: 12px 16px;
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .cart-checkout-button {
+            background: #111827;
+            color: #fff;
+        }
+
+        .cart-toggle-button {
+            margin-bottom: 12px;
+            background: #fff;
+            color: #111827;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-panel.is-collapsed .cart-panel__body {
+            display: none;
+        }
+
+        .cart-panel.is-collapsed {
+            padding-bottom: 14px;
+        }
+
+        .cart-feedback {
+            margin-top: 10px;
+            color: #0f766e;
+            font-size: 0.92rem;
+            min-height: 1.2em;
+        }
+
+        @media (max-width: 1100px) {
+            .menu-with-cart {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-panel {
+                position: static;
+            }
+        }
+    </style>
 </head>
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
@@ -71,8 +199,10 @@
             </aside>
         </section>
 
-        <div class="grid-produtos">
-            <div class="flip-card" th:each="produto : ${produtos}">
+        <div class="menu-with-cart">
+            <div>
+                <div class="grid-produtos">
+                    <div class="flip-card" th:each="produto : ${produtos}">
                 <div class="flip-card-inner">
                     <div class="flip-card-front">
                         <button type="button" class="btn-flip" onclick="toggleFlip(this)" title="Ver detalhes">i</button>
@@ -95,9 +225,12 @@
                             </div>
                         </div>
 
-                        <form th:action="@{/carrinho/adicionar}" method="POST" th:if="${produto.disponivel}">
+                        <form th:action="@{/carrinho/adicionar}" method="POST" th:if="${produto.disponivel}" class="add-to-cart-form">
                             <input type="hidden" name="produtoId" th:value="${produto.id}">
-                            <button type="submit" style="width: 100%;">Adicionar ao carrinho</button>
+                            <input type="hidden" name="nome" th:value="${produto.nome}">
+                            <input type="hidden" name="preco" th:value="${produto.preco}">
+                            <input type="hidden" name="restauranteId" th:value="${restauranteId}">
+                            <button type="submit" style="width: 100%">Adicionar ao carrinho</button>
                         </form>
                     </div>
 
@@ -122,11 +255,29 @@
                         </div>
                     </div>
                 </div>
+                    </div>
+
+                    <div class="empty-state" th:if="${produtos == null or produtos.empty}">
+                        <p>Nao foram encontrados produtos com estes filtros.</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="empty-state" th:if="${produtos == null or produtos.empty}">
-                <p>Nao foram encontrados produtos com estes filtros.</p>
-            </div>
+            <aside class="cart-panel" id="cartPanel">
+                <button type="button" class="cart-toggle-button" id="cartToggleButton">Carrinho</button>
+                <div class="cart-panel__body">
+                    <h3>O teu carrinho</h3>
+                    <div class="cart-panel__meta" id="cartMeta">Ainda não adicionaste itens.</div>
+                    <ul class="cart-items" id="cartItems"></ul>
+                    <div class="cart-empty" id="cartEmpty">O carrinho está vazio. Escolhe um produto e adiciona-o aqui.</div>
+                    <div class="cart-total">
+                        <span>Total</span>
+                        <span id="cartTotal">0.00 €</span>
+                    </div>
+                    <a class="cart-checkout-button" href="/checkout">Ir para checkout</a>
+                    <div class="cart-feedback" id="cartFeedback"></div>
+                </div>
+            </aside>
         </div>
     </main>
 
@@ -142,26 +293,146 @@
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const filterForm = document.querySelector('.filtro-container form');
-            if (!filterForm) return;
+            const cartStorageKey = 'tascaeatsCart';
+            const cartPanel = document.getElementById('cartPanel');
+            const cartToggleButton = document.getElementById('cartToggleButton');
+            const cartItems = document.getElementById('cartItems');
+            const cartEmpty = document.getElementById('cartEmpty');
+            const cartTotal = document.getElementById('cartTotal');
+            const cartMeta = document.getElementById('cartMeta');
+            const cartFeedback = document.getElementById('cartFeedback');
 
-            const instantInputs = filterForm.querySelectorAll('select, input[type="checkbox"]');
-            instantInputs.forEach(input => {
-                input.addEventListener('change', () => filterForm.submit());
-            });
+            function readCart() {
+                try {
+                    const raw = sessionStorage.getItem(cartStorageKey);
+                    return raw ? JSON.parse(raw) : [];
+                } catch (error) {
+                    return [];
+                }
+            }
 
-            let typingTimer;
-            const typingInterval = 600;
-            const textInputs = filterForm.querySelectorAll('input[type="text"], input[type="number"]');
+            function writeCart(cart) {
+                sessionStorage.setItem(cartStorageKey, JSON.stringify(cart));
+            }
 
-            textInputs.forEach(input => {
-                input.addEventListener('input', () => {
-                    clearTimeout(typingTimer);
-                    typingTimer = setTimeout(() => {
-                        filterForm.submit();
-                    }, typingInterval);
+            function formatPrice(value) {
+                const number = Number(value) || 0;
+                return `${number.toFixed(2)} €`;
+            }
+
+            function renderCart() {
+                if (!cartItems || !cartEmpty || !cartTotal || !cartMeta) {
+                    return;
+                }
+
+                const cart = readCart();
+                const itemCount = cart.reduce((sum, item) => sum + Number(item.quantidade || 0), 0);
+                const total = cart.reduce((sum, item) => sum + (Number(item.preco || 0) * Number(item.quantidade || 0)), 0);
+
+                cartItems.innerHTML = '';
+                cartMeta.textContent = itemCount > 0
+                    ? `${itemCount} item${itemCount === 1 ? '' : 's'} no carrinho.`
+                    : 'Ainda não adicionaste itens.';
+                cartTotal.textContent = formatPrice(total);
+                cartEmpty.style.display = cart.length === 0 ? 'block' : 'none';
+
+                cart.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'cart-item';
+                    li.innerHTML = `
+                        <div class="cart-item__top">
+                            <span class="cart-item__name">${item.nome}</span>
+                            <span>${formatPrice(Number(item.preco) * Number(item.quantidade))}</span>
+                        </div>
+                        <div class="cart-item__details">${item.quantidade} x ${formatPrice(item.preco)}</div>
+                    `;
+                    cartItems.appendChild(li);
+                });
+            }
+
+            function upsertCartItem(item) {
+                const cart = readCart();
+                const existing = cart.find(cartItem => String(cartItem.produtoId) === String(item.produtoId));
+
+                if (existing) {
+                    existing.quantidade = Number(existing.quantidade || 0) + Number(item.quantidade || 1);
+                } else {
+                    cart.push(item);
+                }
+
+                writeCart(cart);
+                renderCart();
+            }
+
+            if (cartToggleButton && cartPanel) {
+                cartToggleButton.addEventListener('click', () => {
+                    cartPanel.classList.toggle('is-collapsed');
+                });
+            }
+
+            renderCart();
+
+            document.querySelectorAll('form.add-to-cart-form').forEach(form => {
+                form.addEventListener('submit', async function(event) {
+                    event.preventDefault();
+
+                    if (cartFeedback) {
+                        cartFeedback.textContent = '';
+                    }
+
+                    const formData = new FormData(form);
+                    const produtoId = formData.get('produtoId');
+                    const quantidade = Number(formData.get('quantidade') || 1);
+                    const nome = String(formData.get('nome') || 'Produto');
+                    const preco = Number(formData.get('preco') || 0);
+                    const restauranteId = formData.get('restauranteId');
+
+                    try {
+                        await fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            credentials: 'same-origin'
+                        });
+
+                        upsertCartItem({
+                            produtoId,
+                            quantidade,
+                            nome,
+                            preco,
+                            restauranteId
+                        });
+
+                        if (cartFeedback) {
+                            cartFeedback.textContent = `${nome} adicionado ao carrinho.`;
+                        }
+                    } catch (error) {
+                        if (cartFeedback) {
+                            cartFeedback.textContent = 'Não foi possível adicionar o item.';
+                        }
+                    }
                 });
             });
+
+            const filterForm = document.querySelector('.filtro-container form');
+            if (filterForm) {
+                const instantInputs = filterForm.querySelectorAll('select, input[type="checkbox"]');
+                instantInputs.forEach(input => {
+                    input.addEventListener('change', () => filterForm.submit());
+                });
+
+                let typingTimer;
+                const typingInterval = 600;
+                const textInputs = filterForm.querySelectorAll('input[type="text"], input[type="number"]');
+
+                textInputs.forEach(input => {
+                    input.addEventListener('input', () => {
+                        clearTimeout(typingTimer);
+                        typingTimer = setTimeout(() => {
+                            filterForm.submit();
+                        }, typingInterval);
+                    });
+                });
+            }
         });
     </script>
 </body>

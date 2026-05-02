@@ -1,28 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("TascaEats Web App carregada com sucesso!");
 
-    // --- Login Function ---
-    async function fazerLogin(username, password) {
-        const backendUrl = 'http://localhost:8080/api/utilizadores/login';
-        try {
-            const response = await fetch(backendUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: username, password: password })
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log("Login successful!", data);
-                window.location.href = "/restaurantes";
-            } else {
-                alert("Invalid credentials.");
-            }
-        } catch (error) {
-            console.error("Error connecting to backend:", error);
-        }
-    }
-
     // --- Live Search Function ---
     const searchInput = document.getElementById('liveSearchInput');
     const dropdown = document.getElementById('searchDropdown');
