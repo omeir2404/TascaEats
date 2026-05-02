@@ -236,6 +236,8 @@ p {
 
 .page-shell--menus .menu-card .card__image {
     height: 190px;
+    object-fit: cover;
+    object-position: center;
 }
 
 .page-shell--restaurants {
@@ -405,7 +407,8 @@ p {
 }
 
 .card__image {
-    width: 100%;
+    width: calc(100% + 32px);
+    max-width: none;
     height: 140px;
     border-radius: 8px;
     background: #f0f0f0;

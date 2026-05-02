@@ -39,9 +39,27 @@
 
         <div class="grid-menus">
             <article class="menu-card" th:each="menu : ${menus}">
-                <div class="card__image"
-                     aria-hidden="true"
-                     th:style="${menu.nome == 'Menu Zen Premium'} ? 'background-image: url(/img/sushi.jpeg); background-size: cover; background-position: center; background-repeat: no-repeat;' : ''"></div>
+                <img class="card__image"
+                     th:if="${menu.nome == 'Menu Zen Premium'}"
+                     th:src="@{/img/sushi.jpeg}"
+                     alt="Menu Zen Premium">
+
+                <img class="card__image"
+                     th:if="${menu.nome == 'Menu Italiano Clássico'}"
+                     th:src="@{/img/pizza.png}"
+                     alt="Menu Italiano Clássico">
+
+                <img class="card__image"
+                     th:if="${menu.nome == 'Menu Económico Central'}"
+                     th:src="@{/img/economico.jpg}"
+                     alt="Menu Económico Central">
+
+                <img class="card__image"
+                     th:if="${menu.nome == 'Menu Especial Tasca'}"
+                     th:src="@{/img/tasca.jpg}"
+                     alt="Menu Especial Tasca">
+
+                <div class="card__image" th:if="${menu.nome != 'Menu Zen Premium' and menu.nome != 'Menu Italiano Clássico' and menu.nome != 'Menu Económico Central' and menu.nome != 'Menu Especial Tasca'}" aria-hidden="true"></div>
 
                 <div class="pill-row">
                     <span class="tag">Menu</span>

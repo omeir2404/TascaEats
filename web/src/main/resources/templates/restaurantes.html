@@ -63,7 +63,10 @@
 
                     <div class="grid-restaurantes">
                         <article class="card" th:each="restaurante : ${restaurantes}">
-                            <div class="card__image" aria-hidden="true"></div>
+                            <div class="card__image"
+                                 aria-hidden="true"
+                                 th:style="${restaurante['id'] == 1} ? 'background-image: url(/img/tasca.jpg); background-size: cover; background-position: center; background-repeat: no-repeat;' : (${restaurante['id'] == 2} ? 'background-image: url(/img/pizza.png); background-size: cover; background-position: center; background-repeat: no-repeat;' : (${restaurante['id'] == 3} ? 'background-image: url(/img/sushi.jpeg); background-size: cover; background-position: center; background-repeat: no-repeat;' : (${restaurante['id'] == 4} ? 'background-image: url(/img/economico.jpg); background-size: cover; background-position: center; background-repeat: no-repeat;' : '')))"
+                                 ></div>
 
                             <div class="pill-row">
                                 <span class="pill"
