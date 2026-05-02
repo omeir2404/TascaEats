@@ -28,7 +28,7 @@
 
                 <div class="form-group form-group--medium">
                     <label for="precoMedioMax">Preço médio max.</label>
-                    <input type="number" id="precoMedioMax" name="precoMedioMax" step="0.50" min="0" th:value="${precoMedioMax}" placeholder="EUR 15.00">
+                    <input type="number" id="precoMedioMax" name="precoMedioMax" step="0.50" min="0" th:value="${precoMedioMax}" placeholder="Ex: 15.00">
                 </div>
 
                 <div class="form-actions form-group--compact">
@@ -54,7 +54,7 @@
 
                 <div class="menu-stats">
                     <p><strong>Total:</strong>&nbsp;<span th:text="${menu.numeroProdutos}">0</span></p>
-                    <p><strong>Preço médio:</strong>&nbsp;<span th:text="${menu.precoMedio} + ' EUR'">0.00</span></p>
+                    <p><strong>Preço médio:</strong>&nbsp;<span th:text="${menu.precoMedio} + ' €'">0.00 €</span></p>
                 </div>
 
                 <div class="menu-card__actions">

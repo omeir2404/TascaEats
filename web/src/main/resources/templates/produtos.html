@@ -154,7 +154,7 @@
 
                     <div class="form-group form-group--medium">
                         <label for="precoMax">Preço máx.</label>
-                        <input type="number" id="precoMax" name="precoMax" step="0.50" min="0" th:value="${precoMax}">
+                        <input type="number" id="precoMax" name="precoMax" step="0.50" min="0" placeholder="Ex: 12.50" th:value="${precoMax}">
                     </div>
 
                     <div class="form-group form-group--medium">
@@ -177,7 +177,7 @@
 
                     <div class="form-group form-group--compact">
                         <label for="popularidade">Popularidade min.</label>
-                        <input type="number" id="popularidade" name="popularidade" min="0" max="5" step="0.1" th:value="${popularidade}">
+                        <input type="number" id="popularidade" name="popularidade" min="0" max="5" step="0.1" placeholder="Ex: 4.5" th:value="${popularidade}">
                     </div>
 
                     <div class="form-actions">
@@ -199,7 +199,7 @@
                     <div class="flip-card" th:each="produto : ${produtos}">
                 <div class="flip-card-inner">
                     <div class="flip-card-front">
-                        <button type="button" class="btn-flip" onclick="toggleFlip(this)" title="Ver detalhes">i</button>
+                        <button type="button" class="btn-flip btn-flip--info" onclick="toggleFlip(this)" title="Ver detalhes">i</button>
 
                         <div class="section-stack">
                             <div class="pill-row">
@@ -212,7 +212,7 @@
 
                             <div>
                                 <h3 th:text="${produto.nome}">Product Name</h3>
-                                <p th:text="${produto.preco} + ' EUR'">0.00 EUR</p>
+                                <p th:text="${produto.preco} + ' €'">0.00 €</p>
                             </div>
 
                             <div class="inline-pills">
@@ -245,7 +245,7 @@
 
                             <div>
                                 <p><strong>Alergénios</strong></p>
-                                <p th:text="${produto.alergenios != null ? produto.alergenios : 'Nenhum indicado.'}"></p>
+                                <p th:text="${produto.alergenios != null ? produto.alergenios : 'A confirmar.'}"></p>
                             </div>
                         </div>
                     </div>

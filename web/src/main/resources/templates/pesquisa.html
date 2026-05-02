@@ -67,7 +67,7 @@
                     <div class="form-group form-group--compact">
                         <label for="precoMedioRange">Preço médio max.</label>
                         <input type="range" id="precoMedioRange" name="precoMedio" min="0" max="200" step="0.5" th:value="${param.precoMedio != null ? param.precoMedio : 0}">
-                        <div class="range-value">EUR <span id="precoMedioValue" th:text="${param.precoMedio != null ? param.precoMedio : 0}">0</span></div>
+                        <div class="range-value"><span id="precoMedioValue" th:text="${param.precoMedio != null ? param.precoMedio : 0}">0</span> €</div>
                     </div>
 
                     <div class="form-actions">

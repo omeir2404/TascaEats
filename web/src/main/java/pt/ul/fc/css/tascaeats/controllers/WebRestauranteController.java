@@ -247,8 +247,32 @@ public class WebRestauranteController {
                 "categoria", produto.getOrDefault("categoria", "OUTRO"),
                 "disponivel", Boolean.TRUE.equals(produto.get("disponivel")),
                 "descricao", produto.getOrDefault("descricao", ""),
-                "alergenios", produto.getOrDefault("alergenios", "Nenhum indicado")
+                "alergenios", resolveAlergenios(produto)
         )).collect(Collectors.toList());
+    }
+
+    private String resolveAlergenios(Map<String, Object> produto) {
+        Object alergenios = produto.get("alergenios");
+        if (alergenios != null && !alergenios.toString().isBlank()) {
+            return alergenios.toString();
+        }
+
+        String nome = String.valueOf(produto.getOrDefault("nome", "")).trim().toLowerCase();
+
+        return switch (nome) {
+            case "bitoque" -> "Ovos";
+            case "super bock 33cl" -> "Gluten";
+            case "pastel de nata" -> "Gluten, ovos, leite";
+            case "combinado sushi 15 peças", "combinado sushi 15 pecas" -> "Peixe, soja, gluten, sesamo";
+            case "chá verde", "cha verde" -> "Nenhum indicado";
+            case "gyoza" -> "Gluten, soja, sesamo";
+            case "margherita" -> "Gluten, leite";
+            case "portuguesa pizza" -> "Gluten, leite, ovos";
+            case "coca-cola 33cl" -> "Nenhum indicado";
+            case "burger veg" -> "Gluten, soja";
+            case "salada mix" -> "Nenhum indicado";
+            default -> "A confirmar";
+        };
     }
 
     private String fetchRestaurantName(Long restauranteId) {
