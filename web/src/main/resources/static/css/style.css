@@ -219,15 +219,23 @@ p {
 
 .page-shell--menus .page-intro h2 {
     color: var(--brand);
-    margin-top: -8px;
+    margin-top: 10px;
 }
 
-.page-shell--menus .filtro-container {
-    padding: 16px 18px;
+.page-shell--menus .filtro-container label {
+    font-size: 0.98rem;
+}
+
+.page-shell--menus .filtro-container form {
+    gap: 10px;
+}
+
+.page-shell--menus .grid-menus {
+    margin-top: 28px;
 }
 
 .page-shell--menus .menu-card .card__image {
-    height: 160px;
+    height: 190px;
 }
 
 .page-shell--restaurants {
