@@ -37,13 +37,13 @@ A tua primeira tarefa é adaptar as classes da pasta `src/main/java/.../domain` 
 #### Passo 2: Atualização da Transferência de Dados (DTOs)
 Como o domínio mudou, os dados que entram e saem da API também mudam.
 
-* [ ] **2.1. Atualizar Pedido DTOs:**
+* [x] **2.1. Atualizar Pedido DTOs:**
   * **Ficheiros:** `dto/pedidoDTO/CriarPedidoDTO.java`.
   * **Ação:** Ajustar para suportar a seleção da morada de entrega (nova ou existente) e a lista de produtos de múltiplos restaurantes.
-* [ ] **2.2. Atualizar Pagamento DTOs:**
+* [x] **2.2. Atualizar Pagamento DTOs:**
   * **Ficheiros:** `dto/pagamentoDTO/ProcessarPagamentoDTO.java`.
   * **Ação:** Incluir campos opcionais para receber a bandeira do cartão, número do MBWay e valor para troco.
-* [ ] **2.3. Criar DTOs para Menu e Avaliação:**
+* [x] **2.3. Criar DTOs para Menu e Avaliação:**
   * **Ficheiros:** Criar pastas `menuDTO` e `avaliacaoDTO` em `dto/` e adicionar os respetivos DTOs de criação e resposta.
 
 ---
@@ -51,10 +51,10 @@ Como o domínio mudou, os dados que entram e saem da API também mudam.
 #### Passo 3: Implementação da Lógica de Negócio (Services)
 Agora tens de dar vida às regras de negócio na pasta `src/main/java/.../service`.
 
-* [ ] **3.1. Automatizar Atribuição de Entregador:**
+* [x] **3.1. Automatizar Atribuição de Entregador:**
   * **Ficheiros:** `EntregaService.java` e/ou `PedidoService.java`.
   * **Ação:** Desenvolver o algoritmo que encontra o entregador válido/disponível mais adequado e o associa automaticamente a um pedido quando este fica pronto, sem intervenção humana
-* [ ] **3.2. Lógica de Menus:**
+* [x] **3.2. Lógica de Menus:**
   * **Ficheiros:** Criar `MenuService.java`.
   * **Ação:** Permitir a gestão de menus (criar, atualizar) e a associação explícita destes menus aos restaurantes pretendidos
 
@@ -64,11 +64,12 @@ Agora tens de dar vida às regras de negócio na pasta `src/main/java/.../servic
 O cliente pediu procuras mais avançadas
 Terás de usar Spring Data JPA (Specification API, Criteria API ou anotações `@Query`) na pasta `src/main/java/.../repository`.
 
-* [ ] **4.1. Filtros de Utilizador (`utilizadorRepository/`):**
+* [ ] **Ver como interligar os filtros com a interface web (Thymeleaf) e a API REST existente, para garantir que as buscas são acessíveis tanto na versão Web como na versão Nativa.**
+* [x] **4.1. Filtros de Utilizador (`utilizadorRepository/`):**
   * **Ação:** Implementar buscas por nome, tipo de utilizador 
   , número de pedidos realizados (só para clientes) 
   e número de entregas realizadas (só para entregadores)
-* [ ] **4.2. Filtros de Restaurante (`IRestauranteRepository.java`):**
+* [x] **4.2. Filtros de Restaurante (`IRestauranteRepository.java`):**
   * **Ação:** Implementar buscas por nome 
   , número de pedidos realizados 
   , número de avaliações recebidas 
@@ -77,14 +78,16 @@ Terás de usar Spring Data JPA (Specification API, Criteria API ou anotações `
   , horário de funcionamento (aberto/fechado) 
    e preço médio dos pratos
   .
-* [ ] **4.3. Filtros de Produtos (`IProdutoRepository.java`):**
+  * **Status:** Completado com otimização de queries: candidatos iniciais filtrados via repository, remaining criteria filtragem em memória.
+* [x] **4.3. Filtros de Produtos (`IProdutoRepository.java`):**
   * **Ação:** Implementar buscas por nome 
   , preço 
   , categoria 
   , disponibilidade (acessível apenas a admin/entregadores) 
    e popularidade (número de vezes pedido num intervalo de tempo)
   .
-* [ ] **4.4. Filtros de Menu (Criar `IMenuRepository.java`):**
+  * **Status:** Completado com otimização de queries: nome/categoria/disponibilidade como candidatos iniciais, preço e popularidade filtrados em memória.
+* [x] **4.4. Filtros de Menu (Criar `IMenuRepository.java`):**
   * **Ação:** Implementar buscas por nome 
   , número de produtos associados 
    e preço médio dos produtos associados
@@ -95,14 +98,64 @@ Terás de usar Spring Data JPA (Specification API, Criteria API ou anotações `
 #### Passo 5: Validação de Queries Complexas (Perguntas de Negócio)
 Para garantir que a base de dados ficou bem modelada, o sistema tem de ser capaz de responder às seguintes questões analíticas
 
-* [ ] **5.1.** Calcular a média do troco nos pagamentos em numerário
-* [ ] **5.2.** Descobrir qual é o item mais pedido de um determinado restaurante
-* [ ] **5.3.** Identificar o entregador com mais entregas realizadas para um restaurante específico
-* [ ] **5.4.** Descobrir qual o restaurante mais popular de uma franquia específica
-* [ ] **5.5.** Identificar o cliente que fez mais pedidos num intervalo de tempo específico
+* [x] **5.1.** Calcular a média do troco nos pagamentos em numerário
+* [x] **5.2.** Descobrir qual é o item mais pedido de um determinado restaurante
+* [x] **5.3.** Identificar o entregador com mais entregas realizadas para um restaurante específico
+* [x] **5.4.** Descobrir qual o restaurante mais popular de uma franquia específica
+* [x] **5.5.** Identificar o cliente que fez mais pedidos num intervalo de tempo específico
 * **Ação:** Traduzir estas questões para métodos nos Repositórios (usando agregações como `COUNT`, `AVG`, `GROUP BY`) e validar o seu funcionamento via testes unitários em `src/test/java/.../repositories/`.
 
 ---
+
+### 6. Create the Cuisine Enum
+- [x] Create a new `TipoCozinha` Enum in the domain or enums package.
+```java
+public enum TipoCozinha {
+    PORTUGUESA, ITALIANA, JAPONESA, HAMBURGUERIA, VEGETARIANA, OUTRA
+}
+```
+
+### 7. Update `Restaurante.java` Entity
+- [x] Add the following missing fields to map to the frontend search parameters:
+```java
+@NotNull
+@Enumerated(EnumType.STRING)
+@Column(name = "tipo_cozinha", nullable = false)
+private TipoCozinha tipoCozinha;
+
+@Column(name = "numero_avaliacoes")
+private Integer numeroAvaliacoes = 0;
+
+@Column(name = "avaliacao_media")
+private Double avaliacaoMedia = 0.0;
+
+@Column(name = "preco_medio")
+private Double precoMedio = 0.0;
+```
+- [x] Update Getters and Setters for these new fields (or verify Lombok annotations cover them).
+- [x] Update any custom constructors to initialize or accept these new properties.
+
+
+
+### 9. Implement/Verify the Search Endpoint
+- [x] Ensure the backend `RestauranteController` has the `/api/restaurantes/pesquisa` endpoint implemented.
+- [x] Ensure the endpoint accepts the corresponding parameters to interact with the database:
+
+```java
+
+@GetMapping("/pesquisa")
+public ResponseEntity<List<Restaurante>> pesquisarRestaurantes(
+        @RequestParam(required = false) String nome,
+        @RequestParam(required = false) TipoCozinha tipoCozinha,
+        @RequestParam(required = false) EstadoRestaurante estado,
+        @RequestParam(required = false) Integer pedidosRealizados,
+        @RequestParam(required = false) Double avaliacaoMinima,
+        @RequestParam(required = false) String morada,
+        @RequestParam(required = false) Double precoMedio) {
+    // ... search logic
+}
+```
+--
 
 # membro 1 extra (se der tempo senao quem conseguir)
 

@@ -179,7 +179,7 @@ public class PedidoService {
         return pedidoRepository.findAll();
     }
 
-    // Converter MoradaDTO to domain Morada
+    // Converter MoradaDTO para domain Morada
     private Morada novaMoradaDeDTO(pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO dto) {
         if (dto == null) {
             throw new IllegalArgumentException("A morada é obrigatória.");

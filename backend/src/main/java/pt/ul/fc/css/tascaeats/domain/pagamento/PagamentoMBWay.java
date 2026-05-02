@@ -19,15 +19,15 @@ import jakarta.persistence.Entity;
 public class PagamentoMBWay extends Pagamento {
 
 
-    @Column(name = "numero_telemovel")
-    private String numeroTelemovel;
+    @Column(name = "numero_mbway")
+    private String numeroMbWay;
 
     protected PagamentoMBWay() {
     }
 
-    public PagamentoMBWay(Long id, double valor, LocalDate dataPagamento, String referenciaPagamento, String numeroTelemovel){
+    public PagamentoMBWay(Long id, double valor, LocalDate dataPagamento, String referenciaPagamento, String numeroMbWay){
         super(id, valor, dataPagamento, referenciaPagamento);
-        this.numeroTelemovel = numeroTelemovel;
+        this.numeroMbWay = numeroMbWay;
     }
 
 
@@ -35,23 +35,20 @@ public class PagamentoMBWay extends Pagamento {
 
     @Override
     public void validarDetalhes() {
-        if (this.numeroTelemovel == null || this.numeroTelemovel.length() != 9 || this.numeroTelemovel.charAt(0) != '9') {
+        if (this.numeroMbWay == null || this.numeroMbWay.length() != 9 || this.numeroMbWay.charAt(0) != '9') {
             throw new IllegalArgumentException("Número de telemóvel inválido para MBWay.");
         }
     }
 
     @Override
     public String obterInstrucoesPagamento() {
-        return "Por favor, confirme o pagamento de " + getValor() + "€ na app MBWay para o número " + numeroTelemovel;
+        return "Por favor, confirme o pagamento de " + getValor() + "€ na app MBWay para o número " + numeroMbWay;
     }
 
 // ###################### GETTERS e SETTERS #####################################################################
 
-    public String getNumeroTelemovel() {
-        return numeroTelemovel;
-    }
+    public String getNumeroMbWay() { return numeroMbWay;}
 
-    public void setNumeroTelemovel(String numeroTelemovel) {
-        this.numeroTelemovel = numeroTelemovel;
-    }
+    public void setNumeroMbWay(String numeroMbWay) {this.numeroMbWay = numeroMbWay;}
+
 }

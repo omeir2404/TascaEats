@@ -33,10 +33,15 @@ public abstract class Pagamento {
 
     @Column(nullable = false)
     private double valor;
+
     @Column(name = "data_pagamento", nullable = false)
     private LocalDate dataPagamento;
+
     @Column(name = "referencia_pagamento")
     private String referenciaPagamento;
+
+
+    // *********CONSTRUTORES**********
 
     protected Pagamento() {
     }
@@ -48,13 +53,16 @@ public abstract class Pagamento {
         this.referenciaPagamento = referenciaPagamento;
     }
 
+
     // ################### MÉTODOS DE NEGÓCIO ######################################################################
 
     public abstract void validarDetalhes();
 
     public abstract String obterInstrucoesPagamento();
 
-// ###################### GETTERS e SETTERS #####################################################################
+
+    // ###################### GETTERS e SETTERS #####################################################################
+
     public Long getId() {
         return id;
     }
@@ -86,4 +94,6 @@ public abstract class Pagamento {
     public void setReferenciaPagamento(String referenciaPagamento) {
         this.referenciaPagamento = referenciaPagamento;
     }
+
+
 }

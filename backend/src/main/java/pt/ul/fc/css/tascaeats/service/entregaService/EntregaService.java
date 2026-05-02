@@ -17,7 +17,6 @@ import pt.ul.fc.css.tascaeats.domain.entrega.Entrega;
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
-import pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO;
 import pt.ul.fc.css.tascaeats.repository.entregaRepository.IEntregaRepository;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
@@ -40,58 +39,58 @@ public class EntregaService {
         this.pedidoRepository = pedidoRepository;
     }
 
-    @Transactional
-    public Entrega atribuirEntregador(AtribuirEntregadorDTO atribuirEntregaDTO) {
-        if (atribuirEntregaDTO == null) {
-            throw new IllegalArgumentException("Pedido de atribuição inválido.");
-        }
+    // @Transactional
+    // public Entrega atribuirEntregador(AtribuirEntregadorDTO atribuirEntregaDTO) {
+    //     if (atribuirEntregaDTO == null) {
+    //         throw new IllegalArgumentException("Pedido de atribuição inválido.");
+    //     }
 
-        Long pedidoId = atribuirEntregaDTO.getPedidoId();
-        if (pedidoId == null) {
-            throw new IllegalArgumentException("ID do pedido inválido.");
-        }
+    //     Long pedidoId = atribuirEntregaDTO.getPedidoId();
+    //     if (pedidoId == null) {
+    //         throw new IllegalArgumentException("ID do pedido inválido.");
+    //     }
 
-        Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
-        if (pedidoOptional.isEmpty()) {
-            throw new IllegalArgumentException("Pedido não encontrado: " + pedidoId);
-        }
+    //     Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
+    //     if (pedidoOptional.isEmpty()) {
+    //         throw new IllegalArgumentException("Pedido não encontrado: " + pedidoId);
+    //     }
 
-        Pedido pedido = pedidoOptional.get();
+    //     Pedido pedido = pedidoOptional.get();
 
-        if (pedido.getEstado() != EstadoPedido.PRONTO_PARA_ENTREGA) {
-            throw new IllegalStateException("Pedido não está pronto para entrega.");
-        }
+    //     if (pedido.getEstado() != EstadoPedido.PRONTO_PARA_ENTREGA) {
+    //         throw new IllegalStateException("Pedido não está pronto para entrega.");
+    //     }
 
-        if (entregaRepository.findByPedidoId(pedidoId).isPresent()) {
-            throw new IllegalStateException("Pedido já possui entrega associada.");
-        }
+    //     if (entregaRepository.findByPedidoId(pedidoId).isPresent()) {
+    //         throw new IllegalStateException("Pedido já possui entrega associada.");
+    //     }
 
-        Entregador entregador = null;
-        for (var utilizador : utilizadorRepository.findAll()) {
-            if (utilizador instanceof Entregador candidato) {
-                if (candidato.isAvailable()) {
-                    if (!entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
-                        entregador = candidato;
-                        break;
-                    }
-                }
-            }
-        }
+    //     Entregador entregador = null;
+    //     for (var utilizador : utilizadorRepository.findAll()) {
+    //         if (utilizador instanceof Entregador candidato) {
+    //             if (candidato.isAvailable()) {
+    //                 if (!entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
+    //                     entregador = candidato;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     }
 
-        if (entregador == null) {
-            throw new IllegalStateException("Não há entregadores disponíveis.");
-        }
+    //     if (entregador == null) {
+    //         throw new IllegalStateException("Não há entregadores disponíveis.");
+    //     }
 
-        Entrega entrega = new Entrega(pedido, entregador.getId(), ENDERECO_ENTREGA_PENDENTE);
+    //     Entrega entrega = new Entrega(pedido, entregador.getId(), ENDERECO_ENTREGA_PENDENTE);
 
-        entregador.setAvailable(false);
-        pedido.atribuirEntregador();
+    //     entregador.setAvailable(false);
+    //     pedido.atribuirEntregador();
 
-        utilizadorRepository.save(entregador);
-        pedidoRepository.save(pedido);
+    //     utilizadorRepository.save(entregador);
+    //     pedidoRepository.save(pedido);
 
-        return entregaRepository.save(entrega);
-    }
+    //     return entregaRepository.save(entrega);
+    // }
 
     @Transactional
     public Pedido iniciarPreparacao(Long pedidoId) {
@@ -109,7 +108,8 @@ public class EntregaService {
         return pedidoRepository.save(pedido);
     }
 
-    @Transactional
+    
+@Transactional
     public Pedido marcarPedidoComoPronto(Long pedidoId) {
         if (pedidoId == null) {
             throw new IllegalArgumentException("ID do pedido inválido.");
@@ -121,8 +121,47 @@ public class EntregaService {
         }
 
         Pedido pedido = pedidoOptional.get();
+        
+        // 1. Mark the order as ready
         pedido.marcarComoPronto();
-        return pedidoRepository.save(pedido);
+        pedido = pedidoRepository.save(pedido);
+
+        // 2. Automatically assign a delivery person
+        associarEntregadorAutomaticamente(pedido);
+
+        return pedido;
+    }
+
+    private void associarEntregadorAutomaticamente(Pedido pedido) {
+        Entregador entregador = null;
+        
+        // Find the first available delivery person
+        for (var utilizador : utilizadorRepository.findAll()) {
+            if (utilizador instanceof Entregador candidato) {
+                if (candidato.isAvailable() && !entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
+                    entregador = candidato;
+                    break;
+                }
+            }
+        }
+
+        // If no one is available, you can choose to throw an error (rolls back the transaction) 
+        // or just log it and handle it later. Keeping it strict here:
+        if (entregador == null) {
+            throw new IllegalStateException("Não há entregadores disponíveis de momento para o pedido: " + pedido.getId());
+        }
+
+        // Create the delivery record
+        Entrega entrega = new Entrega(pedido, entregador.getId(), ENDERECO_ENTREGA_PENDENTE);
+
+        // Update states
+        entregador.setAvailable(false);
+        pedido.atribuirEntregador(); // Changes state to ATRIBUIDO_ENTREGADOR
+
+        // Persist everything
+        utilizadorRepository.save(entregador);
+        pedidoRepository.save(pedido);
+        entregaRepository.save(entrega);
     }
 
 

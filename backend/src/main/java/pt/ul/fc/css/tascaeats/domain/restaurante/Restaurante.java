@@ -40,10 +40,27 @@ public class Restaurante{
     @Column(nullable = false, unique = true)
     private String nif;
 
+    @Column(name = "franquia")
+    private String franquia;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoRestaurante estado = EstadoRestaurante.FECHADO;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_restaurante", nullable = false)
+    private TipoRestaurante tipoRestaurante = TipoRestaurante.OUTRO;
+
+    @Column(name = "numero_avaliacoes")
+    private Integer numeroAvaliacoes = 0;
+
+    @Column(name = "avaliacao_media")
+    private Double avaliacaoMedia = 0.0;
+
+    @Column(name = "preco_medio")
+    private Double precoMedio = 0.0;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "morada_id", nullable = false, unique = true)
@@ -69,11 +86,21 @@ public class Restaurante{
 
     public Restaurante(String nome, String nif, Morada morada, RestauranteAdmin administrador,
                    CatalogoEntregas catalogoEntregas){
+        this(nome, nif, morada, administrador, catalogoEntregas, TipoRestaurante.OUTRO, 0, 0.0, 0.0);
+    }
+
+    public Restaurante(String nome, String nif, Morada morada, RestauranteAdmin administrador, CatalogoEntregas catalogoEntregas,
+            TipoRestaurante tipoRestaurante, Integer numeroAvaliacoes, Double avaliacaoMedia, Double precoMedio
+    ){
         this.nome = nome;
         this.nif = nif;
         this.morada = morada;
         this.administrador = administrador;
         this.catalogoEntregas = catalogoEntregas;
+        this.tipoRestaurante = tipoRestaurante != null ? tipoRestaurante : TipoRestaurante.OUTRO;
+        this.numeroAvaliacoes = numeroAvaliacoes != null ? numeroAvaliacoes : 0;
+        this.avaliacaoMedia = avaliacaoMedia != null ? avaliacaoMedia : 0.0;
+        this.precoMedio = precoMedio != null ? precoMedio : 0.0;
     }
     
 
@@ -102,6 +129,14 @@ public class Restaurante{
         this.nif = nif;
     }
 
+    public String getFranquia() {
+        return franquia;
+    }
+
+    public void setFranquia(String franquia) {
+        this.franquia = franquia;
+    }
+
     //Estado
     public EstadoRestaurante getEstado(){
         return estado;
@@ -111,6 +146,42 @@ public class Restaurante{
         return estado == EstadoRestaurante.ABERTO;
     }
 
+    //Tipo de Restaurante
+    public TipoRestaurante getTipoRestaurante() {
+        return tipoRestaurante;
+    }
+
+    public void setTipoRestaurante(TipoRestaurante tipoRestaurante) {
+        this.tipoRestaurante = tipoRestaurante;
+    }
+
+    //Avaliações
+    public Integer getNumeroAvaliacoes() {
+        return numeroAvaliacoes;
+    }
+
+    public void setNumeroAvaliacoes(Integer numeroAvaliacoes) {
+        this.numeroAvaliacoes = numeroAvaliacoes;
+    }
+
+    public Double getAvaliacaoMedia() {
+        return avaliacaoMedia;
+    }
+
+    public void setAvaliacaoMedia(Double avaliacaoMedia) {
+        this.avaliacaoMedia = avaliacaoMedia;
+    }
+
+    //Preço Médio
+    public Double getPrecoMedio() {
+        return precoMedio;
+    }
+
+    public void setPrecoMedio(Double precoMedio) {
+        this.precoMedio = precoMedio;
+    }
+
+    //Estado restaurante
     public void abrir() {
         if(this.estado == EstadoRestaurante.ABERTO){
             throw new IllegalStateException("O restaurante já está aberto!");
@@ -132,6 +203,7 @@ public class Restaurante{
         this.estado = EstadoRestaurante.RESERVADO;
     }
 
+    //Disponibilidade para pedido
     public void validarDisponibilidadeParaPedido() {
         if (!isAberto()) {
             throw new IllegalStateException("O restaurante está fechado. Não é possível fazer pedidos!");
@@ -152,9 +224,7 @@ public class Restaurante{
         return catalogoEntregas;
     }
 
-    public void setCatalogoEntregas(CatalogoEntregas catalogoEntregas){
-        this.catalogoEntregas = catalogoEntregas;
-    }
+    public void setCatalogoEntregas(CatalogoEntregas catalogoEntregas){ this.catalogoEntregas = catalogoEntregas;}
 
     //Administrador
     public RestauranteAdmin getAdministrador(){
@@ -163,6 +233,15 @@ public class Restaurante{
 
     public void setAdministrador(RestauranteAdmin administrador){
         this.administrador = administrador;
+    }
+
+    //Menu
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public void setMenu(Menu menu) {
+        this.menu = menu;
     }
 
 }
