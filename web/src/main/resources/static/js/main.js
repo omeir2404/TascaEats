@@ -1,6 +1,78 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("TascaEats Web App carregada com sucesso!");
 
+    const headerCart = document.getElementById('headerCart');
+    const headerCartTrigger = document.getElementById('headerCartTrigger');
+    const headerCartItems = document.getElementById('headerCartItems');
+    const headerCartEmpty = document.getElementById('headerCartEmpty');
+    const headerCartTotal = document.getElementById('headerCartTotal');
+
+    function readHeaderCart() {
+        try {
+            const raw = sessionStorage.getItem('tascaeatsCart');
+            return raw ? JSON.parse(raw) : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function formatHeaderCartPrice(value) {
+        const number = Number(value) || 0;
+        return `${number.toFixed(2)} €`;
+    }
+
+    function renderHeaderCart() {
+        if (!headerCartItems || !headerCartEmpty || !headerCartTotal) {
+            return;
+        }
+
+        const cart = readHeaderCart();
+        const total = cart.reduce((sum, item) => sum + (Number(item.preco || 0) * Number(item.quantidade || 0)), 0);
+
+        headerCartItems.innerHTML = '';
+
+        if (cart.length === 0) {
+            headerCartEmpty.style.display = 'block';
+        } else {
+            headerCartEmpty.style.display = 'none';
+
+            cart.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'header-cart__item';
+                li.innerHTML = `
+                    <div class="header-cart__item-top">
+                        <span class="header-cart__item-name">${item.nome}</span>
+                        <span class="header-cart__item-price">${formatHeaderCartPrice(item.preco)}</span>
+                    </div>
+                    <span class="header-cart__item-details">${item.quantidade} x ${formatHeaderCartPrice(item.preco)}</span>
+                `;
+                headerCartItems.appendChild(li);
+            });
+        }
+
+        headerCartTotal.textContent = formatHeaderCartPrice(total);
+    }
+
+    if (headerCart && headerCartTrigger) {
+        renderHeaderCart();
+
+        headerCartTrigger.addEventListener('click', function(event) {
+            event.stopPropagation();
+            renderHeaderCart();
+            const isOpen = headerCart.classList.toggle('is-open');
+            headerCartTrigger.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!headerCart.contains(event.target)) {
+                headerCart.classList.remove('is-open');
+                headerCartTrigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        window.addEventListener('storage', renderHeaderCart);
+    }
+
     // --- Live Search Function ---
     const searchInput = document.getElementById('liveSearchInput');
     const dropdown = document.getElementById('searchDropdown');

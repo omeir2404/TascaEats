@@ -12,6 +12,8 @@
         body.checkout-page main {
             padding-top: 12px;
             padding-bottom: 8px;
+            height: calc(100vh - 85px);
+            overflow: hidden;
         }
 
         body.checkout-page .site-footer {
@@ -25,6 +27,8 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
         }
 
         .checkout-container h2 {
@@ -37,6 +41,12 @@
             padding: 12px 14px;
             border-radius: 8px;
             margin-bottom: 12px;
+        }
+
+        .checkout-summary__items {
+            max-height: 120px;
+            overflow-y: auto;
+            padding-right: 6px;
         }
 
         .checkout-summary h4 {
@@ -215,33 +225,35 @@
             <div class="checkout-summary">
                 <h4>Resumo do seu pedido</h4>
 
-                <ul style="list-style-type: none; padding: 0; margin: 0;">
-                    <li th:each="item : ${itens}" class="checkout-cart-item">
-                        <div class="checkout-cart-item__info">
-                            <div class="checkout-cart-item__top">
-                                <span class="checkout-cart-item__name" th:text="${item.nome}">Product Name</span>
-                                <span class="checkout-cart-item__price" th:text="${#numbers.formatDecimal(item.preco, 1, 2)} + '€'">0.00€</span>
+                <div class="checkout-summary__items">
+                    <ul style="list-style-type: none; padding: 0; margin: 0;">
+                        <li th:each="item : ${itens}" class="checkout-cart-item">
+                            <div class="checkout-cart-item__info">
+                                <div class="checkout-cart-item__top">
+                                    <span class="checkout-cart-item__name" th:text="${item.nome}">Product Name</span>
+                                    <span class="checkout-cart-item__price" th:text="${#numbers.formatDecimal(item.preco, 1, 2)} + '€'">0.00€</span>
+                                </div>
+                                <span class="checkout-cart-item__details" th:text="${item.quantidade} + ' x ' + ${item.preco} + '€'">1 x 0.00€</span>
+                                <div class="checkout-quantity-control">
+                                    <form th:action="@{/carrinho/remover}" method="POST" class="checkout-quantity-form">
+                                        <input type="hidden" name="produtoId" th:value="${item.produtoId}">
+                                        <input type="hidden" name="redirectTo" value="/checkout">
+                                        <button type="submit" class="checkout-quantity-button" aria-label="Remover uma unidade" title="Remover uma unidade">-</button>
+                                    </form>
+                                    <span class="checkout-quantity-value" th:text="${item.quantidade}">1</span>
+                                    <form th:action="@{/carrinho/adicionar}" method="POST" class="checkout-quantity-form">
+                                        <input type="hidden" name="produtoId" th:value="${item.produtoId}">
+                                        <input type="hidden" name="quantidade" value="1">
+                                        <input type="hidden" name="nome" th:value="${item.nome}">
+                                        <input type="hidden" name="preco" th:value="${item.preco}">
+                                        <input type="hidden" name="restauranteId" th:value="${item.restauranteId}">
+                                        <button type="submit" class="checkout-quantity-button" aria-label="Adicionar uma unidade" title="Adicionar uma unidade">+</button>
+                                    </form>
+                                </div>
                             </div>
-                            <span class="checkout-cart-item__details" th:text="${item.quantidade} + ' x ' + ${item.preco} + '€'">1 x 0.00€</span>
-                            <div class="checkout-quantity-control">
-                                <form th:action="@{/carrinho/remover}" method="POST" class="checkout-quantity-form">
-                                    <input type="hidden" name="produtoId" th:value="${item.produtoId}">
-                                    <input type="hidden" name="redirectTo" value="/checkout">
-                                    <button type="submit" class="checkout-quantity-button" aria-label="Remover uma unidade" title="Remover uma unidade">-</button>
-                                </form>
-                                <span class="checkout-quantity-value" th:text="${item.quantidade}">1</span>
-                                <form th:action="@{/carrinho/adicionar}" method="POST" class="checkout-quantity-form">
-                                    <input type="hidden" name="produtoId" th:value="${item.produtoId}">
-                                    <input type="hidden" name="quantidade" value="1">
-                                    <input type="hidden" name="nome" th:value="${item.nome}">
-                                    <input type="hidden" name="preco" th:value="${item.preco}">
-                                    <input type="hidden" name="restauranteId" th:value="${item.restauranteId}">
-                                    <button type="submit" class="checkout-quantity-button" aria-label="Adicionar uma unidade" title="Adicionar uma unidade">+</button>
-                                </form>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <h3 class="checkout-total">Total: <span th:text="${#numbers.formatDecimal(total, 1, 2)} + '€'">0.00€</span></h3>
