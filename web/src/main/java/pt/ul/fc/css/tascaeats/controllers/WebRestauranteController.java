@@ -41,27 +41,28 @@ public class WebRestauranteController {
         if (restauranteId == 1) { // Tasca do Zé
             return List.of(
                 Map.of(
-                    "id", 1, "nome", "Bacalhau à Brás", "preco", 12.50, "categoria", "MAIN_COURSE", "disponivel", true,
-                    "descricao", "Traditional Portuguese dish made with shredded cod, onions, and scrambled eggs.", "alergenios", "Fish, Eggs"
+                    "id", 1, "nome", "Bitoque", "preco", 12.50, "categoria", "MAIN_COURSE", "disponivel", true,
+                    "descricao", "Suculento bife grelhado no ponto, servido com ovo estrelado, batata frita crocante, arroz e salada fresca. Um clássico português cheio de sabor.", "alergenios", "Ovos, Glúten"
                 ),
                 Map.of(
                     "id", 2, "nome", "Super Bock 33cl", "preco", 2.00, "categoria", "DRINK", "disponivel", true,
-                    "descricao", "Refreshing cold Portuguese beer.", "alergenios", "Gluten"
+                    "descricao", "Cerveja portuguesa gelada e refrescante.", "alergenios", "Glúten"
                 ),
                 Map.of(
                     "id", 3, "nome", "Pastel de Nata", "preco", 1.50, "categoria", "DESSERT", "disponivel", false,
-                    "descricao", "Famous Portuguese egg custard tart pastry.", "alergenios", "Eggs, Milk, Gluten"
+                    "descricao", "Ícone da doçaria portuguesa, caracterizado por uma base de massa folhada estaladiça e um recheio cremoso à base de ovos, leite, açúcar, limão e canela.", "alergenios", "Glúten, ovos, leite"
                 )
             );
         } else if (restauranteId == 3) { // Sushi Zen
             return List.of(
                 Map.of(
                     "id", 4, "nome", "Combinado Salmon 15 peças", "preco", 22.00, "categoria", "MAIN_COURSE", "disponivel", true,
-                    "descricao", "Chef's selection of 15 premium fresh salmon pieces.", "alergenios", "Fish"
+                    "descricao", "\n" +
+                                "Seleção do chef com 15 peças de sushi fresco de ótima qualidade.", "alergenios", "Fish"
                 ),
                 Map.of(
                     "id", 5, "nome", "Chá Verde", "preco", 3.00, "categoria", "DRINK", "disponivel", true,
-                    "descricao", "Authentic Japanese hot green tea.", "alergenios", "None"
+                    "descricao", "\n" + "Autêntico chá verde quente japonês.", "alergenios", "None"
                 )
             );
         }
