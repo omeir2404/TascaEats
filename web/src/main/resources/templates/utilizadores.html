@@ -12,15 +12,11 @@
     <main class="page-shell">
         <section class="split-intro">
             <div class="page-intro">
-                <h2>Gestão de utilizadores</h2>
+                <h2>Gestao de utilizadores</h2>
             </div>
-            <aside class="intro-aside">
-                <strong>Area de operacao</strong>
-                <p>Pesquisa por nome, filtra por papel e restringe a contas ativas.</p>
-            </aside>
         </section>
 
-        <section class="filter-shell">
+        <section class="filter-shell filter-shell--search">
             <div class="filtro-container">
                 <form th:action="@{/utilizadores}" method="GET">
                     <div class="form-group form-group--wide">
@@ -51,12 +47,6 @@
                     </div>
                 </form>
             </div>
-
-            <aside class="filter-summary">
-                <span class="section-eyebrow">Tabela</span>
-                <h3>Leitura administrativa</h3>
-                <p>O conteúdo está enquadrado como área de gestão em vez de parecer apenas uma tabela HTML sem contexto.</p>
-            </aside>
         </section>
 
         <section class="table-shell">

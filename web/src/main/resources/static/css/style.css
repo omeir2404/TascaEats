@@ -61,8 +61,13 @@ body.page-home {
 }
 
 body.page-home main {
+    height: calc(100vh - 85px);
     max-height: calc(100vh - 85px);
     overflow: hidden;
+}
+
+body.page-home .site-footer {
+    display: none;
 }
 
 a {
