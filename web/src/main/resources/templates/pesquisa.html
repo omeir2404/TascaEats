@@ -9,16 +9,16 @@
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main class="page-shell">
-        <section class="split-intro page-shell--menus">
+    <main class="page-shell page-shell--search">
+        <section class="split-intro search-intro">
             <div class="page-intro">
                 <h2>Explorar restaurantes</h2>
             </div>
         </section>
 
-        <section class="filter-shell">
+        <section class="filter-shell filter-shell--search">
             <div class="filtro-container">
-                <form th:action="@{/restaurantes/pesquisa}" method="GET">
+                <form th:action="@{/restaurantes/pesquisa}" method="GET" class="search-filters-form">
                     <div class="form-group form-group--wide">
                         <label for="nome">Nome</label>
                         <input type="text" id="nome" name="nome" th:value="${param.nome}" placeholder="Ex: Tasca do Zé">
@@ -79,7 +79,7 @@
 
         <div class="section-header">
             <div>
-                <h3>Resultados</h3>
+                <h3 class="section-title--brand">Resultados</h3>
             </div>
         </div>
 

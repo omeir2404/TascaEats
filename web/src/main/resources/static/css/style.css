@@ -87,7 +87,8 @@ input,
 select,
 textarea {
     width: 100%;
-    min-height: 50px;
+    /* make controls have a consistent height so placeholder text aligns */
+    height: 44px;
     border: 1px solid #d7ddda;
     border-radius: var(--radius-sm);
     background: #fff;
@@ -95,6 +96,7 @@ textarea {
     padding: 0 16px;
     outline: none;
     font-size: 1rem;
+    line-height: 1; /* keep placeholder vertically centered */
 }
 
 input:focus,
@@ -136,6 +138,12 @@ h2 {
 
 h3 {
     font-size: 1.08rem;
+}
+
+/* Make specific section titles use the brand color (matches quick-selection/menus) */
+.section-title--brand {
+    color: var(--brand);
+    font-weight: 700;
 }
 
 p {
@@ -240,9 +248,28 @@ p {
     object-position: center;
 }
 
+.page-shell--search {
+    gap: 18px;
+}
+
+.search-intro {
+    margin-top: -6px;
+    margin-bottom: 8px;
+    align-items: start;
+}
+
+.search-intro .page-intro {
+    gap: 4px;
+}
+
+.search-intro .page-intro h2 {
+    color: var(--brand);
+    margin-top: 0;
+}
+
 .page-shell--restaurants {
     max-width: none;
-    padding-top: 12px;
+    padding-top: 30px;
     padding-bottom: 8px;
 }
 
@@ -257,7 +284,7 @@ p {
 }
 
 .catalog-wrap {
-    padding-top: 2px;
+    padding-top: 22px;
 }
 
 .search-card {
@@ -387,7 +414,7 @@ p {
 }
 
 .restaurants-highlight-section {
-    margin-top: 20px;
+    margin-top: 42px;
 }
 
 .page-shell--restaurants .restaurants-highlight-section .section-header {
@@ -518,7 +545,8 @@ p {
 }
 
 .filtro-container {
-    padding: 22px;
+    /* reduce horizontal padding so form can use more space to the edges of the white card */
+    padding: 18px 12px;
     background: var(--surface);
     border: 1px solid #e5ded1;
     border-radius: 12px;
@@ -529,6 +557,11 @@ p {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(220px, 0.3fr);
     gap: 18px;
+}
+
+.filter-shell--search {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
 }
 
 .filter-summary {
@@ -547,15 +580,90 @@ p {
     gap: 14px;
 }
 
+.search-filters-form {
+    /* Use a 12-column grid so the filters can span the white card fully
+       and so we can control wide/medium/compact spans precisely. */
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 28px; /* increased gap so fields occupy more horizontal space visually */
+    align-items: start;
+}
+
+/* Desktop: compact the whole filters row into a single line (no wrap) */
+@media (min-width: 921px) {
+    .search-filters-form {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: nowrap;
+        /* reduce right padding of the card slightly to allow full-width feel */
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+        align-items: stretch;
+    }
+
+    /* Compact widths for each modifier so all fields fit in one line */
+    .form-group--wide {
+        flex: 0 0 30%; /* Nome and Morada share larger space */
+    }
+
+    .form-group--medium {
+        flex: 0 0 12%;
+    }
+
+    .form-group--compact {
+        flex: 0 0 7.5%;
+    }
+
+    .form-actions {
+        flex: 0 0 7.5%;
+        margin-left: 6px;
+    }
+
+    /* Make inputs slightly more compact */
+    .search-filters-form input,
+    .search-filters-form select,
+    .search-filters-form textarea {
+        height: 36px;
+        padding: 0 10px;
+        font-size: 0.95rem;
+    }
+
+    /* Adjust range value overlay to avoid covering important parts */
+    .form-group--compact .range-value {
+        right: 8px;
+    }
+}
+
 .form-group {
+    /* place label above the control so the phrase appears on top of the placeholder */
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 8px; /* vertical gap between label and control */
     min-width: 0;
+    align-items: stretch;
+}
+
+    .search-filters-form .form-group {
+    gap: 12px;
+}
+
+.search-filters-form label {
+    /* keep labels on a single visual line; allow font-size to shrink so the full text fits */
+    white-space: nowrap;
+    display: block;
+    font-weight: 700;
+    color: var(--muted);
+    /* allow the label text to scale down on narrower screens so it fits in one line */
+    font-size: clamp(0.9rem, 1.0vw, 0.95rem);
 }
 
 .form-group--wide {
-    grid-column: span 4;
+    grid-column: span 6; /* 6/12: make layout fill rows cleanly */
 }
 
 .form-group--medium {
@@ -574,11 +682,51 @@ p {
 }
 
 .form-actions {
-    grid-column: span 2;
+    /* make buttons occupy full width of the white card */
+    grid-column: 1 / -1;
     display: flex;
     justify-content: flex-end;
-    align-items: end;
+    align-items: center;
     gap: 10px;
+}
+
+.search-filters-form .form-group--wide,
+.search-filters-form .form-group--medium,
+.search-filters-form .form-group--compact {
+    /* no default override here; specific modifiers control span */
+}
+
+.search-filters-form .form-group:first-child,
+.search-filters-form .form-group:nth-child(6) {
+    grid-column: span 2;
+}
+
+.search-filters-form .form-actions {
+    align-self: center;
+}
+
+.search-filters-form .form-actions button {
+    width: 100%;
+    min-height: 50px;
+}
+
+.search-filters-form input,
+.search-filters-form select {
+    min-height: 50px;
+}
+
+.search-filters-form .range-value {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: #f4f0e9;
+    color: var(--brand);
+    font-size: 0.92rem;
+    font-weight: 700;
+    width: fit-content;
+    margin-top: 2px;
 }
 
 .page-intro {
@@ -801,6 +949,23 @@ th {
     .form-actions {
         grid-column: span 3;
     }
+
+    .search-filters-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px 18px;
+    }
+
+    .search-filters-form .form-group--wide,
+    .search-filters-form .form-group--medium,
+    .search-filters-form .form-group--compact,
+    .search-filters-form .form-actions {
+        grid-column: span 1;
+    }
+
+    .search-filters-form .form-group:first-child,
+    .search-filters-form .form-group:nth-child(6) {
+        grid-column: 1 / -1;
+    }
 }
 
 @media (max-width: 720px) {
@@ -853,6 +1018,35 @@ th {
         grid-column: 1 / -1;
     }
 
+    .search-intro {
+        margin-top: 0;
+    }
+
+    .search-filters-form {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    /* on small screens labels stack above inputs */
+    .form-group {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        align-items: start;
+    }
+
+    /* allow labels to wrap on small screens */
+    .search-filters-form label {
+        white-space: normal;
+        font-size: 0.95rem;
+    }
+
+    .search-filters-form .form-group--wide,
+    .search-filters-form .form-group--medium,
+    .search-filters-form .form-group--compact,
+    .search-filters-form .form-actions {
+        grid-column: 1 / -1;
+    }
+
     .site-footer__inner {
         grid-template-columns: 1fr;
     }
@@ -886,38 +1080,95 @@ th {
 input[type="range"] {
     -webkit-appearance: none;
     width: 100%;
-    height: 10px;
-    background: #e9eceb; /* base track color, JS will overlay filled portion */
+    /* thinner track per request */
+    height: 3px;
+    background: #d9e1df;
     border-radius: 999px;
     outline: none;
-    margin-top: 6px;
+    margin-top: 10px;
+    padding: 0;
+    border: 0;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 3px;
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+}
+
+input[type="range"]::-moz-range-track {
+    height: 3px;
+    background: #d9e1df;
+    border: 0;
+    border-radius: 999px;
+}
+
+input[type="range"]::-moz-range-progress {
+    height: 3px;
+    background: var(--brand);
+    border-radius: 999px;
 }
 
 /* WebKit thumb */
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 22px;
-    height: 22px;
-    margin-top: -6px; /* center the thumb vertically */
+    width: 14px;
+    height: 14px;
+    /* center thumb relative to the thinner track */
+    margin-top: -6px;
     border-radius: 50%;
     background: var(--brand);
-    box-shadow: 0 6px 18px rgba(49,83,90,0.24);
-    border: 4px solid #fff; /* white halo */
+    box-shadow: 0 1px 5px rgba(49,83,90,0.16);
+    border: 2px solid #fff;
     cursor: pointer;
 }
 
 /* Firefox thumb */
 input[type="range"]::-moz-range-thumb {
-    width: 22px;
-    height: 22px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: var(--brand);
-    box-shadow: 0 6px 18px rgba(49,83,90,0.24);
-    border: 4px solid #fff;
+    box-shadow: 0 1px 5px rgba(49,83,90,0.16);
+    border: 2px solid #fff;
     cursor: pointer;
 }
 
 .range-value {
-    margin-top: 6px;
+    /* make range label sit inline with the range control and be slimmer */
+    margin-top: 0;
     font-weight: 700;
+    min-height: 22px; /* reduce height */
+    padding: 4px 18px; /* wider horizontally per request */
+    border-radius: 999px;
+    background: #f4f0e9;
+    color: var(--brand);
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+/* Place range and value inline inside the same form group so the EUR sits in the rounded box next to the thumb */
+.form-group input[type="range"],
+.form-group .range-value {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* specifically for the compact range group make the range and value sit in one row */
+.form-group--compact {
+    position: relative; /* needed for absolute positioning of the overlaid EUR box */
+}
+.form-group--compact input[type="range"] {
+    /* make track full width; we will overlay the EUR box at the right end */
+    width: 100%;
+}
+.form-group--compact .range-value {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    margin-left: 0;
 }
