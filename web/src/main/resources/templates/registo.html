@@ -6,38 +6,48 @@
     <title>Registo - TascaEats</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body>
+<body class="page-login-compact">
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
     <main class="page-shell">
         <section class="auth-layout">
             <div class="auth-card">
+                <div class="auth-card__media auth-card__media--signup" aria-hidden="true"></div>
                 <div class="page-intro">
+                    <span class="section-eyebrow">Criar conta</span>
                     <h2 style="font-size: 2rem;">Nova conta</h2>
                 </div>
 
                 <form th:action="@{/registo}" method="POST">
-                    <label for="nome">Nome completo</label>
-                    <input type="text" id="nome" name="nome" required placeholder="Ex: Tiago Silva">
+                    <div class="auth-form-field">
+                        <label for="nome">Nome completo</label>
+                        <input type="text" id="nome" name="nome" required placeholder="Ex: Tiago Silva">
+                    </div>
 
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required placeholder="Ex: tiago@email.com">
+                    <div class="auth-form-field">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required placeholder="Ex: tiago@email.com">
+                    </div>
 
-                    <label for="papel">Tipo de conta</label>
-                    <select id="papel" name="papel" required>
-                        <option value="CLIENT">Cliente</option>
-                        <option value="COURIER">Entregador</option>
-                        <option value="ADMIN">Administrador</option>
-                    </select>
+                    <div class="auth-form-field">
+                        <label for="papel">Tipo de conta</label>
+                        <select id="papel" name="papel" required>
+                            <option value="CLIENT">Cliente</option>
+                            <option value="COURIER">Entregador</option>
+                            <option value="ADMIN">Administrador</option>
+                        </select>
+                    </div>
 
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="Define uma password">
+                    <div class="auth-form-field">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required placeholder="Define uma password">
+                    </div>
 
                     <button type="submit">Criar conta</button>
                 </form>
 
                 <p class="auth-card__footer">
-                    Ja tens conta? <a th:href="@{/login}" class="search-link">Entrar</a>
+                    Já tens conta? <a th:href="@{/login}" class="search-link">Entrar</a>
                 </p>
             </div>
         </section>
