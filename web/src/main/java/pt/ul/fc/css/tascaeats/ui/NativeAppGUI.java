@@ -447,316 +447,197 @@ public class NativeAppGUI extends Application {
         Thread t = new Thread(task, "rest-sync"); t.setDaemon(true); t.start();
     }
 
-        form.add(new Label("Email:"), 0, 0);
-        form.add(emailField, 1, 0);
-        form.add(new Label("Palavra-passe:"), 0, 1);
-        form.add(passwordField, 1, 1);
-        form.add(loginBtn, 1, 2);
+    private Map<String, Object> restauranteDialog(Map<String, Object> ex) {
+        Dialog<Map<String, Object>> dlg = dialog(ex == null ? "Criar Restaurante" : "Editar Restaurante");
+        TextField nomeF   = new TextField(s(ex,"nome"));
+        TextField nifF    = new TextField(s(ex,"nif"));
+        TextField cidadeF = new TextField(s(ex,"cidade"));
+        ComboBox<String> estBox = combo("ABERTO","FECHADO","RESERVADO");
+        estBox.setValue(ex != null ? s(ex,"estado") : "ABERTO");
 
-        container.getChildren().addAll(title, form, resultLabel);
-        return container;
+        GridPane g = formGrid();
+        g.add(lbl("Nome:"),   0,0); g.add(nomeF,   1,0);
+        g.add(lbl("NIF:"),    0,1); g.add(nifF,    1,1);
+        g.add(lbl("Cidade:"), 0,2); g.add(cidadeF, 1,2);
+        g.add(lbl("Estado:"), 0,3); g.add(estBox,  1,3);
+        dlg.getDialogPane().setContent(g);
+        dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dlg.setResultConverter(b -> b == ButtonType.OK ? row(
+            "nome", nomeF.getText().trim(), "nif", nifF.getText().trim(),
+            "cidade", cidadeF.getText().trim(), "estado", estBox.getValue()
+        ) : null);
+        return dlg.showAndWait().orElse(null);
     }
 
-    // ========== Caso C/D: Utilizadores ==========
-    private VBox createUsersPane() {
-        VBox container = new VBox(12);
-        container.setPadding(new Insets(20));
-        container.setStyle("-fx-background-color: #f8f9fa;");
+    // ─────────────────────────────────────────────────────────────────────
+    // G / H / I – Produtos
+    // ─────────────────────────────────────────────────────────────────────
+    private VBox buildProductsPane(Map<String, Object> restFilter) {
+        ObservableList<String> restNames = FXCollections.observableArrayList("Todos");
+        mockRestaurantes.forEach(r -> restNames.add(r.get("nome").toString()));
+        ComboBox<String> restBox = new ComboBox<>(restNames);
+        restBox.getSelectionModel().selectFirst();
+        if (restFilter != null) restBox.setValue(s(restFilter, "nome"));
 
-        Label title = new Label("C/D - Gestão de Utilizadores");
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #222;");
+        ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
+        TextField  searchF   = field("Nome do produto...", 150);
+        TextField  precoMaxF = field("Preço máx.", 80);
+        ComboBox<String> catBox  = combo("Todas","PRATO","BEBIDA","SOBREMESA","ENTRADA");
+        ComboBox<String> dispBox = combo("Todos","Sim","Não");
 
-        HBox toolbar = new HBox(8);
-        Button criarBtn = new Button("+ Criar");
-        Button editarBtn = new Button("✎ Editar");
-        Button removerBtn = new Button("✕ Remover");
-        Button listarBtn = new Button("⟳ Listar");
-        criarBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #4caf50; -fx-text-fill: white;");
-        editarBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #2196f3; -fx-text-fill: white;");
-        removerBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #f44336; -fx-text-fill: white;");
-        listarBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #ff9800; -fx-text-fill: white;");
-        toolbar.getChildren().addAll(criarBtn, editarBtn, removerBtn, listarBtn);
-
-        TableView<Map<String, String>> table = new TableView<>();
-        ObservableList<Map<String, String>> data = FXCollections.observableArrayList();
-        data.addAll(
-                Map.of("ID", "1", "Nome", "Admin 1", "Email", "admin@example.com", "Tipo", "ADMIN"),
-                Map.of("ID", "2", "Nome", "Cliente 1", "Email", "cliente@example.com", "Tipo", "CLIENT"),
-                Map.of("ID", "3", "Nome", "Entregador 1", "Email", "driver@example.com", "Tipo", "DRIVER")
-        );
-        table.setItems(data);
-        table.setPlaceholder(new Label("Nenhum utilizador encontrado."));
-
-        TableColumn<Map<String, String>, String> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("ID")));
-        TableColumn<Map<String, String>, String> nomeCol = new TableColumn<>("Nome");
-        nomeCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("Nome")));
-        TableColumn<Map<String, String>, String> emailCol = new TableColumn<>("Email");
-        emailCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("Email")));
-        TableColumn<Map<String, String>, String> tipoCol = new TableColumn<>("Tipo");
-        tipoCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("Tipo")));
-
-        table.getColumns().addAll(idCol, nomeCol, emailCol, tipoCol);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        VBox.setVgrow(table, Priority.ALWAYS);
-
-        Label statusLabel = new Label("Dados demo — não implementado ainda.");
-        statusLabel.setStyle("-fx-text-fill: #999; -fx-font-size: 10px;");
-        container.getChildren().addAll(title, toolbar, table, statusLabel);
-        return container;
-    }
-
-    // ========== Caso E/F: Restaurantes ==========
-    private VBox createRestaurantesPane() {
-        VBox filters = createFilterPanel();
-        HBox.setHgrow(filters, Priority.NEVER);
-
-        VBox tableArea = new VBox(5, createTable(), createDetailsArea());
-        HBox.setHgrow(tableArea, Priority.ALWAYS);
-        VBox.setVgrow(tableArea, Priority.ALWAYS);
-
-        HBox content = new HBox(16, filters, tableArea);
-        content.setPadding(new Insets(16));
-        HBox.setHgrow(tableArea, Priority.ALWAYS);
-        HBox.setHgrow(content, Priority.ALWAYS);
-
-        statusLabel = new Label("Pronto para pesquisar restaurantes.");
-        HBox statusBar = new HBox(statusLabel);
-        statusBar.setAlignment(Pos.CENTER_LEFT);
-        statusBar.setPadding(new Insets(8, 0, 0, 0));
-
-        VBox root = new VBox();
-        VBox.setVgrow(content, Priority.ALWAYS);
-        root.getChildren().addAll(content, statusBar);
-
-        // Carregar restaurantes quando a aba é criada
-        Platform.runLater(this::carregarRestaurantes);
-
-        return root;
-    }
-
-    // ========== Caso G/H: Produtos ==========
-    private VBox createProductsPane() {
-        VBox container = new VBox(12);
-        container.setPadding(new Insets(20));
-        container.setStyle("-fx-background-color: #f8f9fa;");
-
-        Label title = new Label("G/H - Gestão de Produtos");
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #222;");
-
-        HBox toolbar = new HBox(8);
-        Button criarBtn = new Button("+ Criar Produto");
-        Button editarBtn = new Button("✎ Editar");
-        Button indisponBtn = new Button("↓ Indisponível");
-        Button apagarBtn = new Button("✕ Apagar");
-        criarBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #4caf50; -fx-text-fill: white;");
-        editarBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #2196f3; -fx-text-fill: white;");
-        indisponBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #ff9800; -fx-text-fill: white;");
-        apagarBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #f44336; -fx-text-fill: white;");
-        toolbar.getChildren().addAll(criarBtn, editarBtn, indisponBtn, apagarBtn);
-
-        TableView<Map<String, String>> table = new TableView<>();
-        ObservableList<Map<String, String>> data = FXCollections.observableArrayList();
-        data.addAll(
-                Map.of("ID", "1", "Nome", "Francesinha", "Preço", "8.50 €", "Disponível", "Sim"),
-                Map.of("ID", "2", "Nome", "Arroz de Marisco", "Preço", "14.00 €", "Disponível", "Sim"),
-                Map.of("ID", "3", "Nome", "Caldo Verde", "Preço", "3.50 €", "Disponível", "Não")
-        );
-        table.setItems(data);
-        table.setPlaceholder(new Label("Nenhum produto encontrado."));
-
-        TableColumn<Map<String, String>, String> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("ID")));
-        TableColumn<Map<String, String>, String> nomeCol = new TableColumn<>("Nome");
-        nomeCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("Nome")));
-        TableColumn<Map<String, String>, String> precoCol = new TableColumn<>("Preço");
-        precoCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("Preço")));
-        TableColumn<Map<String, String>, String> dispCol = new TableColumn<>("Disponível");
-        dispCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("Disponível")));
-
-        table.getColumns().addAll(idCol, nomeCol, precoCol, dispCol);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        VBox.setVgrow(table, Priority.ALWAYS);
-
-        Label statusLabel = new Label("Dados demo — não implementado ainda.");
-        statusLabel.setStyle("-fx-text-fill: #999; -fx-font-size: 10px;");
-        container.getChildren().addAll(title, toolbar, table, statusLabel);
-        return container;
-    }
-
-    // ========== Caso K/L/M/N: Pedidos e Entregas ==========
-    private VBox createOrdersPane() {
-        VBox container = new VBox(12);
-        container.setPadding(new Insets(20));
-        container.setStyle("-fx-background-color: #f8f9fa;");
-
-        Label title = new Label("K/L/M/N - Gestão de Pedidos e Entregas");
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #222;");
-
-        HBox toolbar = new HBox(8);
-        Button criarBtn = new Button("+ Criar Pedido");
-        Button pagarBtn = new Button("💳 Processar Pagamento");
-        Button prepBtn = new Button("⌛ Iniciar Preparação");
-        Button prontoBtn = new Button("✓ Marcar Pronto");
-        Button atribuirBtn = new Button("🚗 Atribuir Entregador");
-        Button entrBtn = new Button("✓ Registar Entrega");
-        Button cancelBtn = new Button("✕ Cancelar");
-        criarBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #4caf50; -fx-text-fill: white;");
-        pagarBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #2196f3; -fx-text-fill: white;");
-        prepBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #ff9800; -fx-text-fill: white;");
-        prontoBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #8bc34a; -fx-text-fill: white;");
-        atribuirBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #9c27b0; -fx-text-fill: white;");
-        entrBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #00bcd4; -fx-text-fill: white;");
-        cancelBtn.setStyle("-fx-padding: 6 12; -fx-background-color: #f44336; -fx-text-fill: white;");
-        toolbar.getChildren().addAll(criarBtn, pagarBtn, prepBtn, prontoBtn, atribuirBtn, entrBtn, cancelBtn);
-
-        TableView<Map<String, String>> table = new TableView<>();
-        ObservableList<Map<String, String>> data = FXCollections.observableArrayList();
-        data.addAll(
-                Map.of("ID", "1", "Cliente", "João Silva", "Estado", "CRIADO", "Total", "25.50 €"),
-                Map.of("ID", "2", "Cliente", "Maria Santos", "Estado", "PAGO", "Total", "18.00 €"),
-                Map.of("ID", "3", "Cliente", "Pedro Costa", "Estado", "ENTREGUE", "Total", "32.75 €")
-        );
-        table.setItems(data);
-        table.setPlaceholder(new Label("Nenhum pedido encontrado."));
-
-        TableColumn<Map<String, String>, String> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("ID")));
-        TableColumn<Map<String, String>, String> clienteCol = new TableColumn<>("Cliente");
-        clienteCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("Cliente")));
-        TableColumn<Map<String, String>, String> estadoCol = new TableColumn<>("Estado");
-        estadoCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("Estado")));
-        TableColumn<Map<String, String>, String> totalCol = new TableColumn<>("Total");
-        totalCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().get("Total")));
-
-        table.getColumns().addAll(idCol, clienteCol, estadoCol, totalCol);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        VBox.setVgrow(table, Priority.ALWAYS);
-
-        Label statusLabel = new Label("Dados demo — não implementado ainda.");
-        statusLabel.setStyle("-fx-text-fill: #999; -fx-font-size: 10px;");
-        container.getChildren().addAll(title, toolbar, table, statusLabel);
-        return container;
-    }
-
-//    private VBox createStatusContent() {
-//        VBox container = new VBox(12);
-//        container.setPadding(new Insets(20));
-//        container.setStyle("-fx-background-color: #f8f9fa;");
-//        VBox.setVgrow(container, Priority.ALWAYS);
-//
-//        // Cabeçalho
-//        VBox header = new VBox(8);
-//        Label title = new Label("Comparação de Casos de Uso");
-//        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #222;");
-//        Label subtitle = new Label("Estado de implementação por interface");
-//        subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #666;");
-//        header.getChildren().addAll(title, subtitle);
-//
-//        // Legenda de cores
-//        HBox legend = createLegend();
-//
-//        // Tabela de status
-//        TableView<UseCaseRow> table = createStatusTable();
-//        VBox.setVgrow(table, Priority.ALWAYS);
-//
-//        container.getChildren().addAll(header, legend, table);
-//        return container;
-//    }
-
-    private HBox createLegend() {
-        HBox legend = new HBox(16);
-        legend.setStyle("-fx-background-color: white; -fx-padding: 12; -fx-border-radius: 8; -fx-background-radius: 8;");
-        legend.setPadding(new Insets(10));
-
-        legend.getChildren().addAll(
-                createLegendItemNew("■ Implementado", "#4caf50"),
-                createLegendItemNew("■ Parcial", "#ff9800"),
-                createLegendItemNew("■ Pendente", "#f44336"),
-                createLegendItemNew("■ N/A", "#9e9e9e")
-        );
-        return legend;
-    }
-
-    private HBox createLegendItemNew(String label, String color) {
-        HBox item = new HBox(8);
-        item.setAlignment(Pos.CENTER_LEFT);
-        Label text = new Label(label);
-        text.setStyle("-fx-font-size: 12px; -fx-text-fill: #333;");
-        item.getChildren().add(text);
-        return item;
-    }
-
-    private TableView<UseCaseRow> createStatusTable() {
-        ObservableList<UseCaseRow> data = FXCollections.observableArrayList();
-
-        // Dados dos casos de uso
-        String[][] useCases = {
-                {"A", "Login com autenticação (mock)", "Implementado", "Pendente"},
-                {"B", "Registo de Clientes", "Parcial", "N/A"},
-                {"C", "Registo de Administradores/Entregadores", "N/A", "Pendente"},
-                {"D", "Verificar, remover e atualizar utilizadores", "N/A", "Pendente"},
-                {"E", "Buscar por restaurantes", "Parcial", "Implementado"},
-                {"F", "Gerir Restaurantes", "N/A", "Pendente"},
-                {"G", "Gerir Menus", "N/A", "Pendente"},
-                {"H", "Gerir Produtos", "N/A", "Pendente"},
-                {"I", "Buscar produtos de um restaurante", "Pendente", "N/A"},
-                {"J", "Criação de um pedido", "Pendente", "N/A"},
-                {"K", "Registo e processamento de pagamento", "N/A", "Pendente"},
-                {"L", "Atualização do estado do pedido", "N/A", "Pendente"},
-                {"M", "Atribuição de um entregador a um pedido", "N/A", "Pendente"},
-                {"N", "Cancelamento de um pedido", "Pendente", "Pendente"}
+        Runnable filter = () -> {
+            String rest = restBox.getValue();
+            String q    = searchF.getText().toLowerCase();
+            String cat  = catBox.getValue();
+            String disp = dispBox.getValue();
+            Double maxP; try { maxP = Double.parseDouble(precoMaxF.getText().trim()); } catch (Exception ex) { maxP = null; }
+            final Double fMaxP = maxP;
+            display.setAll(mockProdutos.stream()
+                .filter(p -> "Todos".equals(rest) || rest.equals(p.get("restNome")))
+                .filter(p -> q.isBlank() || p.get("nome").toString().toLowerCase().contains(q))
+                .filter(p -> "Todas".equals(cat) || cat.equals(p.get("categoria")))
+                .filter(p -> "Todos".equals(disp) || disp.equals(p.get("disponivel")))
+                .filter(p -> fMaxP == null || Double.parseDouble(p.get("preco").toString()) <= fMaxP)
+                .toList());
         };
+        filter.run();
+        restBox.setOnAction(e -> filter.run());
 
-        for (String[] row : useCases) {
-            data.add(new UseCaseRow(row[0], row[1], row[2], row[3]));
-        }
+        TableView<Map<String, Object>> table = tableOf(display,
+            col("ID","id"), col("Restaurante","restNome"), col("Nome","nome"),
+            col("Preço (€)","preco"), col("Categoria","categoria"), col("Disponível","disponivel")
+        );
 
-        TableView<UseCaseRow> table = new TableView<>(data);
-        table.setStyle("-fx-font-size: 11px;");
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        Button filtrar    = new Button("Pesquisar"); filtrar.setOnAction(e -> filter.run());
+        Button criarBtn   = colorBtn("+ Criar Produto",      "#4caf50");
+        Button editarBtn  = colorBtn("✎ Editar",              "#2196f3");
+        Button dispBtn    = colorBtn("⟳ Disp. / Indisp.",    "#ff9800");
+        Button apagarBtn  = colorBtn("✕ Apagar",             "#f44336");
 
-        TableColumn<UseCaseRow, String> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().id));
-        idCol.setMaxWidth(1f * Integer.MAX_VALUE * 5);
+        criarBtn.setOnAction(e -> {
+            String rNome = restBox.getValue();
+            Map<String, Object> preRest = "Todos".equals(rNome) ? null
+                : mockRestaurantes.stream().filter(r -> r.get("nome").equals(rNome)).findFirst().orElse(null);
+            Map<String, Object> novo = produtoDialog(null, preRest);
+            if (novo != null) { novo.put("id", nextProdId++); mockProdutos.add(novo); filter.run(); info("Produto criado."); }
+        });
+        editarBtn.setOnAction(e -> {
+            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
+            if (sel == null) { warn("Selecione um produto."); return; }
+            Map<String, Object> edited = produtoDialog(sel, null);
+            if (edited != null) { sel.putAll(edited); filter.run(); table.refresh(); }
+        });
+        dispBtn.setOnAction(e -> {
+            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
+            if (sel == null) { warn("Selecione um produto."); return; }
+            sel.put("disponivel", "Sim".equals(sel.get("disponivel")) ? "Não" : "Sim");
+            table.refresh();
+        });
+        apagarBtn.setOnAction(e -> {
+            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
+            if (sel == null) { warn("Selecione um produto."); return; }
+            if (confirm("Apagar " + sel.get("nome") + "?")) { mockProdutos.remove(sel); filter.run(); }
+        });
 
-        TableColumn<UseCaseRow, String> descCol = new TableColumn<>("Descrição");
-        descCol.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().descricao));
-        descCol.setMaxWidth(1f * Integer.MAX_VALUE * 40);
+        Button voltarBtn = new Button("← Voltar a Restaurantes");
+        voltarBtn.setOnAction(e -> showRestaurantesPane());
 
-        TableColumn<UseCaseRow, String> webCol = new TableColumn<>("Web Browser");
-        webCol.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().web));
-        webCol.setMaxWidth(1f * Integer.MAX_VALUE * 25);
-
-        TableColumn<UseCaseRow, String> nativeCol = new TableColumn<>("Native JavaFX");
-        nativeCol.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().native_));
-        nativeCol.setMaxWidth(1f * Integer.MAX_VALUE * 25);
-
-        table.getColumns().addAll(idCol, descCol, webCol, nativeCol);
-        VBox.setVgrow(table, Priority.ALWAYS);
-        return table;
+        return pane(sectionTitle("G/H/I – Gestão de Produtos"),
+            hbar(lbl("Restaurante:"), restBox, lbl("Nome:"), searchF,
+                 lbl("Preço≤"), precoMaxF, lbl("Cat:"), catBox, lbl("Disp:"), dispBox, filtrar),
+            hbar(criarBtn, editarBtn, dispBtn, apagarBtn, new Region(), voltarBtn),
+            table
+        );
     }
 
-    private VBox createFilterPanel() {
-        nomeField = new TextField();
-        nomeField.setPromptText("Ex.: Tasca do Zé");
-        nomeField.setMaxWidth(Double.MAX_VALUE);
+    private Map<String, Object> produtoDialog(Map<String, Object> ex, Map<String, Object> preRest) {
+        Dialog<Map<String, Object>> dlg = dialog(ex == null ? "Criar Produto" : "Editar Produto");
 
-        estadoComboBox = new ComboBox<>(FXCollections.observableArrayList("Todos", "ABERTO", "FECHADO", "RESERVADO"));
-        estadoComboBox.getSelectionModel().selectFirst();
-        estadoComboBox.setMaxWidth(Double.MAX_VALUE);
+        ObservableList<String> rNames = FXCollections.observableArrayList();
+        mockRestaurantes.forEach(r -> rNames.add(r.get("nome").toString()));
+        ComboBox<String> restBox = new ComboBox<>(rNames);
+        if (ex != null)        restBox.setValue(s(ex,"restNome"));
+        else if (preRest != null) restBox.setValue(s(preRest,"nome"));
+        else restBox.getSelectionModel().selectFirst();
 
-        Button pesquisarButton = new Button("Pesquisar");
-        pesquisarButton.setMaxWidth(Double.MAX_VALUE);
-        pesquisarButton.setDefaultButton(true);
-        pesquisarButton.setOnAction(event -> carregarRestaurantes());
+        TextField nomeF  = new TextField(s(ex,"nome"));
+        TextField precoF = new TextField(s(ex,"preco"));
+        ComboBox<String> catBox  = combo("PRATO","BEBIDA","SOBREMESA","ENTRADA");
+        catBox.setValue(ex != null ? s(ex,"categoria") : "PRATO");
+        ComboBox<String> dispBox = combo("Sim","Não");
+        dispBox.setValue(ex != null ? s(ex,"disponivel") : "Sim");
 
-        Button limparButton = new Button("Limpar");
-        limparButton.setMaxWidth(Double.MAX_VALUE);
-        limparButton.setOnAction(event -> {
-            nomeField.clear();
-            estadoComboBox.getSelectionModel().selectFirst();
-            carregarRestaurantes();
+        GridPane g = formGrid();
+        g.add(lbl("Restaurante:"), 0,0); g.add(restBox, 1,0);
+        g.add(lbl("Nome:"),        0,1); g.add(nomeF,   1,1);
+        g.add(lbl("Preço (€):"),   0,2); g.add(precoF,  1,2);
+        g.add(lbl("Categoria:"),   0,3); g.add(catBox,  1,3);
+        g.add(lbl("Disponível:"),  0,4); g.add(dispBox, 1,4);
+        dlg.getDialogPane().setContent(g);
+        dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dlg.setResultConverter(b -> {
+            if (b != ButtonType.OK) return null;
+            String rn = restBox.getValue();
+            Object rid = mockRestaurantes.stream().filter(r -> r.get("nome").equals(rn))
+                .findFirst().map(r -> r.get("id")).orElse(-1);
+            return row("restId", rid, "restNome", rn,
+                "nome", nomeF.getText().trim(), "preco", precoF.getText().trim(),
+                "categoria", catBox.getValue(), "disponivel", dispBox.getValue());
+        });
+        return dlg.showAndWait().orElse(null);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // J / K / L / M / N – Pedidos e Entregas
+    // ─────────────────────────────────────────────────────────────────────
+    private VBox buildOrdersPane() {
+        ObservableList<Map<String, Object>> display = FXCollections.observableArrayList(mockPedidos);
+        TableView<Map<String, Object>> table = tableOf(display,
+            col("ID","id"), col("Cliente","clienteNome"), col("Restaurante","restNome"),
+            col("Estado","estado"), col("Total (€)","total"),
+            col("Pagamento","pagamento"), col("Entregador","entregador")
+        );
+
+        javafx.scene.control.TextArea details = new javafx.scene.control.TextArea();
+        details.setEditable(false); details.setPrefRowCount(4);
+        details.setPromptText("Selecione um pedido para ver detalhes.");
+        table.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
+            if (n != null) details.setText(
+                "ID: " + n.get("id") + "\nCliente: " + n.get("clienteNome") +
+                "\nRestaurante: " + n.get("restNome") + "\nEstado: " + n.get("estado") +
+                "\nTotal: " + n.get("total") + "€\nPagamento: " + n.get("pagamento") +
+                "\nEntregador: " + n.get("entregador"));
+        });
+
+        ComboBox<String> estadoBox = combo("Todos","CRIADO","PAGO","PREPARACAO","PRONTO_PARA_ENTREGA","ENTREGUE","CANCELADO");
+        TextField clienteF = field("Filtrar por cliente...", 160);
+        Button filtrar = new Button("Filtrar");
+        filtrar.setOnAction(e -> {
+            String st = estadoBox.getValue(); String cl = clienteF.getText().toLowerCase();
+            display.setAll(mockPedidos.stream()
+                .filter(p -> "Todos".equals(st) || st.equals(p.get("estado")))
+                .filter(p -> cl.isBlank() || p.get("clienteNome").toString().toLowerCase().contains(cl))
+                .toList());
+        });
+
+        // J – Criar Pedido
+        Button criarBtn   = colorBtn("+ Criar Pedido",           "#4caf50");
+        // K – Pagamento
+        Button pagarBtn   = colorBtn("💳 Pagar",                  "#1976d2");
+        // L – Estado
+        Button prepBtn    = colorBtn("⌛ Iniciar Prep.",           "#e65100");
+        Button prontoBtn  = colorBtn("✓ Marcar Pronto",           "#558b2f");
+        // M – Entregador
+        Button atribBtn   = colorBtn("🚗 Atribuir Entregador",    "#6a1b9a");
+        Button entregBtn  = colorBtn("📦 Registar Entrega",       "#00838f");
+        // N – Cancelar
+        Button cancelBtn  = colorBtn("✕ Cancelar Pedido",        "#c62828");
+
+        criarBtn.setOnAction(e -> {
+            Map<String, Object> novo = criarPedidoDialog();
+            if (novo != null) { novo.put("id", nextPedidoId++); mockPedidos.add(novo); display.setAll(mockPedidos); info("Pedido #" + novo.get("id") + " criado."); }
         });
 
         Button atualizarButton = new Button("Atualizar");
