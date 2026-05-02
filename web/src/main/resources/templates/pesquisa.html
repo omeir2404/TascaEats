@@ -79,12 +79,6 @@
                     </div>
                 </form>
             </div>
-
-            <aside class="filter-summary">
-                <span class="section-eyebrow">Leitura</span>
-                <h3>Resultados com mais estrutura</h3>
-                <p>A vista final separa filtros, resumo e grelha, para a página não ficar achatada.</p>
-            </aside>
         </section>
 
         <div class="section-header">
@@ -97,24 +91,23 @@
         <div class="grid-restaurantes">
             <article class="card" th:each="restaurante : ${restaurantes}">
                 <div class="pill-row">
-                    <span class="pill" th:text="${restaurante.tipoRestaurante != null ? restaurante.tipoRestaurante : restaurante.tipoCozinha}">OUTRO</span>
+                    <span class="pill" th:text="${restaurante['tipoRestaurante'] != null ? restaurante['tipoRestaurante'] : restaurante['tipoCozinha']}">OUTRO</span>
                     <span class="status-pill"
-                          th:classappend="${restaurante.estado == 'ABERTO'} ? ' status-pill--open' : ' status-pill--closed'"
-                          th:text="${restaurante.estado}">ABERTO</span>
+                          th:classappend="${restaurante['estado'] == 'ABERTO'} ? ' status-pill--open' : ' status-pill--closed'"
+                          th:text="${restaurante['estado']}">ABERTO</span>
                 </div>
 
                 <div>
-                    <h3 th:text="${restaurante.nome}">Restaurant Name</h3>
-                    <p th:text="${restaurante.morada != null ? restaurante.morada.cidade : 'Localizacao indisponivel'}">Lisboa</p>
+                    <h3 th:text="${restaurante['nome']}">Restaurant Name</h3>
+                    <p th:text="${restaurante['morada'] != null and restaurante['morada']['cidade'] != null ? restaurante['morada']['cidade'] : 'Localizacao indisponivel'}">Lisboa</p>
                 </div>
 
                 <div class="inline-pills">
-                    <span class="pill" th:text="'Aval. ' + ${restaurante.avaliacaoMedia}">Aval. 0.0</span>
-                    <span class="tag" th:text="'Preco medio ' + ${restaurante.precoMedio} + ' EUR'">Preco medio</span>
+                    <span class="pill" th:text="'Avaliacoes ' + ${restaurante['numeroAvaliacoes']}">Avaliacoes 0</span>
                 </div>
 
                 <div class="card__actions">
-                    <a th:href="@{/restaurantes/{id}/produtos(id=${restaurante.id})}">
+                    <a th:href="@{/restaurantes/{id}/produtos(id=${restaurante['id']})}">
                         <button>Ver menu</button>
                     </a>
                 </div>

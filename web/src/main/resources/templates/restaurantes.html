@@ -9,127 +9,79 @@
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main class="page-shell">
-        <section class="split-intro">
-            <div class="page-intro">
-                <span class="section-eyebrow">Diretorio</span>
-                <h2>Restaurantes</h2>
-                <p>Uma vista mais composta, com pesquisa, atalhos e lista principal claramente separados.</p>
+    <main class="page-shell page-shell--restaurants">
+        <section class="hero-strip">
+            <div class="hero-strip__inner">
+                <div class="search-card">
+                    <div th:replace="~{fragments/search-bar :: live-search}"></div>
+                </div>
             </div>
-            <aside class="intro-aside">
-                <strong>Exploracao direta</strong>
-                <p>Entra logo no menu ou afina a descoberta com a pesquisa em tempo real.</p>
-            </aside>
         </section>
 
-        <div th:replace="~{fragments/search-bar :: live-search}"></div>
-
+        <section class="catalog-wrap">
         <div id="defaultViews">
-            <section class="dashboard-grid">
-                <div class="section-stack">
-                    <div class="surface-panel">
-                        <div class="section-header">
-                            <div>
-                                <h3>Selecao rapida</h3>
-                                <p>Blocos em destaque para ações imediatas antes de entrares na listagem completa.</p>
-                            </div>
-                        </div>
-
-                        <div class="quick-links">
-                            <article class="quick-card">
-                                <div class="pill-row">
-                                    <span class="tag">Recente</span>
-                                    <span class="status-pill status-pill--open">Aberto</span>
-                                </div>
-                                <div>
-                                    <h3>Tasca do Ze</h3>
-                                    <p>Pedido repetido, acesso rapido ao menu e menos passos até ao checkout.</p>
-                                </div>
-                                <div class="card__actions">
-                                    <a th:href="@{/restaurantes/1/produtos}">
-                                        <button>Repetir pedido</button>
-                                    </a>
-                                </div>
-                            </article>
-
-                            <article class="quick-card">
-                                <div class="pill-row">
-                                    <span class="tag">Filtros</span>
-                                    <span class="pill">Avancado</span>
-                                </div>
-                                <div>
-                                    <h3>Pesquisa guiada</h3>
-                                    <p>Quando precisas de mais detalhe, entra na vista com filtros completos.</p>
-                                </div>
-                                <div class="card__actions">
-                                    <a th:href="@{/restaurantes/pesquisa}">
-                                        <button class="secondary" type="button">Abrir pesquisa</button>
-                                    </a>
-                                </div>
-                            </article>
+            <section class="section-stack">
+                <div class="surface-panel">
+                    <div class="section-header">
+                        <div>
+                            <h3>Selecao rapida</h3>
                         </div>
                     </div>
 
-                    <section>
-                        <div class="section-header">
-                            <div>
-                                <h3>Restaurantes em destaque</h3>
-                                <p>Grelha principal com leitura mais estável de tipo, estado e localização.</p>
+                    <div class="quick-links">
+                        <article class="quick-card">
+                            <div class="pill-row">
+                                <span class="tag">Recente</span>
+                                <span class="status-pill status-pill--open">Aberto</span>
                             </div>
-                        </div>
-
-                        <div class="grid-restaurantes">
-                            <article class="card" th:each="restaurante : ${restaurantes}">
-                                <div class="pill-row">
-                                    <span class="pill"
-                                          th:text="${restaurante['tipoRestaurante'] != null ? restaurante['tipoRestaurante'] : restaurante['tipoCozinha']}">OUTRO</span>
-                                    <span class="status-pill"
-                                          th:classappend="${restaurante['estado'] == 'ABERTO'} ? ' status-pill--open' : ' status-pill--closed'"
-                                          th:text="${restaurante['estado']}">FECHADO</span>
-                                </div>
-
-                                <div>
-                                    <h3 th:text="${restaurante['nome']}">Restaurant Name</h3>
-                                    <p th:text="${restaurante['morada'] != null and restaurante['morada']['cidade'] != null ? restaurante['morada']['cidade'] : 'Localizacao por confirmar'}">Lisboa</p>
-                                </div>
-
-                                <div class="inline-pills">
-                                    <span class="tag">Menu direto</span>
-                                    <span class="pill">Entrada principal</span>
-                                </div>
-
-                                <div class="card__actions">
-                                    <a th:href="@{/restaurantes/{id}/produtos(id=${restaurante['id']})}">
-                                        <button>Ver menu</button>
-                                    </a>
-                                </div>
-                            </article>
-                        </div>
-                    </section>
+                            <div>
+                                <h3>Tasca do Ze</h3>
+                                <p>Pedido repetido, acesso rapido ao menu e menos passos até ao checkout.</p>
+                            </div>
+                            <div class="card__actions">
+                                <a th:href="@{/restaurantes/1/produtos}">
+                                    <button>Repetir pedido</button>
+                                </a>
+                            </div>
+                        </article>
+                    </div>
                 </div>
 
-                <aside class="section-stack">
-                    <div class="surface-panel">
-                        <span class="section-eyebrow">Uso</span>
-                        <h3>Como navegar</h3>
-                        <p>Usa a pesquisa se já tens um nome, a grelha se queres comparar, e a vista avançada se precisas de filtros mais específicos.</p>
-                    </div>
-
-                    <div class="surface-panel">
-                        <span class="section-eyebrow">Estado</span>
-                        <h3>Vista de apoio</h3>
-                        <div class="spotlight-list">
-                            <div class="spotlight-item" style="background: var(--surface-soft);">
-                                <strong>Pesquisa ao vivo</strong>
-                                <span>Troca a vista base por resultados sem quebrar a estrutura da página.</span>
-                            </div>
-                            <div class="spotlight-item" style="background: var(--surface-soft);">
-                                <strong>Atalhos dedicados</strong>
-                                <span>Blocos próprios para ações rápidas, em vez de misturar tudo na mesma grelha.</span>
-                            </div>
+                <section>
+                    <div class="section-header">
+                        <div>
+                            <h3>Restaurantes em destaque</h3>
                         </div>
                     </div>
-                </aside>
+
+                    <div class="grid-restaurantes">
+                        <article class="card" th:each="restaurante : ${restaurantes}">
+                            <div class="pill-row">
+                                <span class="pill"
+                                      th:text="${restaurante['tipoRestaurante'] != null ? restaurante['tipoRestaurante'] : restaurante['tipoCozinha']}">OUTRO</span>
+                                <span class="status-pill"
+                                      th:classappend="${restaurante['estado'] == 'ABERTO'} ? ' status-pill--open' : ' status-pill--closed'"
+                                      th:text="${restaurante['estado']}">FECHADO</span>
+                            </div>
+
+                            <div>
+                                <h3 th:text="${restaurante['nome']}">Restaurant Name</h3>
+                                <p th:text="${restaurante['morada'] != null and restaurante['morada']['cidade'] != null ? restaurante['morada']['cidade'] : 'Localizacao por confirmar'}">Lisboa</p>
+                            </div>
+
+                            <div class="inline-pills">
+                                <span class="tag">Menu direto</span>
+                                <span class="pill">Entrada principal</span>
+                            </div>
+
+                            <div class="card__actions">
+                                <a th:href="@{/restaurantes/{id}/produtos(id=${restaurante['id']})}">
+                                    <button>Ver menu</button>
+                                </a>
+                            </div>
+                        </article>
+                    </div>
+                </section>
             </section>
         </div>
 
@@ -142,6 +94,7 @@
             </div>
             <div id="liveGridResults" class="grid-restaurantes"></div>
         </div>
+        </section>
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>

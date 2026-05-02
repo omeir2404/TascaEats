@@ -2,14 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
     <div th:fragment="live-search" class="search-shell">
-        <div class="search-shell__head">
-            <div>
-                <strong>Pesquisa rapida</strong>
-                <p>Encontra restaurantes por nome e entra logo no menu.</p>
-            </div>
-            <a th:href="@{/restaurantes/pesquisa}" class="search-link">Filtros avancados</a>
-        </div>
-
         <form th:action="@{/restaurantes/pesquisa}" method="GET" class="search-form-inline">
             <div class="search-input-wrap">
                 <input type="text"
@@ -21,6 +13,7 @@
                 <div id="searchDropdown"
                      style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; max-height: 320px; overflow-y: auto;"></div>
             </div>
+            <a th:href="@{/restaurantes/pesquisa}" class="search-link">Filtros avancados</a>
             <button type="submit">Pesquisar</button>
         </form>
     </div>
