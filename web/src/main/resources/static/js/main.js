@@ -41,7 +41,15 @@ document.addEventListener("DOMContentLoaded", () => {
                                 const tipo = rest.tipoRestaurante || rest.tipoCozinha || 'OUTRO';
                                 const estado = rest.estado || 'Unknown';
                                 const statusClass = estado === 'ABERTO' ? 'status-pill status-pill--open' : 'status-pill status-pill--closed';
+                                const imageMap = {
+                                    1: '/img/tasca.jpg',
+                                    2: '/img/pizza.png',
+                                    3: '/img/sushi.jpeg',
+                                    4: '/img/economico.jpg'
+                                };
+                                const imageUrl = imageMap[rest.id] || '';
                                 card.innerHTML = `
+                                    <div class="card__image" aria-hidden="true" style="${imageUrl ? `background-image: url(${imageUrl}); background-size: cover; background-position: center; background-repeat: no-repeat;` : ''}"></div>
                                     <div class="pill-row">
                                         <span class="pill">${tipo}</span>
                                         <span class="${statusClass}">${estado}</span>

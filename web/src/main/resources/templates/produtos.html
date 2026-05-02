@@ -140,9 +140,7 @@
     <main class="page-shell">
         <section class="split-intro">
             <div class="page-intro">
-                <span class="section-eyebrow">Menu</span>
                 <h2 th:text="'Menu: ' + ${restauranteNome}">Restaurant Name</h2>
-                <p>Os produtos passam a estar num layout mais limpo, com filtros separados da grelha e detalhe em cartão reversível.</p>
             </div>
             <aside class="intro-aside">
                 <strong>Vista do restaurante</strong>
@@ -159,7 +157,7 @@
                     </div>
 
                     <div class="form-group form-group--medium">
-                        <label for="precoMax">Preço max.</label>
+                        <label for="precoMax">Preço máx.</label>
                         <input type="number" id="precoMax" name="precoMax" step="0.50" min="0" th:value="${precoMax}">
                     </div>
 
@@ -174,7 +172,7 @@
                     </div>
 
                     <div class="form-group form-group--compact form-checkbox">
-                        <label for="disponivel">Disponivel</label>
+                        <label for="disponivel">Disponível</label>
                         <div class="checkbox-row">
                             <input type="checkbox" id="disponivel" name="disponivel" value="true" th:checked="${disponivel}">
                             <span>Apenas ativos</span>
@@ -209,10 +207,11 @@
 
                         <div class="section-stack">
                             <div class="pill-row">
-                                <span class="pill" th:text="${produto.categoria}">Categoria</span>
+                                <span class="pill"
+                                      th:text="${produto.categoria == 'MAIN_COURSE' ? 'Prato principal' : (produto.categoria == 'DESSERT' ? 'Sobremesa' : (produto.categoria == 'DRINK' ? 'Bebida' : produto.categoria))}">Categoria</span>
                                 <span class="status-pill"
                                       th:classappend="${produto.disponivel} ? ' status-pill--open' : ' status-pill--closed'"
-                                      th:text="${produto.disponivel} ? 'Disponivel' : 'Indisponivel'">Disponivel</span>
+                                      th:text="${produto.disponivel} ? 'Disponível' : 'Indisponível'">Disponível</span>
                             </div>
 
                             <div>
@@ -221,7 +220,7 @@
                             </div>
 
                             <div class="inline-pills">
-                                <span class="tag">Detalhe no verso</span>
+                                <span class="tag">Detalhes no verso</span>
                             </div>
                         </div>
 
@@ -245,11 +244,11 @@
 
                             <div>
                                 <p><strong>Descricao</strong></p>
-                                <p th:text="${produto.descricao != null ? produto.descricao : 'Sem descricao disponivel.'}"></p>
+                                <p th:text="${produto.descricao != null ? produto.descricao : 'Sem descrição disponível.'}"></p>
                             </div>
 
                             <div>
-                                <p><strong>Alergenios</strong></p>
+                                <p><strong>Alergénios</strong></p>
                                 <p th:text="${produto.alergenios != null ? produto.alergenios : 'Nenhum indicado.'}"></p>
                             </div>
                         </div>

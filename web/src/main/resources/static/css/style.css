@@ -219,15 +219,25 @@ p {
 
 .page-shell--menus .page-intro h2 {
     color: var(--brand);
-    margin-top: -8px;
+    margin-top: 10px;
 }
 
-.page-shell--menus .filtro-container {
-    padding: 16px 18px;
+.page-shell--menus .filtro-container label {
+    font-size: 0.98rem;
+}
+
+.page-shell--menus .filtro-container form {
+    gap: 10px;
+}
+
+.page-shell--menus .grid-menus {
+    margin-top: 28px;
 }
 
 .page-shell--menus .menu-card .card__image {
-    height: 160px;
+    height: 190px;
+    object-fit: cover;
+    object-position: center;
 }
 
 .page-shell--restaurants {
@@ -260,6 +270,11 @@ p {
 
 .search-shell {
     background: transparent;
+}
+
+/* Make section headers on the restaurants page match the menus page title color */
+.page-shell--restaurants .section-header h3 {
+    color: var(--brand);
 }
 
 .search-form-inline {
@@ -397,7 +412,8 @@ p {
 }
 
 .card__image {
-    width: 100%;
+    width: calc(100% + 32px);
+    max-width: none;
     height: 140px;
     border-radius: 8px;
     background: #f0f0f0;
@@ -821,3 +837,64 @@ th {
         justify-content: flex-start;
     }
 }
+
+/* Range slider for pesquisa page - improved thumb and track */
+.rating {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+}
+.rating .star {
+    font-size: 1.25rem;
+    color: #cfcfcf;
+    user-select: none;
+}
+.rating .star.filled {
+    color: #f1c40f;
+}
+
+/* Make number inputs in compact groups slightly shorter so spinner looks better */
+.form-group--compact input[type="number"] {
+    min-height: 40px;
+    padding-right: 12px;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    background: #e9eceb; /* base track color, JS will overlay filled portion */
+    border-radius: 999px;
+    outline: none;
+    margin-top: 6px;
+}
+
+/* WebKit thumb */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    margin-top: -6px; /* center the thumb vertically */
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 6px 18px rgba(49,83,90,0.24);
+    border: 4px solid #fff; /* white halo */
+    cursor: pointer;
+}
+
+/* Firefox thumb */
+input[type="range"]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 6px 18px rgba(49,83,90,0.24);
+    border: 4px solid #fff;
+    cursor: pointer;
+}
+
+.range-value {
+    margin-top: 6px;
+    font-weight: 700;
+}
+

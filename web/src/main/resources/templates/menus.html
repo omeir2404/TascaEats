@@ -23,12 +23,12 @@
 
                 <div class="form-group form-group--medium">
                     <label for="numeroProdutosMin">Mínimo de produtos</label>
-                    <input type="number" id="numeroProdutosMin" name="numeroProdutosMin" min="1" th:value="${numeroProdutosMin}">
+                    <input type="number" id="numeroProdutosMin" name="numeroProdutosMin" min="1" placeholder="Ex: 2" th:value="${numeroProdutosMin}">
                 </div>
 
                 <div class="form-group form-group--medium">
                     <label for="precoMedioMax">Preço médio max.</label>
-                    <input type="number" id="precoMedioMax" name="precoMedioMax" step="0.50" min="0" th:value="${precoMedioMax}">
+                    <input type="number" id="precoMedioMax" name="precoMedioMax" step="0.50" min="0" th:value="${precoMedioMax}" placeholder="EUR 15.00">
                 </div>
 
                 <div class="form-actions form-group--compact">
@@ -39,7 +39,27 @@
 
         <div class="grid-menus">
             <article class="menu-card" th:each="menu : ${menus}">
-                <div class="card__image" aria-hidden="true"></div>
+                <img class="card__image"
+                     th:if="${menu.nome == 'Menu Zen Premium'}"
+                     th:src="@{/img/sushi.jpeg}"
+                     alt="Menu Zen Premium">
+
+                <img class="card__image"
+                     th:if="${menu.nome == 'Menu Italiano Clássico'}"
+                     th:src="@{/img/pizza.png}"
+                     alt="Menu Italiano Clássico">
+
+                <img class="card__image"
+                     th:if="${menu.nome == 'Menu Económico Central'}"
+                     th:src="@{/img/economico.jpg}"
+                     alt="Menu Económico Central">
+
+                <img class="card__image"
+                     th:if="${menu.nome == 'Menu Especial Tasca'}"
+                     th:src="@{/img/tasca.jpg}"
+                     alt="Menu Especial Tasca">
+
+                <div class="card__image" th:if="${menu.nome != 'Menu Zen Premium' and menu.nome != 'Menu Italiano Clássico' and menu.nome != 'Menu Económico Central' and menu.nome != 'Menu Especial Tasca'}" aria-hidden="true"></div>
 
                 <div class="pill-row">
                     <span class="tag">Menu</span>
