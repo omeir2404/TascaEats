@@ -21,30 +21,28 @@
         <section class="catalog-wrap">
         <div id="defaultViews">
             <section class="section-stack">
-                <div class="surface-panel">
+                <div class="surface-panel surface-panel--quick">
                     <div class="section-header">
                         <div>
-                            <h3>Selecao rapida</h3>
+                            <h3>Seleção rápida</h3>
                         </div>
                     </div>
 
-                    <div class="quick-links">
-                        <article class="quick-card">
+                    <article class="quick-feature">
+                        <div class="quick-feature__media" aria-hidden="true"></div>
+                        <div class="quick-feature__content">
+                            <h3>Tasca do Ze</h3>
                             <div class="pill-row">
-                                <span class="tag">Recente</span>
-                                <span class="status-pill status-pill--open">Aberto</span>
-                            </div>
-                            <div>
-                                <h3>Tasca do Ze</h3>
-                                <p>Pedido repetido, acesso rapido ao menu e menos passos até ao checkout.</p>
+                                <span class="pill">PORTUGUESA</span>
+                                <span class="status-pill status-pill--open">ABERTO</span>
                             </div>
                             <div class="card__actions">
                                 <a th:href="@{/restaurantes/1/produtos}">
                                     <button>Repetir pedido</button>
                                 </a>
                             </div>
-                        </article>
-                    </div>
+                        </div>
+                    </article>
                 </div>
 
                 <section>
@@ -56,6 +54,8 @@
 
                     <div class="grid-restaurantes">
                         <article class="card" th:each="restaurante : ${restaurantes}">
+                            <div class="card__image" aria-hidden="true"></div>
+
                             <div class="pill-row">
                                 <span class="pill"
                                       th:text="${restaurante['tipoRestaurante'] != null ? restaurante['tipoRestaurante'] : restaurante['tipoCozinha']}">OUTRO</span>
