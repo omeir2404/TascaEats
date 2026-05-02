@@ -222,19 +222,19 @@ WHERE u.email = 'cliente@tascaeats.local'
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Bacalhau a Bras', 12.50, true, 'Classic Portuguese dish with cod, onions and eggs.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Bitoque', 12.50, true, 'Bife grelhado servido com ovo estrelado, batatas fritas e arroz.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Tasca Central'
 WHERE r.nif = '123456789'
   AND NOT EXISTS (
       SELECT 1
       FROM produto p
-      WHERE p.nome = 'Bacalhau a Bras'
+      WHERE p.nome = 'Bitoque'
         AND p.restaurante_id = r.id
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Super Bock 33cl', 2.00, true, 'Cold beer.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Super Bock 33cl', 2.00, true, 'Cerveja fresca e equilibrada, com sabor suave e refrescante.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Tasca Central'
 WHERE r.nif = '123456789'
@@ -246,7 +246,7 @@ WHERE r.nif = '123456789'
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Pastel de Nata', 1.50, true, 'Portuguese custard tart.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Pastel de Nata', 1.50, true, 'Ícone da doçaria portuguesa, caracterizado por uma base de massa folhada estaladiça e um recheio cremoso à base de ovos, leite, açúcar, limão e canela', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Tasca Central'
 WHERE r.nif = '123456789'
@@ -258,31 +258,31 @@ WHERE r.nif = '123456789'
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Combinado Sushi 15 pecas', 22.00, true, 'Chef selection of fresh sushi pieces.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Combinado Sushi 15 peças', 22.00, true, 'Seleção do chefe com peças frescas de sushi.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Sushi Zen'
 WHERE r.nif = '987654321'
   AND NOT EXISTS (
       SELECT 1
       FROM produto p
-      WHERE p.nome = 'Combinado Sushi 15 pecas'
+      WHERE p.nome = 'Combinado Sushi 15 peças'
         AND p.restaurante_id = r.id
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Cha Verde', 3.00, true, 'Hot green tea.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Chá Verde', 3.00, true, 'Chá verde quente.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Sushi Zen'
 WHERE r.nif = '987654321'
   AND NOT EXISTS (
       SELECT 1
       FROM produto p
-      WHERE p.nome = 'Cha Verde'
+      WHERE p.nome = 'Chá Verde'
         AND p.restaurante_id = r.id
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Gyoza', 6.50, true, 'Pan-fried dumplings.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Gyoza', 6.50, true, 'Deliciosos pastéis japoneses recheados, crocantes por fora e suculentos por dentro. Perfeitos para partilhar ou começar a refeição.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Sushi Zen'
 WHERE r.nif = '987654321'
@@ -418,7 +418,7 @@ WHERE u.email = 'admin.restaurante@tascaeats.local'
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Margherita', 8.50, true, 'Classic pizza with tomato and mozzarella.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Margherita', 8.50, true, 'Pizza clássica com tomate e mozzarella.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Pizzaria do Bairro'
 WHERE r.nif = '111222333'
@@ -430,7 +430,7 @@ WHERE r.nif = '111222333'
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Portuguesa Pizza', 10.00, true, 'Pizza with ham, egg and olives.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Portuguesa Pizza', 10.00, true, 'Pizza com fiambre, ovo e azeitonas.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Pizzaria do Bairro'
 WHERE r.nif = '111222333'
@@ -442,7 +442,7 @@ WHERE r.nif = '111222333'
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Coca-Cola 33cl', 1.50, true, 'Soft drink.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Coca-Cola 33cl', 1.50, true, 'Refrigerante.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Pizzaria do Bairro'
 WHERE r.nif = '111222333'
@@ -530,7 +530,7 @@ WHERE u.email = 'admin.restaurante@tascaeats.local'
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Burger Veg', 7.50, true, 'Plant-based burger with sauce.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Burger Veg', 7.50, true, 'Hambúrguer vegetal com molho.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Verde'
 WHERE r.nif = '444555666'
@@ -542,7 +542,7 @@ WHERE r.nif = '444555666'
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Salada Mix', 5.00, true, 'Fresh mixed salad.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Salada Mix', 5.00, true, 'Salada mista fresca.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Verde'
 WHERE r.nif = '444555666'
