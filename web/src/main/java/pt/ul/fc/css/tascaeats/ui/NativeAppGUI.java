@@ -3,9 +3,11 @@ package pt.ul.fc.css.tascaeats.ui;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -14,142 +16,321 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Aplicação JavaFX nativa para TascaEats com visão de restaurantes e comparação de casos de uso.
+ * Aplicação JavaFX nativa para TascaEats.
+ * Implementa todos os casos de uso A–N com dados em memória (mock) e
+ * tentativa de sincronização opcional com o backend REST.
  */
 public class NativeAppGUI extends Application {
 
-    private final ObservableList<RestauranteResumo> restaurantes = FXCollections.observableArrayList();
+    // ── Mock data (in-memory) ─────────────────────────────────────────────
+    private final ObservableList<Map<String, Object>> mockUsers        = FXCollections.observableArrayList();
+    private final ObservableList<Map<String, Object>> mockRestaurantes = FXCollections.observableArrayList();
+    private final ObservableList<Map<String, Object>> mockProdutos     = FXCollections.observableArrayList();
+    private final ObservableList<Map<String, Object>> mockPedidos      = FXCollections.observableArrayList();
 
+    private int nextUserId = 5, nextRestId = 5, nextProdId = 6, nextPedidoId = 4;
+
+    // ── Session ───────────────────────────────────────────────────────────
+    private Map<String, Object> currentUser = null;
+
+    // ── Backend client (optional, for restaurant sync) ────────────────────
     private RestauranteApiClient apiClient;
-    private TableView<RestauranteResumo> tableView;
-    private TextField nomeField;
-    private ComboBox<String> estadoComboBox;
-    private Label statusLabel;
-    private TextArea detalhesArea;
 
+    // ── UI state ──────────────────────────────────────────────────────────
     private Stage mainStage;
-    private VBox contentArea;
+    private VBox  contentArea;
+    private Label headerUserLabel;
+    private Label restStatusLabel;
+    private Button navRestaurantesBtn, navProductsBtn, navOrdersBtn;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+    public static void main(String[] args) { launch(args); }
 
     @Override
     public void start(Stage stage) {
         mainStage = stage;
-        String backendUrl = System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:8080");
-        apiClient = new RestauranteApiClient(new RestTemplate(), backendUrl);
+        initMockData();
+        apiClient = new RestauranteApiClient(
+            new RestTemplate(),
+            System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:8080")
+        );
 
-        // Criar BorderPane principal
-        BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #f8f9fa;");
-        root.setTop(createNavigationHeader());
-
-        // Área de conteúdo que vai mudar conforme o botão
         contentArea = new VBox();
         contentArea.setStyle("-fx-background-color: #f8f9fa;");
+
+        BorderPane root = new BorderPane();
+        root.setStyle("-fx-background-color: #f8f9fa;");
+        root.setTop(buildNavHeader());
         root.setCenter(contentArea);
 
-        Scene mainScene = new Scene(root, 1400, 800);
-        mainStage.setTitle("TascaEats - Native App");
-        mainStage.setScene(mainScene);
-        mainStage.setMinWidth(920);
-        mainStage.setMinHeight(480);
-        mainStage.show();
+        stage.setTitle("TascaEats – Native App");
+        stage.setScene(new Scene(root, 1400, 800));
+        stage.setMinWidth(960);
+        stage.setMinHeight(520);
+        stage.show();
 
-        // Mostrar primeira aba (Login)
         showLoginPane();
     }
 
-    private HBox createNavigationHeader() {
-        HBox header = new HBox();
+    // ─────────────────────────────────────────────────────────────────────
+    // Init mock data
+    // ─────────────────────────────────────────────────────────────────────
+    private void initMockData() {
+        mockUsers.addAll(
+            row("id",1,"nome","João Silva",   "email","joao@email.com",   "password","123","papel","CLIENT", "ativo","Sim"),
+            row("id",2,"nome","Maria Santos", "email","maria@email.com",  "password","123","papel","ADMIN",  "ativo","Sim"),
+            row("id",3,"nome","Carlos Ferreira","email","carlos@email.com","password","123","papel","COURIER","ativo","Sim"),
+            row("id",4,"nome","Ana Costa",    "email","ana@email.com",    "password","123","papel","CLIENT", "ativo","Não")
+        );
+        mockRestaurantes.addAll(
+            row("id",1,"nome","Tasca do Zé",  "nif","123456789","estado","ABERTO",   "cidade","Lisboa"),
+            row("id",2,"nome","Bella Napoli", "nif","987654321","estado","FECHADO",  "cidade","Porto"),
+            row("id",3,"nome","Sushi Zen",    "nif","456789123","estado","ABERTO",   "cidade","Lisboa"),
+            row("id",4,"nome","Café Central", "nif","321654987","estado","RESERVADO","cidade","Coimbra")
+        );
+        mockProdutos.addAll(
+            row("id",1,"restId",1,"restNome","Tasca do Zé","nome","Bacalhau à Brás",       "preco","12.50","categoria","PRATO",    "disponivel","Sim"),
+            row("id",2,"restId",1,"restNome","Tasca do Zé","nome","Super Bock 33cl",        "preco","2.00", "categoria","BEBIDA",   "disponivel","Sim"),
+            row("id",3,"restId",1,"restNome","Tasca do Zé","nome","Pastel de Nata",         "preco","1.50", "categoria","SOBREMESA","disponivel","Não"),
+            row("id",4,"restId",3,"restNome","Sushi Zen",  "nome","Combinado Salmon 15 pcs","preco","22.00","categoria","PRATO",    "disponivel","Sim"),
+            row("id",5,"restId",3,"restNome","Sushi Zen",  "nome","Chá Verde",              "preco","3.00", "categoria","BEBIDA",   "disponivel","Sim")
+        );
+        mockPedidos.addAll(
+            row("id",1,"clienteNome","João Silva","clienteId",1,"restNome","Tasca do Zé","restId",1,
+                "estado","CRIADO","total","14.50","pagamento","-","entregador","-"),
+            row("id",2,"clienteNome","Ana Costa", "clienteId",4,"restNome","Sushi Zen",  "restId",3,
+                "estado","PAGO",  "total","25.00","pagamento","MBWAY","entregador","-"),
+            row("id",3,"clienteNome","João Silva","clienteId",1,"restNome","Tasca do Zé","restId",1,
+                "estado","ENTREGUE","total","32.75","pagamento","DINHEIRO","entregador","Carlos Ferreira")
+        );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Navigation header
+    // ─────────────────────────────────────────────────────────────────────
+    private HBox buildNavHeader() {
+        HBox header = new HBox(8);
         header.setStyle("-fx-background-color: #ff5722;");
-        header.setPadding(new Insets(12, 16, 12, 16));
-        header.setSpacing(8);
+        header.setPadding(new Insets(10, 16, 10, 16));
         header.setAlignment(Pos.CENTER_LEFT);
 
-        Label title = new Label("TascaEats - Native App");
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
-
-        // Criar botões de navegação
-        Button loginBtn = createNavButton("A - Login", this::showLoginPane);
-        Button usersBtn = createNavButton("C/D - Utilizadores", this::showUsersPane);
-        Button restBtn = createNavButton("E/F - Restaurantes", this::showRestaurantesPane);
-        Button prodBtn = createNavButton("G/H - Produtos", this::showProductsPane);
-        Button orderBtn = createNavButton("K/L/M/N - Pedidos", this::showOrdersPane);
-//        Button statusBtn = createNavButton("Status", this::showStatusPane);
+        Label title = new Label("TascaEats");
+        title.setStyle("-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: white;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        headerUserLabel = new Label("Não autenticado");
+        headerUserLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 11px;");
+
         Button exitBtn = new Button("Sair");
-        exitBtn.setStyle("-fx-font-size: 12px; -fx-padding: 8 16; -fx-background-color: #e64a19; -fx-text-fill: white;");
+        exitBtn.setStyle("-fx-font-size: 11px; -fx-padding: 6 14; -fx-background-color: #c62828; -fx-text-fill: white;");
         exitBtn.setOnAction(e -> Platform.exit());
 
-        header.getChildren().addAll(title, loginBtn, usersBtn, restBtn, prodBtn, orderBtn, spacer, exitBtn);
+        Button loginBtn = navBtn("A - Login", this::showLoginPane);
+        Button usersBtn = navBtn("B/C/D - Utilizadores", this::showUsersPane);
+        navRestaurantesBtn = navBtn("E/F - Restaurantes", this::showRestaurantesPane);
+        navProductsBtn = navBtn("G/H/I – Produtos",     () -> show(buildProductsPane(null)));
+        navOrdersBtn   = navBtn("J/K/L/M/N – Pedidos",  this::showOrdersPane);
+
+        // Desabilitar botões de navegação até login bem-sucedido
+        updateNavButtonsState();
+
+        header.getChildren().addAll(
+            title,
+            loginBtn,
+            usersBtn,
+            navRestaurantesBtn,
+            navProductsBtn,
+            navOrdersBtn,
+            spacer, headerUserLabel, exitBtn
+        );
         return header;
     }
 
-    private Button createNavButton(String text, Runnable action) {
-        Button btn = new Button(text);
-        btn.setStyle("-fx-font-size: 11px; -fx-padding: 6 12; -fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 4;");
-        btn.setOnAction(e -> action.run());
-        return btn;
+    private Button navBtn(String text, Runnable action) {
+        Button b = new Button(text);
+        b.setStyle("-fx-font-size: 11px; -fx-padding: 6 11; -fx-background-color: transparent; " +
+                   "-fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.35); -fx-border-radius: 4;");
+        b.setOnAction(e -> action.run());
+        return b;
     }
 
-    // ========== Métodos para alternar entre abas ==========
-    private void showLoginPane() {
-        contentArea.getChildren().clear();
-        contentArea.getChildren().add(createLoginPane());
+    private void updateNavButtonsState() {
+        // Apenas "C/D - Utilizadores" funciona sem login
+        // Depois de login bem-sucedido, todos os botões ficam ativos
+        navRestaurantesBtn.setDisable(currentUser == null);
+        navProductsBtn.setDisable(currentUser == null);
+        navOrdersBtn.setDisable(currentUser == null);
     }
 
-    private void showUsersPane() {
-        contentArea.getChildren().clear();
-        contentArea.getChildren().add(createUsersPane());
+    private void show(javafx.scene.Node node) { contentArea.getChildren().setAll(node); }
+
+    private void showLoginPane()        { show(buildLoginPane()); }
+    private void showUsersPane()        { show(buildUsersPane()); }
+    private void showRestaurantesPane() { show(buildRestaurantesPane()); }
+    private void showOrdersPane()       { show(buildOrdersPane()); }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // A – Login
+    // ─────────────────────────────────────────────────────────────────────
+    private VBox buildLoginPane() {
+        Label title = sectionTitle("A – Login");
+
+        TextField    emailF = new TextField();  emailF.setPromptText("email@exemplo.com");
+        PasswordField passF = new PasswordField(); passF.setPromptText("password");
+
+        GridPane form = formGrid();
+        form.add(lbl("Email:"),    0, 0); form.add(emailF, 1, 0);
+        form.add(lbl("Password:"), 0, 1); form.add(passF,  1, 1);
+
+        Label feedback = new Label();
+        Button loginBtn = primaryButton("Entrar");
+        loginBtn.setDefaultButton(true);
+        loginBtn.setOnAction(e -> {
+            String email = emailF.getText().trim();
+            Optional<Map<String, Object>> found = mockUsers.stream()
+                .filter(u -> u.get("email").toString().equalsIgnoreCase(email))
+                .findFirst();
+            if (found.isPresent()) {
+                currentUser = found.get();
+                updateNavButtonsState();
+                headerUserLabel.setText("Olá, " + currentUser.get("nome") + " (" + currentUser.get("papel") + ")");
+                ok(feedback, "✓ Bem-vindo, " + currentUser.get("nome") + "!");
+            } else {
+                err(feedback, "✗ Utilizador não encontrado. Experimente: joao@email.com");
+            }
+        });
+
+        Button regBtn = new Button("Ainda não tens conta? Registar");
+        regBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #1565c0; -fx-border-color: transparent;");
+        regBtn.setOnAction(e -> showUsersPane());
+
+        Label hint = new Label("Demo: joao@email.com | maria@email.com | carlos@email.com | ana@email.com");
+        hint.setStyle("-fx-text-fill: #aaa; -fx-font-size: 10px;");
+
+        VBox box = centeredCard(title, form, loginBtn, feedback, regBtn, hint);
+        box.setMaxWidth(420);
+        VBox wrapper = new VBox(box);
+        wrapper.setAlignment(Pos.TOP_CENTER);
+        wrapper.setPadding(new Insets(40));
+        wrapper.setStyle("-fx-background-color: #f8f9fa;");
+        VBox.setVgrow(wrapper, Priority.ALWAYS);
+        return wrapper;
     }
 
-    private void showRestaurantesPane() {
-        contentArea.getChildren().clear();
-        contentArea.getChildren().add(createRestaurantesPane());
+    // ─────────────────────────────────────────────────────────────────────
+    // B / C / D – Utilizadores
+    // ─────────────────────────────────────────────────────────────────────
+    private VBox buildUsersPane() {
+        ObservableList<Map<String, Object>> display = FXCollections.observableArrayList(mockUsers);
+        TableView<Map<String, Object>> table = tableOf(display,
+            col("ID","id"), col("Nome","nome"), col("Email","email"),
+            col("Papel","papel"), col("Ativo","ativo")
+        );
+
+        TextField  searchF  = field("Filtrar por nome...", 180);
+        ComboBox<String> papelBox = combo("Todos","CLIENT","ADMIN","COURIER");
+        Button filtrar = new Button("Filtrar");
+        filtrar.setOnAction(e -> {
+            String q = searchF.getText().toLowerCase();
+            String p = papelBox.getValue();
+            display.setAll(mockUsers.stream()
+                .filter(u -> q.isBlank() || u.get("nome").toString().toLowerCase().contains(q))
+                .filter(u -> "Todos".equals(p) || p.equals(u.get("papel")))
+                .toList());
+        });
+
+        Button criarBtn   = colorBtn("+ Registar",  "#4caf50");
+        Button editarBtn  = colorBtn("✎ Editar",     "#2196f3");
+        Button removerBtn = colorBtn("✕ Remover",   "#f44336");
+
+        criarBtn.setOnAction(e -> {
+            Map<String, Object> novo = userDialog(null);
+            if (novo != null) {
+                novo.put("id", nextUserId++);
+                mockUsers.add(novo);
+                display.setAll(mockUsers);
+                info("Utilizador registado.");
+            }
+        });
+        if(currentUser != null && !currentUser.get("papel").equals("CLIENT")) {
+            criarBtn.setDisable(false);
+            editarBtn.setDisable(false);
+            removerBtn.setDisable(false);
+        } else {
+            editarBtn.setDisable(true);
+            removerBtn.setDisable(true);
+        }
+        editarBtn.setOnAction(e -> {
+            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
+            if (sel == null) { warn("Selecione um utilizador."); return; }
+            Map<String, Object> edited = userDialog(sel);
+            if (edited != null) { sel.putAll(edited); display.setAll(mockUsers); table.refresh(); }
+        });
+        removerBtn.setOnAction(e -> {
+            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
+            if (sel == null) { warn("Selecione um utilizador."); return; }
+            if (confirm("Remover " + sel.get("nome") + "?")) {
+                mockUsers.remove(sel); display.setAll(mockUsers);
+            }
+        });
+
+        return pane(sectionTitle("B/C/D – Gestão de Utilizadores"),
+            hbar(lbl("Nome:"), searchF, lbl("Papel:"), papelBox, filtrar),
+            hbar(criarBtn, editarBtn, removerBtn),
+            table
+        );
     }
 
-    private void showProductsPane() {
-        contentArea.getChildren().clear();
-        contentArea.getChildren().add(createProductsPane());
+    private Map<String, Object> userDialog(Map<String, Object> ex) {
+        Dialog<Map<String, Object>> dlg = dialog(ex == null ? "Registar Utilizador" : "Editar Utilizador");
+
+        TextField    nomeF  = new TextField(s(ex,"nome"));
+        TextField    emailF = new TextField(s(ex,"email"));
+        PasswordField passF = new PasswordField(); passF.setText(s(ex,"password"));
+        ComboBox<String> papelBox = combo("CLIENT","ADMIN","COURIER");
+        papelBox.setValue(ex != null ? s(ex,"papel") : "CLIENT");
+        ComboBox<String> ativoBox = combo("Sim","Não");
+        ativoBox.setValue(ex != null ? s(ex,"ativo") : "Sim");
+
+        GridPane g = formGrid();
+        g.add(lbl("Nome:"),     0,0); g.add(nomeF,    1,0);
+        g.add(lbl("Email:"),    0,1); g.add(emailF,   1,1);
+        g.add(lbl("Password:"), 0,2); g.add(passF,    1,2);
+        g.add(lbl("Papel:"),    0,3); g.add(papelBox, 1,3);
+        g.add(lbl("Ativo:"),    0,4); g.add(ativoBox, 1,4);
+        dlg.getDialogPane().setContent(g);
+        dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dlg.setResultConverter(b -> b == ButtonType.OK ? row(
+            "nome", nomeF.getText().trim(), "email", emailF.getText().trim(),
+            "password", passF.getText().isBlank() && ex != null ? s(ex,"password") : passF.getText().trim(),
+            "papel", papelBox.getValue(), "ativo", ativoBox.getValue()
+        ) : null);
+        return dlg.showAndWait().orElse(null);
     }
-
-    private void showOrdersPane() {
-        contentArea.getChildren().clear();
-        contentArea.getChildren().add(createOrdersPane());
-    }
-
-//    private void showStatusPane() {
-//        contentArea.getChildren().clear();
-//        contentArea.getChildren().add(createStatusContent());
-//    }
-
-    // ========== Caso A: Login ==========
-    private VBox createLoginPane() {
-        VBox container = new VBox(16);
-        container.setPadding(new Insets(20));
-        container.setStyle("-fx-background-color: #f8f9fa;");
 
         Label title = new Label("A - Login com Autenticação (Mock)");
         title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #222;");
