@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.restaurante.TipoRestaurante;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
@@ -122,6 +123,34 @@ public class RestauranteController {
         } else {
             restaurantes = restauranteService.listarRestaurantes();
         }
+
+        List<Map<String, Object>> resposta = new ArrayList<>();
+        for (Restaurante restaurante : restaurantes) {
+            resposta.add(resumoRestaurante(restaurante));
+        }
+
+        return ResponseEntity.ok(resposta);
+    }
+
+    @GetMapping("/pesquisa")
+    public ResponseEntity<List<Map<String, Object>>> pesquisarRestaurantes(@RequestParam(required = false) String nome,
+                                                                           @RequestParam(name = "tipoCozinha", required = false) TipoRestaurante tipoCozinha,
+                                                                           @RequestParam(required = false) EstadoRestaurante estado,
+                                                                           @RequestParam(required = false) Integer pedidosRealizados,
+                                                                           @RequestParam(required = false) Double avaliacaoMinima,
+                                                                           @RequestParam(required = false) Integer numeroAvaliacoes,
+                                                                           @RequestParam(required = false) String morada,
+                                                                           @RequestParam(required = false) Double precoMedio) {
+        List<Restaurante> restaurantes = restauranteService.pesquisarRestaurantes(
+                nome,
+                tipoCozinha,
+                estado,
+                pedidosRealizados,
+                avaliacaoMinima,
+                numeroAvaliacoes,
+                morada,
+                precoMedio
+        );
 
         List<Map<String, Object>> resposta = new ArrayList<>();
         for (Restaurante restaurante : restaurantes) {

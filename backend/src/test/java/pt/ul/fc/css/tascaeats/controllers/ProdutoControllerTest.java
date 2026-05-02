@@ -8,6 +8,7 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.controllers;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -263,6 +264,128 @@ class ProdutoControllerTest {
         mockMvc.perform(delete("/api/produtos/404"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Produto não encontrado"));
+    }
+
+    @Test
+    @DisplayName("P: GET /api/produtos/pesquisa com filtro nome retorna produtos")
+    void shouldSearchProdutosByNomeViaSearchEndpoint() throws Exception {
+        when(produtoService.pesquisarProdutos("Pizza", null, null, null, null, null))
+                .thenReturn(List.of(
+                        produto(1L, "Pizza Margherita", 12.0, "Clássica", true, false),
+                        produto(2L, "Pizza Pepperoni", 13.0, "Com pepperoni", true, false)
+                ));
+
+        mockMvc.perform(get("/api/produtos/pesquisa").param("nome", "Pizza"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("Pizza Margherita"))
+                .andExpect(jsonPath("$[1].nome").value("Pizza Pepperoni"));
+
+        verify(produtoService).pesquisarProdutos("Pizza", null, null, null, null, null);
+    }
+
+    @Test
+    @DisplayName("Q: GET /api/produtos/pesquisa com filtro preco retorna produtos com preço menor")
+    void shouldSearchProdutosByPreco() throws Exception {
+        when(produtoService.pesquisarProdutos(null, 10.0, null, null, null, null))
+                .thenReturn(List.of(
+                        produto(3L, "Hamburguer", 8.0, "Simples", true, false),
+                        produto(4L, "Sopa", 6.0, "Do dia", true, false)
+                ));
+
+        mockMvc.perform(get("/api/produtos/pesquisa").param("preco", "10.0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].preco").value(8.0))
+                .andExpect(jsonPath("$[1].preco").value(6.0));
+
+        verify(produtoService).pesquisarProdutos(null, 10.0, null, null, null, null);
+    }
+
+    @Test
+    @DisplayName("R: GET /api/produtos/pesquisa com filtro menuId (categoria) retorna produtos do menu")
+    void shouldSearchProdutosByMenuId() throws Exception {
+        when(produtoService.pesquisarProdutos(null, null, 1L, null, null, null))
+                .thenReturn(List.of(
+                        produto(5L, "Massa Carbonara", 11.0, "Massa", true, false),
+                        produto(6L, "Massa Bolonhesa", 10.5, "Massa", true, false)
+                ));
+
+        mockMvc.perform(get("/api/produtos/pesquisa").param("menuId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("Massa Carbonara"))
+                .andExpect(jsonPath("$[1].nome").value("Massa Bolonhesa"));
+
+        verify(produtoService).pesquisarProdutos(null, null, 1L, null, null, null);
+    }
+
+    @Test
+    @DisplayName("S: GET /api/produtos/pesquisa com filtro disponivel retorna apenas produtos disponíveis")
+    void shouldSearchProdutosByDisponibilidade() throws Exception {
+        when(produtoService.pesquisarProdutos(null, null, null, true, null, null))
+                .thenReturn(List.of(
+                        produto(7L, "Peixe Grelhado", 14.0, "Peixe", true, false),
+                        produto(8L, "Camarão", 16.0, "Marisco", true, false)
+                ));
+
+        mockMvc.perform(get("/api/produtos/pesquisa").param("disponivel", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].disponivel").value(true))
+                .andExpect(jsonPath("$[1].disponivel").value(true));
+
+        verify(produtoService).pesquisarProdutos(null, null, null, true, null, null);
+    }
+
+    @Test
+    @DisplayName("T: GET /api/produtos/pesquisa com filtro popularidade (data) retorna produtos pedidos nesse período")
+    void shouldSearchProdutosByPopularidade() throws Exception {
+        LocalDate inicio = LocalDate.of(2024, 1, 1);
+        LocalDate fim = LocalDate.of(2024, 12, 31);
+
+        when(produtoService.pesquisarProdutos(null, null, null, null, inicio, fim))
+                .thenReturn(List.of(
+                        produto(9L, "Frango Assado", 9.0, "Frango", true, false)
+                ));
+
+        mockMvc.perform(get("/api/produtos/pesquisa")
+                .param("dataInicio", "2024-01-01")
+                .param("dataFim", "2024-12-31"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("Frango Assado"));
+
+        verify(produtoService).pesquisarProdutos(null, null, null, null, inicio, fim);
+    }
+
+    @Test
+    @DisplayName("U: GET /api/produtos/pesquisa com múltiplos filtros retorna produtos que satisfazem todos")
+    void shouldSearchProdutosByMultipleFilters() throws Exception {
+        when(produtoService.pesquisarProdutos("Pasta", 12.0, 1L, true, null, null))
+                .thenReturn(List.of(
+                        produto(10L, "Pasta Primavera", 11.0, "Pasta", true, false)
+                ));
+
+        mockMvc.perform(get("/api/produtos/pesquisa")
+                .param("nome", "Pasta")
+                .param("preco", "12.0")
+                .param("menuId", "1")
+                .param("disponivel", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("Pasta Primavera"))
+                .andExpect(jsonPath("$[0].preco").value(11.0));
+
+        verify(produtoService).pesquisarProdutos("Pasta", 12.0, 1L, true, null, null);
+    }
+
+    @Test
+    @DisplayName("V: GET /api/produtos/pesquisa sem filtros retorna lista vazia ou todos os produtos")
+    void shouldReturnEmptyWhenNoFiltersProvided() throws Exception {
+        when(produtoService.pesquisarProdutos(null, null, null, null, null, null))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/produtos/pesquisa"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(produtoService).pesquisarProdutos(null, null, null, null, null, null);
     }
 
 

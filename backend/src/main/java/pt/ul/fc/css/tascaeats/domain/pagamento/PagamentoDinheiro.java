@@ -20,8 +20,9 @@ public class PagamentoDinheiro extends Pagamento {
 
     @Column(name = "valor_recebido")
     private double valorRecebido;
-    @Column(name = "troco")
-    private double troco;
+
+    @Column(name = "valor_troco")
+    private Double valorTroco;
 
     protected PagamentoDinheiro() {
     }
@@ -31,6 +32,12 @@ public class PagamentoDinheiro extends Pagamento {
         this.valorRecebido = valorRecebido;
     }
 
+    public PagamentoDinheiro(Long id, double valor, LocalDate dataPagamento, String referenciaPagamento, double valorRecebido, Double valorTroco) {
+        super(id, valor, dataPagamento, referenciaPagamento);
+        this.valorRecebido = valorRecebido;
+        this.valorTroco = valorTroco;
+    }
+
     // ################### MÉTODOS DE NEGÓCIO ######################################################################
 
     @Override
@@ -38,12 +45,12 @@ public class PagamentoDinheiro extends Pagamento {
         if (valorRecebido < getValor()) {
             throw new IllegalArgumentException("Valor recebido insuficiente para concluir o pagamento em dinheiro.");
         }
-        this.troco = valorRecebido - getValor();
+        this.valorTroco = valorRecebido - getValor();
     }
 
     @Override
     public String obterInstrucoesPagamento() {
-        return "Pagar " + getValor() + "€ em dinheiro. Troco previsto: " + troco + "€.";
+        return "Pagar " + getValor() + "€ em dinheiro. Troco previsto: " + valorTroco + "€.";
     }
 
 // ###################### GETTERS e SETTERS #####################################################################
@@ -57,11 +64,9 @@ public class PagamentoDinheiro extends Pagamento {
         this.valorRecebido = valorRecebido;
     }
 
-    public double getTroco() {
-        return troco;
-    }
 
-    public void setTroco(double troco) {
-        this.troco = troco;
-    }
+    public Double getValorTroco() {return valorTroco;}
+
+    public void setValorTroco(Double valorTroco) {this.valorTroco = valorTroco;}
+
 }

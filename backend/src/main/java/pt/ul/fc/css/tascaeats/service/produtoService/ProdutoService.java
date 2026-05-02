@@ -8,9 +8,12 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.service.produtoService;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
@@ -121,5 +124,54 @@ public class ProdutoService {
         Produto produto = obterProdutoPorId(id);
         produto.apagar();
         produtoRepository.save(produto);
+    }
+
+    // Pesquisar produtos com múltiplos filtros
+    @Transactional(readOnly = true)
+    public List<Produto> pesquisarProdutos(String nome,
+                                            Double precoMaximo,
+                                            Long menuId,
+                                            Boolean disponivel,
+                                            LocalDate dataInicioPopularidade,
+                                            LocalDate dataFimPopularidade) {
+        String nomeNormalizado = normalizarTexto(nome);
+
+        List<Produto> candidatos = obterProdutosCandidatos(nomeNormalizado, menuId, disponivel);
+
+        return candidatos.stream()
+                .filter(produto -> precoMaximo == null || produto.getPreco() <= precoMaximo)
+                .filter(produto -> !produto.isApagado())
+                .filter(produto -> filtrarPopularidade(produto, dataInicioPopularidade, dataFimPopularidade))
+                .toList();
+    }
+
+    private List<Produto> obterProdutosCandidatos(String nomeNormalizado, Long menuId, Boolean disponivel) {
+        if (nomeNormalizado != null) {
+            return produtoRepository.findByNomeContainingIgnoreCase(nomeNormalizado);
+        } else if (menuId != null) {
+            return produtoRepository.findByMenuId(menuId);
+        } else if (disponivel != null && disponivel) {
+            return produtoRepository.findByDisponivelTrue();
+        } else {
+            return produtoRepository.findByApagadoFalse();
+        }
+    }
+
+    private boolean filtrarPopularidade(Produto produto, LocalDate dataInicio, LocalDate dataFim) {
+        if (dataInicio == null || dataFim == null) {
+            return true;
+        }
+        return produto.getPedidos() != null && !produto.getPedidos().isEmpty() &&
+               produto.getPedidos().stream()
+                    .anyMatch(pedido -> pedido.getData() != null && 
+                           !pedido.getData().isBefore(dataInicio) && 
+                           !pedido.getData().isAfter(dataFim));
+    }
+
+    private String normalizarTexto(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return null;
+        }
+        return texto.trim().toLowerCase(Locale.ROOT);
     }
 }

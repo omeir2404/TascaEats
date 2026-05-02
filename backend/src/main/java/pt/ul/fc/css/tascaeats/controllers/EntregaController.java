@@ -14,15 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
 import pt.ul.fc.css.tascaeats.domain.entrega.Entrega;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
-import pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO;
 import pt.ul.fc.css.tascaeats.dto.entregaDTO.EntregaResumoDTO;
 import pt.ul.fc.css.tascaeats.service.entregaService.EntregaService;
 
@@ -36,17 +32,17 @@ public class EntregaController {
 		this.entregaService = entregaService;
 	}
 
-	@PostMapping("/atribuir")
-	public ResponseEntity<Object> atribuirEntregador(@Valid @RequestBody AtribuirEntregadorDTO dto) {
-		try {
-			Entrega entrega = entregaService.atribuirEntregador(dto);
-			return ResponseEntity.ok(toResumoDTO(entrega));
-		} catch (IllegalArgumentException e) {
-			return mapArgumentError(e);
-		} catch (IllegalStateException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-		}
-	}
+	// @PostMapping("/atribuir")
+	// public ResponseEntity<Object> atribuirEntregador(@Valid @RequestBody AtribuirEntregadorDTO dto) {
+	// 	try {
+	// 		Entrega entrega = entregaService.atribuirEntregador(dto);
+	// 		return ResponseEntity.ok(toResumoDTO(entrega));
+	// 	} catch (IllegalArgumentException e) {
+	// 		return mapArgumentError(e);
+	// 	} catch (IllegalStateException e) {
+	// 		return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+	// 	}
+	// }
 
 	@PatchMapping("/pedido/{pedidoId}/iniciar-preparacao")
 	public ResponseEntity<Object> iniciarPreparacao(@PathVariable Long pedidoId) {
