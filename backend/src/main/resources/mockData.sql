@@ -442,7 +442,7 @@ WHERE r.nif = '111222333'
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Coca-Cola 33cl', 1.50, true, 'Refrigerante.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Coca-Cola 33cl', 1.50, true, 'Refrigerante gaseificado de sabor doce e refrescante, servido bem fresco com gelo ou limão. Ideal para acompanhar refeições ou petiscos.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Pizzaria do Bairro'
 WHERE r.nif = '111222333'
@@ -530,19 +530,19 @@ WHERE u.email = 'admin.restaurante@tascaeats.local'
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Burger Veg', 7.50, true, 'Hambúrguer vegetal com molho.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Hambúrguer Vegetariano', 7.50, true, 'Hambúrguer vegetariano com molho.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Verde'
 WHERE r.nif = '444555666'
   AND NOT EXISTS (
       SELECT 1
       FROM produto p
-      WHERE p.nome = 'Burger Veg'
+      WHERE p.nome = 'Hambúrguer Vegetariano'
         AND p.restaurante_id = r.id
   );
 
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
-SELECT nextval('produto_id_seq'), 'Salada Mix', 5.00, true, 'Salada mista fresca.', false, r.id, m.id
+SELECT nextval('produto_id_seq'), 'Salada Mix', 5.00, true, 'Mistura fresca de alface, tomate, cenoura e outros vegetais da época. Leve, saudável e ideal como acompanhamento.', false, r.id, m.id
 FROM restaurante r
 JOIN menus m ON m.nome = 'Menu Verde'
 WHERE r.nif = '444555666'
@@ -552,4 +552,3 @@ WHERE r.nif = '444555666'
       WHERE p.nome = 'Salada Mix'
         AND p.restaurante_id = r.id
   );
-

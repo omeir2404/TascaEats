@@ -269,7 +269,7 @@ public class WebRestauranteController {
             case "margherita" -> "Glúten, leite";
             case "portuguesa pizza" -> "Glúten, leite, ovos";
             case "coca-cola 33cl" -> "Nenhum indicado";
-            case "burger veg" -> "Glúten, soja";
+            case "hambúrguer vegetariano", "hamburguer vegetariano" -> "Glúten, soja";
             case "salada mix" -> "Nenhum indicado";
             default -> "A confirmar";
         };
