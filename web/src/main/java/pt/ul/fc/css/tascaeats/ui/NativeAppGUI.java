@@ -63,7 +63,7 @@ public class NativeAppGUI extends Application {
     private VBox  contentArea;
     private Label headerUserLabel;
     private Label restStatusLabel;
-    private Button navRestaurantesBtn, navProductsBtn, navOrdersBtn;
+    private Button navRestaurantesBtn, navProductsBtn, navOrdersBtn, exitBtn;
 
     public static void main(String[] args) { launch(args); }
 
@@ -144,7 +144,7 @@ public class NativeAppGUI extends Application {
         headerUserLabel = new Label("Não autenticado");
         headerUserLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 11px;");
 
-        Button exitBtn = new Button("Sair");
+        exitBtn = new Button("Sair");
         exitBtn.setStyle("-fx-font-size: 11px; -fx-padding: 6 14; -fx-background-color: #c62828; -fx-text-fill: white;");
         exitBtn.setOnAction(e -> Platform.exit());
 
@@ -183,6 +183,16 @@ public class NativeAppGUI extends Application {
         navRestaurantesBtn.setDisable(currentUser == null);
         navProductsBtn.setDisable(currentUser == null);
         navOrdersBtn.setDisable(currentUser == null);
+        if(currentUser == null){
+            exitBtn.setOnAction(e -> Platform.exit());
+        }else {
+            exitBtn.setOnAction( e -> {
+                currentUser = null;
+                headerUserLabel.setText("Não autenticado");
+                showLoginPane();
+                updateNavButtonsState();
+            });
+        }
     }
 
     private void show(javafx.scene.Node node) { contentArea.getChildren().setAll(node); }
@@ -219,7 +229,7 @@ public class NativeAppGUI extends Application {
                 headerUserLabel.setText("Olá, " + currentUser.get("nome") + " (" + currentUser.get("papel") + ")");
                 ok(feedback, "✓ Bem-vindo, " + currentUser.get("nome") + "!");
             } else {
-                err(feedback, "✗ Utilizador não encontrado. Experimente: joao@email.com");
+                err(feedback, "✗ Utilizador não encontrado.");
             }
         });
 
