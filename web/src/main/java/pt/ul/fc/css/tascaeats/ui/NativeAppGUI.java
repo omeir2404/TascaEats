@@ -237,10 +237,11 @@ public class NativeAppGUI extends Application {
         regBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #1565c0; -fx-border-color: transparent;");
         regBtn.setOnAction(e -> showUsersPane());
 
-        Label hint = new Label("Demo: joao@email.com | maria@email.com | carlos@email.com | ana@email.com");
-        hint.setStyle("-fx-text-fill: #aaa; -fx-font-size: 10px;");
+//        Label hint = new Label("Demo: joao@email.com | maria@email.com | carlos@email.com | ana@email.com");
+//        hint.setStyle("-fx-text-fill: #aaa; -fx-font-size: 10px;");
 
-        VBox box = centeredCard(title, form, loginBtn, feedback, regBtn, hint);
+//        VBox box = centeredCard(title, form, loginBtn, feedback, regBtn, hint);
+        VBox box = centeredCard(title, form, loginBtn, feedback, regBtn);
         box.setMaxWidth(420);
         VBox wrapper = new VBox(box);
         wrapper.setAlignment(Pos.TOP_CENTER);
