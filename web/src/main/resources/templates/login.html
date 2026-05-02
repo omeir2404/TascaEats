@@ -25,8 +25,7 @@
             <div class="auth-card">
                 <div class="page-intro">
                     <span class="section-eyebrow">Entrar</span>
-                    <h2 style="font-size: 2rem;">Bem-vindo de volta</h2>
-                    <p>Usa as tuas credenciais para retomar a navegação e os pedidos.</p>
+                    <h2 style="font-size: 2rem;">Bem-vindo de volta!</h2>
                 </div>
 
                 <div th:if="${error != null}" class="error-message" th:text="${error}"></div>
@@ -42,7 +41,7 @@
                 </form>
 
                 <p class="auth-card__footer">
-                    Ainda nao tens conta? <a th:href="@{/registo}" class="search-link">Criar conta</a>
+                    Ainda não tens conta? <a th:href="@{/registo}" class="search-link">Criar conta</a>
                 </p>
             </div>
         </section>
