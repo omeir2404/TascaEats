@@ -137,20 +137,16 @@
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main class="page-shell">
+    <main class="page-shell page-shell--products">
         <section class="split-intro">
             <div class="page-intro">
                 <h2 th:text="'Menu: ' + ${restauranteNome}">Restaurant Name</h2>
             </div>
-            <aside class="intro-aside">
-                <strong>Vista do restaurante</strong>
-                <p>Consulta disponibilidade, categoria e detalhe sem perder a leitura da lista.</p>
-            </aside>
         </section>
 
         <section class="filter-shell">
             <div class="filtro-container">
-                <form th:action="@{/restaurantes/{id}/produtos/search(id=${restauranteId})}" method="GET">
+                <form th:action="@{/restaurantes/{id}/produtos/search(id=${restauranteId})}" method="GET" class="product-filters-form">
                     <div class="form-group form-group--wide">
                         <label for="nome">Nome do produto</label>
                         <input type="text" id="nome" name="nome" placeholder="Ex: Burger" th:value="${nome}">
