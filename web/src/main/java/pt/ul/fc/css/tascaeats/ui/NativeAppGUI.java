@@ -332,37 +332,120 @@ public class NativeAppGUI extends Application {
         return dlg.showAndWait().orElse(null);
     }
 
-        Label title = new Label("A - Login com Autenticação (Mock)");
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #222;");
+    // ─────────────────────────────────────────────────────────────────────
+    // E / F – Restaurantes
+    // ─────────────────────────────────────────────────────────────────────
+    private VBox buildRestaurantesPane() {
+        ObservableList<Map<String, Object>> display = FXCollections.observableArrayList(mockRestaurantes);
+        TableView<Map<String, Object>> table = tableOf(display,
+            col("ID","id"), col("Nome","nome"), col("Estado","estado"),
+            col("Cidade","cidade"), col("NIF","nif")
+        );
 
-        GridPane form = new GridPane();
-        form.setHgap(12);
-        form.setVgap(12);
-        form.setPadding(new Insets(16));
-        form.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #ddd; -fx-border-radius: 8;");
+        javafx.scene.control.TextArea details = new javafx.scene.control.TextArea();
+        details.setEditable(false); details.setPrefRowCount(5);
+        details.setPromptText("Selecione um restaurante para ver detalhes.");
+        table.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
+            if (n != null) details.setText(
+                "ID: " + n.get("id") + "\nNome: " + n.get("nome") +
+                "\nEstado: " + n.get("estado") + "\nCidade: " + n.get("cidade") + "\nNIF: " + n.get("nif"));
+        });
 
-        TextField emailField = new TextField();
-        emailField.setPromptText("email@exemplo.com");
+        TextField nomeF = field("Nome do restaurante...", 200);
+        ComboBox<String> estBox = combo("Todos","ABERTO","FECHADO","RESERVADO");
+        Runnable filter = () -> {
+            String q = nomeF.getText().toLowerCase();
+            String e = estBox.getValue();
+            display.setAll(mockRestaurantes.stream()
+                .filter(r -> q.isBlank() || r.get("nome").toString().toLowerCase().contains(q))
+                .filter(r -> "Todos".equals(e) || e.equals(r.get("estado")))
+                .toList());
+        };
+        Button filtrar = new Button("Pesquisar"); filtrar.setDefaultButton(true); filtrar.setOnAction(e -> filter.run());
+        Button limpar  = new Button("Limpar"); limpar.setOnAction(e -> { nomeF.clear(); estBox.getSelectionModel().selectFirst(); filter.run(); });
 
-        TextField passwordField = new TextField();
-        passwordField.setPromptText("Qualquer palavra-passe (mock)");
+        Button criarBtn   = colorBtn("+ Criar",          "#4caf50");
+        Button editarBtn  = colorBtn("✎ Editar",          "#2196f3");
+        Button estadoBtn  = colorBtn("⟳ Alterar Estado",  "#ff9800");
+        Button removerBtn = colorBtn("✕ Remover",         "#f44336");
+        Button prodBtn    = colorBtn("🍽 Ver Produtos",    "#7b1fa2");
 
-        Button loginBtn = new Button("Login");
-        loginBtn.setStyle("-fx-font-size: 12px; -fx-padding: 8 16; -fx-background-color: #ff5722; -fx-text-fill: white;");
+        if(currentUser != null && currentUser.get("papel").equals("ADMIN")) {
+            criarBtn.setDisable(false);
+            editarBtn.setDisable(false);
+            estadoBtn.setDisable(false);
+            removerBtn.setDisable(false);
+            prodBtn.setDisable(false);
+        } else {
+            criarBtn.setDisable(true);
+            editarBtn.setDisable(true);
+            estadoBtn.setDisable(true);
+            removerBtn.setDisable(true);
+            prodBtn.setDisable(true);
+        }
 
-        Label resultLabel = new Label("Aguardando autenticação...");
-        resultLabel.setStyle("-fx-text-fill: #666;");
+        criarBtn.setOnAction(e -> {
+            Map<String, Object> novo = restauranteDialog(null);
+            if (novo != null) { novo.put("id", nextRestId++); mockRestaurantes.add(novo); filter.run(); info("Restaurante criado."); }
+        });
+        editarBtn.setOnAction(e -> {
+            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
+            if (sel == null) { warn("Selecione um restaurante."); return; }
+            Map<String, Object> edited = restauranteDialog(sel);
+            if (edited != null) { sel.putAll(edited); display.setAll(mockRestaurantes); table.refresh(); }
+        });
+        estadoBtn.setOnAction(e -> {
+            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
+            if (sel == null) { warn("Selecione um restaurante."); return; }
+            ChoiceDialog<String> cd = new ChoiceDialog<>(s(sel,"estado"), "ABERTO","FECHADO","RESERVADO");
+            cd.setTitle("Alterar Estado"); cd.setHeaderText("Novo estado:"); cd.initOwner(mainStage);
+            cd.showAndWait().ifPresent(st -> { sel.put("estado",st); display.setAll(mockRestaurantes); table.refresh(); });
+        });
+        removerBtn.setOnAction(e -> {
+            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
+            if (sel == null) { warn("Selecione um restaurante."); return; }
+            if (confirm("Remover " + sel.get("nome") + "?")) { mockRestaurantes.remove(sel); filter.run(); }
+        });
+        prodBtn.setOnAction(e -> {
+            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
+            if (sel == null) { warn("Selecione um restaurante."); return; }
+            show(buildProductsPane(sel));
+        });
 
-        loginBtn.setOnAction(e -> {
-            String email = emailField.getText().trim();
-            if (email.isEmpty()) {
-                resultLabel.setText("⚠ Email obrigatório!");
-                resultLabel.setStyle("-fx-text-fill: #f44336;");
+        restStatusLabel = new Label("Modo demo — backend não consultado.");
+        restStatusLabel.setStyle("-fx-text-fill: #aaa; -fx-font-size: 10px;");
+        Platform.runLater(this::syncRestaurantesFromBackend);
+
+        return pane(sectionTitle("E/F – Gestão de Restaurantes"),
+            hbar(lbl("Nome:"), nomeF, lbl("Estado:"), estBox, filtrar, limpar),
+            hbar(criarBtn, editarBtn, estadoBtn, removerBtn, prodBtn),
+            table,
+            new Label("Detalhes:"), details,
+            restStatusLabel
+        );
+    }
+
+    private void syncRestaurantesFromBackend() {
+        Task<RestauranteApiClient.RestaurantSearchResult> task = new Task<>() {
+            @Override protected RestauranteApiClient.RestaurantSearchResult call() {
+                return apiClient.listarRestaurantesComFallback(null, null);
+            }
+        };
+        task.setOnSucceeded(ev -> {
+            RestauranteApiClient.RestaurantSearchResult r = task.getValue();
+            if (!r.fallbackUsado() && !r.restaurantes().isEmpty()) {
+                mockRestaurantes.clear();
+                r.restaurantes().forEach(res -> mockRestaurantes.add(
+                    row("id", res.id(), "nome", res.nome(), "estado", res.estado(), "cidade", "-", "nif", "-")
+                ));
+                if (restStatusLabel != null) restStatusLabel.setText("✓ Sincronizado com backend: " + r.mensagem());
             } else {
-                resultLabel.setText("✓ Utilizador " + email + " autenticado com sucesso!");
-                resultLabel.setStyle("-fx-text-fill: #4caf50;");
+                if (restStatusLabel != null) restStatusLabel.setText("Backend indisponível — modo demo ativo.");
             }
         });
+        task.setOnFailed(ev -> { if (restStatusLabel != null) restStatusLabel.setText("Backend indisponível — modo demo ativo."); });
+        Thread t = new Thread(task, "rest-sync"); t.setDaemon(true); t.start();
+    }
 
         form.add(new Label("Email:"), 0, 0);
         form.add(emailField, 1, 0);
