@@ -1,32 +1,136 @@
-package pt.ul.fc.css.tascaeats.controllers; // Pacote corrigido
+package pt.ul.fc.css.tascaeats.controllers;
 
-import org.springframework.beans.factory.annotation.Value;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.client.RestTemplate; // Usar RestTemplate em vez de Service
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class WebUtilizadorController {
 
-    private final RestTemplate restTemplate;
+    // --- MUTABLE MOCK DATABASE ---
+    private List<Map<String, Object>> mockUsers = new ArrayList<>(Arrays.asList(
+        new HashMap<>(Map.of("id", 1, "nome", "João Silva", "email", "joao@email.com", "papel", "CLIENT", "ativo", true)),
+        new HashMap<>(Map.of("id", 2, "nome", "Maria Santos", "email", "maria@email.com", "papel", "ADMIN", "ativo", true)),
+        new HashMap<>(Map.of("id", 3, "nome", "Carlos Ferreira", "email", "carlos@email.com", "papel", "COURIER", "ativo", false)),
+        new HashMap<>(Map.of("id", 4, "nome", "Ana Costa", "email", "ana@email.com", "papel", "CLIENT", "ativo", false))
+    ));
+    private int nextId = 5;
 
-    // Vai buscar o URL do backend injetado pelo Docker
-    @Value("${BACKEND_API_URL:http://localhost:8080}")
-    private String backendUrl;
+    // --- USERS LIST ---
+    @GetMapping("/utilizadores")
+    public String listarUtilizadores(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String papel,
+            @RequestParam(required = false, defaultValue = "false") Boolean apenasAtivos,
+            Model model) {
 
-    public WebUtilizadorController(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+        List<Map<String, Object>> filtrados = mockUsers.stream()
+                .filter(u -> nome == null || nome.isBlank() || u.get("nome").toString().toLowerCase().contains(nome.toLowerCase()))
+                .filter(u -> papel == null || papel.isBlank() || u.get("papel").toString().equalsIgnoreCase(papel))
+                .filter(u -> !apenasAtivos || (Boolean) u.get("ativo") == true)
+                .toList();
+
+        model.addAttribute("utilizadores", filtrados);
+        model.addAttribute("nome", nome);
+        model.addAttribute("papel", papel);
+        model.addAttribute("apenasAtivos", apenasAtivos);
+
+        return "utilizadores";
     }
 
-    // Página de Login (Mock - Caso A)
+    // --- LOGIN ---
     @GetMapping("/login")
-    public String loginPage() {
-        return "login"; // Retorna login.html
+    public String showLoginForm() {
+        return "login";
     }
 
-    // Página de Registo de Cliente (Caso B)
+    @PostMapping("/login")
+    public String processLogin(@RequestParam String email, @RequestParam String password, Model model, HttpSession session) {
+        Optional<Map<String, Object>> loggedInUser = mockUsers.stream()
+            .filter(u -> u.get("email").equals(email))
+            .findFirst();
+
+        if (loggedInUser.isPresent()) {
+            session.setAttribute("loggedUser", loggedInUser.get());
+            return "redirect:/restaurantes";
+        }
+
+        model.addAttribute("error", "Invalid credentials. User not found.");
+        return "login";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
+
+    // --- REGISTRATION ---
     @GetMapping("/registo")
-    public String registoPage() {
-        return "registo"; // Retorna registo.html
+    public String showRegistrationForm() {
+        return "registo";
+    }
+
+    @PostMapping("/registo")
+    public String processRegistration(
+            @RequestParam String nome,
+            @RequestParam String email,
+            @RequestParam String password,
+            @RequestParam String papel) {
+
+        Map<String, Object> newUser = new HashMap<>();
+        newUser.put("id", nextId++);
+        newUser.put("nome", nome);
+        newUser.put("email", email);
+        newUser.put("papel", papel);
+        newUser.put("ativo", true);
+
+        mockUsers.add(newUser);
+        return "redirect:/login";
+    }
+
+    // --- PROFILE (VIEW & UPDATE) ---
+    @GetMapping("/perfil/{id}")
+    public String showProfile(@PathVariable Integer id, Model model) {
+        Optional<Map<String, Object>> user = mockUsers.stream().filter(u -> u.get("id").equals(id)).findFirst();
+
+        if (user.isPresent()) {
+            model.addAttribute("user", user.get());
+            return "perfil";
+        }
+        return "redirect:/utilizadores";
+    }
+
+    @PostMapping("/perfil/{id}/atualizar")
+    public String updateProfile(
+            @PathVariable Integer id,
+            @RequestParam String nome,
+            @RequestParam String email) {
+
+        mockUsers.stream().filter(u -> u.get("id").equals(id)).findFirst().ifPresent(u -> {
+            u.put("nome", nome);
+            u.put("email", email);
+        });
+
+        return "redirect:/perfil/" + id;
+    }
+
+    // --- DELETE ACCOUNT ---
+    @PostMapping("/perfil/{id}/apagar")
+    public String deleteAccount(@PathVariable Integer id) {
+        mockUsers.removeIf(u -> u.get("id").equals(id));
+        return "redirect:/utilizadores";
     }
 }
