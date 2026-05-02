@@ -9,52 +9,38 @@
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main class="page-shell">
-        <section class="split-intro">
-            <div class="page-intro">
-                <span class="section-eyebrow">Menus</span>
-                <h2>Explorar menus</h2>
-                <p>Uma vista de comparação mais robusta, para perceber rapidamente variedade e preço antes de entrar no restaurante.</p>
-            </div>
-            <aside class="intro-aside">
-                <strong>Comparacao rapida</strong>
-                <p>Filtra por nome, dimensão e preço médio sem perder o contexto da listagem.</p>
-            </aside>
+    <main class="page-shell page-shell--menus">
+        <section class="page-intro">
+            <h2>Explorar menus</h2>
         </section>
 
-        <section class="filter-shell">
-            <div class="filtro-container">
-                <form th:action="@{/menus}" method="GET">
-                    <div class="form-group form-group--wide">
-                        <label for="nome">Nome do menu</label>
-                        <input type="text" id="nome" name="nome" placeholder="Ex: Especial" th:value="${nome}">
-                    </div>
+        <section class="filtro-container">
+            <form th:action="@{/menus}" method="GET">
+                <div class="form-group form-group--wide">
+                    <label for="nome">Nome do menu</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Especial" th:value="${nome}">
+                </div>
 
-                    <div class="form-group form-group--medium">
-                        <label for="numeroProdutosMin">Minimo de produtos</label>
-                        <input type="number" id="numeroProdutosMin" name="numeroProdutosMin" min="1" th:value="${numeroProdutosMin}">
-                    </div>
+                <div class="form-group form-group--medium">
+                    <label for="numeroProdutosMin">Mínimo de produtos</label>
+                    <input type="number" id="numeroProdutosMin" name="numeroProdutosMin" min="1" th:value="${numeroProdutosMin}">
+                </div>
 
-                    <div class="form-group form-group--medium">
-                        <label for="precoMedioMax">Preco medio max.</label>
-                        <input type="number" id="precoMedioMax" name="precoMedioMax" step="0.50" min="0" th:value="${precoMedioMax}">
-                    </div>
+                <div class="form-group form-group--medium">
+                    <label for="precoMedioMax">Preço médio max.</label>
+                    <input type="number" id="precoMedioMax" name="precoMedioMax" step="0.50" min="0" th:value="${precoMedioMax}">
+                </div>
 
-                    <div class="form-actions">
-                        <button type="submit">Filtrar menus</button>
-                    </div>
-                </form>
-            </div>
-
-            <aside class="filter-summary">
-                <span class="section-eyebrow">Resumo</span>
-                <h3>Vista focada em comparação</h3>
-                <p>Os cartões foram reorganizados para dar mais peso aos indicadores antes do botão de entrada.</p>
-            </aside>
+                <div class="form-actions form-group--compact">
+                    <button type="submit">Filtrar menus</button>
+                </div>
+            </form>
         </section>
 
         <div class="grid-menus">
             <article class="menu-card" th:each="menu : ${menus}">
+                <div class="card__image" aria-hidden="true"></div>
+
                 <div class="pill-row">
                     <span class="tag">Menu</span>
                     <span class="pill" th:text="${menu.numeroProdutos} + ' produtos'">0 produtos</span>
@@ -67,7 +53,7 @@
 
                 <div class="menu-stats">
                     <p><strong>Total:</strong>&nbsp;<span th:text="${menu.numeroProdutos}">0</span></p>
-                    <p><strong>Preco medio:</strong>&nbsp;<span th:text="${menu.precoMedio} + ' EUR'">0.00</span></p>
+                    <p><strong>Preço médio:</strong>&nbsp;<span th:text="${menu.precoMedio} + ' EUR'">0.00</span></p>
                 </div>
 
                 <div class="menu-card__actions">
@@ -77,7 +63,7 @@
                 </div>
             </article>
 
-            <div class="empty-state" th:if="${menus == null or menus.empty}">
+            <div class="empty-state" th:if="${menus == null or #lists.isEmpty(menus)}">
                 <p>Nao foram encontrados menus com estes filtros.</p>
             </div>
         </div>

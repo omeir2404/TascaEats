@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         liveGridResults.innerHTML = '';      
 
                         if (restaurantes.length === 0) {
-                            liveGridResults.innerHTML = '<div class="empty-state"><p>Nao existem restaurantes para esta pesquisa.</p></div>';
+                            liveGridResults.innerHTML = '<div class="empty-state"><p>Não existem restaurantes para esta pesquisa.</p></div>';
                         } else {
                             restaurantes.forEach(rest => {
                                 const card = document.createElement('div');

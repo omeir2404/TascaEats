@@ -213,6 +213,23 @@ p {
     gap: 12px;
 }
 
+.page-shell--menus {
+    padding-top: 12px;
+}
+
+.page-shell--menus .page-intro h2 {
+    color: var(--brand);
+    margin-top: -8px;
+}
+
+.page-shell--menus .filtro-container {
+    padding: 16px 18px;
+}
+
+.page-shell--menus .menu-card .card__image {
+    height: 160px;
+}
+
 .page-shell--restaurants {
     max-width: none;
     padding-top: 16px;
@@ -313,6 +330,10 @@ p {
     margin-bottom: 18px;
 }
 
+#liveGridContainer {
+    margin-top: -16px;
+}
+
 .quick-feature {
     display: grid;
     grid-template-columns: 170px auto;
@@ -381,6 +402,10 @@ p {
     border-radius: 8px;
     background: #f0f0f0;
     margin: -16px -16px 4px -16px;
+}
+
+.menu-card .card__image {
+    height: 120px;
 }
 
 .pill-row,
@@ -509,9 +534,10 @@ p {
 }
 
 .form-actions {
-    grid-column: 1 / -1;
+    grid-column: span 2;
     display: flex;
     justify-content: flex-end;
+    align-items: end;
     gap: 10px;
 }
 
@@ -731,11 +757,19 @@ th {
     .form-group--compact {
         grid-column: span 3;
     }
+
+    .form-actions {
+        grid-column: span 3;
+    }
 }
 
 @media (max-width: 720px) {
     main {
         padding: 20px 12px 30px;
+    }
+
+    #liveGridContainer {
+        margin-top: -8px;
     }
 
     .site-header__inner {
@@ -772,6 +806,10 @@ th {
     .form-group--wide,
     .form-group--medium,
     .form-group--compact {
+        grid-column: 1 / -1;
+    }
+
+    .form-actions {
         grid-column: 1 / -1;
     }
 
