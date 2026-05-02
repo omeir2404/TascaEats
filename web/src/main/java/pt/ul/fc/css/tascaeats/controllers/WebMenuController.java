@@ -113,7 +113,7 @@ public class WebMenuController {
             } else if (rn.contains("pizzaria") || rn.contains("pizza")) {
                 imagePath = "/img/pizza.png";
             } else if (rn.contains("tasca verde") || rn.contains("verde")) {
-                imagePath = "/img/economico.jpg";
+                imagePath = "/img/economico.jpeg";
             } else if (rn.contains("tasca central") || rn.contains("tasca")) {
                 imagePath = "/img/tasca.jpg";
             }

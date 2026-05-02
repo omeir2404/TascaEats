@@ -6,6 +6,17 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         .checkout-container { max-width: 500px; margin: 40px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .checkout-cart-item { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px dashed #eee; }
+        .checkout-cart-item__info { display: grid; gap: 2px; width: 100%; }
+        .checkout-cart-item__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        .checkout-cart-item__name { font-weight: 700; color: #182126; }
+        .checkout-cart-item__details { color: #667085; font-size: 0.92rem; }
+        .checkout-cart-item__price { font-weight: 700; color: #182126; white-space: nowrap; margin-left: auto; }
+        .checkout-quantity-control { display: inline-flex; align-items: center; border: 1px solid #111827; border-radius: 999px; overflow: hidden; background: #fff; margin-top: -4px; margin-left: auto; }
+        .checkout-quantity-value { min-width: 28px; text-align: center; font-weight: 700; font-size: 0.82rem; color: #182126; }
+        .checkout-quantity-button { min-height: 24px; min-width: 24px; width: 24px; padding: 0; border-radius: 0; background: #111827; color: #fff; box-shadow: none; font-size: 0.82rem; line-height: 1; }
+        .checkout-quantity-button:hover { box-shadow: none; transform: none; }
+        .checkout-quantity-form { margin: 0; }
         .payment-method { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px; cursor: pointer; }
         .payment-method:hover { background-color: #f9f9f9; }
         .hidden-details { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc; }
@@ -21,29 +32,50 @@
             <h2>Complete your Order</h2>
 
             <div th:if="${error != null}" class="error-message" th:text="${error}" style="margin-bottom: 16px;"></div>
-            
+
             <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                 <h4 style="margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Order Summary</h4>
-                
+
                 <ul style="list-style-type: none; padding: 0; margin: 0;">
-                    <li th:each="item : ${itens}" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee;">
-                        <span th:text="${item.quantidade} + 'x ' + ${item.nome}">1x Product Name</span>
-                        <span th:text="${item.preco} + '€'">0.00€</span>
+                    <li th:each="item : ${itens}" class="checkout-cart-item">
+                        <div class="checkout-cart-item__info">
+                            <div class="checkout-cart-item__top">
+                                <span class="checkout-cart-item__name" th:text="${item.nome}">Product Name</span>
+                                <span class="checkout-cart-item__price" th:text="${#numbers.formatDecimal(item.preco, 1, 2)} + '€'">0.00€</span>
+                            </div>
+                            <span class="checkout-cart-item__details" th:text="${item.quantidade} + ' x ' + ${item.preco} + '€'">1 x 0.00€</span>
+                            <div class="checkout-quantity-control">
+                                <form th:action="@{/carrinho/remover}" method="POST" class="checkout-quantity-form">
+                                    <input type="hidden" name="produtoId" th:value="${item.produtoId}">
+                                    <input type="hidden" name="redirectTo" value="/checkout">
+                                    <button type="submit" class="checkout-quantity-button" aria-label="Remover uma unidade" title="Remover uma unidade">-</button>
+                                </form>
+                                <span class="checkout-quantity-value" th:text="${item.quantidade}">1</span>
+                                <form th:action="@{/carrinho/adicionar}" method="POST" class="checkout-quantity-form">
+                                    <input type="hidden" name="produtoId" th:value="${item.produtoId}">
+                                    <input type="hidden" name="quantidade" value="1">
+                                    <input type="hidden" name="nome" th:value="${item.nome}">
+                                    <input type="hidden" name="preco" th:value="${item.preco}">
+                                    <input type="hidden" name="restauranteId" th:value="${item.restauranteId}">
+                                    <button type="submit" class="checkout-quantity-button" aria-label="Adicionar uma unidade" title="Adicionar uma unidade">+</button>
+                                </form>
+                            </div>
+                        </div>
                     </li>
                 </ul>
             </div>
 
-            <h3 style="color: #ff6600; text-align: right;">Total: <span th:text="${total} + '€'">0.00€</span></h3>
+            <h3 style="color: #ff6600; text-align: right;">Total: <span th:text="${#numbers.formatDecimal(total, 1, 2)} + '€'">0.00€</span></h3>
             <hr style="margin: 20px 0;">
 
             <form th:action="@{/checkout/processar}" method="POST" id="checkoutForm">
-                
+
                 <h4>Select Payment Method</h4>
 
                 <div class="payment-method">
                     <label style="cursor: pointer; display: block;">
-                        <input type="radio" name="metodoPagamento" value="MBWAY" onchange="togglePaymentDetails()" required> 
-                        <strong>📱 MBWay</strong>
+                        <input type="radio" name="metodoPagamento" value="MBWAY" onchange="togglePaymentDetails()" required>
+                        <strong>MBWay</strong>
                     </label>
                     <div id="mbwayDetails" class="hidden-details">
                         <div class="form-group">
@@ -55,8 +87,8 @@
 
                 <div class="payment-method">
                     <label style="cursor: pointer; display: block;">
-                        <input type="radio" name="metodoPagamento" value="MULTIBANCO" onchange="togglePaymentDetails()"> 
-                        <strong>💳 Multibanco</strong>
+                        <input type="radio" name="metodoPagamento" value="MULTIBANCO" onchange="togglePaymentDetails()">
+                        <strong>Multibanco</strong>
                     </label>
                     <div id="cardDetails" class="hidden-details">
                         <div class="form-group">
@@ -89,8 +121,7 @@
 
             mbwayDiv.style.display = method === 'MBWAY' ? 'block' : 'none';
             cardDiv.style.display = method === 'MULTIBANCO' ? 'block' : 'none';
-            
-            // Require fields conditionally
+
             document.querySelector('input[name="telemovel"]').required = method === 'MBWAY';
             document.querySelector('select[name="bandeiraCartao"]').required = method === 'MULTIBANCO';
         }

@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     1: '/img/tasca.jpg',
                                     2: '/img/pizza.png',
                                     3: '/img/sushi.jpeg',
-                                    4: '/img/economico.jpg'
+                                    4: '/img/economico.jpeg'
                                 };
                                 const imageUrl = imageMap[rest.id] || '';
                                 card.innerHTML = `

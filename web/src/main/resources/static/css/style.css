@@ -309,7 +309,7 @@ p {
 
 .page-shell--products .page-intro h2 {
     color: var(--brand);
-    margin-top: 10px;
+    margin-top: -20px;
 }
 
 .page-shell--products .split-intro,

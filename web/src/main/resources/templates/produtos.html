@@ -52,6 +52,7 @@
         .cart-item__top {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
             gap: 12px;
             margin-bottom: 6px;
         }
@@ -60,9 +61,57 @@
             font-weight: 700;
         }
 
+        .cart-item__price {
+            font-weight: 700;
+            color: #182126;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+
         .cart-item__details {
             color: #667085;
             font-size: 0.92rem;
+        }
+
+        .cart-item__actions {
+            margin-top: -4px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .cart-item__quantity-control {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #111827;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .cart-item__quantity-value {
+            min-width: 28px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: #182126;
+        }
+
+        .cart-item__quantity-button {
+            min-height: 24px;
+            min-width: 24px;
+            width: 24px;
+            padding: 0;
+            border-radius: 0;
+            background: #111827;
+            color: #fff;
+            box-shadow: none;
+            font-size: 0.82rem;
+            line-height: 1;
+        }
+
+        .cart-item__quantity-button:hover {
+            box-shadow: none;
+            transform: none;
         }
 
         .cart-empty {
@@ -253,7 +302,7 @@
                     </div>
 
                     <div class="empty-state" th:if="${produtos == null or produtos.empty}">
-                        <p>Nao foram encontrados produtos com estes filtros.</p>
+                        <p>Não foram encontrados produtos com estes filtros.</p>
                     </div>
                 </div>
             </div>
@@ -310,6 +359,29 @@
                 sessionStorage.setItem(cartStorageKey, JSON.stringify(cart));
             }
 
+            function removeSingleCartItem(produtoId) {
+                const cart = readCart();
+                const updatedCart = [];
+
+                cart.forEach(item => {
+                    if (String(item.produtoId) !== String(produtoId)) {
+                        updatedCart.push(item);
+                        return;
+                    }
+
+                    const quantidadeAtual = Number(item.quantidade || 0);
+                    if (quantidadeAtual > 1) {
+                        updatedCart.push({
+                            ...item,
+                            quantidade: quantidadeAtual - 1
+                        });
+                    }
+                });
+
+                writeCart(updatedCart);
+                renderCart();
+            }
+
             function formatPrice(value) {
                 const number = Number(value) || 0;
                 return `${number.toFixed(2)} €`;
@@ -337,9 +409,16 @@
                     li.innerHTML = `
                         <div class="cart-item__top">
                             <span class="cart-item__name">${item.nome}</span>
-                            <span>${formatPrice(Number(item.preco) * Number(item.quantidade))}</span>
+                            <span class="cart-item__price">${formatPrice(item.preco)}</span>
                         </div>
                         <div class="cart-item__details">${item.quantidade} x ${formatPrice(item.preco)}</div>
+                        <div class="cart-item__actions">
+                            <div class="cart-item__quantity-control">
+                                <button type="button" class="cart-item__quantity-button cart-item__decrement" data-produto-id="${item.produtoId}" aria-label="Remover uma unidade" title="Remover uma unidade">-</button>
+                                <span class="cart-item__quantity-value">${item.quantidade}</span>
+                                <button type="button" class="cart-item__quantity-button cart-item__increment" data-produto-id="${item.produtoId}" data-nome="${item.nome}" data-preco="${item.preco}" data-restaurante-id="${item.restauranteId}" aria-label="Adicionar uma unidade" title="Adicionar uma unidade">+</button>
+                            </div>
+                        </div>
                     `;
                     cartItems.appendChild(li);
                 });
@@ -366,6 +445,72 @@
             }
 
             renderCart();
+
+            if (cartItems) {
+                cartItems.addEventListener('click', async function(event) {
+                    const decrementButton = event.target.closest('.cart-item__decrement');
+                    if (decrementButton) {
+                        const produtoId = decrementButton.dataset.produtoId;
+                        const formData = new FormData();
+                        formData.append('produtoId', produtoId);
+                        formData.append('redirectTo', window.location.pathname);
+
+                        try {
+                            await fetch('/carrinho/remover', {
+                                method: 'POST',
+                                body: formData,
+                                credentials: 'same-origin'
+                            });
+
+                            removeSingleCartItem(produtoId);
+                            if (cartFeedback) {
+                                cartFeedback.textContent = 'Foi removida uma unidade do produto.';
+                            }
+                        } catch (error) {
+                            if (cartFeedback) {
+                                cartFeedback.textContent = 'Nao foi possivel remover o item.';
+                            }
+                        }
+                        return;
+                    }
+
+                    const incrementButton = event.target.closest('.cart-item__increment');
+                    if (!incrementButton) {
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('produtoId', incrementButton.dataset.produtoId);
+                    formData.append('quantidade', '1');
+                    formData.append('nome', incrementButton.dataset.nome || 'Produto');
+                    formData.append('preco', incrementButton.dataset.preco || '0');
+                    formData.append('restauranteId', incrementButton.dataset.restauranteId || '');
+
+                    try {
+                        await fetch('/carrinho/adicionar', {
+                            method: 'POST',
+                            body: formData,
+                            credentials: 'same-origin'
+                        });
+
+                        upsertCartItem({
+                            produtoId: incrementButton.dataset.produtoId,
+                            quantidade: 1,
+                            nome: incrementButton.dataset.nome || 'Produto',
+                            preco: Number(incrementButton.dataset.preco || 0),
+                            restauranteId: incrementButton.dataset.restauranteId || ''
+                        });
+
+                        if (cartFeedback) {
+                            cartFeedback.textContent = 'Foi adicionada uma unidade do produto.';
+                        }
+                    } catch (error) {
+                        if (cartFeedback) {
+                            cartFeedback.textContent = 'Nao foi possivel adicionar o item.';
+                        }
+                    }
+                });
+            }
 
             document.querySelectorAll('form.add-to-cart-form').forEach(form => {
                 form.addEventListener('submit', async function(event) {

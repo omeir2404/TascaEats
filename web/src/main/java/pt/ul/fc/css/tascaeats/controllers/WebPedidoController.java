@@ -122,6 +122,31 @@ public class WebPedidoController {
         return "checkout";
     }
 
+    @PostMapping("/carrinho/remover")
+    public String removerDoCarrinho(
+            @RequestParam Long produtoId,
+            @RequestParam(required = false, defaultValue = "/checkout") String redirectTo,
+            HttpSession session) {
+        List<Map<String, Object>> carrinho = getCarrinho(session);
+
+        carrinho.removeIf(item -> {
+            if (!produtoId.equals(toLong(item.get("produtoId")))) {
+                return false;
+            }
+
+            int quantidadeAtual = toInt(item.get("quantidade"));
+            if (quantidadeAtual <= 1) {
+                return true;
+            }
+
+            item.put("quantidade", quantidadeAtual - 1);
+            return false;
+        });
+
+        session.setAttribute(CART_SESSION_KEY, carrinho);
+        return "redirect:" + sanitizeRedirect(redirectTo);
+    }
+
     @PostMapping("/checkout/processar")
     public String processarCheckout(
             @RequestParam String metodoPagamento,
@@ -354,5 +379,12 @@ public class WebPedidoController {
             return number.doubleValue();
         }
         return Double.parseDouble(String.valueOf(value));
+    }
+
+    private String sanitizeRedirect(String redirectTo) {
+        if (redirectTo == null || redirectTo.isBlank() || !redirectTo.startsWith("/")) {
+            return "/checkout";
+        }
+        return redirectTo;
     }
 }
