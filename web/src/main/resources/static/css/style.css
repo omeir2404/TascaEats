@@ -37,6 +37,34 @@ body {
     flex-direction: column;
 }
 
+/* Disable page scrolling only on the homepage */
+html.page-home {
+    height: 100%;
+    overflow: hidden;
+}
+
+body.page-home {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body.page-home main.page-shell {
+    overflow: hidden;
+}
+
+body.page-home {
+    overflow-y: hidden;
+    max-height: 100vh;
+}
+
+body.page-home main {
+    max-height: calc(100vh - 85px);
+    overflow: hidden;
+}
+
 a {
     color: inherit;
     text-decoration: none;
@@ -236,6 +264,32 @@ p {
 
 .page-shell--menus .filtro-container form {
     gap: 10px;
+}
+
+.page-shell--menus .form-group--wide {
+    grid-column: span 4;
+}
+
+.page-shell--menus .form-group--medium {
+    grid-column: span 3;
+}
+
+.page-shell--menus .form-group--compact,
+.page-shell--menus .form-actions {
+    grid-column: span 2;
+    justify-content: flex-end;
+    align-items: end;
+}
+
+.page-shell--menus .form-actions {
+    padding-left: 4px;
+    padding-right: 6px;
+}
+
+.page-shell--menus input,
+.page-shell--menus select {
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .page-shell--menus .grid-menus {
