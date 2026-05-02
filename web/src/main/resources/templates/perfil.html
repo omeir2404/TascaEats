@@ -1,3 +1,12 @@
+<!-- ##############################################################
+#                           TASCAEATS                           #
+#                        CSS GRUPO: 25                         #
+#        Autores:                 Numero Aluno:               #
+#     - Omeir Haroon                61810                     #
+#     - Isa David                   61871                     #
+#     - Diogo Roque                 61857                     #
+############################################################## -->
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
@@ -33,8 +42,8 @@
             <hr style="margin: 40px 0;">
 
             <div style="border: 1px solid #f5c6cb; padding: 20px; border-radius: 8px; background-color: #fff3f3;">
-                <h3 style="color: #721c24; margin-top: 0;">Danger Zone</h3>
-                <p style="color: #721c24;">Once you delete an account, there is no going back. Please be certain.</p>
+                <h3 style="color: #721c24; margin-top: 0;">Zona de perigo</h3>
+                <p style="color: #721c24;">Depois de eliminar uma conta, não há volta atrás. Certifique-se de que tem a certeza.</p>
                 <form th:action="@{/perfil/{id}/apagar(id=${user.id})}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this account?');">
                     <button type="submit" class="btn-danger">Delete Account</button>
                 </form>

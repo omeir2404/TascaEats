@@ -6,7 +6,7 @@
 //        - Isa David                  61871                    #
 //        - Diogo Roque                61857                    #
 // ##############################################################
-package pt.ul.fc.css.tascaeats.services; // Fixed package to match directory structure
+package pt.ul.fc.css.tascaeats.services;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -52,57 +52,6 @@ public class EntregaServiceTest {
     @InjectMocks
     private EntregaService entregaService;
 
-    // ########################### MANUAL ASSIGNMENT TESTS ###########################
-    // Note: These are commented out because the atribuirEntregador method was removed 
-    // in favor of the automated assignment logic.
-
-    /*
-    @Test
-    @DisplayName("A: Atribuir entregador com DTO nulo deve falhar.")
-    void atribuirEntregadorWithNullDTO() {
-        try {
-            entregaService.atribuirEntregador(null);
-            fail("DTO inválido.");
-        } catch (IllegalArgumentException e) {
-            assertEquals("Pedido de atribuição inválido.", e.getMessage());
-        }
-    }
-
-    @Test
-    @DisplayName("B: Atribuir entregador com pedidoId nulo deve falhar.")
-    void atribuirEntregadorWithNullPedidoId() {
-        AtribuirEntregadorDTO dto = new AtribuirEntregadorDTO(null);
-        try {
-            entregaService.atribuirEntregador(dto);
-            fail("ID do pedido inválido.");
-        } catch (IllegalArgumentException e) {
-            assertEquals("ID do pedido inválido.", e.getMessage());
-        }
-    }
-
-    @Test
-    @DisplayName("G/H: Atribuir entregador com sucesso deve marcar entregador indisponível e mover pedido para ATRIBUIDO_ENTREGADOR.")
-    void atribuirEntregadorSuccess() {
-        Pedido pedido = pedidoComEstado(40L, EstadoPedido.PRONTO_PARA_ENTREGA);
-        Entregador livre = entregador(800L, true);
-
-        when(pedidoRepository.findById(40L)).thenReturn(Optional.of(pedido));
-        when(entregaRepository.findByPedidoId(40L)).thenReturn(Optional.empty());
-        when(utilizadorRepository.findAll()).thenReturn(List.of(livre));
-        when(entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(800L)).thenReturn(false);
-        when(utilizadorRepository.save(any(Entregador.class))).thenAnswer(i -> i.getArgument(0));
-        when(pedidoRepository.save(any(Pedido.class))).thenAnswer(i -> i.getArgument(0));
-        when(entregaRepository.save(any(Entrega.class))).thenAnswer(i -> i.getArgument(0));
-
-        Entrega entrega = entregaService.atribuirEntregador(new AtribuirEntregadorDTO(40L));
-
-        assertEquals(800L, entrega.getEntregadorId());
-        assertFalse(livre.isAvailable());
-        assertEquals(EstadoPedido.ATRIBUIDO_ENTREGADOR, pedido.getEstado());
-    }
-    */
-
-    // ########################### AUTOMATED ASSIGNMENT (ON READY) ###########################
 
     @Test
     @DisplayName("Auto-1: Marcar pedido como pronto deve gatilhar atribuição automática.")

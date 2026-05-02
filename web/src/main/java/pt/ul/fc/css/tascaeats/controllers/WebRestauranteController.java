@@ -1,3 +1,12 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
 package pt.ul.fc.css.tascaeats.controllers;
 
 import java.util.List;
@@ -27,7 +36,6 @@ public class WebRestauranteController {
         this.restTemplate = restTemplate;
     }
 
-    // 1. Default page: Loads all restaurants from backend
     @GetMapping("/restaurantes")
     public String listarRestaurantes(Model model) {
         String url = backendUrl + "/api/restaurantes";
@@ -47,7 +55,6 @@ public class WebRestauranteController {
         return "restaurantes";
     }
 
-    // 2. Search page: Advanced filters
     @GetMapping("/restaurantes/pesquisa")
     public String pesquisarRestaurantes(
             @RequestParam(required = false) String nome,
@@ -101,7 +108,6 @@ public class WebRestauranteController {
         return "pesquisa";
     }
 
-    // 3. Live Search API for JavaScript Dropdown
     @GetMapping("/api/web/live-search")
     @ResponseBody
     public ResponseEntity<?> liveSearch(@RequestParam String nome) {

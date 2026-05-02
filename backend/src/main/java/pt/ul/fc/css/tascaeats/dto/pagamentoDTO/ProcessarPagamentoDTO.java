@@ -16,18 +16,6 @@
     import jakarta.validation.constraints.Positive;
     import jakarta.validation.constraints.PositiveOrZero;
 
-    /**
-     * DTO para processar pagamentos em pedidos.
-     *
-     * Exemplo de uso:
-     * {
-     *   "pedidoId": 1,
-     *   "tipoPagamento": "MBWAY",
-     *   "detalhes": {
-     *     "numeroTelemovel": "912345678"
-     *   }
-     * }
-     */
     public class ProcessarPagamentoDTO {
 
         @NotNull(message = "Pedido ID é obrigatório")

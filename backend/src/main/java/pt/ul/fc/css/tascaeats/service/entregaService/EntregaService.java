@@ -39,59 +39,6 @@ public class EntregaService {
         this.pedidoRepository = pedidoRepository;
     }
 
-    // @Transactional
-    // public Entrega atribuirEntregador(AtribuirEntregadorDTO atribuirEntregaDTO) {
-    //     if (atribuirEntregaDTO == null) {
-    //         throw new IllegalArgumentException("Pedido de atribuição inválido.");
-    //     }
-
-    //     Long pedidoId = atribuirEntregaDTO.getPedidoId();
-    //     if (pedidoId == null) {
-    //         throw new IllegalArgumentException("ID do pedido inválido.");
-    //     }
-
-    //     Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
-    //     if (pedidoOptional.isEmpty()) {
-    //         throw new IllegalArgumentException("Pedido não encontrado: " + pedidoId);
-    //     }
-
-    //     Pedido pedido = pedidoOptional.get();
-
-    //     if (pedido.getEstado() != EstadoPedido.PRONTO_PARA_ENTREGA) {
-    //         throw new IllegalStateException("Pedido não está pronto para entrega.");
-    //     }
-
-    //     if (entregaRepository.findByPedidoId(pedidoId).isPresent()) {
-    //         throw new IllegalStateException("Pedido já possui entrega associada.");
-    //     }
-
-    //     Entregador entregador = null;
-    //     for (var utilizador : utilizadorRepository.findAll()) {
-    //         if (utilizador instanceof Entregador candidato) {
-    //             if (candidato.isAvailable()) {
-    //                 if (!entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
-    //                     entregador = candidato;
-    //                     break;
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     if (entregador == null) {
-    //         throw new IllegalStateException("Não há entregadores disponíveis.");
-    //     }
-
-    //     Entrega entrega = new Entrega(pedido, entregador.getId(), ENDERECO_ENTREGA_PENDENTE);
-
-    //     entregador.setAvailable(false);
-    //     pedido.atribuirEntregador();
-
-    //     utilizadorRepository.save(entregador);
-    //     pedidoRepository.save(pedido);
-
-    //     return entregaRepository.save(entrega);
-    // }
-
     @Transactional
     public Pedido iniciarPreparacao(Long pedidoId) {
         if (pedidoId == null) {

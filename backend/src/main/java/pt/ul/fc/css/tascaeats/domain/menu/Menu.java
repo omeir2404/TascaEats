@@ -1,3 +1,12 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
 package pt.ul.fc.css.tascaeats.domain.menu;
 
 import jakarta.persistence.*;
@@ -19,9 +28,6 @@ public class Menu {
     @NotBlank
     @Column(nullable = false)
     private String nome;
-
-    //@OneToMany(mappedBy = "menu")
-    //private List<Restaurante> restaurantes = new ArrayList<>();
 
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Produto> produtos = new ArrayList<>();

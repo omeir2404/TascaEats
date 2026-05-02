@@ -27,7 +27,6 @@ public class TascaEatsApplication {
     public CommandLineRunner demo() {
         return (args) -> {
             
-            // do some sanity tests here to make sure that the application work as intended
             try{
                 System.out.println("\u001B[32m\u001B[1mIt is alive! ⚡🏰⚡🧟‍♂️ \u001B[0m");
             } catch (Exception e) {

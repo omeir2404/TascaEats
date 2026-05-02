@@ -1,3 +1,12 @@
+/* ##############################################################
+#                           TASCAEATS                           #
+#                        CSS GRUPO: 25                         #
+#        Autores:                 Numero Aluno:               #
+#     - Omeir Haroon                61810                     #
+#     - Isa David                   61871                     #
+#     - Diogo Roque                 61857                     #
+############################################################## */
+
 :root {
     --bg: #fcf7ee;
     --bg-header: #f8f1e4;
@@ -37,7 +46,6 @@ body {
     flex-direction: column;
 }
 
-/* Disable page scrolling only on the homepage */
 html.page-home {
     height: 100%;
     overflow: hidden;
@@ -160,7 +168,6 @@ input,
 select,
 textarea {
     width: 100%;
-    /* make controls have a consistent height so placeholder text aligns */
     height: 44px;
     border: 1px solid #d7ddda;
     border-radius: var(--radius-sm);
@@ -169,7 +176,7 @@ textarea {
     padding: 0 16px;
     outline: none;
     font-size: 1rem;
-    line-height: 1; /* keep placeholder vertically centered */
+    line-height: 1;
 }
 
 input:focus,
@@ -213,7 +220,6 @@ h3 {
     font-size: 1.08rem;
 }
 
-/* Make specific section titles use the brand color (matches quick-selection/menus) */
 .section-title--brand {
     color: var(--brand);
     font-weight: 700;
@@ -598,7 +604,6 @@ p {
     background: transparent;
 }
 
-/* Make section headers on the restaurants page match the menus page title color */
 .page-shell--restaurants .section-header h3 {
     color: var(--brand);
 }
@@ -844,7 +849,6 @@ p {
 }
 
 .filtro-container {
-    /* reduce horizontal padding so form can use more space to the edges of the white card */
     padding: 18px 12px;
     background: var(--surface);
     border: 1px solid #e5ded1;
@@ -880,21 +884,17 @@ p {
 }
 
 .search-filters-form {
-    /* Use a 12-column grid so the filters can span the white card fully
-       and so we can control wide/medium/compact spans precisely. */
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 28px; /* increased gap so fields occupy more horizontal space visually */
+    gap: 28px;
     align-items: start;
 }
 
-/* Desktop: compact the whole filters row into a single line (no wrap) */
 @media (min-width: 921px) {
     .search-filters-form {
         display: flex;
         gap: 6px;
         align-items: center;
         flex-wrap: nowrap;
-        /* reduce right padding of the card slightly to allow full-width feel */
     }
 
     .search-filters-form .form-group {
@@ -905,7 +905,6 @@ p {
         align-items: stretch;
     }
 
-    /* Compact widths for each modifier so all fields fit in one line */
     .search-filters-form .form-group--wide {
         flex: 0 0 15%;
     }
@@ -923,7 +922,6 @@ p {
         margin-left: 0;
     }
 
-    /* Make inputs slightly more compact */
     .search-filters-form input,
     .search-filters-form select,
     .search-filters-form textarea {
@@ -932,17 +930,15 @@ p {
         font-size: 0.9rem;
     }
 
-    /* Adjust range value overlay to avoid covering important parts */
     .search-filters-form .form-group--compact .range-value {
         right: 8px;
     }
 }
 
 .form-group {
-    /* place label above the control so the phrase appears on top of the placeholder */
     display: flex;
     flex-direction: column;
-    gap: 8px; /* vertical gap between label and control */
+    gap: 8px;
     min-width: 0;
     align-items: stretch;
 }
@@ -952,17 +948,15 @@ p {
 }
 
 .search-filters-form label {
-    /* keep labels on a single visual line; allow font-size to shrink so the full text fits */
     white-space: nowrap;
     display: block;
     font-weight: 700;
     color: var(--muted);
-    /* allow the label text to scale down on narrower screens so it fits in one line */
     font-size: clamp(0.9rem, 1.0vw, 0.95rem);
 }
 
 .form-group--wide {
-    grid-column: span 6; /* 6/12: make layout fill rows cleanly */
+    grid-column: span 6;
 }
 
 .form-group--medium {
@@ -981,7 +975,6 @@ p {
 }
 
 .form-actions {
-    /* make buttons occupy full width of the white card */
     grid-column: 1 / -1;
     display: flex;
     justify-content: flex-end;
@@ -992,7 +985,6 @@ p {
 .search-filters-form .form-group--wide,
 .search-filters-form .form-group--medium,
 .search-filters-form .form-group--compact {
-    /* no default override here; specific modifiers control span */
 }
 
 .search-filters-form .form-group:first-child,
@@ -1395,14 +1387,12 @@ th {
         gap: 16px;
     }
 
-    /* on small screens labels stack above inputs */
     .form-group {
         grid-template-columns: 1fr;
         gap: 8px;
         align-items: start;
     }
 
-    /* allow labels to wrap on small screens */
     .search-filters-form label {
         white-space: normal;
         font-size: 0.95rem;
@@ -1428,7 +1418,6 @@ th {
     }
 }
 
-/* Range slider for pesquisa page - improved thumb and track */
 .rating {
     display: inline-flex;
     gap: 6px;
@@ -1443,7 +1432,6 @@ th {
     color: #f1c40f;
 }
 
-/* Make number inputs in compact groups slightly shorter so spinner looks better */
 .form-group--compact input[type="number"] {
     min-height: 40px;
     padding-right: 12px;
@@ -1452,7 +1440,6 @@ th {
 input[type="range"] {
     -webkit-appearance: none;
     width: 100%;
-    /* thinner track per request */
     height: 3px;
     background: #d9e1df;
     border-radius: 999px;
@@ -1482,12 +1469,10 @@ input[type="range"]::-moz-range-progress {
     border-radius: 999px;
 }
 
-/* WebKit thumb */
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 14px;
     height: 14px;
-    /* center thumb relative to the thinner track */
     margin-top: -6px;
     border-radius: 50%;
     background: var(--brand);
@@ -1496,7 +1481,6 @@ input[type="range"]::-webkit-slider-thumb {
     cursor: pointer;
 }
 
-/* Firefox thumb */
 input[type="range"]::-moz-range-thumb {
     width: 14px;
     height: 14px;
@@ -1508,11 +1492,10 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .range-value {
-    /* make range label sit inline with the range control and be slimmer */
     margin-top: 0;
     font-weight: 700;
-    min-height: 22px; /* reduce height */
-    padding: 4px 18px; /* wider horizontally per request */
+    min-height: 22px;
+    padding: 4px 18px;
     border-radius: 999px;
     background: #f4f0e9;
     color: var(--brand);
@@ -1521,19 +1504,16 @@ input[type="range"]::-moz-range-thumb {
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 
-/* Place range and value inline inside the same form group so the EUR sits in the rounded box next to the thumb */
 .form-group input[type="range"],
 .form-group .range-value {
     display: inline-block;
     vertical-align: middle;
 }
 
-/* specifically for the compact range group make the range and value sit in one row */
 .form-group--compact {
-    position: relative; /* needed for absolute positioning of the overlaid EUR box */
+    position: relative;
 }
 .form-group--compact input[type="range"] {
-    /* make track full width; we will overlay the EUR box at the right end */
     width: 100%;
 }
 .form-group--compact .range-value {
