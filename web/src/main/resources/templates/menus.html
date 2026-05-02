@@ -39,27 +39,8 @@
 
         <div class="grid-menus">
             <article class="menu-card" th:each="menu : ${menus}">
-                <img class="card__image"
-                     th:if="${menu.nome == 'Menu Zen Premium'}"
-                     th:src="@{/img/sushi.jpeg}"
-                     alt="Menu Zen Premium">
-
-                <img class="card__image"
-                     th:if="${menu.nome == 'Menu Italiano Clássico'}"
-                     th:src="@{/img/pizza.png}"
-                     alt="Menu Italiano Clássico">
-
-                <img class="card__image"
-                     th:if="${menu.nome == 'Menu Económico Central'}"
-                     th:src="@{/img/economico.jpg}"
-                     alt="Menu Económico Central">
-
-                <img class="card__image"
-                     th:if="${menu.nome == 'Menu Especial Tasca'}"
-                     th:src="@{/img/tasca.jpg}"
-                     alt="Menu Especial Tasca">
-
-                <div class="card__image" th:if="${menu.nome != 'Menu Zen Premium' and menu.nome != 'Menu Italiano Clássico' and menu.nome != 'Menu Económico Central' and menu.nome != 'Menu Especial Tasca'}" aria-hidden="true"></div>
+                <!-- Use imagePath provided by the controller (robust to name changes) -->
+                <img class="card__image" th:src="${menu.imagePath}" th:alt="${menu.nome}" alt="Menu image">
 
                 <div class="pill-row">
                     <span class="tag">Menu</span>

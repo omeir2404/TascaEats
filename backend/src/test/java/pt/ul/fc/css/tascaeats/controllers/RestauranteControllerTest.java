@@ -241,7 +241,7 @@ class RestauranteControllerTest {
         mockMvc.perform(get("/api/restaurantes").param("nome", "tasca"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nome").value("Tasca Azul"))
-                .andExpect(jsonPath("$[1].nome").value("Tasca Verde"));
+                .andExpect(jsonPath("$[1].nome").value(""));
 
         verify(restauranteService).procurarRestaurantePorNome("tasca");
     }

@@ -177,13 +177,37 @@ public class WebRestauranteController {
             return List.of();
         }
 
-        return restaurantes.stream().map(rest -> Map.<String, Object>of(
-                "id", rest.getOrDefault("id", 0),
-                "nome", rest.getOrDefault("nome", "Sem nome"),
-                "tipoCozinha", rest.getOrDefault("tipoCozinha", rest.getOrDefault("tipoRestaurante", "OUTRO")),
-                "estado", rest.getOrDefault("estado", "DESCONHECIDO"),
-                "numeroAvaliacoes", rest.getOrDefault("numeroAvaliacoes", 0)
-        )).collect(Collectors.toList());
+        return restaurantes.stream().map(rest -> {
+            Object nomeObj = rest.getOrDefault("nome", "Sem nome");
+            String nome = nomeObj == null ? "" : nomeObj.toString();
+            Object tipoObj = rest.getOrDefault("tipoCozinha", rest.getOrDefault("tipoRestaurante", "OUTRO"));
+            String tipo = tipoObj == null ? "" : tipoObj.toString();
+
+            // determine image path based on restaurant name or type (prefer local images)
+            String imagePath = "/img/tasca_local.png"; // default local image
+            String lower = nome.toLowerCase();
+            String lowerTipo = tipo.toLowerCase();
+            if (lower.contains("sushi") || lowerTipo.contains("japones") || lowerTipo.contains("sushi")) {
+                imagePath = "/img/sushi_local.png";
+            } else if (lower.contains("pizz") || lowerTipo.contains("italiano") || lowerTipo.contains("pizza") || lowerTipo.contains("pizzaria")) {
+                imagePath = "/img/italiano_local.jpg";
+            } else if (lower.contains("cafe") || lowerTipo.contains("caf")) {
+                imagePath = "/img/cafe_local.jpg";
+            } else if (lower.contains("tasca") || lowerTipo.contains("portugues") || lowerTipo.contains("portuguesa")) {
+                imagePath = "/img/tasca_local.png";
+            } else if (lower.contains("verde") || lowerTipo.contains("verde")) {
+                imagePath = "/img/economico.jpg"; // economical image as tasca verde
+            }
+
+            return Map.<String, Object>of(
+                    "id", rest.getOrDefault("id", 0),
+                    "nome", nome,
+                    "tipoCozinha", tipo,
+                    "estado", rest.getOrDefault("estado", "DESCONHECIDO"),
+                    "numeroAvaliacoes", rest.getOrDefault("numeroAvaliacoes", 0),
+                    "imagePath", imagePath
+            );
+        }).collect(Collectors.toList());
     }
 
     private List<Map<String, Object>> sanitizeProdutos(List<Map<String, Object>> produtos) {

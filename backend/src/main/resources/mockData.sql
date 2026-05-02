@@ -343,11 +343,11 @@ WHERE u.email = 'cliente2@tascaeats.local'
 
 WITH seeded_menu_3 AS (
     INSERT INTO menus (id, nome)
-  SELECT nextval('menus_id_seq'), 'Menu Pizzaria Bairro'
+  SELECT nextval('menus_id_seq'), 'Menu Pizzaria do Bairro'
     WHERE NOT EXISTS (
         SELECT 1
         FROM menus
-        WHERE nome = 'Menu Pizzaria Bairro'
+        WHERE nome = 'Menu Pizzaria do Bairro'
     )
     RETURNING id
 ),
@@ -420,7 +420,7 @@ WHERE u.email = 'admin.restaurante@tascaeats.local'
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
 SELECT nextval('produto_id_seq'), 'Margherita', 8.50, true, 'Classic pizza with tomato and mozzarella.', false, r.id, m.id
 FROM restaurante r
-JOIN menus m ON m.nome = 'Menu Pizzaria Bairro'
+JOIN menus m ON m.nome = 'Menu Pizzaria do Bairro'
 WHERE r.nif = '111222333'
   AND NOT EXISTS (
       SELECT 1
@@ -432,7 +432,7 @@ WHERE r.nif = '111222333'
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
 SELECT nextval('produto_id_seq'), 'Portuguesa Pizza', 10.00, true, 'Pizza with ham, egg and olives.', false, r.id, m.id
 FROM restaurante r
-JOIN menus m ON m.nome = 'Menu Pizzaria Bairro'
+JOIN menus m ON m.nome = 'Menu Pizzaria do Bairro'
 WHERE r.nif = '111222333'
   AND NOT EXISTS (
       SELECT 1
@@ -444,7 +444,7 @@ WHERE r.nif = '111222333'
 INSERT INTO produto (id, nome, preco, disponivel, descricao, apagado, restaurante_id, menu_id)
 SELECT nextval('produto_id_seq'), 'Coca-Cola 33cl', 1.50, true, 'Soft drink.', false, r.id, m.id
 FROM restaurante r
-JOIN menus m ON m.nome = 'Menu Pizzaria Bairro'
+JOIN menus m ON m.nome = 'Menu Pizzaria do Bairro'
 WHERE r.nif = '111222333'
   AND NOT EXISTS (
       SELECT 1

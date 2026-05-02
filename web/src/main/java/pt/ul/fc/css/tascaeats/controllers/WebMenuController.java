@@ -104,6 +104,21 @@ public class WebMenuController {
             menu.put("restauranteNome", restauranteNome);
             menu.put("numeroProdutos", itens.size());
             menu.put("precoMedio", Math.round(precoMedio * 100.0) / 100.0);
+
+            // Determine an image path for the menu based on the restaurant name (case-insensitive)
+            String imagePath = "/img/tasca.jpg"; // default
+            String rn = restauranteNome == null ? "" : restauranteNome.toLowerCase();
+            if (rn.contains("sushi")) {
+                imagePath = "/img/sushi.jpeg";
+            } else if (rn.contains("pizzaria") || rn.contains("pizza")) {
+                imagePath = "/img/pizza.png";
+            } else if (rn.contains("tasca verde") || rn.contains("verde")) {
+                imagePath = "/img/economico.jpg";
+            } else if (rn.contains("tasca central") || rn.contains("tasca")) {
+                imagePath = "/img/tasca.jpg";
+            }
+
+            menu.put("imagePath", imagePath);
             menus.add(menu);
         }
 
