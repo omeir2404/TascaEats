@@ -37,16 +37,20 @@
                         </div>
                     </div>
 
-                    <article class="quick-feature">
-                        <div class="quick-feature__media" aria-hidden="true"></div>
+                    <article class="quick-feature" th:if="${restauranteDestaque != null}">
+                        <div class="quick-feature__media"
+                             aria-hidden="true"
+                             style="background-image: url('/img/tasca_local.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
                         <div class="quick-feature__content">
-                            <h3>Tasca do Zé</h3>
+                            <h3 th:text="${restauranteDestaque['nome']}">Tasca do Zé</h3>
                             <div class="pill-row">
-                                <span class="pill">PORTUGUESA</span>
-                                <span class="status-pill status-pill--open">ABERTO</span>
+                                <span class="pill" th:text="${restauranteDestaque['tipoRestaurante']}">PORTUGUES</span>
+                                <span class="status-pill"
+                                      th:classappend="${restauranteDestaque['estado'] == 'ABERTO'} ? ' status-pill--open' : ' status-pill--closed'"
+                                      th:text="${restauranteDestaque['estado']}">ABERTO</span>
                             </div>
                             <div class="card__actions">
-                                <a th:href="@{/restaurantes/1/produtos}">
+                                <a th:href="@{/restaurantes/{id}/produtos(id=${restauranteDestaque['id']})}">
                                     <button>Repetir pedido</button>
                                 </a>
                             </div>
@@ -54,7 +58,7 @@
                     </article>
                 </div>
 
-                <section>
+                <section class="restaurants-highlight-section">
                     <div class="section-header">
                         <div>
                             <h3>Restaurantes em destaque</h3>
@@ -65,8 +69,7 @@
                         <article class="card" th:each="restaurante : ${restaurantes}">
                             <div class="card__image"
                                  aria-hidden="true"
-                                 th:style="${'background-image: url(' + restaurante['imagePath'] + '); background-size: cover; background-position: center; background-repeat: no-repeat;'}"
-                                 ></div>
+                                 th:style="${'background-image: url(' + restaurante['imagePath'] + '); background-size: cover; background-position: center; background-repeat: no-repeat;'}"></div>
 
                             <div class="pill-row">
                                 <span class="pill"

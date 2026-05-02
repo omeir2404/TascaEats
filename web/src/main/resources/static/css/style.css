@@ -242,8 +242,8 @@ p {
 
 .page-shell--restaurants {
     max-width: none;
-    padding-top: 16px;
-    padding-bottom: 28px;
+    padding-top: 12px;
+    padding-bottom: 8px;
 }
 
 .hero-strip {
@@ -257,7 +257,7 @@ p {
 }
 
 .catalog-wrap {
-    padding-top: 6px;
+    padding-top: 2px;
 }
 
 .search-card {
@@ -351,14 +351,15 @@ p {
 
 .quick-feature {
     display: grid;
-    grid-template-columns: 170px auto;
+    grid-template-columns: 110px auto;
     gap: 16px;
     align-items: start;
     max-width: 460px;
 }
 
 .quick-feature__media {
-    min-height: 160px;
+    width: 110px;
+    min-height: 96px;
     border-radius: 10px;
     background: transparent;
 }
@@ -383,6 +384,29 @@ p {
     min-width: 154px;
     min-height: 38px;
     border-radius: 8px;
+}
+
+.restaurants-highlight-section {
+    margin-top: 20px;
+}
+
+.page-shell--restaurants .restaurants-highlight-section .section-header {
+    margin-bottom: 14px;
+}
+
+.page-shell--restaurants .restaurants-highlight-section .grid-restaurantes {
+    margin-top: 8px;
+}
+
+.page-shell--restaurants .card {
+    padding: 14px;
+    gap: 10px;
+}
+
+.page-shell--restaurants .card__image {
+    width: calc(100% + 28px);
+    height: 120px;
+    margin: -14px -14px 2px -14px;
 }
 
 .grid-restaurantes,
@@ -897,4 +921,3 @@ input[type="range"]::-moz-range-thumb {
     margin-top: 6px;
     font-weight: 700;
 }
-

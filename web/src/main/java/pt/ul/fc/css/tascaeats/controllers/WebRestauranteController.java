@@ -34,9 +34,13 @@ public class WebRestauranteController {
 
         try {
             List<Map<String, Object>> restaurantes = restTemplate.getForObject(url, List.class);
-            model.addAttribute("restaurantes", sanitizeRestaurantes(restaurantes));
+            List<Map<String, Object>> restaurantesSanitizados = sanitizeRestaurantes(restaurantes);
+            model.addAttribute("restaurantes", restaurantesSanitizados);
+            model.addAttribute("restauranteDestaque",
+                    restaurantesSanitizados.stream().findFirst().orElse(null));
         } catch (Exception e) {
             model.addAttribute("restaurantes", List.of());
+            model.addAttribute("restauranteDestaque", null);
             model.addAttribute("erro", "Could not connect to the backend API.");
         }
 
@@ -180,8 +184,10 @@ public class WebRestauranteController {
         return restaurantes.stream().map(rest -> {
             Object nomeObj = rest.getOrDefault("nome", "Sem nome");
             String nome = nomeObj == null ? "" : nomeObj.toString();
-            Object tipoObj = rest.getOrDefault("tipoCozinha", rest.getOrDefault("tipoRestaurante", "OUTRO"));
-            String tipo = tipoObj == null ? "" : tipoObj.toString();
+            Object tipoRawObj = rest.getOrDefault("tipoRestaurante", rest.getOrDefault("tipoCozinha", "OUTRO"));
+            String tipoRaw = tipoRawObj == null ? "OUTRO" : tipoRawObj.toString();
+            Object tipoObj = rest.getOrDefault("tipoCozinha", tipoRaw);
+            String tipo = formatTipoCozinha(tipoObj);
 
             // determine image path based on restaurant name or type (prefer local images)
             String imagePath = "/img/tasca_local.png"; // default local image
@@ -202,12 +208,31 @@ public class WebRestauranteController {
             return Map.<String, Object>of(
                     "id", rest.getOrDefault("id", 0),
                     "nome", nome,
+                    "tipoRestaurante", tipoRaw,
                     "tipoCozinha", tipo,
                     "estado", rest.getOrDefault("estado", "DESCONHECIDO"),
                     "numeroAvaliacoes", rest.getOrDefault("numeroAvaliacoes", 0),
+                    "morada", rest.getOrDefault("morada", Map.of()),
                     "imagePath", imagePath
             );
         }).collect(Collectors.toList());
+    }
+
+    private String formatTipoCozinha(Object tipoObj) {
+        if (tipoObj == null) {
+            return "Outro";
+        }
+
+        return switch (tipoObj.toString().trim().toUpperCase()) {
+            case "PORTUGUES" -> "Portuguesa";
+            case "ITALIANO" -> "Italiana";
+            case "JAPONES" -> "Japonesa";
+            case "HAMBURGUERIA" -> "Hamburgueria";
+            case "VEGETARIANA" -> "Vegetariana";
+            case "CHINES" -> "Chinesa";
+            case "OUTRO" -> "Outro";
+            default -> tipoObj.toString();
+        };
     }
 
     private List<Map<String, Object>> sanitizeProdutos(List<Map<String, Object>> produtos) {

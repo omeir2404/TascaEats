@@ -166,6 +166,22 @@ public class RestauranteController {
         m.put("id", r.getId());
         m.put("nome", r.getNome());
         m.put("estado", r.getEstado());
+        m.put("tipoRestaurante", r.getTipoRestaurante());
+        m.put("numeroAvaliacoes", r.getNumeroAvaliacoes());
+
+        Map<String, Object> moradaMap = null;
+        if (r.getMorada() != null) {
+            moradaMap = new HashMap<>();
+            moradaMap.put("rua", r.getMorada().getRua());
+            moradaMap.put("numeroPorta", r.getMorada().getNumero());
+            moradaMap.put("codigoPostal", r.getMorada().getCodigoPostal());
+            moradaMap.put("cidade", r.getMorada().getCidade());
+            moradaMap.put("localidade", r.getMorada().getCidade());
+            moradaMap.put("pais", r.getMorada().getPais());
+            moradaMap.put("distrito", r.getMorada().getDistrito());
+            moradaMap.put("complemento", r.getMorada().getComplemento());
+        }
+        m.put("morada", moradaMap);
         return m;
     }
 
