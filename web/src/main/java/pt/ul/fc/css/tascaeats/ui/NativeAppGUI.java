@@ -640,152 +640,271 @@ public class NativeAppGUI extends Application {
             if (novo != null) { novo.put("id", nextPedidoId++); mockPedidos.add(novo); display.setAll(mockPedidos); info("Pedido #" + novo.get("id") + " criado."); }
         });
 
-        Button atualizarButton = new Button("Atualizar");
-        atualizarButton.setMaxWidth(Double.MAX_VALUE);
-        atualizarButton.setOnAction(event -> carregarRestaurantes());
+        pagarBtn.setOnAction(e -> {
+            Map<String, Object> sel = selected(table); if (sel == null) return;
+            if (!"CRIADO".equals(sel.get("estado"))) { warn("Só pedidos CRIADO podem ser pagos."); return; }
+            ChoiceDialog<String> cd = new ChoiceDialog<>("MBWAY","DINHEIRO","MBWAY","MULTIBANCO");
+            cd.setTitle("Processar Pagamento"); cd.setHeaderText("Método de pagamento:"); cd.initOwner(mainStage);
+            cd.showAndWait().ifPresent(m -> {
+                sel.put("estado","PAGO"); sel.put("pagamento",m);
+                display.setAll(mockPedidos); table.refresh();
+                info("Pagamento via " + m + " processado. Estado → PAGO.");
+            });
+        });
 
-        Button sairButton = new Button("Sair");
-        sairButton.setMaxWidth(Double.MAX_VALUE);
-        sairButton.setOnAction(event -> Platform.exit());
+        prepBtn.setOnAction(e -> {
+            Map<String, Object> sel = selected(table); if (sel == null) return;
+            if (!"PAGO".equals(sel.get("estado"))) { warn("Só pedidos PAGO podem iniciar preparação."); return; }
+            sel.put("estado","PREPARACAO"); display.setAll(mockPedidos); table.refresh();
+            info("Preparação iniciada. Estado → PREPARACAO.");
+        });
 
-        GridPane form = new GridPane();
-        form.setHgap(8);
-        form.setVgap(10);
-        form.setMaxWidth(Double.MAX_VALUE);
-        form.add(new Label("Nome"), 0, 0);
-        form.add(nomeField, 1, 0);
-        form.add(new Label("Estado"), 0, 1);
-        form.add(estadoComboBox, 1, 1);
-        GridPane.setHgrow(nomeField, Priority.ALWAYS);
-        GridPane.setHgrow(estadoComboBox, Priority.ALWAYS);
+        prontoBtn.setOnAction(e -> {
+            Map<String, Object> sel = selected(table); if (sel == null) return;
+            if (!"PREPARACAO".equals(sel.get("estado"))) { warn("Só pedidos em PREPARACAO podem ser marcados prontos."); return; }
+            sel.put("estado","PRONTO_PARA_ENTREGA"); display.setAll(mockPedidos); table.refresh();
+            info("Estado → PRONTO_PARA_ENTREGA.");
+        });
 
-        VBox panel = new VBox(12,
-                new Label("Filtros"),
-                form,
-                pesquisarButton,
-                atualizarButton,
-                limparButton,
-                sairButton);
-        panel.setPadding(new Insets(12));
-        panel.setPrefWidth(280);
-        panel.setStyle("-fx-background-color: #f8f8f8; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #dddddd;");
-        return panel;
-    }
+        atribBtn.setOnAction(e -> {
+            Map<String, Object> sel = selected(table); if (sel == null) return;
+            if (!"PRONTO_PARA_ENTREGA".equals(sel.get("estado"))) { warn("Pedido deve estar PRONTO_PARA_ENTREGA."); return; }
+            List<String> couriers = mockUsers.stream()
+                .filter(u -> "COURIER".equals(u.get("papel")) && "Sim".equals(u.get("ativo")))
+                .map(u -> u.get("nome").toString()).toList();
+            if (couriers.isEmpty()) { warn("Nenhum entregador disponível."); return; }
+            ChoiceDialog<String> cd = new ChoiceDialog<>(couriers.get(0), couriers);
+            cd.setTitle("Atribuir Entregador"); cd.setHeaderText("Escolha o entregador:"); cd.initOwner(mainStage);
+            cd.showAndWait().ifPresent(c -> {
+                sel.put("entregador", c); display.setAll(mockPedidos); table.refresh();
+                info("Entregador " + c + " atribuído.");
+            });
+        });
 
-    private TableView<RestauranteResumo> createTable() {
-        tableView = new TableView<>(restaurantes);
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        entregBtn.setOnAction(e -> {
+            Map<String, Object> sel = selected(table); if (sel == null) return;
+            if (!"PRONTO_PARA_ENTREGA".equals(sel.get("estado"))) { warn("Pedido deve estar PRONTO_PARA_ENTREGA."); return; }
+            if ("-".equals(sel.get("entregador")) || s(sel,"entregador").isBlank()) { warn("Atribua um entregador antes de registar a entrega."); return; }
+            sel.put("estado","ENTREGUE"); display.setAll(mockPedidos); table.refresh();
+            info("Entrega registada. Estado → ENTREGUE.");
+        });
 
-        TableColumn<RestauranteResumo, String> idColumn = new TableColumn<>("ID");
-        idColumn.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
-                cell.getValue().id() == null ? "-" : String.valueOf(cell.getValue().id())));
-
-        TableColumn<RestauranteResumo, String> nomeColumn = new TableColumn<>("Nome");
-        nomeColumn.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().nome()));
-
-        TableColumn<RestauranteResumo, String> estadoColumn = new TableColumn<>("Estado");
-        estadoColumn.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().estado()));
-
-        tableView.getColumns().addAll(idColumn, nomeColumn, estadoColumn);
-        tableView.setPlaceholder(new Label("Sem restaurantes para mostrar."));
-        tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> updateDetails(newValue));
-        VBox.setVgrow(tableView, Priority.ALWAYS);
-        return tableView;
-    }
-
-    private VBox createDetailsArea() {
-        detalhesArea = new TextArea();
-        detalhesArea.setEditable(false);
-        detalhesArea.setWrapText(true);
-        detalhesArea.setPromptText("Seleciona um restaurante para ver os detalhes.");
-        VBox.setVgrow(detalhesArea, Priority.ALWAYS);
-
-        VBox details = new VBox(6, new Label("Detalhes"), detalhesArea);
-        VBox.setVgrow(details, Priority.ALWAYS);
-        return details;
-    }
-
-    private HBox createStatusBar() {
-        statusLabel = new Label("Pronto para pesquisar restaurantes.");
-        HBox statusBar = new HBox(statusLabel);
-        statusBar.setAlignment(Pos.CENTER_LEFT);
-        statusBar.setPadding(new Insets(12, 0, 0, 0));
-        return statusBar;
-    }
-
-    private void carregarRestaurantes() {
-        String nome = nomeField.getText();
-        String selectedEstado = estadoComboBox.getValue();
-        String estado = selectedEstado != null && selectedEstado.equalsIgnoreCase("Todos") ? null : selectedEstado;
-
-        statusLabel.setText("A carregar restaurantes...");
-
-        Task<RestauranteApiClient.RestaurantSearchResult> task = new Task<>() {
-            @Override
-            protected RestauranteApiClient.RestaurantSearchResult call() {
-                return apiClient.listarRestaurantesComFallback(nome, estado);
+        cancelBtn.setOnAction(e -> {
+            Map<String, Object> sel = selected(table); if (sel == null) return;
+            String st = s(sel,"estado");
+            if (!"CRIADO".equals(st) && !"PAGO".equals(st)) { warn("Só pedidos CRIADO ou PAGO podem ser cancelados."); return; }
+            if (confirm("Cancelar pedido #" + sel.get("id") + "?")) {
+                sel.put("estado","CANCELADO"); display.setAll(mockPedidos); table.refresh();
             }
+        });
+
+        return pane(sectionTitle("J/K/L/M/N – Gestão de Pedidos e Entregas"),
+            hbar(lbl("Estado:"), estadoBox, lbl("Cliente:"), clienteF, filtrar),
+            hbar(criarBtn, pagarBtn, prepBtn, prontoBtn, atribBtn, entregBtn, cancelBtn),
+            table,
+            new Label("Detalhes do pedido selecionado:"), details
+        );
+    }
+
+    private Map<String, Object> criarPedidoDialog() {
+        Dialog<Map<String, Object>> dlg = dialog("Criar Novo Pedido (J)");
+
+        List<Map<String, Object>> clientes = mockUsers.stream()
+            .filter(u -> "CLIENT".equals(u.get("papel"))).toList();
+        ComboBox<String> clienteBox = new ComboBox<>(FXCollections.observableArrayList(
+            clientes.stream().map(u -> u.get("nome").toString()).toList()));
+        clienteBox.getSelectionModel().selectFirst();
+
+        List<Map<String, Object>> abertos = mockRestaurantes.stream()
+            .filter(r -> "ABERTO".equals(r.get("estado"))).toList();
+        ComboBox<String> restBox = new ComboBox<>(FXCollections.observableArrayList(
+            abertos.stream().map(r -> r.get("nome").toString()).toList()));
+        restBox.getSelectionModel().selectFirst();
+
+        ListView<String> prodList = new ListView<>();
+        prodList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        prodList.setPrefHeight(130);
+
+        Runnable refreshProds = () -> {
+            String rn = restBox.getValue();
+            prodList.setItems(FXCollections.observableArrayList(
+                mockProdutos.stream()
+                    .filter(p -> rn != null && rn.equals(p.get("restNome")) && "Sim".equals(p.get("disponivel")))
+                    .map(p -> p.get("nome") + " — " + p.get("preco") + "€")
+                    .toList()));
         };
+        restBox.setOnAction(e -> refreshProds.run());
+        refreshProds.run();
 
-        task.setOnSucceeded(event -> {
-            RestauranteApiClient.RestaurantSearchResult resultado = task.getValue();
-            restaurantes.setAll(resultado.restaurantes());
-            if (resultado.fallbackUsado()) {
-                statusLabel.setText(resultado.mensagem());
-            } else if (resultado.restaurantes().isEmpty()) {
-                statusLabel.setText("Nenhum restaurante encontrado com os filtros atuais.");
-                detalhesArea.clear();
-            } else {
-                statusLabel.setText(resultado.mensagem());
-            }
+        TextField moradaF = new TextField("Rua Exemplo, 1, Lisboa");
+        Label prodHint = new Label("(Ctrl+Click para selecionar vários)");
+        prodHint.setStyle("-fx-font-size: 10px; -fx-text-fill: #888;");
+
+        GridPane g = formGrid();
+        g.add(lbl("Cliente:"),     0,0); g.add(clienteBox, 1,0);
+        g.add(lbl("Restaurante:"), 0,1); g.add(restBox,    1,1);
+        g.add(lbl("Produtos:"),    0,2); g.add(prodList,   1,2);
+        g.add(new Label(),         0,3); g.add(prodHint,   1,3);
+        g.add(lbl("Morada:"),      0,4); g.add(moradaF,    1,4);
+        dlg.getDialogPane().setContent(g);
+        dlg.getDialogPane().setPrefWidth(480);
+        dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dlg.setResultConverter(b -> {
+            if (b != ButtonType.OK) return null;
+            List<String> selecionados = prodList.getSelectionModel().getSelectedItems();
+            double total = selecionados.stream().mapToDouble(it -> {
+                try { return Double.parseDouble(it.split(" — ")[1].replace("€","")); }
+                catch (Exception ex) { return 0.0; }
+            }).sum();
+            String cNome = clienteBox.getValue();
+            int cId = clientes.stream().filter(u -> u.get("nome").equals(cNome))
+                .findFirst().map(u -> (Integer)u.get("id")).orElse(-1);
+            String rNome = restBox.getValue();
+            Object rId = abertos.stream().filter(r -> r.get("nome").equals(rNome))
+                .findFirst().map(r -> r.get("id")).orElse(-1);
+            return row("clienteNome", cNome, "clienteId", cId,
+                "restNome", rNome, "restId", rId,
+                "estado", "CRIADO", "total", String.format("%.2f", total),
+                "pagamento", "-", "entregador", "-", "morada", moradaF.getText());
         });
 
-        task.setOnFailed(event -> {
-            restaurantes.clear();
-            detalhesArea.clear();
-            Throwable error = task.getException();
-            String message = error == null ? "Erro desconhecido." : error.getMessage();
-            statusLabel.setText("Falha ao contactar o backend: " + message);
-        });
-
-        Thread worker = new Thread(task, "tascaeats-restaurantes-loader");
-        worker.setDaemon(true);
-        worker.start();
-    }
-
-    private void updateDetails(RestauranteResumo restaurante) {
-        if (restaurante == null) {
-            detalhesArea.clear();
-            return;
+        Map<String, Object> result = dlg.showAndWait().orElse(null);
+        if (result != null && "0.00".equals(result.get("total"))) {
+            warn("Selecione pelo menos um produto."); return null;
         }
-
-        StringBuilder details = new StringBuilder();
-        details.append("ID: ").append(restaurante.id() == null ? "-" : restaurante.id()).append('\n');
-        details.append("Nome: ").append(restaurante.nome()).append('\n');
-        details.append("Estado: ").append(restaurante.estado()).append('\n');
-        details.append("Fonte: ").append(apiClient.getBackendUrl()).append("/api/restaurantes");
-
-        detalhesArea.setText(details.toString());
+        return result;
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    // UI helpers
+    // ─────────────────────────────────────────────────────────────────────
+    private Label lbl(String t) { return new Label(t); }
 
-    /**
-     * Classe simples para representar uma linha na tabela de casos de uso.
-     */
+    private Label sectionTitle(String t) {
+        Label l = new Label(t);
+        l.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222;");
+        return l;
+    }
+
+    private Button primaryButton(String t) {
+        Button b = new Button(t);
+        b.setStyle("-fx-font-size: 13px; -fx-padding: 10 28; -fx-background-color: #ff5722; " +
+                   "-fx-text-fill: white; -fx-background-radius: 6;");
+        return b;
+    }
+
+    private Button colorBtn(String text, String color) {
+        Button b = new Button(text);
+        b.setStyle("-fx-padding: 6 10; -fx-background-color: " + color + "; " +
+                   "-fx-text-fill: white; -fx-font-size: 11px;");
+        return b;
+    }
+
+    @SafeVarargs
+    private <T> TableView<T> tableOf(ObservableList<T> items, TableColumn<T,String>... cols) {
+        TableView<T> t = new TableView<>(items);
+        t.getColumns().addAll(cols);
+        t.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        t.setPlaceholder(new Label("Sem dados para mostrar."));
+        VBox.setVgrow(t, Priority.ALWAYS);
+        return t;
+    }
+
+    private TableColumn<Map<String, Object>, String> col(String title, String key) {
+        TableColumn<Map<String, Object>, String> c = new TableColumn<>(title);
+        c.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getOrDefault(key,"").toString()));
+        return c;
+    }
+
+    private GridPane formGrid() {
+        GridPane g = new GridPane();
+        g.setHgap(12); g.setVgap(10);
+        g.setPadding(new Insets(16));
+        g.setStyle("-fx-background-color: white; -fx-background-radius: 8; " +
+                   "-fx-border-color: #ddd; -fx-border-radius: 8;");
+        ColumnConstraints c1 = new ColumnConstraints(110), c2 = new ColumnConstraints(230);
+        g.getColumnConstraints().addAll(c1, c2);
+        return g;
+    }
+
+    private TextField field(String prompt, double w) {
+        TextField f = new TextField(); f.setPromptText(prompt); f.setPrefWidth(w); return f;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> ComboBox<T> combo(T... items) {
+        ComboBox<T> c = new ComboBox<>(FXCollections.observableArrayList(items));
+        c.getSelectionModel().selectFirst(); return c;
+    }
+
+    private Dialog<Map<String, Object>> dialog(String title) {
+        Dialog<Map<String, Object>> d = new Dialog<>();
+        d.setTitle(title); d.initOwner(mainStage); return d;
+    }
+
+    private VBox centeredCard(javafx.scene.Node... nodes) {
+        VBox box = new VBox(12, nodes);
+        box.setPadding(new Insets(24));
+        box.setStyle("-fx-background-color: white; -fx-background-radius: 10; " +
+                     "-fx-border-color: #ddd; -fx-border-radius: 10;");
+        return box;
+    }
+
+    private VBox pane(javafx.scene.Node... nodes) {
+        VBox v = new VBox(10, nodes);
+        v.setPadding(new Insets(20));
+        v.setStyle("-fx-background-color: #f8f9fa;");
+        VBox.setVgrow(v, Priority.ALWAYS);
+        return v;
+    }
+
+    private HBox hbar(javafx.scene.Node... nodes) {
+        HBox h = new HBox(8, nodes);
+        h.setAlignment(Pos.CENTER_LEFT);
+        return h;
+    }
+
+    private Map<String, Object> selected(TableView<Map<String, Object>> t) {
+        Map<String, Object> sel = t.getSelectionModel().getSelectedItem();
+        if (sel == null) warn("Selecione um item da tabela.");
+        return sel;
+    }
+
+    private String s(Map<String, Object> m, String k) {
+        return m == null ? "" : m.getOrDefault(k,"").toString();
+    }
+
+    private Map<String, Object> row(Object... pairs) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        for (int i = 0; i < pairs.length - 1; i += 2) m.put(pairs[i].toString(), pairs[i+1]);
+        return m;
+    }
+
+    private void info(String msg) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.initOwner(mainStage); a.setTitle("Sucesso"); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
+    }
+    private void warn(String msg) {
+        Alert a = new Alert(Alert.AlertType.WARNING);
+        a.initOwner(mainStage); a.setTitle("Aviso"); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
+    }
+    private boolean confirm(String msg) {
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+        a.initOwner(mainStage); a.setTitle("Confirmar"); a.setHeaderText(null); a.setContentText(msg);
+        return a.showAndWait().map(b -> b == ButtonType.OK).orElse(false);
+    }
+
+    private void ok(Label l, String msg) { l.setStyle("-fx-text-fill: #388e3c; -fx-font-size: 13px;"); l.setText(msg); }
+    private void err(Label l, String msg) { l.setStyle("-fx-text-fill: #c62828; -fx-font-size: 13px;"); l.setText(msg); }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Legacy inner class kept for compatibility
+    // ─────────────────────────────────────────────────────────────────────
     public static class UseCaseRow {
-        public String id;
-        public String descricao;
-        public String web;
-        public String native_;
-
+        public String id, descricao, web, native_;
         public UseCaseRow(String id, String descricao, String web, String native_) {
-            this.id = id;
-            this.descricao = descricao;
-            this.web = web;
-            this.native_ = native_;
+            this.id=id; this.descricao=descricao; this.web=web; this.native_=native_;
         }
     }
 }
-
-
-
