@@ -261,15 +261,15 @@ public class WebRestauranteController {
 
         return switch (nome) {
             case "bitoque" -> "Ovos";
-            case "super bock 33cl" -> "Gluten";
-            case "pastel de nata" -> "Gluten, ovos, leite";
-            case "combinado sushi 15 peças", "combinado sushi 15 pecas" -> "Peixe, soja, gluten, sesamo";
+            case "super bock 33cl" -> "Glúten";
+            case "pastel de nata" -> "Glúten, ovos, leite";
+            case "combinado sushi 15 peças", "combinado sushi 15 pecas" -> "Peixe, soja, glúten, sésamo";
             case "chá verde", "cha verde" -> "Nenhum indicado";
-            case "gyoza" -> "Gluten, soja, sesamo";
-            case "margherita" -> "Gluten, leite";
-            case "portuguesa pizza" -> "Gluten, leite, ovos";
+            case "gyoza" -> "Glúten, soja, sésamo";
+            case "margherita" -> "Glúten, leite";
+            case "portuguesa pizza" -> "Glúten, leite, ovos";
             case "coca-cola 33cl" -> "Nenhum indicado";
-            case "burger veg" -> "Gluten, soja";
+            case "burger veg" -> "Glúten, soja";
             case "salada mix" -> "Nenhum indicado";
             default -> "A confirmar";
         };
