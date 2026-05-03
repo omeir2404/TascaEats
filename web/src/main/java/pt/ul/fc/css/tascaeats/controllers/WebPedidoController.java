@@ -255,6 +255,18 @@ public class WebPedidoController {
                 .findFirst();
 
         if (pedido.isPresent()) {
+            Object detalheError = session.getAttribute("pedidoDetalheError");
+            if (detalheError != null) {
+                model.addAttribute("error", detalheError.toString());
+                session.removeAttribute("pedidoDetalheError");
+            }
+
+            Object detalheSuccess = session.getAttribute("pedidoDetalheSuccess");
+            if (detalheSuccess != null) {
+                model.addAttribute("success", detalheSuccess.toString());
+                session.removeAttribute("pedidoDetalheSuccess");
+            }
+
             model.addAttribute("pedido", normalizePedido(pedido.get()));
             return "pedido_detalhe";
         }
@@ -281,11 +293,48 @@ public class WebPedidoController {
     public String avaliarRestaurante(
             @PathVariable Long id,
             @RequestParam Integer pontuacao,
-            @RequestParam String comentario) {
+            @RequestParam String comentario,
+            HttpSession session) {
 
-        if (pontuacao == null || comentario == null) {
+        if (pontuacao == null || comentario == null || comentario.trim().isEmpty()) {
+            session.setAttribute("pedidoDetalheError", "Preencha pontuação e comentário para submeter a avaliação.");
             return "redirect:/pedidos/" + id;
         }
+
+        Long clienteId = getLoggedClientId(session);
+        if (clienteId == null) {
+            return "redirect:/login";
+        }
+
+        Map<String, Object> pedido = getPedidosDoCliente(clienteId).stream()
+                .filter(p -> id.equals(toLong(p.get("id"))))
+                .findFirst()
+                .orElse(null);
+        if (pedido == null) {
+            session.setAttribute("pedidoDetalheError", "Pedido não encontrado para o cliente autenticado.");
+            return "redirect:/pedidos/" + id;
+        }
+
+        Long restauranteId = getFirstRestaurantIdFromPedido(pedido);
+        if (restauranteId == null) {
+            session.setAttribute("pedidoDetalheError", "Não foi possível identificar o restaurante deste pedido.");
+            return "redirect:/pedidos/" + id;
+        }
+
+        try {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("classificacao", pontuacao);
+            payload.put("comentario", comentario.trim());
+            payload.put("clienteId", clienteId);
+            payload.put("restauranteId", restauranteId);
+            payload.put("pedidoId", id);
+
+            restTemplate.postForEntity(backendUrl + "/avaliacoes", payload, String.class);
+            session.setAttribute("pedidoDetalheSuccess", "Avaliação submetida com sucesso.");
+        } catch (Exception e) {
+            session.setAttribute("pedidoDetalheError", "Não foi possível submeter a avaliação: " + e.getMessage());
+        }
+
         return "redirect:/pedidos/" + id;
     }
 
@@ -570,10 +619,82 @@ public class WebPedidoController {
         normalized.put("restauranteNome", restauranteId != null ? fetchRestaurantName(restauranteId) : "Restaurante");
         normalized.put("total", toDouble(pedido.get("valorTotal")));
         normalized.put("estado", pedido.getOrDefault("estado", "PENDING"));
-        normalized.put("entregador", "A definir");
+        normalized.put("entregador", fetchCourierNameForPedido(toLong(pedido.get("id"))));
         normalized.put("data", dataComHora);
-        normalized.put("avaliado", false);
+        Long pedidoId = toLong(pedido.get("id"));
+        normalized.put("avaliado", isPedidoAvaliado(pedidoId));
+        normalized.put("avaliacao", fetchAvaliacaoForPedido(pedidoId));
         return normalized;
+    }
+
+    private boolean isPedidoAvaliado(Long pedidoId) {
+        if (pedidoId == null) {
+            return false;
+        }
+
+        try {
+            Map<String, Object> result = restTemplate.getForObject(backendUrl + "/avaliacoes/pedido/" + pedidoId + "/existe", Map.class);
+            if (result == null) {
+                return false;
+            }
+            Object avaliado = result.get("avaliado");
+            if (avaliado instanceof Boolean value) {
+                return value;
+            }
+            return Boolean.parseBoolean(String.valueOf(avaliado));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Long getFirstRestaurantIdFromPedido(Map<String, Object> pedido) {
+        if (pedido == null) {
+            return null;
+        }
+
+        Object restaurantesIds = pedido.get("restaurantesIds");
+        if (restaurantesIds instanceof List<?> ids && !ids.isEmpty()) {
+            try {
+                return toLong(ids.get(0));
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    private String fetchCourierNameForPedido(Long pedidoId) {
+        if (pedidoId == null) {
+            return "A definir";
+        }
+
+        try {
+            Map<String, Object> entrega = restTemplate.getForObject(backendUrl + "/entregas/pedido/" + pedidoId, Map.class);
+            if (entrega == null) {
+                return "A definir";
+            }
+
+            Object entregadorNome = entrega.get("entregadorNome");
+            if (entregadorNome == null) {
+                return "A definir";
+            }
+
+            String entregadorIdText = String.valueOf(entregadorNome).trim();
+            if (entregadorIdText.isEmpty()) {
+                return "A definir";
+            }
+
+            Map<String, Object> user = restTemplate.getForObject(backendUrl + "/api/Utilizadors/" + entregadorIdText, Map.class);
+            if (user == null) {
+                return entregadorIdText;
+            }
+
+            Object name = user.get("name");
+            return name == null ? entregadorIdText : String.valueOf(name);
+        } catch (Exception e) {
+            return "A definir";
+        }
     }
 
     private String fetchRestaurantName(Long restauranteId) {
@@ -585,6 +706,18 @@ public class WebPedidoController {
             return String.valueOf(restaurante.getOrDefault("nome", "Restaurante #" + restauranteId));
         } catch (Exception e) {
             return "Restaurante #" + restauranteId;
+        }
+    }
+
+    private Map<String, Object> fetchAvaliacaoForPedido(Long pedidoId) {
+        if (pedidoId == null) {
+            return null;
+        }
+        try {
+            Map<String, Object> avaliacao = restTemplate.getForObject(backendUrl + "/avaliacoes/pedido/" + pedidoId, Map.class);
+            return avaliacao;
+        } catch (Exception e) {
+            return null;
         }
     }
 
