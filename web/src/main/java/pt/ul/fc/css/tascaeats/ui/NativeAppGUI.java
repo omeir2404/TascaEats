@@ -1039,13 +1039,23 @@ public class NativeAppGUI extends Application {
     }
 
     private String s(Map<String, Object> m, String k) {
-        return m == null ? "" : m.getOrDefault(k,"").toString();
+        return m == null ? "" : Objects.toString(m.getOrDefault(k, ""), "");
     }
 
     private Map<String, Object> row(Object... pairs) {
         Map<String, Object> m = new LinkedHashMap<>();
         for (int i = 0; i < pairs.length - 1; i += 2) m.put(pairs[i].toString(), pairs[i+1]);
         return m;
+    }
+
+    private Long toLong(Object v) {
+        if (v instanceof Number n) return n.longValue();
+        try { return Long.parseLong(Objects.toString(v, "-1")); } catch (NumberFormatException e) { return -1L; }
+    }
+
+    private double toDouble(Object v) {
+        if (v instanceof Number n) return n.doubleValue();
+        try { return Double.parseDouble(Objects.toString(v, "0")); } catch (NumberFormatException e) { return 0.0; }
     }
 
     private void info(String msg) {
@@ -1065,35 +1075,15 @@ public class NativeAppGUI extends Application {
     private void ok(Label l, String msg) { l.setStyle("-fx-text-fill: #388e3c; -fx-font-size: 13px;"); l.setText(msg); }
     private void err(Label l, String msg) { l.setStyle("-fx-text-fill: #c62828; -fx-font-size: 13px;"); l.setText(msg); }
 
-    /**
-     * Converte o papel GUI (CLIENT, ADMIN, COURIER) para o tipo de utilizador da API (Cliente, Admin, Entregador).
-     */
     private String mapPapelToTipo(String papel) {
-        if (papel == null) return "Cliente";
         return switch (papel) {
-            case "CLIENT" -> "Cliente";
-            case "ADMIN" -> "Admin";
-            case "COURIER" -> "Entregador";
-            default -> "Cliente";
+            case "ADMIN"  -> "Admin";
+            case "COURIER"-> "Entregador";
+            default       -> "Cliente";
         };
     }
 
-    /**
-     * Converte o tipo de utilizador da API (Cliente, Admin, Entregador) para papel GUI (CLIENT, ADMIN, COURIER).
-     */
-    private String mapTipoToRole(String tipo) {
-        if (tipo == null) return "CLIENT";
-        return switch (tipo) {
-            case "Cliente" -> "CLIENT";
-            case "Admin" -> "ADMIN";
-            case "Entregador" -> "COURIER";
-            default -> "CLIENT";
-        };
-    }
-
-    // ─────────────────────────────────────────────────────────────────────
-    // Legacy inner class kept for compatibility
-    // ─────────────────────────────────────────────────────────────────────
+    // kept for compatibility
     public static class UseCaseRow {
         public String id, descricao, web, native_;
         public UseCaseRow(String id, String descricao, String web, String native_) {
