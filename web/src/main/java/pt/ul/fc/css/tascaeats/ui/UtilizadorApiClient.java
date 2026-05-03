@@ -31,9 +31,11 @@ public class UtilizadorApiClient {
     private final RestTemplate restTemplate;
     private final String backendUrl;
 
+    // ── Constructor ───────────────────────────────────────────────────────
+
     public UtilizadorApiClient(RestTemplate restTemplate, String backendUrl) {
         this.restTemplate = restTemplate;
-        this.backendUrl = normalizeBackendUrl(backendUrl);
+        this.backendUrl   = normalizeUrl(backendUrl);
     }
 
     public String getBackendUrl() {
@@ -90,12 +92,11 @@ public class UtilizadorApiClient {
         }
     }
 
+    // ── D: Listar, editar e remover utilizadores ──────────────────────────
+
     /**
-     * Fazer login de um utilizador.
-     *
-     * @param email Email do utilizador
-     * @param password Password do utilizador
-     * @return LoginResult indicando sucesso ou falha
+     * GET /api/Utilizadors — returns list normalized to GUI keys
+     * (id, nome, email, papel, ativo, password="")
      */
     public LoginResult login(String email, String password) {
         try {
@@ -156,22 +157,9 @@ public class UtilizadorApiClient {
         return value;
     }
 
-    public List<Map<String, Object>> listarUtilizadores() {
-        try {
-            ResponseEntity<List> response = restTemplate.getForEntity(
-                    baseUrl + "/api/Utilizadors", List.class);
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                return (List<Map<String, Object>>) response.getBody();
-            }
-        } catch (Exception e) {
-            // backend unavailable, fallback to mock
-        }
-        return List.of();
+    private String normalizeUrl(String raw) {
+        String v = (raw == null || raw.isBlank()) ? "http://localhost:8080" : raw.trim();
+        while (v.endsWith("/")) v = v.substring(0, v.length() - 1);
+        return v;
     }
-
 }
-
-
-
-
-
