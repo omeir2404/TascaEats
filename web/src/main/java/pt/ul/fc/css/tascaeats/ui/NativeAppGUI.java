@@ -246,76 +246,71 @@ public class NativeAppGUI extends Application {
             col("Papel", "papel"), col("Ativo", "ativo")
         );
 
-        TextField  searchF  = field("Filtrar por nome...", 180);
-        ComboBox<String> papelBox = combo("Todos","CLIENT","ADMIN","COURIER");
-        Button filtrar = new Button("Filtrar");
-        filtrar.setOnAction(e -> {
+        TextField       searchF  = field("Filtrar por nome...", 180);
+        ComboBox<String> papelBox = combo("Todos", "CLIENT", "ADMIN", "COURIER");
+
+        Runnable applyFilter = () -> {
             String q = searchF.getText().toLowerCase();
             String p = papelBox.getValue();
-            display.setAll(mockUsers.stream()
-                .filter(u -> q.isBlank() || u.get("nome").toString().toLowerCase().contains(q))
-                .filter(u -> "Todos".equals(p) || p.equals(u.get("papel")))
+            display.setAll(users.stream()
+                .filter(u -> q.isBlank() || s(u, "nome").toLowerCase().contains(q))
+                .filter(u -> "Todos".equals(p) || p.equals(s(u, "papel")))
                 .toList());
-        });
+        };
+        Button filtrar = new Button("Filtrar");
+        filtrar.setOnAction(e -> applyFilter.run());
 
-        Button criarBtn   = colorBtn("+ Registar",  "#4caf50");
-        Button editarBtn  = colorBtn("✎ Editar",     "#2196f3");
-        Button removerBtn = colorBtn("✕ Remover",   "#f44336");
+        // Only ADMIN and COURIER can be registered here (use case C)
+        Button criarBtn   = colorBtn("+ Registar Admin/Entregador", "#4caf50");
+        Button editarBtn  = colorBtn("✎ Editar",   "#2196f3");
+        Button removerBtn = colorBtn("✕ Remover",  "#f44336");
+
+        boolean isAdmin = currentUser != null && "ADMIN".equals(s(currentUser, "papel"));
+        editarBtn.setDisable(!isAdmin);
+        removerBtn.setDisable(!isAdmin);
 
         criarBtn.setOnAction(e -> {
             Map<String, Object> novo = userDialog(null);
-            if (novo != null) {
-                // Tentar registar no backend (com fallback para mock)
-                String nome = novo.get("nome").toString();
-                String email = novo.get("email").toString();
-                String password = novo.get("password").toString();
-                String papel = novo.get("papel").toString();
-
-                // Converter papel GUI (CLIENT, ADMIN, COURIER) para tipo API (Cliente, Admin, Entregador)
-                String tipo = mapPapelToTipo(papel);
-
-                // Fazer o registo via API (com fallback automático se backend indisponível)
-                UtilizadorApiClient.RegistoResult result = utilizadorApiClient.registarUtilizador(nome, email, password, tipo);
-
-                // Usar o ID devolvido pelo backend ou o mock
-                novo.put("id", result.id() != null ? result.id() : nextUserId++);
-                mockUsers.add(novo);
-                display.setAll(mockUsers);
-
-                // Mostrar mensagem com indicação se foi fallback ou sucesso
-                if (result.fallbackUsado()) {
-                    warn("⚠ " + result.mensagem());
-                } else {
-                    info("✓ " + result.mensagem());
-                }
+            if (novo == null) return;
+            String papel = s(novo, "papel");
+            if ("CLIENT".equals(papel)) { warn("Use Case C: só pode registar Admins e Entregadores aqui."); return; }
+            String tipo = mapPapelToTipo(papel);
+            UtilizadorApiClient.RegistoResult res = utilizadorClient.registarUtilizador(
+                s(novo, "nome"), s(novo, "email"), s(novo, "password"), tipo);
+            if (res.fallbackUsado()) {
+                warn("⚠ " + res.mensagem());
+            } else if (res.id() != null) {
+                info("✓ " + res.mensagem());
+                syncUsers(applyFilter);
+            } else {
+                warn("✗ " + res.mensagem());
             }
         });
-        if(currentUser != null && !currentUser.get("papel").equals("CLIENT")) {
-            criarBtn.setDisable(false);
-            editarBtn.setDisable(false);
-            removerBtn.setDisable(false);
-        } else {
-            editarBtn.setDisable(true);
-            removerBtn.setDisable(true);
-        }
+
         editarBtn.setOnAction(e -> {
             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
             if (sel == null) { warn("Selecione um utilizador."); return; }
             Map<String, Object> edited = userDialog(sel);
-            if (edited != null) { sel.putAll(edited); display.setAll(mockUsers); table.refresh(); }
+            if (edited == null) return;
+            UtilizadorApiClient.SimpleResult res = utilizadorClient.atualizarUtilizador(
+                sel.get("id"), s(edited, "nome"), s(edited, "email"), s(edited, "password"));
+            if (res.sucesso()) { info("✓ " + res.mensagem()); syncUsers(applyFilter); }
+            else                { warn("✗ " + res.mensagem()); }
         });
-         removerBtn.setOnAction(e -> {
-             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
-             if (sel == null) { warn("Selecione um utilizador."); return; }
-             if (confirm("Remover " + sel.get("nome") + "?")) {
-                 mockUsers.remove(sel); display.setAll(mockUsers);
-             }
-         });
 
-         userStatusLabel = new Label("Modo demo — backend não consultado.");
-         userStatusLabel.setStyle("-fx-text-fill: #aaa; -fx-font-size: 10px;");
+        removerBtn.setOnAction(e -> {
+            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
+            if (sel == null) { warn("Selecione um utilizador."); return; }
+            if (!confirm("Remover " + s(sel, "nome") + "?")) return;
+            UtilizadorApiClient.SimpleResult res = utilizadorClient.removerUtilizador(sel.get("id"));
+            if (res.sucesso()) { info("✓ " + res.mensagem()); syncUsers(applyFilter); }
+            else                { warn("✗ " + res.mensagem()); }
+        });
 
-         Platform.runLater(this::syncUtilizadoresFromBackend);
+        userStatusLabel = statusLabel("A carregar utilizadores...");
+
+        // initial load
+        syncUsers(applyFilter);
 
          return pane(sectionTitle("B/C/D – Gestão de Utilizadores"),
              hbar(lbl("Nome:"), searchF, lbl("Papel:"), papelBox, filtrar),
@@ -324,17 +319,29 @@ public class NativeAppGUI extends Application {
              userStatusLabel
          );
      }
+        return pane(sectionTitle("C/D – Gestão de Utilizadores"),
+            hbar(lbl("Nome:"), searchF, lbl("Papel:"), papelBox, filtrar),
+            hbar(criarBtn, editarBtn, removerBtn),
+            table, userStatusLabel);
+    }
+
+    private void syncUsers(Runnable afterUpdate) {
+        bg(() -> utilizadorClient.listarUtilizadores(), result -> {
+            users.setAll(result);
+            if (afterUpdate != null) afterUpdate.run();
+            setStatus(userStatusLabel,
+                result.isEmpty() ? "⚠ Sem dados (backend indisponível?)" : "✓ " + result.size() + " utilizadores carregados.");
+        });
+    }
 
     private Map<String, Object> userDialog(Map<String, Object> ex) {
         Dialog<Map<String, Object>> dlg = dialog(ex == null ? "Registar Utilizador" : "Editar Utilizador");
 
-        TextField    nomeF  = new TextField(s(ex,"nome"));
-        TextField    emailF = new TextField(s(ex,"email"));
-        PasswordField passF = new PasswordField(); passF.setText(s(ex,"password"));
-        ComboBox<String> papelBox = combo("CLIENT","ADMIN","COURIER");
-        papelBox.setValue(ex != null ? s(ex,"papel") : "CLIENT");
-        ComboBox<String> ativoBox = combo("Sim","Não");
-        ativoBox.setValue(ex != null ? s(ex,"ativo") : "Sim");
+        TextField     nomeF  = new TextField(s(ex, "nome"));
+        TextField     emailF = new TextField(s(ex, "email"));
+        PasswordField passF  = new PasswordField();
+        ComboBox<String> papelBox = combo("ADMIN", "COURIER");
+        if (ex != null) papelBox.setValue(s(ex, "papel"));
 
         GridPane g = formGrid();
         g.add(lbl("Nome:"),     0,0); g.add(nomeF,    1,0);
@@ -346,9 +353,10 @@ public class NativeAppGUI extends Application {
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         dlg.setResultConverter(b -> b == ButtonType.OK ? row(
-            "nome", nomeF.getText().trim(), "email", emailF.getText().trim(),
-            "password", passF.getText().isBlank() && ex != null ? s(ex,"password") : passF.getText().trim(),
-            "papel", papelBox.getValue(), "ativo", ativoBox.getValue()
+            "nome",     nomeF.getText().trim(),
+            "email",    emailF.getText().trim(),
+            "password", passF.getText().trim(),
+            "papel",    papelBox.getValue()
         ) : null);
         return dlg.showAndWait().orElse(null);
     }
