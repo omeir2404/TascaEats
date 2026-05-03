@@ -417,16 +417,7 @@ public class NativeAppGUI extends Application {
                     rest.exchange(BACKEND + "/api/restaurantes/" + sel.get("id") + "/estado",
                             HttpMethod.PATCH, entity, Map.class);
                     syncRestaurantes(applyFilter);
-                } catch (Exception ex) {
-                    // fallback: try PUT if PATCH not available
-                    try {
-                        Map<String, Object> payload = new LinkedHashMap<>(sel);
-                        payload.put("estado", st);
-                        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
-                        rest.exchange(BACKEND + "/api/restaurantes/" + sel.get("id"), HttpMethod.PUT, entity, Map.class);
-                        syncRestaurantes(applyFilter);
-                    } catch (Exception ex2) { warn("✗ Erro ao alterar estado: " + ex2.getMessage()); }
-                }
+                } catch (Exception ex) { warn("✗ Erro ao alterar estado: " + ex.getMessage()); }
             });
         });
 
@@ -487,35 +478,61 @@ public class NativeAppGUI extends Application {
     }
 
     private Map<String, Object> buildRestaurantePayload(Map<String, Object> form) {
+        // CriarRestauranteDTO / AtualizarRestauranteDTO: required fields are nome, nif, morada
+        // estado and tipoRestaurante are NOT part of these DTOs
+        Map<String, Object> morada = new LinkedHashMap<>();
+        morada.put("rua",          s(form, "rua").isBlank()    ? "Rua Principal" : s(form, "rua"));
+        morada.put("numero",       form.get("numero") != null  ? ((Number)form.get("numero")).intValue() : 1);
+        morada.put("complemento",  s(form, "complemento"));
+        morada.put("codigoPostal", s(form, "codigoPostal").isBlank() ? "1000-001" : s(form, "codigoPostal"));
+        morada.put("cidade",       s(form, "cidade").isBlank() ? "Lisboa" : s(form, "cidade"));
+        morada.put("distrito",     s(form, "distrito").isBlank() ? "Lisboa" : s(form, "distrito"));
+        morada.put("pais",         s(form, "pais").isBlank()   ? "Portugal" : s(form, "pais"));
+
         Map<String, Object> p = new LinkedHashMap<>();
-        p.put("nome",            s(form, "nome"));
-        p.put("nif",             s(form, "nif"));
-        p.put("estado",          s(form, "estado"));
-        p.put("tipoRestaurante", s(form, "tipo").isBlank() ? "OUTRO" : s(form, "tipo"));
+        p.put("nome",   s(form, "nome"));
+        p.put("nif",    s(form, "nif"));
+        p.put("morada", morada);
         return p;
     }
 
     private Map<String, Object> restauranteDialog(Map<String, Object> ex) {
         Dialog<Map<String, Object>> dlg = dialog(ex == null ? "Criar Restaurante" : "Editar Restaurante");
-        TextField nomeF  = new TextField(s(ex, "nome"));
-        TextField nifF   = new TextField(s(ex, "nif"));
-        ComboBox<String> tipoBox  = combo("OUTRO", "PORTUGUES", "ITALIANO", "JAPONES", "HAMBURGUERIA", "CHINES", "VEGETARIANA");
-        tipoBox.setValue(ex != null && !s(ex, "tipo").isBlank() ? s(ex, "tipo") : "OUTRO");
-        ComboBox<String> estBox  = combo("ABERTO", "FECHADO", "RESERVADO");
-        estBox.setValue(ex != null ? s(ex, "estado") : "ABERTO");
+        TextField nomeF         = new TextField(s(ex, "nome"));
+        TextField nifF          = new TextField(s(ex, "nif"));
+        TextField ruaF          = new TextField(s(ex, "rua"));
+        TextField numF          = new TextField(ex != null ? String.valueOf(ex.getOrDefault("numero", "1")) : "1");
+        TextField cpF           = new TextField(s(ex, "codigoPostal"));
+        TextField cidadeF       = new TextField(s(ex, "cidade"));
+        TextField distritoF     = new TextField(s(ex, "distrito"));
 
         GridPane g = formGrid();
-        g.add(lbl("Nome:"),   0, 0); g.add(nomeF,   1, 0);
-        g.add(lbl("NIF:"),    0, 1); g.add(nifF,    1, 1);
-        g.add(lbl("Tipo:"),   0, 2); g.add(tipoBox, 1, 2);
-        g.add(lbl("Estado:"), 0, 3); g.add(estBox,  1, 3);
+        g.add(lbl("Nome:"),         0, 0); g.add(nomeF,     1, 0);
+        g.add(lbl("NIF:"),          0, 1); g.add(nifF,      1, 1);
+        g.add(lbl("Rua:"),          0, 2); g.add(ruaF,      1, 2);
+        g.add(lbl("Número:"),       0, 3); g.add(numF,      1, 3);
+        g.add(lbl("Cód. Postal:"),  0, 4); g.add(cpF,       1, 4);
+        g.add(lbl("Cidade:"),       0, 5); g.add(cidadeF,   1, 5);
+        g.add(lbl("Distrito:"),     0, 6); g.add(distritoF, 1, 6);
         dlg.getDialogPane().setContent(g);
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        dlg.setResultConverter(b -> b == ButtonType.OK ? row(
-                "nome", nomeF.getText().trim(), "nif", nifF.getText().trim(),
-                "tipo", tipoBox.getValue(), "estado", estBox.getValue()
-        ) : null);
+        dlg.setResultConverter(b -> {
+            if (b != ButtonType.OK) return null;
+            int num = 1;
+            try { num = Integer.parseInt(numF.getText().trim()); } catch (NumberFormatException ignored) {}
+            return row(
+                    "nome",        nomeF.getText().trim(),
+                    "nif",         nifF.getText().trim(),
+                    "rua",         ruaF.getText().trim(),
+                    "numero",      num,
+                    "codigoPostal",cpF.getText().trim(),
+                    "cidade",      cidadeF.getText().trim(),
+                    "distrito",    distritoF.getText().trim(),
+                    "pais",        "Portugal",
+                    "complemento", ""
+            );
+        });
         return dlg.showAndWait().orElse(null);
     }
 
@@ -596,7 +613,8 @@ public class NativeAppGUI extends Application {
             Map<String, Object> edited = produtoDialog(sel, null);
             if (edited == null) return;
             try {
-                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(buildProdutoPayload(edited));
+                // AtualizarProdutoDTO requires: {id, nome, preco, descricao}
+                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(buildAtualizarProdutoPayload(edited, sel.get("id")));
                 rest.exchange(BACKEND + "/api/produtos/" + sel.get("id"), HttpMethod.PUT, entity, Map.class);
                 info("✓ Produto atualizado.");
                 syncProdutos(toLong(sel.get("restId")), applyFilter);
@@ -606,18 +624,16 @@ public class NativeAppGUI extends Application {
         dispBtn.setOnAction(e -> {
             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
             if (sel == null) { warn("Selecione um produto."); return; }
+            // AtualizarDisponibilidadeProdutoDTO: {disponivel: boolean}
             boolean novaDisp = "Não".equals(s(sel, "disponivel"));
             try {
                 Map<String, Object> payload = Map.of("disponivel", novaDisp);
                 HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
                 rest.exchange(BACKEND + "/api/produtos/" + sel.get("id") + "/disponibilidade",
                         HttpMethod.PATCH, entity, Map.class);
+                info("✓ Disponibilidade atualizada.");
                 syncProdutos(toLong(sel.get("restId")), applyFilter);
-            } catch (Exception ex) {
-                // fallback: toggle locally if endpoint doesn't exist
-                sel.put("disponivel", novaDisp ? "Sim" : "Não");
-                table.refresh();
-            }
+            } catch (Exception ex) { warn("✗ Erro ao atualizar disponibilidade: " + ex.getMessage()); }
         });
 
         apagarBtn.setOnAction(e -> {
@@ -634,7 +650,8 @@ public class NativeAppGUI extends Application {
         Button voltarBtn = new Button("← Voltar a Restaurantes");
         voltarBtn.setOnAction(e -> showRestaurantesPane());
 
-        prodStatusLabel = statusLabel("Selecione um restaurante para carregar produtos.");
+       Malta quando é que vai sair o email do traçar?
+ prodStatusLabel = statusLabel("Selecione um restaurante para carregar produtos.");
 
         // initial load
         if (restFilter != null) syncProdutos(toLong(restFilter.get("id")), applyFilter);
@@ -684,12 +701,21 @@ public class NativeAppGUI extends Application {
     }
 
     private Map<String, Object> buildProdutoPayload(Map<String, Object> form) {
+        // CriarProdutoDTO: {nome, preco, descricao} — no categoria, no disponivel, no restauranteId in body
         Map<String, Object> p = new LinkedHashMap<>();
-        p.put("nome",          s(form, "nome"));
-        p.put("preco",         toDouble(form.get("preco")));
-        p.put("categoria",     s(form, "categoria"));
-        p.put("disponivel",    "Sim".equals(s(form, "disponivel")));
-        p.put("restauranteId", form.get("restId"));
+        p.put("nome",     s(form, "nome"));
+        p.put("preco",    toDouble(form.get("preco")));
+        p.put("descricao", s(form, "descricao").isBlank() ? s(form, "nome") : s(form, "descricao"));
+        return p;
+    }
+
+    private Map<String, Object> buildAtualizarProdutoPayload(Map<String, Object> form, Object id) {
+        // AtualizarProdutoDTO: {id, nome, preco, descricao}
+        Map<String, Object> p = new LinkedHashMap<>();
+        p.put("id",       id);
+        p.put("nome",     s(form, "nome"));
+        p.put("preco",    toDouble(form.get("preco")));
+        p.put("descricao", s(form, "descricao").isBlank() ? s(form, "nome") : s(form, "descricao"));
         return p;
     }
 
@@ -705,17 +731,13 @@ public class NativeAppGUI extends Application {
 
         TextField nomeF  = new TextField(s(ex, "nome"));
         TextField precoF = new TextField(ex != null ? String.valueOf(ex.getOrDefault("preco", "")) : "");
-        ComboBox<String> catBox  = combo("PRATO", "BEBIDA", "SOBREMESA", "ENTRADA");
-        if (ex != null) catBox.setValue(s(ex, "categoria"));
-        ComboBox<String> dispBox = combo("Sim", "Não");
-        if (ex != null) dispBox.setValue(s(ex, "disponivel"));
+        TextField descF  = new TextField(s(ex, "descricao")); descF.setPromptText("Descrição do produto");
 
         GridPane g = formGrid();
         g.add(lbl("Restaurante:"), 0, 0); g.add(restBox, 1, 0);
         g.add(lbl("Nome:"),        0, 1); g.add(nomeF,   1, 1);
         g.add(lbl("Preço (€):"),   0, 2); g.add(precoF,  1, 2);
-        g.add(lbl("Categoria:"),   0, 3); g.add(catBox,  1, 3);
-        g.add(lbl("Disponível:"),  0, 4); g.add(dispBox, 1, 4);
+        g.add(lbl("Descrição:"),   0, 3); g.add(descF,   1, 3);
         dlg.getDialogPane().setContent(g);
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
@@ -725,8 +747,9 @@ public class NativeAppGUI extends Application {
             Object rid = restaurantes.stream().filter(r -> s(r, "nome").equals(rn))
                     .findFirst().map(r -> r.get("id")).orElse(-1);
             return row("restId", rid, "restNome", rn,
-                    "nome", nomeF.getText().trim(), "preco", precoF.getText().trim(),
-                    "categoria", catBox.getValue(), "disponivel", dispBox.getValue());
+                    "nome",     nomeF.getText().trim(),
+                    "preco",    precoF.getText().trim(),
+                    "descricao",descF.getText().trim());
         });
         return dlg.showAndWait().orElse(null);
     }
@@ -753,7 +776,7 @@ public class NativeAppGUI extends Application {
                             "\nEntregador: " + n.get("entregador"));
         });
 
-        ComboBox<String> estadoBox = combo("Todos", "CRIADO", "PAGO", "PREPARACAO", "PRONTO_PARA_ENTREGA", "ENTREGUE", "CANCELADO");
+        ComboBox<String> estadoBox = combo("Todos", "CRIADO", "PAGO", "A_PREPARAR", "PRONTO_PARA_ENTREGA", "ATRIBUIDO_ENTREGADOR", "ENTREGUE", "CANCELADO");
         TextField clienteF = field("Filtrar por cliente...", 160);
 
         Runnable applyFilter = () -> {
@@ -787,7 +810,17 @@ public class NativeAppGUI extends Application {
             cd.setTitle("Processar Pagamento"); cd.setHeaderText("Método de pagamento:"); cd.initOwner(mainStage);
             cd.showAndWait().ifPresent(metodo -> {
                 try {
-                    Map<String, Object> payload = Map.of("pedidoId", sel.get("id"), "tipoPagamento", metodo);
+                    // ProcessarPagamentoDTO: pedidoId, tipoPagamento, detalhes (required map)
+                    Map<String, Object> detalhes = new LinkedHashMap<>();
+                    if ("MBWAY".equals(metodo))      detalhes.put("numeroMbway", "910000000");
+                    else if ("MULTIBANCO".equals(metodo)) { detalhes.put("entidade", "11111"); detalhes.put("referencia", "123456789"); }
+                    else                             detalhes.put("valorTroco", 0.0);
+
+                    Map<String, Object> payload = new LinkedHashMap<>();
+                    payload.put("pedidoId",      toLong(sel.get("id")));
+                    payload.put("tipoPagamento", metodo);
+                    payload.put("detalhes",      detalhes);
+
                     rest.postForEntity(BACKEND + "/pagamentos", payload, Map.class);
                     info("✓ Pagamento via " + metodo + " processado.");
                     syncPedidos(applyFilter);
@@ -807,10 +840,9 @@ public class NativeAppGUI extends Application {
             } catch (Exception ex) { warn("✗ Erro ao iniciar preparação: " + ex.getMessage()); }
         });
 
-        // L – mark ready: PATCH /entregas/pedido/{id}/marcar-pronto
         prontoBtn.setOnAction(e -> {
             Map<String, Object> sel = selected(table); if (sel == null) return;
-            if (!"PREPARACAO".equals(s(sel, "estado"))) { warn("Só pedidos em PREPARACAO podem ser marcados prontos."); return; }
+            if (!"A_PREPARAR".equals(s(sel, "estado"))) { warn("Só pedidos em A_PREPARAR podem ser marcados prontos."); return; }
             try {
                 rest.exchange(BACKEND + "/entregas/pedido/" + sel.get("id") + "/marcar-pronto",
                         HttpMethod.PATCH, HttpEntity.EMPTY, Object.class);
@@ -1102,13 +1134,5 @@ public class NativeAppGUI extends Application {
             case "COURIER"-> "Entregador";
             default       -> "Cliente";
         };
-    }
-
-    // kept for compatibility
-    public static class UseCaseRow {
-        public String id, descricao, web, native_;
-        public UseCaseRow(String id, String descricao, String web, String native_) {
-            this.id = id; this.descricao = descricao; this.web = web; this.native_ = native_;
-        }
     }
 }
