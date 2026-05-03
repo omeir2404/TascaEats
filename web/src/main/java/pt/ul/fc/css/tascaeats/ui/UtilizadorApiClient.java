@@ -58,14 +58,11 @@ public class UtilizadorApiClient {
         }
     }
 
+    // ── C: Registar utilizador ────────────────────────────────────────────
+
     /**
-     * Registar um utilizador no backend.
-     *
-     * @param nome Nome completo do utilizador
-     * @param email Email (único)
-     * @param password Password
-     * @param tipo Tipo: "Cliente" ou "Entregador"
-     * @return RegistoResult com id do utilizador criado
+     * POST /api/register
+     * tipo must be one of: "Cliente", "Admin", "Entregador"
      */
     public RegistoResult registarUtilizador(String nome, String email, String password, String tipo) {
         try {
@@ -76,35 +73,21 @@ public class UtilizadorApiClient {
                 "password", password != null ? password.trim() : "",
                 "type", tipo != null ? tipo.trim() : "Cliente"
             );
-
-            // Fazer o POST para /api/register
-            ResponseEntity<?> response = restTemplate.postForEntity(
-                backendUrl + "/api/register",
-                payload,
-                Map.class
-            );
-
-            // Se sucesso (201 Created ou 200 OK)
-            if (response.getStatusCode().is2xxSuccessful()) {
-                Map<String, Object> body = (Map<String, Object>) response.getBody();
-                if (body != null) {
-                    Long id = extractLongFromMap(body, "id");
-                    String respEmail = Objects.toString(body.get("email"), email);
-                    String respType = Objects.toString(body.get("type"), tipo);
-                    String mensagem = Objects.toString(body.get("message"), "Utilizador registado com sucesso");
-                    return new RegistoResult(id, respEmail, respType, false, mensagem);
-                }
+            ResponseEntity<Map> resp = restTemplate.postForEntity(backendUrl + "/api/register", payload, Map.class);
+            if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
+                Map<?,?> body = resp.getBody();
+                Long id        = extractLong(body, "id");
+                String respEmail = Objects.toString(body.get("email"), email);
+                String respType  = Objects.toString(body.get("type"),  tipo);
+                String msg       = msgFrom(body, "Utilizador registado com sucesso");
+                return new RegistoResult(id, respEmail, respType, false, msg);
             }
-
-            // Se não conseguiu processar
-            return new RegistoResult(null, email, tipo, false,
-                "Resposta inesperada do backend: " + response.getStatusCode());
-
-        } catch (RestClientException ex) {
-            // Backend indisponível - usar fallback mock
-            Long mockId = System.nanoTime() % 1000000; // ID mock aleatório
-            String mensagem = "Backend indisponível — registo em modo demo.";
-            return new RegistoResult(mockId, email, tipo, true, mensagem);
+            return new RegistoResult(null, email, tipo, false, "Resposta inesperada: " + resp.getStatusCode());
+        } catch (HttpClientErrorException e) {
+            return new RegistoResult(null, email, tipo, false, "Erro: " + e.getStatusCode() + " — " + e.getMessage());
+        } catch (RestClientException e) {
+            return new RegistoResult((long)(System.nanoTime() % 1_000_000), email, tipo, true,
+                "Backend indisponível — registo em modo demo.");
         }
     }
 
@@ -114,32 +97,21 @@ public class UtilizadorApiClient {
      * GET /api/Utilizadors — returns list normalized to GUI keys
      * (id, nome, email, papel, ativo, password="")
      */
-    public LoginResult login(String email, String password) {
+    public List<Map<String, Object>> listarUtilizadores() {
         try {
-            // Montar o payload de login
-            Map<String, Object> payload = Map.of(
-                "email", email != null ? email.trim() : "",
-                "password", password != null ? password.trim() : ""
+            ResponseEntity<List<Map<String, Object>>> resp = restTemplate.exchange(
+                backendUrl + "/api/Utilizadors",
+                HttpMethod.GET, null,
+                new ParameterizedTypeReference<>() {}
             );
-
-            // Fazer o POST para /api/login
-            ResponseEntity<?> response = restTemplate.postForEntity(
-                backendUrl + "/api/login",
-                payload,
-                Map.class
-            );
-
-            // Se sucesso (200 OK)
-            if (response.getStatusCode().is2xxSuccessful()) {
-                Map<String, Object> body = (Map<String, Object>) response.getBody();
-                String mensagem = body != null ? Objects.toString(body.get("message"), "Login bem-sucedido") : "Login bem-sucedido";
-                return new LoginResult(true, false, mensagem);
+            if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
+                return resp.getBody().stream()
+                    .map(this::normalizeUser)
+                    .toList();
             }
-
-            // Se falhou (4xx ou 5xx)
-            if (response.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                return new LoginResult(false, false, "Email ou password incorretos.");
-            }
+        } catch (RestClientException ignored) {}
+        return List.of();
+    }
 
     /**
      * PUT /api/Utilizadors/{id}
@@ -173,12 +145,10 @@ public class UtilizadorApiClient {
         return null;
     }
 
-    private String normalizeBackendUrl(String rawUrl) {
-        String value = rawUrl == null || rawUrl.isBlank() ? "http://localhost:8080" : rawUrl.trim();
-        while (value.endsWith("/")) {
-            value = value.substring(0, value.length() - 1);
-        }
-        return value;
+    private String msgFrom(Map<?,?> body, String fallback) {
+        if (body == null) return fallback;
+        Object m = body.get("message");
+        return m != null ? m.toString() : fallback;
     }
 
     private String normalizeUrl(String raw) {
