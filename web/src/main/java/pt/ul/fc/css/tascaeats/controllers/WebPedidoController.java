@@ -126,6 +126,12 @@ public class WebPedidoController {
             session.removeAttribute("checkoutError");
         }
 
+        Object cartCleared = session.getAttribute("cartCleared");
+        if (cartCleared != null) {
+            model.addAttribute("cartCleared", true);
+            session.removeAttribute("cartCleared");
+        }
+
         model.addAttribute("itens", itensCarrinho);
         model.addAttribute("total", Math.round(total * 100.0) / 100.0);
         model.addAttribute("defaultAddress", defaultAddress);
@@ -234,6 +240,7 @@ public class WebPedidoController {
             restTemplate.postForEntity(backendUrl + "/pagamentos", pagamentoPayload, String.class);
 
             session.removeAttribute(CART_SESSION_KEY);
+            session.setAttribute("cartCleared", true);
             return "redirect:/pedidos/" + pedidoId;
         } catch (Exception e) {
             session.setAttribute("checkoutError", "Falha ao processar checkout: " + e.getMessage());
@@ -255,6 +262,11 @@ public class WebPedidoController {
                 .findFirst();
 
         if (pedido.isPresent()) {
+            Object cartCleared = session.getAttribute("cartCleared");
+            if (cartCleared != null) {
+                model.addAttribute("cartCleared", true);
+                session.removeAttribute("cartCleared");
+            }
             Object detalheError = session.getAttribute("pedidoDetalheError");
             if (detalheError != null) {
                 model.addAttribute("error", detalheError.toString());
@@ -345,9 +357,15 @@ public class WebPedidoController {
             return "redirect:/login";
         }
 
+        Object cartCleared = session.getAttribute("cartCleared");
+        if (cartCleared != null) {
+            model.addAttribute("cartCleared", true);
+            session.removeAttribute("cartCleared");
+        }
+
         List<Map<String, Object>> pedidos = getPedidosDoCliente(clienteId).stream()
-                .map(this::normalizePedido)
-                .toList();
+            .map(this::normalizePedido)
+            .toList();
 
         model.addAttribute("pedidos", pedidos);
         return "meus_pedidos";
