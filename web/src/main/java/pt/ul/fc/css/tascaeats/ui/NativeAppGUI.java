@@ -234,50 +234,18 @@ public class NativeAppGUI extends Application {
         loginBtn.setDefaultButton(true);
         loginBtn.setOnAction(e -> {
             String email = emailF.getText().trim();
-            String password = passF.getText();
+            String pass  = passF.getText();
+            if (email.isEmpty()) { err(feedback, "✗ Digite o email."); return; }
 
-            if (email.isEmpty()) {
-                err(feedback, "✗ Digite o email.");
-                return;
-            }
+            UtilizadorApiClient.LoginResult result = utilizadorClient.login(email, pass);
 
-            // Tentar autenticar no backend primeiro
-            UtilizadorApiClient.LoginResult backendResult = utilizadorApiClient.login(email, password);
-
-            if (backendResult.sucesso()) {
-                // Login bem-sucedido no backend
-                Optional<Map<String, Object>> found = mockUsers.stream()
-                    .filter(u -> u.get("email").toString().equalsIgnoreCase(email))
-                    .findFirst();
-                if (found.isPresent()) {
-                    currentUser = found.get();
-                    updateNavButtonsState();
-                    headerUserLabel.setText("Olá, " + currentUser.get("nome") + " (" + currentUser.get("papel") + ")");
-                    ok(feedback, "✓ " + backendResult.mensagem());
-                } else {
-                    // Utilizador validado no backend mas não em mockUsers - criar entrada mock
-                    currentUser = row("email", email, "nome", email.split("@")[0], "papel", "CLIENT", "ativo", "Sim");
-                    mockUsers.add(currentUser);
-                    updateNavButtonsState();
-                    headerUserLabel.setText("Olá, " + currentUser.get("nome") + " (Cliente)");
-                    ok(feedback, "✓ Login bem-sucedido (criado em modo demo)");
-                }
-            } else if (backendResult.fallbackUsado()) {
-                // Backend indisponível - tentar modo mock
-                Optional<Map<String, Object>> found = mockUsers.stream()
-                    .filter(u -> u.get("email").toString().equalsIgnoreCase(email))
-                    .findFirst();
-                if (found.isPresent() && found.get().get("password").toString().equals(password)) {
-                    currentUser = found.get();
-                    updateNavButtonsState();
-                    headerUserLabel.setText("Olá, " + currentUser.get("nome") + " (" + currentUser.get("papel") + ")");
-                    ok(feedback, "✓ Bem-vindo, " + currentUser.get("nome") + "! (⚠ " + backendResult.mensagem() + ")");
-                } else {
-                    err(feedback, "⚠ Backend indisponível e utilizador não encontrado em modo demo.");
-                }
+            if (result.sucesso()) {
+                // fetch real user data from backend to get id/role
+                finishLogin(email, feedback);
+            } else if (result.fallbackUsado()) {
+                err(feedback, "⚠ Backend indisponível.");
             } else {
-                // Falha no backend com resposta clara
-                err(feedback, "✗ " + backendResult.mensagem());
+                err(feedback, "✗ " + result.mensagem());
             }
         });
 
@@ -285,10 +253,6 @@ public class NativeAppGUI extends Application {
         regBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #1565c0; -fx-border-color: transparent;");
         regBtn.setOnAction(e -> showUsersPane());
 
-//        Label hint = new Label("Demo: joao@email.com | maria@email.com | carlos@email.com | ana@email.com");
-//        hint.setStyle("-fx-text-fill: #aaa; -fx-font-size: 10px;");
-
-//        VBox box = centeredCard(title, form, loginBtn, feedback, regBtn, hint);
         VBox box = centeredCard(title, form, loginBtn, feedback, regBtn);
         box.setMaxWidth(420);
         VBox wrapper = new VBox(box);
@@ -299,16 +263,40 @@ public class NativeAppGUI extends Application {
         return wrapper;
     }
 
-     // ─────────────────────────────────────────────────────────────────────
+    /** After a successful login POST, fetch the user record and set currentUser. */
+    private void finishLogin(String email, Label feedback) {
+        bg(() -> utilizadorClient.listarUtilizadores(), allUsers -> {
+            Optional<Map<String, Object>> found = allUsers.stream()
+                .filter(u -> email.equalsIgnoreCase(s(u, "email")))
+                .findFirst();
+            if (found.isPresent()) {
+                currentUser = found.get();
+                updateNavState();
+                headerUserLabel.setText("Olá, " + s(currentUser, "nome") + " (" + s(currentUser, "papel") + ")");
+                ok(feedback, "✓ Login bem-sucedido.");
+            } else {
+                // user authenticated but not in list — create minimal entry
+                currentUser = row("id", "?", "nome", email.split("@")[0], "email", email, "papel", "CLIENT", "ativo", "Sim", "password", "");
+                updateNavState();
+                headerUserLabel.setText("Olá, " + s(currentUser, "nome"));
+                ok(feedback, "✓ Login bem-sucedido.");
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
      // B / C / D – Utilizadores
      // ─────────────────────────────────────────────────────────────────────
      private Label userStatusLabel;
 
      private VBox buildUsersPane() {
          ObservableList<Map<String, Object>> display = FXCollections.observableArrayList(mockUsers);
+    // ─────────────────────────────────────────────────────────────────────
+    private VBox buildUsersPane() {
+        ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
-            col("ID","id"), col("Nome","nome"), col("Email","email"),
-            col("Papel","papel"), col("Ativo","ativo")
+            col("ID", "id"), col("Nome", "nome"), col("Email", "email"),
+            col("Papel", "papel"), col("Ativo", "ativo")
         );
 
         TextField  searchF  = field("Filtrar por nome...", 180);
