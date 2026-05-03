@@ -648,6 +648,7 @@ public class WebPedidoController {
         normalized.put("estadoLabel", formatEstadoPedido(estado));
         normalized.put("statusClass", statusClassForPedido(estado));
         normalized.put("cancelavel", isPedidoCancelavel(estado));
+        normalized.put("finalizado", isPedidoFinalizado(estado));
         normalized.put("statusSteps", buildPedidoStatusSteps(estado));
         normalized.put("entregador", fetchCourierNameForPedido(toLong(pedido.get("id"))));
         normalized.put("data", dataComHora);
@@ -697,6 +698,10 @@ public class WebPedidoController {
 
     private boolean isPedidoCancelavel(String estado) {
         return "CRIADO".equalsIgnoreCase(estado) || "PAGO".equalsIgnoreCase(estado);
+    }
+
+    private boolean isPedidoFinalizado(String estado) {
+        return "ENTREGUE".equalsIgnoreCase(estado) || "CANCELADO".equalsIgnoreCase(estado);
     }
 
     private String statusClassForPedido(String estado) {

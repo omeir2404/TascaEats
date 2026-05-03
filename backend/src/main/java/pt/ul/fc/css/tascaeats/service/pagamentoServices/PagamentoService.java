@@ -60,7 +60,8 @@ public class PagamentoService {
         pedido.confirmarPagamento();
         pedidoRepository.save(pedido);
 
-        // Mock only the restaurant preparation/ready step; delivery assignment stays real.
-        entregaService.simularPreparacaoRestauranteEAtribuirEntregador(pedidoId);
+        // Keep the checkout response immediate. The simulated delivery flow advances in
+        // the background with pauses so the client can still cancel while the order is paid.
+        entregaService.simularPreparacaoRestauranteEAtribuirEntregadorComPausas(pedidoId);
     }
 }

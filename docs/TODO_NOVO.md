@@ -168,7 +168,7 @@ public ResponseEntity<List<Restaurante>> pesquisarRestaurantes(
   - [x] Depois do checkout mostrar que a conta foi finalizada e redirecionar para os pedidos recentes.
   - [ ] Implementar controlo de acesso nos filtros e funcoes por papel de utilizador.
   - [ ] Garantir que o administrador, cliente e entregador apenas veem as operacoes permitidas para o respetivo papel.
-  - [ ] Permitir que qualquer utilizador altere os proprios dados cadastrais usando a mesma interface de registo.
+  - [x] Permitir que qualquer utilizador altere os proprios dados cadastrais usando a mesma interface de registo.
   - [x] Mostar estados dos pedidos passo a passo
   - [x] permitir cancelar pedidos
   - [ ] os restaurantes e pedidos recentes deviam atualizar
