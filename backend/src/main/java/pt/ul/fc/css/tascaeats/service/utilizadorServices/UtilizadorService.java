@@ -97,8 +97,8 @@ public class UtilizadorService {
             existing.setPassword(dto.getPassword());
         }
 
-        if (existing instanceof Cliente client && dto.getAddress() != null && !client.getAddresses().isEmpty()) {
-            // Keep Morada update minimal here; creating Morada requires cleaner mapping in the domain.
+        if (existing instanceof Cliente client && dto.getAddress() != null) {
+            // A morada mais recente fica como predefinida na API.
             applyMorada(client, dto.getAddress());
         }
 
@@ -175,7 +175,8 @@ public class UtilizadorService {
             address.setCodigoPostal(dto.getCodigoPostal());
             address.setCidade(dto.getCidade());
 
-            client.addAdresses(address);
+            client.getAddresses().add(0, address);
+            address.setClient(client);
         }
     }
 }

@@ -170,6 +170,7 @@ public class WebPedidoController {
             @RequestParam(required = false) String cidade,
             @RequestParam(required = false) String distrito,
             @RequestParam(required = false) String pais,
+            @RequestParam(required = false, defaultValue = "false") Boolean guardarComoPredefinida,
             HttpSession session) {
 
         Long clienteId = getLoggedClientId(session);
@@ -197,8 +198,8 @@ public class WebPedidoController {
                 return itemPedido;
             }).toList();
 
-            Map<String, Object> moradaNova = resolveCheckoutAddress(clienteId, rua, numero, complemento, codigoPostal, cidade, distrito, pais);
-            if (moradaNova == null) {
+            Map<String, Object> moradaSelection = resolveCheckoutAddress(clienteId, rua, numero, complemento, codigoPostal, cidade, distrito, pais);
+            if (moradaSelection == null) {
                 session.setAttribute("checkoutError", "Tem de indicar uma morada para finalizar a compra.");
                 return "redirect:/checkout";
             }
@@ -206,9 +207,17 @@ public class WebPedidoController {
             Map<String, Object> pedidoPayload = new HashMap<>();
             pedidoPayload.put("clienteId", clienteId);
             pedidoPayload.put("itens", itensPedido);
-            pedidoPayload.put("moradaNova", moradaNova);
+            if (moradaSelection.containsKey("moradaId")) {
+                pedidoPayload.put("moradaId", moradaSelection.get("moradaId"));
+            } else {
+                pedidoPayload.put("moradaNova", moradaSelection.get("moradaNova"));
+            }
 
-            restTemplate.postForEntity(backendUrl + "/pedidos", pedidoPayload, Object.class);
+            restTemplate.postForEntity(backendUrl + "/pedidos", pedidoPayload, String.class);
+
+            if (Boolean.TRUE.equals(guardarComoPredefinida) && hasManualAddressInput(rua, numero, complemento, codigoPostal, cidade, distrito, pais)) {
+                saveClientAddressAsDefault(clienteId, (Map<String, Object>) moradaSelection.get("moradaNova"));
+            }
 
             Long pedidoId = findPedidoMaisRecente(clienteId);
             if (pedidoId == null) {
@@ -222,7 +231,7 @@ public class WebPedidoController {
             pagamentoPayload.put("tipoPagamento", metodoPagamento);
             pagamentoPayload.put("detalhes", detalhesPagamento);
 
-            restTemplate.postForEntity(backendUrl + "/pagamentos", pagamentoPayload, Object.class);
+            restTemplate.postForEntity(backendUrl + "/pagamentos", pagamentoPayload, String.class);
 
             session.removeAttribute(CART_SESSION_KEY);
             return "redirect:/pedidos/" + pedidoId;
@@ -312,7 +321,10 @@ public class WebPedidoController {
 
             Object id = userMap.get("id");
             if (id != null) {
-                return toLong(id);
+                Long resolvedId = toLong(id);
+                if (resolvedId != null && resolvedId > 0) {
+                    return resolvedId;
+                }
             }
 
             Object email = userMap.get("email");
@@ -394,6 +406,7 @@ public class WebPedidoController {
             }
 
             Map<String, Object> moradaNova = new HashMap<>();
+            moradaNova.put("id", addressRaw.get("id"));
             moradaNova.put("rua", rua);
             moradaNova.put("numero", numero);
             moradaNova.put("complemento", valueAsString(addressRaw.get("complemento")));
@@ -451,10 +464,71 @@ public class WebPedidoController {
             moradaNova.put("cidade", cidade.trim());
             moradaNova.put("distrito", distrito.trim());
             moradaNova.put("pais", pais.trim());
-            return moradaNova;
+            Map<String, Object> selection = new HashMap<>();
+            selection.put("moradaNova", moradaNova);
+            return selection;
         }
 
-        return getClientDeliveryAddress(clienteId);
+        Map<String, Object> defaultAddress = getClientDeliveryAddress(clienteId);
+        if (defaultAddress == null) {
+            return null;
+        }
+
+        Object moradaId = defaultAddress.get("id");
+        if (moradaId != null) {
+            Map<String, Object> selection = new HashMap<>();
+            selection.put("moradaId", moradaId);
+            return selection;
+        }
+
+        Map<String, Object> selection = new HashMap<>();
+        selection.put("moradaNova", defaultAddress);
+        return selection;
+    }
+
+    private boolean hasManualAddressInput(
+            String rua,
+            Integer numero,
+            String complemento,
+            String codigoPostal,
+            String cidade,
+            String distrito,
+            String pais) {
+        return hasText(rua)
+                || numero != null
+                || hasText(complemento)
+                || hasText(codigoPostal)
+                || hasText(cidade)
+                || hasText(distrito)
+                || hasText(pais);
+    }
+
+    private void saveClientAddressAsDefault(Long clienteId, Map<String, Object> moradaNova) {
+        if (clienteId == null || moradaNova == null) {
+            return;
+        }
+
+        try {
+            Map<String, Object> user = restTemplate.getForObject(backendUrl + "/api/Utilizadors/" + clienteId, Map.class);
+            if (user == null) {
+                return;
+            }
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("name", user.get("name"));
+            payload.put("email", user.get("email"));
+            payload.put("password", null);
+            payload.put("type", "client");
+            payload.put("address", moradaNova);
+
+            restTemplate.exchange(
+                    backendUrl + "/api/Utilizadors/" + clienteId,
+                    HttpMethod.PUT,
+                    new HttpEntity<>(payload),
+                    Map.class
+            );
+        } catch (Exception ignored) {
+        }
     }
 
     private boolean hasText(String value) {
@@ -522,8 +596,8 @@ public class WebPedidoController {
         }
 
         if ("MULTIBANCO".equalsIgnoreCase(metodoPagamento)) {
-            detalhes.put("entidade", "WEB");
-            detalhes.put("referencia", "MB-" + pedidoId);
+            detalhes.put("entidade", "12345");
+            detalhes.put("referencia", String.format("%09d", Math.abs(pedidoId % 1_000_000_000L)));
             detalhes.put("bandeiraCartao", bandeiraCartao == null ? "VISA" : bandeiraCartao);
             return detalhes;
         }

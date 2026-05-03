@@ -55,6 +55,34 @@ public class EntregaService {
         return pedidoRepository.save(pedido);
     }
 
+    @Transactional
+    public Pedido simularPreparacaoRestauranteEAtribuirEntregador(Long pedidoId) {
+        if (pedidoId == null) {
+            throw new IllegalArgumentException("ID do pedido inválido.");
+        }
+
+        Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
+        if (pedidoOptional.isEmpty()) {
+            throw new IllegalArgumentException("Pedido não encontrado: " + pedidoId);
+        }
+
+        Pedido pedido = pedidoOptional.get();
+        if (pedido.getEstado() == EstadoPedido.PAGO) {
+            pedido.iniciarPreparacao();
+            pedido.marcarComoPronto();
+        } else if (pedido.getEstado() == EstadoPedido.A_PREPARAR) {
+            pedido.marcarComoPronto();
+        } else if (pedido.getEstado() == EstadoPedido.CRIADO) {
+            pedido.confirmarPagamento();
+            pedido.iniciarPreparacao();
+            pedido.marcarComoPronto();
+        }
+
+        pedido = pedidoRepository.save(pedido);
+        associarEntregadorAutomaticamente(pedido);
+        return pedido;
+    }
+
     
 @Transactional
     public Pedido marcarPedidoComoPronto(Long pedidoId) {
@@ -82,7 +110,7 @@ public class EntregaService {
     private void associarEntregadorAutomaticamente(Pedido pedido) {
         Entregador entregador = null;
         
-        // Find the first available delivery person
+        // Find the first available delivery person.
         for (var utilizador : utilizadorRepository.findAll()) {
             if (utilizador instanceof Entregador candidato) {
                 if (candidato.isAvailable() && !entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
@@ -92,20 +120,18 @@ public class EntregaService {
             }
         }
 
-        // If no one is available, you can choose to throw an error (rolls back the transaction) 
-        // or just log it and handle it later. Keeping it strict here:
         if (entregador == null) {
             throw new IllegalStateException("Não há entregadores disponíveis de momento para o pedido: " + pedido.getId());
         }
 
-        // Create the delivery record
         Entrega entrega = new Entrega(pedido, entregador.getId(), ENDERECO_ENTREGA_PENDENTE);
 
-        // Update states
         entregador.setAvailable(false);
-        pedido.atribuirEntregador(); // Changes state to ATRIBUIDO_ENTREGADOR
 
-        // Persist everything
+        if (pedido.getEstado() != EstadoPedido.ATRIBUIDO_ENTREGADOR) {
+            pedido.atribuirEntregador();
+        }
+
         utilizadorRepository.save(entregador);
         pedidoRepository.save(pedido);
         entregaRepository.save(entrega);

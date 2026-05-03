@@ -236,6 +236,41 @@
             background: #fff7e8;
             color: #8a5a11;
         }
+
+        .checkout-address-choice {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #dbe4e7;
+            background: #fbfdfe;
+        }
+
+        .checkout-address-choice__title {
+            margin: 0 0 8px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #182126;
+        }
+
+        .checkout-address-choice__options {
+            display: grid;
+            gap: 8px;
+        }
+
+        .checkout-address-choice__option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #182126;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .checkout-address-choice__option input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--brand);
+        }
     </style>
 </head>
 <body class="checkout-page">
@@ -330,6 +365,20 @@
                     <div class="form-group">
                         <label for="pais">Pais</label>
                         <input type="text" id="pais" name="pais" th:required="${!hasDefaultAddress}" placeholder="Ex: Portugal">
+                    </div>
+
+                    <div class="checkout-address-choice">
+                        <p class="checkout-address-choice__title">Deseja atualizar a morada predefinida?</p>
+                        <div class="checkout-address-choice__options">
+                            <label class="checkout-address-choice__option">
+                                <input type="radio" name="guardarComoPredefinida" value="false" checked>
+                                <span>Não, usar só nesta compra</span>
+                            </label>
+                            <label class="checkout-address-choice__option">
+                                <input type="radio" name="guardarComoPredefinida" value="true">
+                                <span>Sim, guardar como morada predefinida</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
