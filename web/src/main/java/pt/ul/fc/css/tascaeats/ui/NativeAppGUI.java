@@ -521,11 +521,11 @@ public class NativeAppGUI extends Application {
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    // G / H / I – Produtos
+    // G / H – Produtos (Menus & Products)
     // ─────────────────────────────────────────────────────────────────────
     private VBox buildProductsPane(Map<String, Object> restFilter) {
         ObservableList<String> restNames = FXCollections.observableArrayList("Todos");
-        mockRestaurantes.forEach(r -> restNames.add(r.get("nome").toString()));
+        restaurantes.forEach(r -> restNames.add(s(r, "nome")));
         ComboBox<String> restBox = new ComboBox<>(restNames);
         restBox.getSelectionModel().selectFirst();
         if (restFilter != null) restBox.setValue(s(restFilter, "nome"));
@@ -536,69 +536,160 @@ public class NativeAppGUI extends Application {
         ComboBox<String> catBox   = combo("Todas", "PRATO", "BEBIDA", "SOBREMESA", "ENTRADA");
         ComboBox<String> dispBox  = combo("Todos", "Sim", "Não");
 
-        Runnable filter = () -> {
+        Runnable applyFilter = () -> {
             String rest = restBox.getValue();
             String q    = searchF.getText().toLowerCase();
             String cat  = catBox.getValue();
             String disp = dispBox.getValue();
             Double maxP; try { maxP = Double.parseDouble(precoMaxF.getText().trim()); } catch (Exception ex) { maxP = null; }
-            final Double fMaxP = maxP;
-            display.setAll(mockProdutos.stream()
-                .filter(p -> "Todos".equals(rest) || rest.equals(p.get("restNome")))
-                .filter(p -> q.isBlank() || p.get("nome").toString().toLowerCase().contains(q))
-                .filter(p -> "Todas".equals(cat) || cat.equals(p.get("categoria")))
-                .filter(p -> "Todos".equals(disp) || disp.equals(p.get("disponivel")))
-                .filter(p -> fMaxP == null || Double.parseDouble(p.get("preco").toString()) <= fMaxP)
+            final Double fMax = maxP;
+            display.setAll(produtos.stream()
+                .filter(p -> "Todos".equals(rest) || rest.equals(s(p, "restNome")))
+                .filter(p -> q.isBlank() || s(p, "nome").toLowerCase().contains(q))
+                .filter(p -> "Todas".equals(cat) || cat.equals(s(p, "categoria")))
+                .filter(p -> "Todos".equals(disp) || disp.equals(s(p, "disponivel")))
+                .filter(p -> fMax == null || toDouble(p.get("preco")) <= fMax)
                 .toList());
         };
-        filter.run();
-        restBox.setOnAction(e -> filter.run());
+
+        // Reload products when restaurant filter changes
+        restBox.setOnAction(e -> {
+            String chosen = restBox.getValue();
+            if ("Todos".equals(chosen)) {
+                syncProdutos(null, applyFilter);
+            } else {
+                restaurantes.stream().filter(r -> s(r, "nome").equals(chosen)).findFirst()
+                    .ifPresent(r -> syncProdutos(toLong(r.get("id")), applyFilter));
+            }
+        });
 
         TableView<Map<String, Object>> table = tableOf(display,
-            col("ID","id"), col("Restaurante","restNome"), col("Nome","nome"),
-            col("Preço (€)","preco"), col("Categoria","categoria"), col("Disponível","disponivel")
+            col("ID", "id"), col("Restaurante", "restNome"), col("Nome", "nome"),
+            col("Preço (€)", "preco"), col("Categoria", "categoria"), col("Disponível", "disponivel")
         );
 
-        Button filtrar    = new Button("Pesquisar"); filtrar.setOnAction(e -> filter.run());
-        Button criarBtn   = colorBtn("+ Criar Produto",      "#4caf50");
-        Button editarBtn  = colorBtn("✎ Editar",              "#2196f3");
-        Button dispBtn    = colorBtn("⟳ Disp. / Indisp.",    "#ff9800");
-        Button apagarBtn  = colorBtn("✕ Apagar",             "#f44336");
+        Button filtrar   = new Button("Pesquisar"); filtrar.setOnAction(e -> applyFilter.run());
+        Button criarBtn  = colorBtn("+ Criar Produto",   "#4caf50");
+        Button editarBtn = colorBtn("✎ Editar",           "#2196f3");
+        Button dispBtn   = colorBtn("⟳ Disp./Indisp.",   "#ff9800");
+        Button apagarBtn = colorBtn("✕ Apagar",          "#f44336");
 
         criarBtn.setOnAction(e -> {
             String rNome = restBox.getValue();
-            Map<String, Object> preRest = "Todos".equals(rNome) ? null
-                : mockRestaurantes.stream().filter(r -> r.get("nome").equals(rNome)).findFirst().orElse(null);
+            Map<String, Object> preRest = "Todos".equals(rNome) ? null :
+                restaurantes.stream().filter(r -> s(r, "nome").equals(rNome)).findFirst().orElse(null);
             Map<String, Object> novo = produtoDialog(null, preRest);
-            if (novo != null) { novo.put("id", nextProdId++); mockProdutos.add(novo); filter.run(); info("Produto criado."); }
+            if (novo == null) return;
+            try {
+                rest.postForEntity(BACKEND + "/api/produtos", buildProdutoPayload(novo), Map.class);
+                info("✓ Produto criado.");
+                syncProdutos(preRest != null ? toLong(preRest.get("id")) : null, applyFilter);
+            } catch (Exception ex) { warn("✗ Erro ao criar produto: " + ex.getMessage()); }
         });
+
         editarBtn.setOnAction(e -> {
             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
             if (sel == null) { warn("Selecione um produto."); return; }
             Map<String, Object> edited = produtoDialog(sel, null);
-            if (edited != null) { sel.putAll(edited); filter.run(); table.refresh(); }
+            if (edited == null) return;
+            try {
+                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(buildProdutoPayload(edited));
+                rest.exchange(BACKEND + "/api/produtos/" + sel.get("id"), HttpMethod.PUT, entity, Map.class);
+                info("✓ Produto atualizado.");
+                syncProdutos(toLong(sel.get("restId")), applyFilter);
+            } catch (Exception ex) { warn("✗ Erro ao editar produto: " + ex.getMessage()); }
         });
+
         dispBtn.setOnAction(e -> {
             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
             if (sel == null) { warn("Selecione um produto."); return; }
             sel.put("disponivel", "Sim".equals(sel.get("disponivel")) ? "Não" : "Sim");
             table.refresh();
+            boolean novaDisp = "Não".equals(s(sel, "disponivel"));
+            try {
+                Map<String, Object> payload = Map.of("disponivel", novaDisp);
+                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
+                rest.exchange(BACKEND + "/api/produtos/" + sel.get("id") + "/disponibilidade",
+                    HttpMethod.PATCH, entity, Map.class);
+                syncProdutos(toLong(sel.get("restId")), applyFilter);
+            } catch (Exception ex) {
+                // fallback: toggle locally if endpoint doesn't exist
+                sel.put("disponivel", novaDisp ? "Sim" : "Não");
+                table.refresh();
+            }
         });
+
         apagarBtn.setOnAction(e -> {
             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
             if (sel == null) { warn("Selecione um produto."); return; }
-            if (confirm("Apagar " + sel.get("nome") + "?")) { mockProdutos.remove(sel); filter.run(); }
+            if (!confirm("Apagar " + s(sel, "nome") + "?")) return;
+            try {
+                rest.delete(BACKEND + "/api/produtos/" + sel.get("id"));
+                info("✓ Produto apagado.");
+                syncProdutos(toLong(sel.get("restId")), applyFilter);
+            } catch (Exception ex) { warn("✗ Erro ao apagar: " + ex.getMessage()); }
         });
 
         Button voltarBtn = new Button("← Voltar a Restaurantes");
         voltarBtn.setOnAction(e -> showRestaurantesPane());
 
-        return pane(sectionTitle("G/H/I – Gestão de Produtos"),
+        prodStatusLabel = statusLabel("Selecione um restaurante para carregar produtos.");
+
+        // initial load
+        if (restFilter != null) syncProdutos(toLong(restFilter.get("id")), applyFilter);
+        else syncProdutos(null, applyFilter);
+
+        return pane(sectionTitle("G/H – Gestão de Produtos"),
             hbar(lbl("Restaurante:"), restBox, lbl("Nome:"), searchF,
                  lbl("Preço≤"), precoMaxF, lbl("Cat:"), catBox, lbl("Disp:"), dispBox, filtrar),
             hbar(criarBtn, editarBtn, dispBtn, apagarBtn, new Region(), voltarBtn),
-            table
-        );
+            table, prodStatusLabel);
+    }
+
+    private void syncProdutos(Long restauranteId, Runnable afterUpdate) {
+        bg(() -> {
+            try {
+                String url = restauranteId != null
+                    ? BACKEND + "/api/produtos?restauranteId=" + restauranteId
+                    : BACKEND + "/api/produtos";
+                ResponseEntity<List<Map<String, Object>>> resp = rest.exchange(
+                    url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+                return resp.getBody() != null ? resp.getBody() : List.of();
+            } catch (Exception e) { return List.of(); }
+        }, result -> {
+            // Enrich each product with restNome for display
+            List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) result;
+            List<Map<String, Object>> enriched = typed.stream().map(p -> {
+                Map<String, Object> m = new LinkedHashMap<String, Object>(p);
+                Long rid = toLong(p.getOrDefault("restauranteId", p.getOrDefault("restId", -1)));
+                m.put("restId", rid);
+                m.put("restNome", restaurantes.stream()
+                    .filter(r -> rid.equals(toLong(r.get("id"))))
+                    .findFirst().map(r -> s(r, "nome")).orElse("-"));
+                m.put("disponivel", Boolean.TRUE.equals(p.get("disponivel")) ? "Sim" : "Não");
+                return m;
+            }).toList();
+
+            if (restauranteId != null) {
+                // replace only products of this restaurant
+                produtos.removeIf(p -> restauranteId.equals(toLong(p.get("restId"))));
+                produtos.addAll(enriched);
+            } else {
+                produtos.setAll(enriched);
+            }
+            if (afterUpdate != null) afterUpdate.run();
+            setStatus(prodStatusLabel, "✓ " + produtos.size() + " produtos carregados.");
+        });
+    }
+
+    private Map<String, Object> buildProdutoPayload(Map<String, Object> form) {
+        Map<String, Object> p = new LinkedHashMap<>();
+        p.put("nome",          s(form, "nome"));
+        p.put("preco",         toDouble(form.get("preco")));
+        p.put("categoria",     s(form, "categoria"));
+        p.put("disponivel",    "Sim".equals(s(form, "disponivel")));
+        p.put("restauranteId", form.get("restId"));
+        return p;
     }
 
     private Map<String, Object> produtoDialog(Map<String, Object> ex, Map<String, Object> preRest) {
