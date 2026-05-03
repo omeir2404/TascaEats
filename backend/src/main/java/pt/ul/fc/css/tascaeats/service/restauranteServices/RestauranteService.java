@@ -201,15 +201,14 @@ public class RestauranteService {
 	}
 
 	private List<Restaurante> obterRestaurantesCandidatos(String nomeNormalizado, TipoRestaurante tipoRestaurante, EstadoRestaurante estado) {
-		if (nomeNormalizado != null) {
-			return restauranteRepository.findByNomeContainingIgnoreCase(nomeNormalizado);
-		} else if (estado != null) {
-			return restauranteRepository.findByEstado(estado);
-		} else if (tipoRestaurante != null) {
-			return restauranteRepository.findByTipoRestaurante(tipoRestaurante);
-		} else {
-			return restauranteRepository.findAll();
-		}
+		return restauranteRepository.findAll().stream()
+				.filter(restaurante -> nomeNormalizado == null
+						|| normalizarTexto(restaurante.getNome()).contains(nomeNormalizado))
+				.filter(restaurante -> tipoRestaurante == null
+						|| restaurante.getTipoRestaurante() == tipoRestaurante)
+				.filter(restaurante -> estado == null
+						|| restaurante.getEstado() == estado)
+				.toList();
 	}
 
 	private Map<Long, Long> contarPedidosPorRestaurante() {

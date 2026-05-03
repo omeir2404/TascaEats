@@ -247,7 +247,7 @@ public class WebPedidoController {
             session.setAttribute("cartCleared", true);
             return "redirect:/pedidos/" + pedidoId;
         } catch (Exception e) {
-            session.setAttribute("checkoutError", WebErrorMessages.backendFailure("Nao foi possivel processar o checkout", e, backendUrl));
+            session.setAttribute("checkoutError", WebErrorMessages.backendFailure("Não foi possivel processar o checkout", e, backendUrl));
             return "redirect:/checkout";
         }
 

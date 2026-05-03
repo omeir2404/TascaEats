@@ -38,24 +38,24 @@
                     <div class="form-group form-group--medium">
                         <label for="tipoCozinha">Tipo de cozinha</label>
                         <select id="tipoCozinha" name="tipoCozinha">
-                            <option value="">Todos</option>
-                            <option value="PORTUGUES">Portuguesa</option>
-                            <option value="ITALIANO">Italiana</option>
-                            <option value="JAPONES">Japonesa</option>
-                            <option value="HAMBURGUERIA">Hamburgueria</option>
-                            <option value="VEGETARIANA">Vegetariana</option>
-                            <option value="CHINES">Chinesa</option>
-                            <option value="OUTRO">Outro</option>
+                            <option value="" th:selected="${tipoCozinha == null or tipoCozinha == ''}">Todos</option>
+                            <option value="PORTUGUES" th:selected="${tipoCozinha == 'PORTUGUES'}">Portuguesa</option>
+                            <option value="ITALIANO" th:selected="${tipoCozinha == 'ITALIANO'}">Italiana</option>
+                            <option value="JAPONES" th:selected="${tipoCozinha == 'JAPONES'}">Japonesa</option>
+                            <option value="HAMBURGUERIA" th:selected="${tipoCozinha == 'HAMBURGUERIA'}">Hamburgueria</option>
+                            <option value="VEGETARIANA" th:selected="${tipoCozinha == 'VEGETARIANA'}">Vegetariana</option>
+                            <option value="CHINES" th:selected="${tipoCozinha == 'CHINES'}">Chinesa</option>
+                            <option value="OUTRO" th:selected="${tipoCozinha == 'OUTRO'}">Outro</option>
                         </select>
                     </div>
 
                     <div class="form-group form-group--medium">
                         <label for="estado">Estado</label>
                         <select id="estado" name="estado">
-                            <option value="">Qualquer</option>
-                            <option value="ABERTO">Aberto</option>
-                            <option value="FECHADO">Fechado</option>
-                            <option value="RESERVADO">Reservado</option>
+                            <option value="" th:selected="${estado == null or estado == ''}">Qualquer</option>
+                            <option value="ABERTO" th:selected="${estado == 'ABERTO'}">Aberto</option>
+                            <option value="FECHADO" th:selected="${estado == 'FECHADO'}">Fechado</option>
+                            <option value="RESERVADO" th:selected="${estado == 'RESERVADO'}">Reservado</option>
                         </select>
                     </div>
 
@@ -65,8 +65,7 @@
                     </div>
 
                     <div class="form-group form-group--compact search-field search-field--avaliacao">
-                        <label for="avaliacaoMinima">Avaliação mín.</label>
-                        <!-- Número com setas (spinner) entre 1 e 10000 -->
+                        <label for="avaliacaoMinima">Nº de avaliações mín.</label>
                         <input type="number" id="avaliacaoMinima" name="avaliacaoMinima" min="1" max="10000" step="1" placeholder="Ex: 100" th:value="${param.avaliacaoMinima}">
                     </div>
 
@@ -124,7 +123,7 @@
             </article>
 
             <div class="empty-state" th:if="${restaurantes == null or #lists.isEmpty(restaurantes)}">
-                <p>Nao existem restaurantes para estes filtros.</p>
+                <p>Não existem restaurantes para estes filtros.</p>
             </div>
         </div>
     </main>
@@ -134,6 +133,18 @@
     <script th:src="@{/js/main.js}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.querySelector('.search-filters-form');
+            if (searchForm) {
+                searchForm.querySelectorAll('select').forEach(function(select) {
+                    select.addEventListener('keydown', function(event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            searchForm.submit();
+                        }
+                    });
+                });
+            }
+
             // Range slider behaviour: update displayed value and filled track
             const range = document.getElementById('precoMedioRange');
             const valueDisplay = document.getElementById('precoMedioValue');

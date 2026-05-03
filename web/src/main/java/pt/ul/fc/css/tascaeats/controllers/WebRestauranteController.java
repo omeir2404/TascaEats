@@ -83,16 +83,16 @@ public class WebRestauranteController {
         if (estado != null && !estado.isBlank()) {
             builder.queryParam("estado", estado);
         }
-        if (pedidosRealizados != null) {
+        if (pedidosRealizados != null && pedidosRealizados > 0) {
             builder.queryParam("pedidosRealizados", pedidosRealizados);
         }
-        if (avaliacaoMinima != null) {
-            builder.queryParam("avaliacaoMinima", avaliacaoMinima);
+        if (avaliacaoMinima != null && avaliacaoMinima > 0) {
+            builder.queryParam("numeroAvaliacoes", avaliacaoMinima.intValue());
         }
         if (morada != null && !morada.isBlank()) {
             builder.queryParam("morada", morada);
         }
-        if (precoMedio != null) {
+        if (precoMedio != null && precoMedio > 0) {
             builder.queryParam("precoMedio", precoMedio);
         }
 
@@ -107,10 +107,10 @@ public class WebRestauranteController {
         model.addAttribute("nome", nome);
         model.addAttribute("tipoCozinha", tipoCozinha);
         model.addAttribute("estado", estado);
-        model.addAttribute("pedidosRealizados", pedidosRealizados);
-        model.addAttribute("avaliacaoMinima", avaliacaoMinima);
+        model.addAttribute("pedidosRealizados", pedidosRealizados != null && pedidosRealizados > 0 ? pedidosRealizados : null);
+        model.addAttribute("avaliacaoMinima", avaliacaoMinima != null && avaliacaoMinima > 0 ? avaliacaoMinima.intValue() : null);
         model.addAttribute("morada", morada);
-        model.addAttribute("precoMedio", precoMedio);
+        model.addAttribute("precoMedio", precoMedio != null && precoMedio > 0 ? precoMedio : 0);
         return "pesquisa";
     }
 
