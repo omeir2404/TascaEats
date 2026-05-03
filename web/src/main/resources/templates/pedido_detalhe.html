@@ -22,6 +22,9 @@
         
         .review-box { background-color: #f8f9fa; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-top: 30px; }
         .review-box textarea { width: 100%; height: 80px; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: vertical;}
+        .feedback-message { margin: 10px 0; padding: 10px 12px; border-radius: 6px; font-size: 0.95rem; }
+        .feedback-error { background: #fdeaea; color: #8c1c1c; border: 1px solid #f5c2c2; }
+        .feedback-success { background: #e7f6eb; color: #12592a; border: 1px solid #bfe6ca; }
     </style>
 </head>
 <body>
@@ -30,6 +33,9 @@
     <main>
         <div class="order-container">
             <h2 th:text="'Order #' + ${pedido.id}">Order #1</h2>
+
+            <div th:if="${error}" class="feedback-message feedback-error" th:text="${error}">Error</div>
+            <div th:if="${success}" class="feedback-message feedback-success" th:text="${success}">Success</div>
             
             <p><strong>Restaurant:</strong> <span th:text="${pedido.restauranteNome}">Name</span></p>
             <p><strong>Date:</strong> <span th:text="${pedido.data}">Date</span></p>
@@ -40,17 +46,17 @@
             <h3>Order Status</h3>
             <p>
                 <span th:class="'status-badge ' + 
-                    (${pedido.estado == 'PENDING'} ? 'status-pending' : 
-                    (${pedido.estado == 'DELIVERED'} ? 'status-delivered' : 'status-cancelled'))"
+                    (${pedido.estado == 'CRIADO' or pedido.estado == 'PAGO' or pedido.estado == 'A_PREPARAR' or pedido.estado == 'PRONTO_PARA_ENTREGA'} ? 'status-pending' : 
+                    (${pedido.estado == 'ENTREGUE'} ? 'status-delivered' : 'status-cancelled'))"
                     th:text="${pedido.estado}">STATUS</span>
             </p>
             <p><strong>Assigned Courier:</strong> <span th:text="${pedido.entregador}">Name</span></p>
 
-            <form th:if="${pedido.estado == 'PENDING'}" th:action="@{/pedidos/{id}/cancelar(id=${pedido.id})}" method="POST" style="margin-top: 20px;">
+            <form th:if="${pedido.estado == 'CRIADO'}" th:action="@{/pedidos/{id}/cancelar(id=${pedido.id})}" method="POST" style="margin-top: 20px;">
                 <button type="submit" style="background-color: #dc3545; color: white;" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel Order</button>
             </form>
 
-            <div th:if="${pedido.estado == 'DELIVERED' and !pedido.avaliado}" class="review-box">
+            <div th:if="${pedido.estado == 'ENTREGUE' and !pedido.avaliado}" class="review-box">
                 <h3 style="margin-top: 0;">Rate your experience</h3>
                 <form th:action="@{/pedidos/{id}/avaliar(id=${pedido.id})}" method="POST">
                     
