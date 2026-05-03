@@ -700,12 +700,6 @@ public class NativeAppGUI extends Application {
         else if (preRest != null) restBox.setValue(s(preRest, "nome"));
         else restBox.getSelectionModel().selectFirst();
 
-        TextField nomeF  = new TextField(s(ex,"nome"));
-        TextField precoF = new TextField(s(ex,"preco"));
-        ComboBox<String> catBox  = combo("PRATO","BEBIDA","SOBREMESA","ENTRADA");
-        catBox.setValue(ex != null ? s(ex,"categoria") : "PRATO");
-        ComboBox<String> dispBox = combo("Sim","Não");
-        dispBox.setValue(ex != null ? s(ex,"disponivel") : "Sim");
         TextField nomeF  = new TextField(s(ex, "nome"));
         TextField precoF = new TextField(ex != null ? String.valueOf(ex.getOrDefault("preco", "")) : "");
         ComboBox<String> catBox  = combo("PRATO", "BEBIDA", "SOBREMESA", "ENTRADA");
@@ -735,17 +729,17 @@ public class NativeAppGUI extends Application {
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    // J / K / L / M / N – Pedidos e Entregas
+    // K / L / M / N – Pedidos
     // ─────────────────────────────────────────────────────────────────────
     private VBox buildOrdersPane() {
-        ObservableList<Map<String, Object>> display = FXCollections.observableArrayList(mockPedidos);
+        ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
             col("ID","id"), col("Cliente","clienteNome"), col("Restaurante","restNome"),
             col("Estado","estado"), col("Total (€)","total"),
             col("Pagamento","pagamento"), col("Entregador","entregador")
         );
 
-        javafx.scene.control.TextArea details = new javafx.scene.control.TextArea();
+        TextArea details = new TextArea();
         details.setEditable(false); details.setPrefRowCount(4);
         details.setPromptText("Selecione um pedido para ver detalhes.");
         table.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
@@ -756,103 +750,125 @@ public class NativeAppGUI extends Application {
                 "\nEntregador: " + n.get("entregador"));
         });
 
-        ComboBox<String> estadoBox = combo("Todos","CRIADO","PAGO","PREPARACAO","PRONTO_PARA_ENTREGA","ENTREGUE","CANCELADO");
+        ComboBox<String> estadoBox = combo("Todos", "CRIADO", "PAGO", "PREPARACAO", "PRONTO_PARA_ENTREGA", "ENTREGUE", "CANCELADO");
         TextField clienteF = field("Filtrar por cliente...", 160);
-        Button filtrar = new Button("Filtrar");
-        filtrar.setOnAction(e -> {
-            String st = estadoBox.getValue(); String cl = clienteF.getText().toLowerCase();
-            display.setAll(mockPedidos.stream()
-                .filter(p -> "Todos".equals(st) || st.equals(p.get("estado")))
-                .filter(p -> cl.isBlank() || p.get("clienteNome").toString().toLowerCase().contains(cl))
+
+        Runnable applyFilter = () -> {
+            String st = estadoBox.getValue();
+            String cl = clienteF.getText().toLowerCase();
+            display.setAll(pedidos.stream()
+                .filter(p -> "Todos".equals(st) || st.equals(s(p, "estado")))
+                .filter(p -> cl.isBlank() || s(p, "clienteNome").toLowerCase().contains(cl))
                 .toList());
-        });
+        };
+        Button filtrar = new Button("Filtrar"); filtrar.setOnAction(e -> applyFilter.run());
+        Button refreshBtn = colorBtn("↻ Atualizar", "#607d8b");
+        refreshBtn.setOnAction(e -> syncPedidos(applyFilter));
 
-        // J – Criar Pedido
-        Button criarBtn   = colorBtn("+ Criar Pedido",           "#4caf50");
         // K – Pagamento
-        Button pagarBtn   = colorBtn("💳 Pagar",                  "#1976d2");
+        Button pagarBtn  = colorBtn("💳 Pagar",             "#1976d2");
         // L – Estado
-        Button prepBtn    = colorBtn("⌛ Iniciar Prep.",           "#e65100");
-        Button prontoBtn  = colorBtn("✓ Marcar Pronto",           "#558b2f");
+        Button prepBtn   = colorBtn("⌛ Iniciar Prep.",      "#e65100");
+        Button prontoBtn = colorBtn("✓ Marcar Pronto",      "#558b2f");
         // M – Entregador
-        Button atribBtn   = colorBtn("🚗 Atribuir Entregador",    "#6a1b9a");
-        Button entregBtn  = colorBtn("📦 Registar Entrega",       "#00838f");
+        Button atribBtn  = colorBtn("🚗 Atribuir Entregador", "#6a1b9a");
+        Button entregBtn = colorBtn("📦 Registar Entrega",   "#00838f");
         // N – Cancelar
-        Button cancelBtn  = colorBtn("✕ Cancelar Pedido",        "#c62828");
+        Button cancelBtn = colorBtn("✕ Cancelar Pedido",    "#c62828");
 
-        criarBtn.setOnAction(e -> {
-            Map<String, Object> novo = criarPedidoDialog();
-            if (novo != null) { novo.put("id", nextPedidoId++); mockPedidos.add(novo); display.setAll(mockPedidos); info("Pedido #" + novo.get("id") + " criado."); }
-        });
-
+        // K
         pagarBtn.setOnAction(e -> {
             Map<String, Object> sel = selected(table); if (sel == null) return;
-            if (!"CRIADO".equals(sel.get("estado"))) { warn("Só pedidos CRIADO podem ser pagos."); return; }
-            ChoiceDialog<String> cd = new ChoiceDialog<>("MBWAY","DINHEIRO","MBWAY","MULTIBANCO");
+            if (!"CRIADO".equals(s(sel, "estado"))) { warn("Só pedidos CRIADO podem ser pagos."); return; }
+            ChoiceDialog<String> cd = new ChoiceDialog<>("MBWAY", "MBWAY", "MULTIBANCO", "DINHEIRO");
             cd.setTitle("Processar Pagamento"); cd.setHeaderText("Método de pagamento:"); cd.initOwner(mainStage);
-            cd.showAndWait().ifPresent(m -> {
-                sel.put("estado","PAGO"); sel.put("pagamento",m);
-                display.setAll(mockPedidos); table.refresh();
-                info("Pagamento via " + m + " processado. Estado → PAGO.");
+            cd.showAndWait().ifPresent(metodo -> {
+                try {
+                    Map<String, Object> payload = Map.of("pedidoId", sel.get("id"), "tipoPagamento", metodo);
+                    rest.postForEntity(BACKEND + "/pagamentos", payload, Map.class);
+                    info("✓ Pagamento via " + metodo + " processado.");
+                    syncPedidos(applyFilter);
+                } catch (Exception ex) { warn("✗ Erro ao processar pagamento: " + ex.getMessage()); }
             });
         });
 
-        prepBtn.setOnAction(e -> {
-            Map<String, Object> sel = selected(table); if (sel == null) return;
-            if (!"PAGO".equals(sel.get("estado"))) { warn("Só pedidos PAGO podem iniciar preparação."); return; }
-            sel.put("estado","PREPARACAO"); display.setAll(mockPedidos); table.refresh();
-            info("Preparação iniciada. Estado → PREPARACAO.");
-        });
+        // L – start preparation
+        prepBtn.setOnAction(e -> updateEstadoPedido(selected(table), "PAGO", "PREPARACAO", applyFilter));
+        // L – mark ready
+        prontoBtn.setOnAction(e -> updateEstadoPedido(selected(table), "PREPARACAO", "PRONTO_PARA_ENTREGA", applyFilter));
 
-        prontoBtn.setOnAction(e -> {
-            Map<String, Object> sel = selected(table); if (sel == null) return;
-            if (!"PREPARACAO".equals(sel.get("estado"))) { warn("Só pedidos em PREPARACAO podem ser marcados prontos."); return; }
-            sel.put("estado","PRONTO_PARA_ENTREGA"); display.setAll(mockPedidos); table.refresh();
-            info("Estado → PRONTO_PARA_ENTREGA.");
-        });
-
+        // M – assign driver
         atribBtn.setOnAction(e -> {
             Map<String, Object> sel = selected(table); if (sel == null) return;
-            if (!"PRONTO_PARA_ENTREGA".equals(sel.get("estado"))) { warn("Pedido deve estar PRONTO_PARA_ENTREGA."); return; }
-            List<String> couriers = mockUsers.stream()
-                .filter(u -> "COURIER".equals(u.get("papel")) && "Sim".equals(u.get("ativo")))
-                .map(u -> u.get("nome").toString()).toList();
+            if (!"PRONTO_PARA_ENTREGA".equals(s(sel, "estado"))) {
+                warn("Pedido deve estar PRONTO_PARA_ENTREGA."); return;
+            }
+            List<String> couriers = users.stream()
+                .filter(u -> "COURIER".equals(s(u, "papel")) && "Sim".equals(s(u, "ativo")))
+                .map(u -> s(u, "nome")).toList();
             if (couriers.isEmpty()) { warn("Nenhum entregador disponível."); return; }
             ChoiceDialog<String> cd = new ChoiceDialog<>(couriers.get(0), couriers);
             cd.setTitle("Atribuir Entregador"); cd.setHeaderText("Escolha o entregador:"); cd.initOwner(mainStage);
-            cd.showAndWait().ifPresent(c -> {
-                sel.put("entregador", c); display.setAll(mockPedidos); table.refresh();
-                info("Entregador " + c + " atribuído.");
+            cd.showAndWait().ifPresent(nome -> {
+                users.stream().filter(u -> nome.equals(s(u, "nome")) && "COURIER".equals(s(u, "papel")))
+                    .findFirst().ifPresent(courier -> {
+                        try {
+                            Map<String, Object> payload = Map.of("entregadorId", courier.get("id"));
+                            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
+                            rest.exchange(BACKEND + "/pedidos/" + sel.get("id") + "/entregador",
+                                HttpMethod.PATCH, entity, Map.class);
+                            info("✓ Entregador " + nome + " atribuído.");
+                            syncPedidos(applyFilter);
+                        } catch (Exception ex) { warn("✗ Erro ao atribuir entregador: " + ex.getMessage()); }
+                    });
             });
         });
 
-        entregBtn.setOnAction(e -> {
-            Map<String, Object> sel = selected(table); if (sel == null) return;
-            if (!"PRONTO_PARA_ENTREGA".equals(sel.get("estado"))) { warn("Pedido deve estar PRONTO_PARA_ENTREGA."); return; }
-            if ("-".equals(sel.get("entregador")) || s(sel,"entregador").isBlank()) { warn("Atribua um entregador antes de registar a entrega."); return; }
-            sel.put("estado","ENTREGUE"); display.setAll(mockPedidos); table.refresh();
-            info("Entrega registada. Estado → ENTREGUE.");
-        });
+        // M – register delivery
+        entregBtn.setOnAction(e -> updateEstadoPedido(selected(table), "PRONTO_PARA_ENTREGA", "ENTREGUE", applyFilter));
 
+        // N – cancel
         cancelBtn.setOnAction(e -> {
             Map<String, Object> sel = selected(table); if (sel == null) return;
-            String st = s(sel,"estado");
-            if (!"CRIADO".equals(st) && !"PAGO".equals(st)) { warn("Só pedidos CRIADO ou PAGO podem ser cancelados."); return; }
-            if (confirm("Cancelar pedido #" + sel.get("id") + "?")) {
-                sel.put("estado","CANCELADO"); display.setAll(mockPedidos); table.refresh();
+            String st = s(sel, "estado");
+            if (!"CRIADO".equals(st) && !"PAGO".equals(st)) {
+                warn("Só pedidos CRIADO ou PAGO podem ser cancelados."); return;
             }
+            if (!confirm("Cancelar pedido #" + sel.get("id") + "?")) return;
+            try {
+                rest.exchange(BACKEND + "/pedidos/" + sel.get("id") + "/cancelar",
+                    HttpMethod.PATCH, HttpEntity.EMPTY, Map.class);
+                info("✓ Pedido cancelado.");
+                syncPedidos(applyFilter);
+            } catch (Exception ex) { warn("✗ Erro ao cancelar: " + ex.getMessage()); }
         });
 
-        return pane(sectionTitle("J/K/L/M/N – Gestão de Pedidos e Entregas"),
-            hbar(lbl("Estado:"), estadoBox, lbl("Cliente:"), clienteF, filtrar),
-            hbar(criarBtn, pagarBtn, prepBtn, prontoBtn, atribBtn, entregBtn, cancelBtn),
-            table,
-            new Label("Detalhes do pedido selecionado:"), details
-        );
+        orderStatusLabel = statusLabel("A carregar pedidos...");
+        syncPedidos(applyFilter);
+        // also ensure users (couriers) are loaded for the assign-driver dialog
+        if (users.isEmpty()) syncUsers(null);
+
+        return pane(sectionTitle("K/L/M/N – Gestão de Pedidos"),
+            hbar(lbl("Estado:"), estadoBox, lbl("Cliente:"), clienteF, filtrar, refreshBtn),
+            hbar(pagarBtn, prepBtn, prontoBtn, atribBtn, entregBtn, cancelBtn),
+            table, new Label("Detalhes do pedido selecionado:"), details,
+            orderStatusLabel);
     }
 
-    private Map<String, Object> criarPedidoDialog() {
-        Dialog<Map<String, Object>> dlg = dialog("Criar Novo Pedido (J)");
+    private void updateEstadoPedido(Map<String, Object> sel, String expectedEstado, String newEstado, Runnable afterUpdate) {
+        if (sel == null) return;
+        if (!expectedEstado.equals(s(sel, "estado"))) {
+            warn("Pedido deve estar em estado " + expectedEstado + "."); return;
+        }
+        try {
+            Map<String, Object> payload = Map.of("estado", newEstado);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
+            rest.exchange(BACKEND + "/pedidos/" + sel.get("id") + "/estado",
+                HttpMethod.PATCH, entity, Map.class);
+            info("✓ Estado atualizado para " + newEstado + ".");
+            syncPedidos(afterUpdate);
+        } catch (Exception ex) { warn("✗ Erro ao atualizar estado: " + ex.getMessage()); }
+    }
 
         List<Map<String, Object>> clientes = mockUsers.stream()
             .filter(u -> "CLIENT".equals(u.get("papel"))).toList();
