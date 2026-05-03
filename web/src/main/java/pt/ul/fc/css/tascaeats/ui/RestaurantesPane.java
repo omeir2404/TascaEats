@@ -77,7 +77,7 @@ public class RestaurantesPane {
         Button editarBtn  = colorBtn("✎ Editar",          "#2196f3");
         Button estadoBtn  = colorBtn("⟳ Alterar Estado",  "#ff9800");
         Button removerBtn = colorBtn("✕ Remover",         "#f44336");
-        Button prodBtn    = colorBtn("🍽 Ver Produtos",    "#7b1fa2");
+        Button menuBtn    = colorBtn("🍽 Ver Menu",    "#7b1fa2");
 
         boolean isAdmin = state.isAdmin();
         criarBtn.setDisable(!isAdmin); editarBtn.setDisable(!isAdmin);
@@ -87,7 +87,7 @@ public class RestaurantesPane {
         editarBtn.setOnAction(e  -> handleEditar(table, applyFilter));
         estadoBtn.setOnAction(e  -> handleEstado(table, applyFilter));
         removerBtn.setOnAction(e -> handleRemover(table, applyFilter));
-        prodBtn.setOnAction(e -> {
+        menuBtn.setOnAction(e -> {
             Map<String, Object> sel = selected(table, owner);
             if (sel != null) onViewProdutos.accept(sel);
         });
@@ -97,7 +97,7 @@ public class RestaurantesPane {
 
         return pane(sectionTitle("E/F – Restaurantes"),
             hbar(lbl("Nome:"), nomeF, lbl("Estado:"), estBox, pesquisar, limpar),
-            hbar(criarBtn, editarBtn, estadoBtn, removerBtn, prodBtn),
+            hbar(criarBtn, editarBtn, estadoBtn, removerBtn, menuBtn),
             table, new Label("Detalhes:"), details, statusLabel);
     }
 
