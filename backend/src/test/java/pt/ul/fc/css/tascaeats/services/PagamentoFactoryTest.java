@@ -17,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import pt.ul.fc.css.tascaeats.domain.pagamento.Pagamento;
+import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoCartao;
 import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoDinheiro;
 import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMBWay;
 import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoMultibanco;

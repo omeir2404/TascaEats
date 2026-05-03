@@ -74,7 +74,7 @@ public class Restaurante{
     @JoinColumn(name = "administrador_id", nullable = false)
     private RestauranteAdmin administrador;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "menu_id", nullable = false)
     private Menu menu;
 
@@ -101,6 +101,7 @@ public class Restaurante{
         this.numeroAvaliacoes = numeroAvaliacoes != null ? numeroAvaliacoes : 0;
         this.avaliacaoMedia = avaliacaoMedia != null ? avaliacaoMedia : 0.0;
         this.precoMedio = precoMedio != null ? precoMedio : 0.0;
+        this.menu = new Menu("Menu " + nome);
     }
     
 

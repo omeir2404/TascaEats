@@ -30,6 +30,10 @@ public class CriarPedidoDTO {
     @Valid
     private List<ItemPedidoDTO> itens;
 
+    private Long restauranteId;
+
+    private List<Long> produtosIds;
+
     @Nullable
     private Long moradaId;
 
@@ -45,6 +49,12 @@ public class CriarPedidoDTO {
     public CriarPedidoDTO(Long clienteId, List<ItemPedidoDTO> itens){
         this.clienteId = clienteId;
         this.itens = itens;
+    }
+
+    public CriarPedidoDTO(Long clienteId, Long restauranteId, List<Long> produtosIds) {
+        this.clienteId = clienteId;
+        this.restauranteId = restauranteId;
+        setProdutosIds(produtosIds);
     }
 
     public CriarPedidoDTO(Long clienteId, List<ItemPedidoDTO> itens, @Nullable Long moradaId){
@@ -71,11 +81,44 @@ public class CriarPedidoDTO {
     }
 
     public List<ItemPedidoDTO> getItens() {
+        if ((itens == null || itens.isEmpty()) && restauranteId != null && produtosIds != null) {
+            itens = produtosIds.stream()
+                    .map(produtoId -> new ItemPedidoDTO(produtoId, restauranteId, 1))
+                    .toList();
+        }
         return itens;
     }
 
     public void setItens(List<ItemPedidoDTO> itens) {
         this.itens = itens;
+    }
+
+    public Long getRestauranteId() {
+        return restauranteId;
+    }
+
+    public void setRestauranteId(Long restauranteId) {
+        this.restauranteId = restauranteId;
+        rebuildItensFromLegacyFields();
+    }
+
+    public List<Long> getProdutosIds() {
+        return produtosIds;
+    }
+
+    public void setProdutosIds(List<Long> produtosIds) {
+        this.produtosIds = produtosIds;
+        rebuildItensFromLegacyFields();
+    }
+
+    private void rebuildItensFromLegacyFields() {
+        if (restauranteId != null && produtosIds != null) {
+            this.itens = produtosIds.stream()
+                    .map(produtoId -> new ItemPedidoDTO(produtoId, restauranteId, 1))
+                    .toList();
+        } else {
+            this.itens = null;
+        }
     }
 
     @Nullable

@@ -22,6 +22,7 @@ public class Cliente extends Utilizador {
 
     public Cliente(String name, String email, String password, Morada address) {
         super(name, email, password);
+        setAddress(address);
     }
     
     public Cliente() {}
@@ -32,6 +33,17 @@ public class Cliente extends Utilizador {
 
     public void setAddresses(List<Morada> addresses){
         this.addresses = addresses;
+    }
+
+    public Morada getAddress() {
+        return addresses.isEmpty() ? null : addresses.get(0);
+    }
+
+    public void setAddress(Morada address) {
+        this.addresses.clear();
+        if (address != null) {
+            addAdresses(address);
+        }
     }
 
     public void addAdresses(Morada address){

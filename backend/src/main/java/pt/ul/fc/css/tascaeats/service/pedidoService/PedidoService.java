@@ -50,8 +50,9 @@ public class PedidoService {
             throw new IllegalArgumentException("Cliente Id inválido.");
         }
 
-        if (criarPedidoDto.getItens() == null || criarPedidoDto.getItens().isEmpty()) {
-            throw new IllegalArgumentException("O pedido deve conter pelo menos um item.");
+        List<ItemPedidoDTO> itens = criarPedidoDto.getItens();
+        if (itens == null || itens.isEmpty()) {
+            throw new IllegalArgumentException("O pedido deve conter pelo menos um produto.");
         }
 
         var utilizador = utilizadorRepository.findById(criarPedidoDto.getClienteId())
@@ -60,10 +61,6 @@ public class PedidoService {
             throw new IllegalArgumentException("Apenas clientes podem criar pedidos.");
         }
         Cliente cliente = (Cliente) utilizador;
-
-        if (criarPedidoDto.getMoradaId() == null && criarPedidoDto.getMoradaNova() == null) {
-            throw new IllegalArgumentException("Deve ser fornecida uma morada de entrega (ID de morada existente ou dados de nova morada).");
-        }
 
         if (criarPedidoDto.getMoradaId() != null && criarPedidoDto.getMoradaNova() != null) {
             throw new IllegalArgumentException("Apenas uma das opções deve ser fornecida: moradaId OU moradaNova.");
@@ -86,7 +83,7 @@ public class PedidoService {
         double valorTotal = 0;
         java.util.Set<Long> restaurantesValidados = new java.util.HashSet<>();
 
-        for (ItemPedidoDTO item : criarPedidoDto.getItens()) {
+        for (ItemPedidoDTO item : itens) {
             if (item.getProdutoId() == null || item.getProdutoId() <= 0) {
                 throw new IllegalArgumentException("Produto Id inválido no item.");
             }
@@ -99,15 +96,6 @@ public class PedidoService {
                 throw new IllegalArgumentException("Quantidade inválida no item: deve ser maior que 0.");
             }
 
-            Produto produto = produtoRepository.findById(item.getProdutoId())
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + item.getProdutoId()));
-
-            produto.validarDisponibilidadeParaPedido();
-
-            if (produto.getRestaurante() == null || !produto.getRestaurante().getId().equals(item.getRestauranteId())) {
-                throw new IllegalArgumentException("O produto " + item.getProdutoId() + " não pertence ao restaurante " + item.getRestauranteId());
-            }
-
             if (!restaurantesValidados.contains(item.getRestauranteId())) {
                 Restaurante restaurante = restauranteRepository.findById(item.getRestauranteId())
                     .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + item.getRestauranteId()));
@@ -116,13 +104,23 @@ public class PedidoService {
                 restaurantesValidados.add(item.getRestauranteId());
             }
 
+            Produto produto = produtoRepository.findById(item.getProdutoId())
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + item.getProdutoId()));
+
+            produto.validarDisponibilidadeParaPedido();
+
+            Long produtoRestauranteId = produto.getRestaurante() != null ? produto.getRestaurante().getId() : null;
+            if (produtoRestauranteId != null && !produtoRestauranteId.equals(item.getRestauranteId())) {
+                throw new IllegalArgumentException("O produto " + item.getProdutoId() + " não pertence ao restaurante " + item.getRestauranteId());
+            }
+
             valorTotal += item.getQuantidade() * produto.getPreco();
         }
 
         Pedido pedido = new Pedido(null, criarPedidoDto.getClienteId());
         pedido.setValorTotal(valorTotal);
 
-        for (ItemPedidoDTO item : criarPedidoDto.getItens()) {
+        for (ItemPedidoDTO item : itens) {
             for (int i = 0; i < item.getQuantidade(); i++) {
                 pedido.adicionarProduto(item.getProdutoId(), item.getRestauranteId());
             }

@@ -97,7 +97,7 @@ public class UtilizadorService {
             existing.setPassword(dto.getPassword());
         }
 
-        if (existing instanceof Cliente client && dto.getAddress() != null) {
+        if (existing instanceof Cliente client && dto.getAddress() != null && client.getAddress() != null) {
             // A morada mais recente fica como predefinida na API.
             applyMorada(client, dto.getAddress());
         }
@@ -141,10 +141,18 @@ public class UtilizadorService {
         if (dto.getType() == null || dto.getType().isBlank()) {
             throw new IllegalArgumentException("Type is required");
         }
+        if (isClienteType(dto.getType()) && dto.getAddress() == null) {
+            throw new IllegalArgumentException("Morada is required for client Utilizadors");
+        }
+
         if (dto.getAddress() != null && dto.getAddress().getCodigoPostal() != null
                 && dto.getAddress().getCodigoPostal().chars().filter(ch -> ch == '-').count() != 1) {
             throw new IllegalArgumentException("Codigo Postal so pode ter 1 '-' ");
         }
+    }
+
+    private boolean isClienteType(String type) {
+        return "client".equalsIgnoreCase(type.trim()) || "cliente".equalsIgnoreCase(type.trim());
     }
 
     private Utilizador buildUtilizadorFromType(String type) {

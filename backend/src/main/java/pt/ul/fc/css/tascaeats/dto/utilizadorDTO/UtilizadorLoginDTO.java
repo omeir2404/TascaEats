@@ -13,6 +13,8 @@ public class UtilizadorLoginDTO {
     private String email;
     private String password;
 
+    public UtilizadorLoginDTO() {
+    }
 
     public UtilizadorLoginDTO(String email, String password) {
         this.email = email;

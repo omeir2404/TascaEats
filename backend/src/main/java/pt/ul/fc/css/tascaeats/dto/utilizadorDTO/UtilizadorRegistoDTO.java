@@ -22,6 +22,9 @@ public class UtilizadorRegistoDTO {
     @Nullable
     MoradaDTO address;
 
+    public UtilizadorRegistoDTO() {
+    }
+
     public UtilizadorRegistoDTO(@NotNull String name, @NotNull String email, @NotNull String password, @NotNull String type, @Nullable MoradaDTO address) {
         this.name = name;
         this.email = email;

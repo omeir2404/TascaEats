@@ -16,13 +16,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import pt.ul.fc.css.tascaeats.domain.entrega.Entrega;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
+import pt.ul.fc.css.tascaeats.dto.entregaDTO.AtribuirEntregadorDTO;
 import pt.ul.fc.css.tascaeats.dto.entregaDTO.EntregaResumoDTO;
-import pt.ul.fc.css.tascaeats.repository.entregaRepository.IEntregaRepository;
 import pt.ul.fc.css.tascaeats.service.entregaService.EntregaService;
 
 @RestController
@@ -30,11 +33,21 @@ import pt.ul.fc.css.tascaeats.service.entregaService.EntregaService;
 public class EntregaController {
 
 	private final EntregaService entregaService;
-	private final IEntregaRepository entregaRepository;
 
-	public EntregaController(EntregaService entregaService, IEntregaRepository entregaRepository) {
+	public EntregaController(EntregaService entregaService) {
 		this.entregaService = entregaService;
-		this.entregaRepository = entregaRepository;
+	}
+
+	@PostMapping("/atribuir")
+	public ResponseEntity<Object> atribuirEntregador(@Valid @RequestBody AtribuirEntregadorDTO dto) {
+		try {
+			Entrega entrega = entregaService.atribuirEntregador(dto);
+			return ResponseEntity.ok(toResumoDTO(entrega));
+		} catch (IllegalArgumentException e) {
+			return mapArgumentError(e);
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+		}
 	}
 
 	@PatchMapping("/pedido/{pedidoId}/iniciar-preparacao")
@@ -81,7 +94,7 @@ public class EntregaController {
 
 	@GetMapping("/pedido/{pedidoId}")
 	public ResponseEntity<Object> obterEntregaPorPedido(@PathVariable Long pedidoId) {
-		Optional<Entrega> entregaOptional = entregaRepository.findByPedidoId(pedidoId);
+		Optional<Entrega> entregaOptional = entregaService.obterEntregaPorPedido(pedidoId);
 		if (entregaOptional.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(Map.of("error", "Entrega não encontrada para pedido: " + pedidoId));

@@ -69,4 +69,6 @@ public class PagamentoDinheiro extends Pagamento {
 
     public void setValorTroco(Double valorTroco) {this.valorTroco = valorTroco;}
 
+    public Double getTroco() {return valorTroco;}
+
 }

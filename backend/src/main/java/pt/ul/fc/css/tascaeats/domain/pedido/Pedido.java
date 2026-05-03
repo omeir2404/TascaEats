@@ -79,6 +79,13 @@ public class Pedido {
         this.hora = LocalTime.now();
     }
 
+    public Pedido(Long id, Long clientId, Long restauranteId) {
+        this(id, clientId);
+        if (restauranteId != null) {
+            this.restaurantesIds.add(restauranteId);
+        }
+    }
+
 // ################### MÉTODOS DE NEGÓCIO ######################################################################
 
     public void adicionarProduto(Long produtoId, Long restauranteId){
@@ -179,6 +186,10 @@ public class Pedido {
 
     public Long getClienteId() {
         return clienteId;
+    }
+
+    public Long getclienteId() {
+        return getClienteId();
     }
 
     public void setClienteId(Long clienteId) {

@@ -62,6 +62,8 @@ public class PagamentoService {
 
         // Keep the checkout response immediate. The simulated delivery flow advances in
         // the background with pauses so the client can still cancel while the order is paid.
-        entregaService.simularPreparacaoRestauranteEAtribuirEntregadorComPausas(pedidoId);
+        if (entregaService != null) {
+            entregaService.simularPreparacaoRestauranteEAtribuirEntregadorComPausas(pedidoId);
+        }
     }
 }

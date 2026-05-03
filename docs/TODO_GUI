@@ -1,37 +1,36 @@
 
+### Phase 1: End-to-End "Happy Path" Testing
+Before looking at edge cases, you must guarantee that the core grading flow works flawlessly from start to finish without any console errors.
 
-### Phase 1: Architecture & State Management (The Foundation)
-Before we build the visual tabs, the app needs to remember *who* is using it and have the tools to talk to the backend.
+*   **Step 1: Fresh Database Start.** Drop your current database tables and let Hibernate recreate them, running your `mockData.sql` so you have a clean slate.
+*   **Step 2: Staff Login.** Launch the GUI and log in as an Admin (ensure the client-blocker we added works and rejects standard customers).
+*   **Step 3: User Management.** Go to the "C/D - Utilizadores" tab. Create a new Entregador. Verify they appear in the list.
+*   **Step 4: Restaurant Management.** Go to the "E/F - Restaurantes" tab. Create a new restaurant. Change its state from `FECHADO` to `ABERTO`.
+*   **Step 5: Catalog Management.** Go to the "G/H - Produtos" tab. Select your new restaurant and add a new product (e.g., "Bitoque"). Toggle its availability.
+*   **Step 6: Order Processing.** Since the native app doesn't *create* orders (clients do that on the web), use Postman (or your Web App) to create a new order. Then, go to the "K/L/M/N - Pedidos" tab in the GUI and push the order through its entire lifecycle: `Pagar` -> `Iniciar Prep` -> `Marcar Pronto` -> `Registar Recolha` -> `Entrega Final`.
 
-1.  **Session Management:** Create a simple `UserSession` class or variable inside `NativeAppGUI` to store the `Long loggedUserId` and `String userRole` (Admin, Cliente, Entregador) after a successful login. 
-2.  **API Client Expansion:** You currently have `RestauranteApiClient`. We need to replicate this pattern to create:
-    *   `UtilizadorApiClient` (for Casos A, C, D)
-    *   `ProdutoApiClient` (for Casos G, H, I)
-    *   `PedidoApiClient` & `EntregaApiClient` (for Casos J, K, L, M, N)
+### Phase 2: Edge Cases & Error Handling
+Graders will intentionally try to break your app. You need to make sure it handles bad input gracefully instead of crashing or freezing.
 
-### Phase 2: Autenticação & Utilizadores (Casos A, C, D)
-1.  **Caso A (Login):** Update the `showLoginPane` to take the email/password, call a login endpoint (or a mock `GET /api/Utilizadors` filter), and set the global `UserSession`.
-2.  **Casos C/D (Gestão de Utilizadores):** 
-    *   Connect the `TableView` in `createUsersPane()` to `UtilizadorApiClient.listarUtilizadores()`.
-    *   Wire up the "+ Criar" and "✕ Remover" buttons to open a JavaFX `Dialog` and trigger `POST` / `DELETE` requests to `/api/Utilizadors`.
+*   **Empty Fields:** Try creating a user, restaurant, or product with empty fields. Ensure the GUI shows a red warning label instead of throwing a Java `NullPointerException`.
+*   **Invalid Data:** Try putting letters in a price field or an invalid NIF (if your backend validates that). Ensure the backend's `400 Bad Request` message is caught by your API client and displayed nicely in the UI.
+*   **Backend Offline Test:** Shut down your Spring Boot server and try to log in or click "Atualizar". Verify that your `fallbackUsado` logic kicks in and shows the yellow warning ("Backend indisponível") rather than crashing the application.
+*   **Action Invalid State:** Try to click "Marcar Pronto" on an order that is already "ENTREGUE". Ensure the UI stops you.
 
-### Phase 3: Gestão de Catálogo (Casos F, G, H, I)
-*Note: Caso E (Buscar Restaurantes) is already implemented!*
+### Phase 3: Code Cleanup & Formatting
+Clean code accounts for a significant portion of the grade in university projects.
 
-1.  **Caso F (Gerir Restaurantes):** Add a "+ Criar Restaurante" button to your Restaurantes tab that opens a form (Nome, NIF, Morada) and sends a `POST /api/restaurantes`.
-2.  **Casos G/H/I (Gestão de Produtos):**
-    *   Update `createProductsPane()` to fetch data using `ProdutoApiClient.listarProdutos(restauranteId)`.
-    *   Since products belong to a restaurant, we should add a combo box at the top of the Produtos tab to *select a restaurant first*, then load its products.
-    *   Wire the "Indisponível" button to your backend's `PATCH /api/produtos/{id}/disponibilidade`.
+*   **File Headers:** Ensure every single `.java` file has your `// CSS GRUPO: 25` header with all author names and student numbers.
+*   **Remove Dead Code:** Delete any commented-out blocks of code, unused imports, or old `System.out.println()` statements you used for debugging.
+*   **Consistent Naming:** Do a quick scan to ensure your variables and methods follow Java conventions (`camelCase` for variables/methods, `PascalCase` for classes).
 
-### Phase 4: Fluxo de Pedidos e Entregas (Casos J, K, L, M, N)
-This is the most complex part of Fase 2, as it requires state transitions.
+### Phase 4: Submission Preparation
+The easier it is for the grader to run your code, the better your grade will be.
 
-1.  **Caso J/K (Criar Pedido e Pagar):** This might need a dedicated "Novo Pedido" window. Since this is an admin/staff GUI, we can create a simplified form that takes a `Cliente ID`, a `Restaurante ID`, and a `Produto ID`, then sends the `POST /pedidos` and `POST /pagamentos` sequentially.
-2.  **Casos L/M/N (Ciclo de Vida do Pedido):**
-    *   Connect the `TableView` in `createOrdersPane()` to `PedidoApiClient.listarPedidos()`.
-    *   Bind those beautiful toolbar buttons you already created to the real endpoints we built earlier:
-        *   **"⌛ Iniciar Preparação"** -> `PATCH /entregas/pedido/{id}/iniciar-preparacao`
-        *   **"✓ Marcar Pronto"** -> `PATCH /entregas/pedido/{id}/marcar-pronto`
-        *   **"✓ Registar Entrega"** -> `PATCH /entregas/pedido/{id}/entrega-final`
-        *   **"✕ Cancelar"** -> `POST /pedidos/{id}/cancelar`
+*   **Update `mockData.sql`:** Ensure your mock data is rich. Have at least 3 restaurants, a few admins, couriers, and some pre-existing orders in different states (`CRIADO`, `PAGO`, `A_PREPARAR`) so the grader doesn't have to start from zero to see your UI working.
+*   **Update the `README.md`:** Write crystal clear instructions on how to run the native application. 
+    *   State exactly which command to run (e.g., `mvn clean javafx:run`).
+    *   Mention that the backend must be running first.
+    *   Provide **test credentials** explicitly in the README (e.g., *"To test the native app, log in with admin@tascaeats.pt / password123"*).
+*   **Verify Requirements against the PDF:** Open the Fase 2 PDF one last time. Go through the grading rubric and physically check off every requested Use Case to ensure nothing was accidentally left out of the final build.
+

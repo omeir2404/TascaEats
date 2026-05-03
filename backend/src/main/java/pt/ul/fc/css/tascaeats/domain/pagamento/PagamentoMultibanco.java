@@ -46,20 +46,25 @@ public class PagamentoMultibanco extends Pagamento {
         this.bandeiraCartao = bandeiraCartao;
     }
 
+    public PagamentoMultibanco(Long id,
+                               double valor,
+                               LocalDate dataPagamento,
+                               String referenciaPagamento,
+                               String entidade,
+                               String referencia) {
+        this(id, valor, dataPagamento, referenciaPagamento, entidade, referencia, "MULTIBANCO");
+    }
+
     // ################### MÉTODOS DE NEGÓCIO ###################
 
     @Override
     public void validarDetalhes() {
         if (entidade == null || !entidade.matches("\\d{5}")) {
-            throw new IllegalArgumentException("Entidade inválida (5 dígitos).");
+            throw new IllegalArgumentException("Entidade inválida. Deve conter 5 dígitos.");
         }
 
         if (referencia == null || !referencia.matches("\\d{9}")) {
-            throw new IllegalArgumentException("Referência inválida (9 dígitos).");
-        }
-
-        if (bandeiraCartao == null || bandeiraCartao.isBlank()) {
-            throw new IllegalArgumentException("Bandeira de cartão obrigatória.");
+            throw new IllegalArgumentException("Referência inválida. Deve conter 9 dígitos.");
         }
     }
 
