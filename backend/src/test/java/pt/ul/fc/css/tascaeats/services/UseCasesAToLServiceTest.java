@@ -145,11 +145,15 @@ class UseCasesAToLServiceTest {
     }
 
     @Test
-    @DisplayName("B: registration fails when client has no address")
-    void registrationShouldFailWhenClientAddressMissing() {
-        assertThatThrownBy(() -> utilizadorService.createUtilizador(registo("Ana", "ana@tasca.pt", "pw", "client", null)))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Morada is required for client Utilizadors");
+    @DisplayName("B: registration creates client even when no address is provided")
+    void registrationShouldCreateClientWithoutAddress() {
+        when(utilizadorRepository.findByEmail("ana@tasca.pt")).thenReturn(Optional.empty());
+        when(utilizadorRepository.save(any(Utilizador.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Utilizador client = utilizadorService.createUtilizador(registo("Ana", "ana@tasca.pt", "pw", "client", null));
+
+        assertThat(client).isInstanceOf(Cliente.class);
+        assertThat(((Cliente) client).getAddress()).isNull();
     }
 
     // C) Verificar, remover e atualizar utilizadores

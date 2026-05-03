@@ -167,6 +167,9 @@ public class WebPedidoController {
 
     @PostMapping("/checkout/processar")
     public String processarCheckout(
+            @RequestParam String metodoPagamento,
+            @RequestParam(required = false) String telemovel,
+            @RequestParam(required = false) String bandeiraCartao,
             @RequestParam(required = false) String rua,
             @RequestParam(required = false) Integer numero,
             @RequestParam(required = false) String complemento,

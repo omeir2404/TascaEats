@@ -411,7 +411,7 @@ public class WebUtilizadorController {
                 || !hasText(cidade)
                 || !hasText(distrito)
                 || !hasText(pais)) {
-            throw new IllegalArgumentException("If you provide an address, all mandatory address fields must be filled.");
+            throw new IllegalArgumentException("Se preencher uma morada, todos os campos obrigatórios da morada têm de estar preenchidos.");
         }
 
         Map<String, Object> address = new HashMap<>();

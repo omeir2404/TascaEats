@@ -26,6 +26,7 @@
                     <span class="section-eyebrow">Criar conta</span>
                     <h2 style="font-size: 2rem;">Nova conta</h2>
                 </div>
+                <div th:if="${error != null}" class="error-message" th:text="${error}"></div>
 
                 <form th:action="@{/registo}" method="POST">
                     <div class="auth-form-field">
@@ -114,6 +115,7 @@
                     if (!isClient) {
                         input.value = "";
                     }
+                    input.required = false;
                 });
             }
 

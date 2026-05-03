@@ -110,13 +110,16 @@ class UtilizadorServiceTest {
     }
 
     @Test
-    @DisplayName("Case: invalid registration fails when client address is missing")
-    void shouldFailRegistrationWhenClienteMoradaIsMissing() {
+    @DisplayName("Case: valid registration creates client without address")
+    void shouldCreateClienteWhenMoradaIsMissing() {
         UtilizadorRegistoDTO dto = registration("Ana", "ana@example.com", "secret", "client", null);
+        when(UtilizadorRepository.findByEmail("ana@example.com")).thenReturn(Optional.empty());
+        when(UtilizadorRepository.save(any(Utilizador.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertThatThrownBy(() -> UtilizadorService.createUtilizador(dto))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Morada is required for client Utilizadors");
+        Utilizador created = UtilizadorService.createUtilizador(dto);
+
+        assertThat(created).isInstanceOf(Cliente.class);
+        assertThat(((Cliente) created).getAddress()).isNull();
     }
 
     @Test
@@ -405,5 +408,4 @@ class UtilizadorServiceTest {
         return client;
     }
 }
-
 

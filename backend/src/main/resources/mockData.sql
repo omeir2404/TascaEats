@@ -590,3 +590,4 @@ WHERE r.nif = '444555666'
   );
 
 SELECT setval('utilizadores_seq', (SELECT COALESCE(MAX(id), 1) FROM utilizadores), true);
+SELECT setval('morada_utilizador_seq', COALESCE((SELECT MAX(id) FROM morada_utilizador), 0) + 1, false);
