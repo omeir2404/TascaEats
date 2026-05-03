@@ -53,6 +53,18 @@ public class PagamentoFactoryTest {
         assertInstanceOf(PagamentoDinheiro.class, pagamento);
     }
 
+    @Test
+    @DisplayName("B2: criar DINHEIRO aceita valor recebido com virgula e euro")
+    void criarDinheiroComValorFormatado() {
+        Pagamento pagamento = pagamentoFactory.create(
+                "DINHEIRO",
+                12.5,
+                Map.of("valorRecebido", "12,50€")
+        );
+
+        assertInstanceOf(PagamentoDinheiro.class, pagamento);
+    }
+
     // C) criar MULTIBANCO com detalhes válidos deve retornar PagamentoMultibanco
     @Test
     @DisplayName("C: criar MULTIBANCO com detalhes válidos deve retornar PagamentoMultibanco")

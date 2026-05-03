@@ -82,8 +82,12 @@ public class PagamentoFactory {
             return numero.doubleValue();
         }
 
+        String texto = String.valueOf(valor).trim()
+                .replace("€", "")
+                .replace(" ", "")
+                .replace(",", ".");
         try {
-            return Double.parseDouble(String.valueOf(valor).trim());
+            return Double.parseDouble(texto);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Campo numérico inválido em detalhes: " + campo);
         }

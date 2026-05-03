@@ -9,6 +9,7 @@
 package pt.ul.fc.css.tascaeats.dto.pedidoDTO;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,6 +41,12 @@ public class CriarPedidoDTO {
     @Nullable
     @Valid
     private MoradaDTO moradaNova;
+
+    @Nullable
+    private String tipoPagamentoSolicitado;
+
+    @Nullable
+    private Map<String, String> detalhesPagamentoSolicitado;
 
 
     // *********CONSTRUTORES**********
@@ -143,6 +150,26 @@ public class CriarPedidoDTO {
     public String toString(){
         return "CriarPedidoDTO{" + "clienteId=" + clienteId +
                     ", itens=" + itens +
-                    ", moradaId=" + moradaId + ", moradaNova=" + moradaNova +"}";
+                    ", moradaId=" + moradaId + ", moradaNova=" + moradaNova +
+                    ", tipoPagamentoSolicitado=" + tipoPagamentoSolicitado +
+                    ", detalhesPagamentoSolicitado=" + detalhesPagamentoSolicitado +"}";
+    }
+
+    @Nullable
+    public String getTipoPagamentoSolicitado() {
+        return tipoPagamentoSolicitado;
+    }
+
+    public void setTipoPagamentoSolicitado(@Nullable String tipoPagamentoSolicitado) {
+        this.tipoPagamentoSolicitado = tipoPagamentoSolicitado;
+    }
+
+    @Nullable
+    public Map<String, String> getDetalhesPagamentoSolicitado() {
+        return detalhesPagamentoSolicitado;
+    }
+
+    public void setDetalhesPagamentoSolicitado(@Nullable Map<String, String> detalhesPagamentoSolicitado) {
+        this.detalhesPagamentoSolicitado = detalhesPagamentoSolicitado;
     }
 }
