@@ -40,7 +40,7 @@
                         <span class="header-cart__eyebrow">Finalize a sua Compra</span>
                         <h3>Resumo do seu pedido</h3>
                         <ul class="header-cart__items" id="headerCartItems"></ul>
-                        <p class="header-cart__empty" id="headerCartEmpty" th:if="${cartItems == null or #lists.isEmpty(cartItems)}">Ainda nao adicionaste produtos ao carrinho.</p>
+                        <p class="header-cart__empty" id="headerCartEmpty" th:if="${cartItems == null or #lists.isEmpty(cartItems)}">Ainda não adicionaste produtos ao carrinho.</p>
                         <p class="header-cart__total">
                             Total: <span id="headerCartTotal" th:text="${#numbers.formatDecimal(cartTotal, 1, 2)} + '€'">0,00€</span>
                         </p>

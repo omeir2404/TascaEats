@@ -18,21 +18,17 @@
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main class="page-shell">
+    <main class="page-shell page-shell--orders">
         <section class="split-intro">
             <div class="page-intro">
                 <h2>Histórico de pedidos</h2>
             </div>
-            <aside class="intro-aside">
-                <strong>Acompanhamento</strong>
-                <p>Consulta restaurante, data, total e estado antes de abrir o detalhe.</p>
-            </aside>
         </section>
 
         <section class="orders-list">
             <div th:if="${pedidos == null or pedidos.empty}" class="empty-state">
                 <p>Ainda não existem pedidos no histórico.</p>
-                <div class="stack-actions" style="justify-content: center; margin-top: 16px;">
+                <div class="stack-actions" style="justify-content: center; margin-top: 6px;">
                     <a th:href="@{/restaurantes}"><button>Procurar restaurantes</button></a>
                 </div>
             </div>

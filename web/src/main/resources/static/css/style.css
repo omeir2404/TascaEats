@@ -434,6 +434,29 @@ p {
     margin-top: -4px;
 }
 
+.page-shell--orders {
+    padding-top: 14px;
+    gap: 4px;
+}
+
+.page-shell--orders .split-intro {
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+.page-shell--orders .page-intro h2 {
+    color: var(--brand);
+    margin-top: -30px;
+}
+
+.page-shell--orders .orders-list {
+    margin-top: -6px;
+}
+
+.page-shell--orders .empty-state {
+    padding-top: 10px;
+}
+
 .page-shell--users {
     padding-top: 12px;
 }

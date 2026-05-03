@@ -266,7 +266,7 @@ public class WebUtilizadorController {
         }
 
         Map<String, Object> normalized = new HashMap<>();
-        normalized.put("id", user.getOrDefault("id", 0));
+        normalized.put("id", normalizePositiveId(user.get("id")));
         normalized.put("nome", user.getOrDefault("name", ""));
         normalized.put("email", user.getOrDefault("email", ""));
         normalized.put("inicial", buildInitial(String.valueOf(user.getOrDefault("name", ""))));
@@ -349,7 +349,19 @@ public class WebUtilizadorController {
             return false;
         }
 
-        return Long.valueOf(String.valueOf(sessionId)).equals(id);
+        return normalizePositiveId(sessionId).equals(Math.abs(id));
+    }
+
+    private Long normalizePositiveId(Object rawId) {
+        if (rawId == null) {
+            return 0L;
+        }
+
+        try {
+            return Math.abs(Long.parseLong(String.valueOf(rawId)));
+        } catch (NumberFormatException e) {
+            return 0L;
+        }
     }
 
     private String mapBackendTypeToPapel(String type) {

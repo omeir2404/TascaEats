@@ -91,7 +91,7 @@ public class WebRestauranteController {
         if (morada != null && !morada.isBlank()) {
             builder.queryParam("morada", morada);
         }
-        if (precoMedio != null) {
+        if (precoMedio != null && precoMedio > 0) {
             builder.queryParam("precoMedio", precoMedio);
         }
 
@@ -109,7 +109,7 @@ public class WebRestauranteController {
         model.addAttribute("pedidosRealizados", pedidosRealizados);
         model.addAttribute("avaliacaoMinima", avaliacaoMinima);
         model.addAttribute("morada", morada);
-        model.addAttribute("precoMedio", precoMedio);
+        model.addAttribute("precoMedio", precoMedio != null && precoMedio > 0 ? precoMedio : 0);
         return "pesquisa";
     }
 
