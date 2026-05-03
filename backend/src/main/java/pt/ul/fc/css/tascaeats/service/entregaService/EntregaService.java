@@ -80,7 +80,13 @@ public class EntregaService {
 
         pedido = pedidoRepository.save(pedido);
         associarEntregadorAutomaticamente(pedido);
-        return pedido;
+
+        // Continue the simulated flow automatically until delivered.
+        registarRecolha(pedidoId);
+        registarEntregaFinal(pedidoId);
+
+        return pedidoRepository.findById(pedidoId)
+            .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado: " + pedidoId));
     }
 
     
@@ -110,10 +116,11 @@ public class EntregaService {
     private void associarEntregadorAutomaticamente(Pedido pedido) {
         Entregador entregador = null;
         
-        // Find the first available delivery person.
+        // Find the first courier without an open delivery. This avoids getting stuck
+        // when the `available` flag becomes stale in persisted environments.
         for (var utilizador : utilizadorRepository.findAll()) {
             if (utilizador instanceof Entregador candidato) {
-                if (candidato.isAvailable() && !entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
+                if (!entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
                     entregador = candidato;
                     break;
                 }
