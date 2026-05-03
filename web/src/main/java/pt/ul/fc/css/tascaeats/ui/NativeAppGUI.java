@@ -217,7 +217,7 @@ public class NativeAppGUI extends Application {
     }
 
     // ─────────────────────────────────────────────────────────────────────
-     // B / C / D – Utilizadores
+    // C / D – Utilizadores (Admins & Entregadores only for registration)
     // ─────────────────────────────────────────────────────────────────────
     private VBox buildUsersPane() {
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
@@ -338,14 +338,14 @@ public class NativeAppGUI extends Application {
     // E / F – Restaurantes
     // ─────────────────────────────────────────────────────────────────────
     private VBox buildRestaurantesPane() {
-        ObservableList<Map<String, Object>> display = FXCollections.observableArrayList(mockRestaurantes);
+        ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
             col("ID","id"), col("Nome","nome"), col("Estado","estado"),
             col("Cidade","cidade"), col("NIF","nif")
         );
 
-        javafx.scene.control.TextArea details = new javafx.scene.control.TextArea();
-        details.setEditable(false); details.setPrefRowCount(5);
+        TextArea details = new TextArea();
+        details.setEditable(false); details.setPrefRowCount(4);
         details.setPromptText("Selecione um restaurante para ver detalhes.");
         table.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
             if (n != null) details.setText(
@@ -353,18 +353,22 @@ public class NativeAppGUI extends Application {
                 "\nEstado: " + n.get("estado") + "\nCidade: " + n.get("cidade") + "\nNIF: " + n.get("nif"));
         });
 
-        TextField nomeF = field("Nome do restaurante...", 200);
-        ComboBox<String> estBox = combo("Todos","ABERTO","FECHADO","RESERVADO");
-        Runnable filter = () -> {
+        // E – Search filters
+        TextField       nomeF   = field("Nome do restaurante...", 200);
+        ComboBox<String> estBox = combo("Todos", "ABERTO", "FECHADO", "RESERVADO");
+
+        Runnable applyFilter = () -> {
             String q = nomeF.getText().toLowerCase();
             String e = estBox.getValue();
-            display.setAll(mockRestaurantes.stream()
-                .filter(r -> q.isBlank() || r.get("nome").toString().toLowerCase().contains(q))
-                .filter(r -> "Todos".equals(e) || e.equals(r.get("estado")))
+            display.setAll(restaurantes.stream()
+                .filter(r -> q.isBlank() || s(r, "nome").toLowerCase().contains(q))
+                .filter(r -> "Todos".equals(e) || e.equals(s(r, "estado")))
                 .toList());
         };
-        Button filtrar = new Button("Pesquisar"); filtrar.setDefaultButton(true); filtrar.setOnAction(e -> filter.run());
-        Button limpar  = new Button("Limpar"); limpar.setOnAction(e -> { nomeF.clear(); estBox.getSelectionModel().selectFirst(); filter.run(); });
+        Button pesquisar = new Button("Pesquisar"); pesquisar.setDefaultButton(true);
+        pesquisar.setOnAction(e -> applyFilter.run());
+        Button limpar = new Button("Limpar");
+        limpar.setOnAction(e -> { nomeF.clear(); estBox.getSelectionModel().selectFirst(); applyFilter.run(); });
 
         Button criarBtn   = colorBtn("+ Criar",          "#4caf50");
         Button editarBtn  = colorBtn("✎ Editar",          "#2196f3");
@@ -385,16 +389,39 @@ public class NativeAppGUI extends Application {
             removerBtn.setDisable(true);
             prodBtn.setDisable(true);
         }
+        // F – Management (admin only)
+        boolean isAdmin = currentUser != null && "ADMIN".equals(s(currentUser, "papel"));
+        Button criarBtn   = colorBtn("+ Criar",         "#4caf50");
+        Button editarBtn  = colorBtn("✎ Editar",         "#2196f3");
+        Button estadoBtn  = colorBtn("⟳ Alterar Estado", "#ff9800");
+        Button removerBtn = colorBtn("✕ Remover",        "#f44336");
+        Button prodBtn    = colorBtn("🍽 Ver Produtos",   "#7b1fa2");
+        criarBtn.setDisable(!isAdmin); editarBtn.setDisable(!isAdmin);
+        estadoBtn.setDisable(!isAdmin); removerBtn.setDisable(!isAdmin);
 
         criarBtn.setOnAction(e -> {
             Map<String, Object> novo = restauranteDialog(null);
-            if (novo != null) { novo.put("id", nextRestId++); mockRestaurantes.add(novo); filter.run(); info("Restaurante criado."); }
+            if (novo == null) return;
+            try {
+                // POST /api/restaurantes — adapt payload to your backend's expected format
+                Map<String, Object> payload = buildRestaurantePayload(novo);
+                rest.postForEntity(BACKEND + "/api/restaurantes", payload, Map.class);
+                info("✓ Restaurante criado.");
+                syncRestaurantes(applyFilter);
+            } catch (Exception ex) { warn("✗ Erro ao criar restaurante: " + ex.getMessage()); }
         });
+
         editarBtn.setOnAction(e -> {
             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
             if (sel == null) { warn("Selecione um restaurante."); return; }
             Map<String, Object> edited = restauranteDialog(sel);
-            if (edited != null) { sel.putAll(edited); display.setAll(mockRestaurantes); table.refresh(); }
+            if (edited == null) return;
+            try {
+                HttpEntity<Map<String, Object>> entity = new HttpEntity<>(buildRestaurantePayload(edited));
+                rest.exchange(BACKEND + "/api/restaurantes/" + sel.get("id"), HttpMethod.PUT, entity, Map.class);
+                info("✓ Restaurante atualizado.");
+                syncRestaurantes(applyFilter);
+            } catch (Exception ex) { warn("✗ Erro ao editar: " + ex.getMessage()); }
         });
         estadoBtn.setOnAction(e -> {
             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
