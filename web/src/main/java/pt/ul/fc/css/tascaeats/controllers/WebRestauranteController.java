@@ -56,6 +56,7 @@ public class WebRestauranteController {
         return "restaurantes";
     }
 
+    // 2. Search page: Advanced filters
     @GetMapping("/restaurantes/pesquisa")
     public String pesquisarRestaurantes(
             @RequestParam(required = false) String nome,
@@ -109,6 +110,7 @@ public class WebRestauranteController {
         return "pesquisa";
     }
 
+    // 3. Live Search API for JavaScript Dropdown
     @GetMapping("/api/web/live-search")
     @ResponseBody
     public ResponseEntity<?> liveSearch(@RequestParam String nome) {
