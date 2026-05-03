@@ -202,6 +202,8 @@
             </div>
         </section>
 
+        <div th:if="${erro != null}" class="error-message page-error" th:text="${erro}">Erro ao carregar dados.</div>
+
         <section class="filter-shell">
             <div class="filtro-container">
                 <form th:action="@{/restaurantes/{id}/produtos/search(id=${restauranteId})}" method="GET" class="product-filters-form">

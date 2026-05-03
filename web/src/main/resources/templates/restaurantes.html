@@ -28,6 +28,8 @@
         </section>
 
         <section class="catalog-wrap">
+        <div th:if="${erro != null}" class="error-message page-error" th:text="${erro}">Erro ao carregar dados.</div>
+
         <div id="liveGridContainer" style="display: none;">
             <div class="section-header">
                 <div>

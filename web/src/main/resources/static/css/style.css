@@ -1443,6 +1443,11 @@ p {
     border-radius: 10px;
 }
 
+.page-error {
+    width: min(1120px, 100%);
+    margin: 0 auto;
+}
+
 .table-shell {
     background: var(--surface);
     border: 1px solid #e5ded1;

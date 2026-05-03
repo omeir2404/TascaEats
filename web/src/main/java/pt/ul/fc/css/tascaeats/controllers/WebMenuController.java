@@ -46,7 +46,7 @@ public class WebMenuController {
             menus = carregarMenusDoBackend();
         } catch (Exception e) {
             menus = List.of();
-            model.addAttribute("erro", "Could not load menus from backend.");
+            model.addAttribute("erro", WebErrorMessages.backendFailure("Nao foi possivel carregar os menus", e, backendUrl));
         }
 
         List<Map<String, Object>> filtrados = menus.stream()

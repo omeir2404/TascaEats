@@ -243,7 +243,7 @@ public class WebPedidoController {
             session.setAttribute("cartCleared", true);
             return "redirect:/pedidos/" + pedidoId;
         } catch (Exception e) {
-            session.setAttribute("checkoutError", "Falha ao processar checkout: " + e.getMessage());
+            session.setAttribute("checkoutError", WebErrorMessages.backendFailure("Nao foi possivel processar o checkout", e, backendUrl));
             return "redirect:/checkout";
         }
 
@@ -287,7 +287,7 @@ public class WebPedidoController {
     }
 
     @PostMapping("/pedidos/{id}/cancelar")
-    public String cancelarPedido(@PathVariable Long id) {
+    public String cancelarPedido(@PathVariable Long id, HttpSession session) {
         try {
             restTemplate.exchange(
                     backendUrl + "/pedidos/" + id + "/cancelar",
@@ -296,6 +296,7 @@ public class WebPedidoController {
                     Object.class
             );
         } catch (Exception e) {
+            session.setAttribute("pedidoDetalheError", WebErrorMessages.backendFailure("Nao foi possivel cancelar o pedido", e, backendUrl));
             return "redirect:/pedidos/" + id;
         }
         return "redirect:/pedidos/" + id;
@@ -344,7 +345,7 @@ public class WebPedidoController {
             restTemplate.postForEntity(backendUrl + "/avaliacoes", payload, String.class);
             session.setAttribute("pedidoDetalheSuccess", "Avaliação submetida com sucesso.");
         } catch (Exception e) {
-            session.setAttribute("pedidoDetalheError", "Não foi possível submeter a avaliação: " + e.getMessage());
+            session.setAttribute("pedidoDetalheError", WebErrorMessages.backendFailure("Nao foi possivel submeter a avaliacao", e, backendUrl));
         }
 
         return "redirect:/pedidos/" + id;

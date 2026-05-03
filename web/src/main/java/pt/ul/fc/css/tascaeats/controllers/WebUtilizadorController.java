@@ -58,7 +58,7 @@ public class WebUtilizadorController {
             model.addAttribute("utilizadores", filtrados);
         } catch (Exception e) {
             model.addAttribute("utilizadores", List.of());
-            model.addAttribute("error", "Could not load users from backend.");
+            model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel carregar os utilizadores", e, backendUrl));
         }
 
         model.addAttribute("nome", nome);
@@ -93,10 +93,10 @@ public class WebUtilizadorController {
                 session.setAttribute("loggedUser", loggedInUser.get());
                 return "redirect:/restaurantes";
             }
-            model.addAttribute("error", "User authenticated but not found in user list.");
+            model.addAttribute("error", "Login aceite pelo backend, mas nao encontrei os dados do utilizador para criar a sessao. Confirma se o utilizador existe na lista.");
             return "login";
         } catch (Exception e) {
-            model.addAttribute("error", "Login failed: could not connect to backend.");
+            model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel iniciar sessao", e, backendUrl));
             return "login";
         }
     }
@@ -141,8 +141,11 @@ public class WebUtilizadorController {
 
             restTemplate.postForEntity(backendUrl + "/api/register", payload, Map.class);
             return "redirect:/login";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", WebErrorMessages.validationFailure("Nao foi possivel criar a conta", e));
+            return "registo";
         } catch (Exception e) {
-            model.addAttribute("error", "Registration failed. Check the data and try again.");
+            model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel criar a conta", e, backendUrl));
             return "registo";
         }
     }
@@ -164,7 +167,7 @@ public class WebUtilizadorController {
                 return "perfil";
             }
         } catch (Exception e) {
-            model.addAttribute("error", "Could not load user profile.");
+            model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel carregar o perfil", e, backendUrl));
         }
         return "redirect:/utilizadores";
     }
@@ -219,8 +222,11 @@ public class WebUtilizadorController {
             Optional<Map<String, Object>> updatedUser = findUserByEmail(email);
             updatedUser.ifPresent(user -> session.setAttribute("loggedUser", user));
             session.setAttribute("profileSuccess", "Perfil atualizado com sucesso.");
+        } catch (IllegalArgumentException e) {
+            session.setAttribute("profileError", WebErrorMessages.validationFailure("Nao foi possivel atualizar o perfil", e));
+            return "redirect:/perfil/" + id;
         } catch (Exception e) {
-            session.setAttribute("profileError", "Nao foi possivel atualizar o perfil. Confirma os dados e tenta novamente.");
+            session.setAttribute("profileError", WebErrorMessages.backendFailure("Nao foi possivel atualizar o perfil", e, backendUrl));
             return "redirect:/perfil/" + id;
         }
 
@@ -238,6 +244,7 @@ public class WebUtilizadorController {
             restTemplate.delete(backendUrl + "/api/Utilizadors/" + id);
             session.invalidate();
         } catch (Exception e) {
+            session.setAttribute("profileError", WebErrorMessages.backendFailure("Nao foi possivel eliminar a conta", e, backendUrl));
             return "redirect:/perfil/" + id;
         }
         return "redirect:/utilizadores";

@@ -23,6 +23,8 @@
             <h2>Explorar menus</h2>
         </section>
 
+        <div th:if="${erro != null}" class="error-message page-error" th:text="${erro}">Erro ao carregar dados.</div>
+
         <section class="filtro-container">
             <form th:action="@{/menus}" method="GET">
                 <div class="form-group form-group--wide">

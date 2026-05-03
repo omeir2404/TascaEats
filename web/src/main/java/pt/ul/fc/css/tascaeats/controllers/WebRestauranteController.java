@@ -54,7 +54,7 @@ public class WebRestauranteController {
         } catch (Exception e) {
             model.addAttribute("restaurantes", List.of());
             model.addAttribute("restauranteDestaque", null);
-            model.addAttribute("erro", "Could not connect to the backend API.");
+            model.addAttribute("erro", WebErrorMessages.backendFailure("Nao foi possivel carregar os restaurantes", e, backendUrl));
         }
 
         return "restaurantes";
@@ -100,7 +100,7 @@ public class WebRestauranteController {
             model.addAttribute("restaurantes", sanitizeRestaurantes(restaurantes));
         } catch (Exception e) {
             model.addAttribute("restaurantes", List.of());
-            model.addAttribute("erro", "Could not fetch search results from the backend.");
+            model.addAttribute("erro", WebErrorMessages.backendFailure("Nao foi possivel pesquisar restaurantes", e, backendUrl));
         }
 
         model.addAttribute("nome", nome);
@@ -125,7 +125,7 @@ public class WebRestauranteController {
             List<Map<String, Object>> searchResults = restTemplate.getForObject(targetUrl, List.class);
             return ResponseEntity.ok(sanitizeRestaurantes(searchResults));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error fetching live results");
+            return ResponseEntity.status(500).body(WebErrorMessages.backendFailure("Nao foi possivel obter sugestoes de pesquisa", e, backendUrl));
         }
     }
 
@@ -140,7 +140,7 @@ public class WebRestauranteController {
             model.addAttribute("produtos", sanitizeProdutos(produtos));
         } catch (Exception e) {
             model.addAttribute("produtos", List.of());
-            model.addAttribute("erro", "Could not load menu products from backend.");
+            model.addAttribute("erro", WebErrorMessages.backendFailure("Nao foi possivel carregar os produtos do restaurante", e, backendUrl));
         }
 
         model.addAttribute("restauranteId", id);
@@ -174,7 +174,7 @@ public class WebRestauranteController {
             model.addAttribute("produtos", produtosFiltrados);
         } catch (Exception e) {
             model.addAttribute("produtos", List.of());
-            model.addAttribute("erro", "Product search failed.");
+            model.addAttribute("erro", WebErrorMessages.backendFailure("Nao foi possivel pesquisar produtos", e, backendUrl));
         }
 
         model.addAttribute("restauranteId", id);
