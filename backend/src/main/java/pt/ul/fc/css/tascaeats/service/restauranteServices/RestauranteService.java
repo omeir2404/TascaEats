@@ -141,6 +141,17 @@ public class RestauranteService {
 		return restauranteRepository.findByNomeContainingIgnoreCase(nome.trim());
 	}
 
+	// Remover restaurante
+	@Transactional(rollbackFor = Exception.class)
+	public boolean removerRestaurante(Long id) {
+		Optional<Restaurante> restaurant = restauranteRepository.findById(id);
+		if (restaurant == null) {
+			return false; // Restaurante não encontrado, não é possível remover
+		}
+		restauranteRepository.delete(restaurant.get());
+		return true;
+	}
+
 	//Procurar restaurante por cidade
 	@Transactional(readOnly = true)
 	public List<Restaurante> procurarRestaurantePorCidade(String cidade) {
