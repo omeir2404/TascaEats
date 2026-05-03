@@ -1,200 +1,120 @@
-# TascaEats Fase 1
+
+# TascaEats Fase 2
 
 ## Grupo 25
 
-- Omeir Haroon (61810)
-- Isa David (61871)
-- Diogo Roque (61857)
+* Omeir Haroon (61810)
+* Isa David (61871)
+* Diogo Roque (61857)
 
 ## LINK DO VÍDEO
-- https://drive.google.com/drive/folders/13frYUwmqDdxDYaoB1LOq3DhkCax7dhJe?usp=sharing
+* [https://drive.google.com/drive/folders/13frYUwmqDdxDYaoB1LOq3DhkCax7dhJe?usp=sharing](https://drive.google.com/drive/folders/13frYUwmqDdxDYaoB1LOq3DhkCax7dhJe?usp=sharing)
+
+## Ponto de Situação
+* **Interface Web:** corre na porta 8081 (contentor) / 8081 no host usando o `docker-compose` predefinido.
+* **API de Backend:** corre na porta 8080.
+* **Base de Dados:** PostgreSQL (contentor).
+
+## Limitações Notáveis
+* A interface gráfica (GUI) não pode alterar o estado dos pedidos. As alterações de estado são realizadas apenas pelo fluxo de trabalho do backend.
+* Cancelar um pedido a partir da GUI mostra um erro de UI/traceback, mas o cancelamento é concluído com sucesso no servidor; considere isto um *bug* estético.
 
 
-## Índice
+Este projeto implementa os requisitos da Fase 2 (ver `docs/fase2.pdf`), incluindo:
 
-- [TascaEats Fase 1](#tascaeats-fase-1)
-  - [LINK DO VIDEO](#link-do-video)
-  - [Grupo 25](#grupo-25)
-  - [Índice](#índice)
-  - [Tecnologias](#tecnologias)
-  - [Arquitetura](#arquitetura)
-  - [Como executar:](#como-executar)
-    - [Docker](#docker)
-    - [Docker daemon indisponível](#docker-daemon-indisponível)
-  - [API e Swagger](#api-e-swagger)
-  - [Funcionalidades implementadas:](#funcionalidades-implementadas)
-    - [Utilizadores](#utilizadores)
-    - [Restaurantes](#restaurantes)
-    - [Produtos](#produtos)
-    - [Pedidos](#pedidos)
-    - [Pagamentos](#pagamentos)
-    - [Entregas](#entregas)
-  - [Regras de negócio](#regras-de-negócio)
-  - [Testes](#testes)
+* Método de pagamento selecionado pelo cliente persistido com o pedido (`tipo_pagamento_solicitado` + `pedido_pagamento_detalhes`).
+* O *checkout* transmite a seleção de pagamento para o backend e esta é armazenada no `Pedido`.
+* *Endpoint* dedicado para a conclusão do pagamento: `POST /pagamentos` para adicionar um `Pagamento` concluído a um pedido existente.
+* A vista web `pedido_detalhe` mostra o método de pagamento selecionado pelo cliente e fornece um formulário específico ao método para concluir o pagamento.
+* A GUI nativa exibe a seleção de pagamento escolhida pelo cliente e permite a submissão dos detalhes de pagamento (a GUI não pode substituir a seleção do cliente).
 
-## Tecnologias
+Estas alterações requerem uma migração na base de dados para adicionar as novas colunas/tabela de coleção (ver Base de Dados / Migrações abaixo).
 
-- Java 17
-- Spring Boot 3.0.5
-- Spring Data JPA + Hibernate
-- PostgreSQL
-- OpenAPI/Swagger (`springdoc-openapi`)
-- JUnit + Spring Boot Test
+## Requisitos
+* Docker e Docker Compose (preferencial)
+* Java 17 e Maven (para *builds* locais sem Docker)
 
-Dependências principais em `pom.xml`:
-
-- `spring-boot-starter-web`
-- `spring-boot-starter-data-jpa`
-- `spring-boot-starter-validation`
-- `springdoc-openapi-starter-webmvc-ui`
-- `postgresql`
-
-## Arquitetura
-
-O projeto está organizado por camadas no pacote `src/main/java/pt/ul/fc/css/tascaeats`:
-
-- `controllers`: endpoints HTTP/REST
-- `service`: regras de negócio e validações
-- `domain`: modelo de domínio
-- `repository`: acesso a dados (Spring Data)
-- `dto`: contratos de entrada/saída
-- `config`: configuração da aplicação
-
-## Como executar:
-
-### Docker
-
-1. Instalar Docker Engine/Desktop e Docker Compose.
-2. Criar ficheiro de ambiente:
-
-```bash
-cp .env.example .env
-```
-
-3. Iniciar a aplicação:
+## Executar (Docker Compose)
+Construir e executar todos os serviços (backend, web, postgres):
 
 ```bash
 ./run.sh
+# ou
+docker-compose up --build
 ```
 
-4. Parar os serviços:
+A Interface Web estará disponível em: http://localhost:8081
+A API de Backend em: http://localhost:8080
+
+## Executar localmente sem Docker
+* **Backend:** compilar com Maven em `backend/` e executar o ficheiro `.jar` gerado.
+* **Web:** compilar com Maven em `web/` e executar o ficheiro `.jar` gerado.
+* Certifique-se de que uma instância de PostgreSQL está disponível e que as variáveis de ambiente no `docker-compose.yml` refletem os valores de ligação.
+
+### JavaFX (GUI nativa)
+A GUI nativa em JavaFX é compilada juntamente com o módulo `web`. Para executar a aplicação JavaFX a partir do código-fonte:
 
 ```bash
-docker compose down
+# a partir da raiz do projeto (recomendado)
+cd web
+mvn javafx:run
+
+# ou a partir da raiz usando a execução multi-módulo do Maven
+mvn -pl web -am javafx:run
 ```
 
-### Docker daemon indisponível
+Se a execução do JavaFX falhar, certifique-se de que tem um JDK compatível (Java 17) e o plugin `org.openjfx` configurado na secção de plugins do ficheiro `web/pom.xml`.
 
-Se surgir um erro semelhante a `failed to connect to the docker API ...`, iniciar o daemon Docker (Linux):
+## Estrutura do Projeto (alto nível)
+* `backend/` — Backend em Spring Boot, modelo de domínio, serviços, controladores.
+* `web/` — Frontend web em Spring MVC + Thymeleaf (templates em `web/src/main/resources/templates`).
+* `web/src/main/java/.../ui/` — Componentes da GUI nativa em JavaFX usados separadamente.
+* `docs/`, `target/`, recursos de teste e outros artefactos do projeto.
 
-```bash
-sudo systemctl start docker
+## Estrutura do Projeto (Alinhamento com a Fase 1)
+A estrutura deste README segue as convenções de documentação da Fase 1 (ver `docs/p1.pdf`). Áreas principais:
+
+* `backend/` — contém o modelo de domínio em `src/main/java`, repositórios e serviços Spring; `src/test` contém os testes unitários.
+* `web/` — contém os controladores web, templates Thymeleaf e código da UI em JavaFX em `ui/`.
+* `docs/` — artefactos de design, PDFs de casos de uso e coleções Postman usados para validação e vídeos de demonstração.
+* `docker-compose.yml`, `run.sh` e `bootstrapdb.sql` — scripts auxiliares para iniciar a *stack* e preencher a base de dados.
+
+## Base de Dados / Migrações
+Este projeto armazena alguns metadados de seleção de pagamento em `Pedido`. Se usar uma base de dados persistente, deve garantir que o esquema contém as novas colunas e a tabela de coleção introduzidas para os detalhes do pagamento solicitado. Adicione uma migração (Flyway/Liquibase ou instruções ALTER manuais) para adicionar:
+
+* Coluna `tipo_pagamento_solicitado` em `pedido` (VARCHAR)
+* Tabela de coleção de elementos `pedido_pagamento_detalhes` com `pedido_id`, `campo`, `valor`
+
+Sem estas adições, a criação de pedidos com detalhes de pagamento selecionados pelo cliente irá falhar.
+
+Exemplo de SQL (migração manual) - executar uma vez contra a base de dados usada pelo backend:
+
+```sql
+ALTER TABLE pedido ADD COLUMN tipo_pagamento_solicitado VARCHAR;
+
+CREATE TABLE pedido_pagamento_detalhes (
+    pedido_id bigint NOT NULL,
+    campo varchar NOT NULL,
+    valor varchar,
+    CONSTRAINT fk_pedido_pagamento_detalhes_pedido FOREIGN KEY (pedido_id) REFERENCES pedido (id)
+);
+
+-- Se usar sequências para dados pré-preenchidos, avance as sequências após inserir IDs explícitos
+-- ex: SELECT setval('pedido_id_seq', (SELECT MAX(id) FROM pedido));
 ```
 
-### GUI nativa com JavaFX
+## API (endpoints importantes)
+* `POST /pedidos` — criar pedido (o *payload* inclui `tipoPagamentoSolicitado` e `detalhesPagamentoSolicitado`)
+* `GET /pedidos?clienteId={id}` — listar pedidos de um cliente
+* `POST /pagamentos` — processar/concluir pagamento para um pedido existente
 
-A aplicação desktop JavaFX está no módulo `web` e consome a API REST do backend.
+Endpoints adicionais usados pela interface web:
+* `POST /checkout/processar` (controlador web) — constrói o *payload* do `POST /pedidos` incluindo a seleção de pagamento
+* `GET /pedidos/{id}` (web) — renderiza o template `pedido_detalhe` com as informações de pagamento selecionadas e concluídas
 
-1. Iniciar o backend normalmente (Docker ou `spring-boot:run`).
-2. No diretório `web`, arrancar a GUI:
+## Resolução de Problemas
+* Se a página `/pedidos/{id}` mostrar uma página de erro *Whitelabel*: verifique os registos (*logs*) do backend e confirme se o backend está acessível em `http://localhost:8080` (ou no endereço configurado em `BACKEND_API_URL`).
+* Se os campos de pagamento estiverem em falta na interface, confirme se a migração da base de dados foi aplicada (ver Base de Dados / Migrações acima).
+* A ação de cancelar na GUI mostra um erro mas é concluída: verifique os *logs* do servidor para confirmar que o cancelamento foi bem-sucedido; o *bug* da interface pode ser corrigido ajustando o tratamento da resposta de cancelamento no controlador `web`.
 
-```bash
-BACKEND_API_URL=http://localhost:8080 mvn javafx:run
-```
-
-Se o backend estiver noutro endereço, ajustar a variável `BACKEND_API_URL`.
-
-#### Funcionalidades atuais
-
-- **Visão de Restaurantes**: lista, pesquisa por nome/estado, detalhes de cada restaurante
-- **Visão de Casos de Uso**: comparação do estado de implementação entre web browser e native JavaFX
-- **Menu de navegação**: alternar entre vistas; botão Sair para encerrar
-
-## API e Swagger
-
-- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
-- Rotas e exemplos de payload: `USE_CASES_API_ROUTES.md`
-
-## Nota sobre o desenvolvimento
-
-- A **webapp browser (Thymeleaf)** está a ser desenvolvida por um colega. Use o módulo `web` com a webapp base que
-  ficou (ficheiros restaurantes.html e 404.html).
-- A **app nativa JavaFX** dispõe de uma aba "Casos de Uso" onde se pode acompanhar o progresso de implementação dos
-  diferentes caso de uso.
-
-## Funcionalidades implementadas:
-
-### Utilizadores
-
-- Registo de utilizadores (`client`, `admin`, `driver`)
-- Login mock
-- Consulta, atualização e remoção de utilizadores
-
-Endpoints base: `/api/register`, `/api/login`, `/api/Utilizadors`
-
-### Restaurantes
-
-- Criação de restaurante por administrador
-- Atualização de nome, NIF e morada
-- Gestão de estado (`ABERTO`, `FECHADO`, `RESERVADO`)
-- Pesquisa por nome/cidade e listagem por estado
-
-Endpoint base: `/api/restaurantes`
-
-### Produtos
-
-- Criação/atualização de produtos
-- Atualização de disponibilidade
-- Soft delete (`apagar`)
-- Filtros por nome, restaurante, ativos e disponíveis
-
-Endpoints base: `/api/restaurantes/{restauranteId}/produtos` e `/api/produtos`
-
-### Pedidos
-
-- Criação de pedido com validação de cliente/restaurante/produtos
-- Validação de disponibilidade de restaurante e produtos
-- Cálculo de valor total no serviço
-- Cancelamento permitido apenas em `CRIADO` e `PAGO`
-- Listagem por `clienteId` e `estado`
-
-Endpoint base: `/pedidos`
-
-### Pagamentos
-
-- Processamento de pagamento por pedido
-- Criação via `PagamentoFactory` (MBWay, Multibanco, Dinheiro, Cartão)
-- Associação do pagamento ao pedido e transição para `PAGO`
-
-Endpoint base: `/pagamentos`
-
-### Entregas
-
-- Iniciar preparação
-- Marcar pedido como pronto
-- Atribuição automática de entregador disponível
-- Registar recolha e entrega final
-- Libertar entregador no fim da entrega
-
-Endpoint base: `/entregas`
-
-## Regras de negócio
-
-- Não permitir pedido para restaurante fechado/indisponível
-- Não permitir pedido com produtos indisponíveis
-- Não permitir cancelar pedido fora dos estados permitidos
-- Não permitir atribuição de entrega a pedido ainda não pronto
-- Não permitir atribuição quando não existem entregadores disponíveis
-- Não permitir atualizar disponibilidade de produto apagado
-
-## Testes
-
-Existem testes de:
-
-- Domínio
-- Serviços
-- Controllers
-- -DTO's
-- Repositórios (`@DataJpaTest`)
-
-Diretório principal: `src/test/java/pt/ul/fc/css/tascaeats`
+Se a interface de *checkout* ou de pagamento parecer não atualizar (valores desatualizados): verifique se `checkout.html` inclui os campos de pagamento com os nomes `referencia`, `numeroMbway`, `bandeiraCartao` e se o controlador web está configurado para os mapear para `tipoPagamentoSolicitado` / `detalhesPagamentoSolicitado` no *payload* do pedido.
