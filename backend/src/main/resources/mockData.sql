@@ -552,3 +552,7 @@ WHERE r.nif = '444555666'
       WHERE p.nome = 'Salada Mix'
         AND p.restaurante_id = r.id
   );
+
+SELECT setval('utilizadores_seq', COALESCE((SELECT MAX(id) FROM utilizadores), 0) + 1, false);
+SELECT setval('morada_utilizador_seq', COALESCE((SELECT MAX(id) FROM morada_utilizador), 0) + 1, false);
+

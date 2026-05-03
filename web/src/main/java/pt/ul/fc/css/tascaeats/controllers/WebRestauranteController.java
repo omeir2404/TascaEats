@@ -36,6 +36,11 @@ public class WebRestauranteController {
         this.restTemplate = restTemplate;
     }
 
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/restaurantes";
+    }
+
     @GetMapping("/restaurantes")
     public String listarRestaurantes(Model model) {
         String url = backendUrl + "/api/restaurantes";
