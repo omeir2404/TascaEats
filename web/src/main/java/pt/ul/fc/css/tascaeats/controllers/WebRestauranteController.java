@@ -41,6 +41,11 @@ public class WebRestauranteController {
         return "redirect:/restaurantes";
     }
 
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/restaurantes";
+    }
+
     // 1. Default page: Loads all restaurants from backend
     @GetMapping("/restaurantes")
     public String listarRestaurantes(Model model) {

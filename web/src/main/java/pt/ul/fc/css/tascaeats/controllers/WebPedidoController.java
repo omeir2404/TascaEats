@@ -321,7 +321,28 @@ public class WebPedidoController {
             @RequestParam String comentario,
             HttpSession session) {
 
-        if (pontuacao == null || comentario == null) {
+        if (pontuacao == null || comentario == null || comentario.trim().isEmpty()) {
+            session.setAttribute("pedidoDetalheError", "Preencha pontuação e comentário para submeter a avaliação.");
+            return "redirect:/pedidos/" + id;
+        }
+
+        Long clienteId = getLoggedClientId(session);
+        if (clienteId == null) {
+            return "redirect:/login";
+        }
+
+        Map<String, Object> pedido = getPedidosDoCliente(clienteId).stream()
+                .filter(p -> id.equals(toLong(p.get("id"))))
+                .findFirst()
+                .orElse(null);
+        if (pedido == null) {
+            session.setAttribute("pedidoDetalheError", "Pedido não encontrado para o cliente autenticado.");
+            return "redirect:/pedidos/" + id;
+        }
+
+        Long restauranteId = getFirstRestaurantIdFromPedido(pedido);
+        if (restauranteId == null) {
+            session.setAttribute("pedidoDetalheError", "Não foi possível identificar o restaurante deste pedido.");
             return "redirect:/pedidos/" + id;
         }
 

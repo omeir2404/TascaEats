@@ -1,0 +1,37 @@
+
+
+### Phase 1: Architecture & State Management (The Foundation)
+Before we build the visual tabs, the app needs to remember *who* is using it and have the tools to talk to the backend.
+
+1.  **Session Management:** Create a simple `UserSession` class or variable inside `NativeAppGUI` to store the `Long loggedUserId` and `String userRole` (Admin, Cliente, Entregador) after a successful login. 
+2.  **API Client Expansion:** You currently have `RestauranteApiClient`. We need to replicate this pattern to create:
+    *   `UtilizadorApiClient` (for Casos A, C, D)
+    *   `ProdutoApiClient` (for Casos G, H, I)
+    *   `PedidoApiClient` & `EntregaApiClient` (for Casos J, K, L, M, N)
+
+### Phase 2: Autenticação & Utilizadores (Casos A, C, D)
+1.  **Caso A (Login):** Update the `showLoginPane` to take the email/password, call a login endpoint (or a mock `GET /api/Utilizadors` filter), and set the global `UserSession`.
+2.  **Casos C/D (Gestão de Utilizadores):** 
+    *   Connect the `TableView` in `createUsersPane()` to `UtilizadorApiClient.listarUtilizadores()`.
+    *   Wire up the "+ Criar" and "✕ Remover" buttons to open a JavaFX `Dialog` and trigger `POST` / `DELETE` requests to `/api/Utilizadors`.
+
+### Phase 3: Gestão de Catálogo (Casos F, G, H, I)
+*Note: Caso E (Buscar Restaurantes) is already implemented!*
+
+1.  **Caso F (Gerir Restaurantes):** Add a "+ Criar Restaurante" button to your Restaurantes tab that opens a form (Nome, NIF, Morada) and sends a `POST /api/restaurantes`.
+2.  **Casos G/H/I (Gestão de Produtos):**
+    *   Update `createProductsPane()` to fetch data using `ProdutoApiClient.listarProdutos(restauranteId)`.
+    *   Since products belong to a restaurant, we should add a combo box at the top of the Produtos tab to *select a restaurant first*, then load its products.
+    *   Wire the "Indisponível" button to your backend's `PATCH /api/produtos/{id}/disponibilidade`.
+
+### Phase 4: Fluxo de Pedidos e Entregas (Casos J, K, L, M, N)
+This is the most complex part of Fase 2, as it requires state transitions.
+
+1.  **Caso J/K (Criar Pedido e Pagar):** This might need a dedicated "Novo Pedido" window. Since this is an admin/staff GUI, we can create a simplified form that takes a `Cliente ID`, a `Restaurante ID`, and a `Produto ID`, then sends the `POST /pedidos` and `POST /pagamentos` sequentially.
+2.  **Casos L/M/N (Ciclo de Vida do Pedido):**
+    *   Connect the `TableView` in `createOrdersPane()` to `PedidoApiClient.listarPedidos()`.
+    *   Bind those beautiful toolbar buttons you already created to the real endpoints we built earlier:
+        *   **"⌛ Iniciar Preparação"** -> `PATCH /entregas/pedido/{id}/iniciar-preparacao`
+        *   **"✓ Marcar Pronto"** -> `PATCH /entregas/pedido/{id}/marcar-pronto`
+        *   **"✓ Registar Entrega"** -> `PATCH /entregas/pedido/{id}/entrega-final`
+        *   **"✕ Cancelar"** -> `POST /pedidos/{id}/cancelar`
