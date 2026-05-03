@@ -72,21 +72,21 @@
                       onsubmit="return confirm('Tens a certeza que queres cancelar este pedido?');">
                     <button type="submit" class="button-danger">Cancelar pedido</button>
                 </form>
-                <p th:unless="${pedido.cancelavel}" class="muted">Este pedido ja nao pode ser cancelado.</p>
+                <p th:unless="${pedido.cancelavel}" class="muted">Este pedido já não pode ser cancelado.</p>
             </aside>
         </section>
 
         <section th:if="${pedido.estado == 'ENTREGUE' and !pedido.avaliado}" class="order-detail-panel">
             <div class="section-header">
                 <div>
-                    <h3>Avaliar experiencia</h3>
-                    <p>Partilha a tua avaliacao deste pedido.</p>
+                    <h3>Avaliar experiência</h3>
+                    <p>Partilha a tua avaliação deste pedido.</p>
                 </div>
             </div>
 
             <form class="review-form" th:action="@{/pedidos/{id}/avaliar(id=${pedido.id})}" method="POST">
                 <div class="auth-form-field">
-                    <label for="pontuacao">Pontuacao</label>
+                    <label for="pontuacao">Pontuação</label>
                     <select id="pontuacao" name="pontuacao">
                         <option value="5">5 - Excelente</option>
                         <option value="4">4 - Boa</option>
@@ -97,17 +97,17 @@
                 </div>
 
                 <div class="auth-form-field">
-                    <label for="comentario">Comentario</label>
-                    <textarea id="comentario" name="comentario" placeholder="Como correu a experiencia?"></textarea>
+                    <label for="comentario">Comentário</label>
+                    <textarea id="comentario" name="comentario" placeholder="Como correu a experiência?"></textarea>
                 </div>
 
-                <button type="submit">Submeter avaliacao</button>
+                <button type="submit">Submeter avaliação</button>
             </form>
         </section>
 
         <section th:if="${pedido.avaliado}" class="order-detail-panel">
-            <h3>Avaliacao submetida</h3>
-            <p>Obrigado. Este pedido ja foi avaliado.</p>
+            <h3>Avaliação submetida</h3>
+            <p>Obrigado. Este pedido já foi avaliado.</p>
         </section>
     </main>
 

@@ -21,9 +21,7 @@
     <main class="page-shell page-shell--profile">
         <section class="profile-header">
             <div class="page-intro">
-                <span class="section-eyebrow">Conta</span>
                 <h2>O meu perfil</h2>
-                <p>Gere os teus dados, estado da conta e detalhes usados nos pedidos.</p>
             </div>
             <div class="profile-identity">
                 <div class="profile-avatar" th:text="${user.inicial}">T</div>
@@ -113,17 +111,17 @@
                         </div>
 
                         <div class="auth-form-field">
-                            <label for="numero">Numero</label>
+                            <label for="numero">Número</label>
                             <input type="number" id="numero" name="numero" min="1" th:value="${user.morada.numero}" placeholder="Ex: 10">
                         </div>
 
                         <div class="auth-form-field">
-                            <label for="complemento">Complemento</label>
+                            <label for="complemento">Andar</label>
                             <input type="text" id="complemento" name="complemento" th:value="${user.morada.complemento}" placeholder="Ex: 2o Esq">
                         </div>
 
                         <div class="auth-form-field">
-                            <label for="codigoPostal">Codigo postal</label>
+                            <label for="codigoPostal">Código postal</label>
                             <input type="text" id="codigoPostal" name="codigoPostal" th:value="${user.morada.codigoPostal}" placeholder="Ex: 1000-001">
                         </div>
 
@@ -138,14 +136,14 @@
                         </div>
 
                         <div class="auth-form-field">
-                            <label for="pais">Pais</label>
+                            <label for="pais">País</label>
                             <input type="text" id="pais" name="pais" th:value="${user.morada.pais}" placeholder="Ex: Portugal">
                         </div>
                     </div>
                 </section>
 
                 <div class="profile-actions">
-                    <button type="submit">Guardar alteracoes</button>
+                    <button type="submit">Guardar alterações</button>
                     <a class="button-link secondary" th:href="@{/restaurantes}">Voltar aos restaurantes</a>
                 </div>
             </form>
@@ -154,7 +152,7 @@
         <section class="profile-danger">
             <div>
                 <h3>Zona de perigo</h3>
-                <p>Eliminar a conta remove o teu acesso ao TascaEats. Esta acao nao pode ser desfeita.</p>
+                <p>Eliminar a conta remove o teu acesso ao TascaEats. Esta ação não pode ser desfeita.</p>
             </div>
             <form th:action="@{/perfil/{id}/apagar(id=${user.id})}" method="POST" onsubmit="return confirm('Tens a certeza que queres eliminar esta conta?');">
                 <button type="submit" class="button-danger">Eliminar conta</button>

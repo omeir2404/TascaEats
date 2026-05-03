@@ -21,7 +21,6 @@
     <main class="page-shell">
         <section class="split-intro">
             <div class="page-intro">
-                <span class="section-eyebrow">Pedidos</span>
                 <h2>Histórico de pedidos</h2>
             </div>
             <aside class="intro-aside">
@@ -32,7 +31,7 @@
 
         <section class="orders-list">
             <div th:if="${pedidos == null or pedidos.empty}" class="empty-state">
-                <p>Ainda nao existem pedidos no historico.</p>
+                <p>Ainda não existem pedidos no histórico.</p>
                 <div class="stack-actions" style="justify-content: center; margin-top: 16px;">
                     <a th:href="@{/restaurantes}"><button>Procurar restaurantes</button></a>
                 </div>

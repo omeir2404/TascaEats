@@ -717,9 +717,9 @@ public class WebPedidoController {
         return switch (String.valueOf(estado).toUpperCase()) {
             case "CRIADO" -> "Pedido criado";
             case "PAGO" -> "Pagamento confirmado";
-            case "A_PREPARAR" -> "Em preparacao";
+            case "A_PREPARAR" -> "Em preparação";
             case "PRONTO_PARA_ENTREGA" -> "Pronto para entrega";
-            case "ATRIBUIDO_ENTREGADOR" -> "Entregador atribuido";
+            case "ATRIBUIDO_ENTREGADOR" -> "Entregador atribuído";
             case "ENTREGUE" -> "Entregue";
             case "CANCELADO" -> "Cancelado";
             default -> String.valueOf(estado);
