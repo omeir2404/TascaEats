@@ -52,6 +52,7 @@ public class PedidosPane {
                 "ID: " + n.get("id") + "\nCliente: " + n.get("clienteNome") +
                 "\nRestaurante: " + n.get("restNome") + "\nEstado: " + n.get("estado") +
                 "\nTotal: " + n.get("total") + "€\nPagamento: " + n.get("pagamento") +
+                "\nDados do cliente: " + n.get("detalhesPagamentoSolicitado") +
                 "\nEntregador: " + n.get("entregador"));
         });
 
@@ -128,16 +129,14 @@ public class PedidosPane {
     private void handlePagamento(TableView<Map<String, Object>> table, Runnable applyFilter) {
         Map<String, Object> sel = selected(table, owner); if (sel == null) return;
         if (!"CRIADO".equals(s(sel, "estado"))) { warn("Só pedidos CRIADO podem ser pagos.", owner); return; }
-        ChoiceDialog<String> cd = new ChoiceDialog<>("MBWAY", "MBWAY", "MULTIBANCO", "DINHEIRO");
-        cd.setTitle("Processar Pagamento"); cd.setHeaderText("Método de pagamento:"); cd.initOwner(owner);
-        cd.showAndWait().ifPresent(metodo -> {
-            try {
-                // ProcessarPagamentoDTO: {pedidoId, tipoPagamento, detalhes (required)}
-                Map<String, Object> detalhes = new LinkedHashMap<>();
-                if ("MBWAY".equals(metodo))           detalhes.put("numeroMbway", "910000000");
-                else if ("MULTIBANCO".equals(metodo)) { detalhes.put("entidade", "11111"); detalhes.put("referencia", "123456789"); }
-                else                                  detalhes.put("valorTroco", 0.0);
+        String metodo = s(sel, "tipoPagamentoSolicitado").toUpperCase();
+        if (metodo.isBlank() || "-".equals(metodo)) {
+            warn("Este pedido nao tem metodo de pagamento escolhido pelo cliente no checkout.", owner);
+            return;
+        }
 
+        criarDialogoPagamento(sel, metodo).showAndWait().ifPresent(detalhes -> {
+            try {
                 Map<String, Object> payload = new LinkedHashMap<>();
                 payload.put("pedidoId",      toLong(sel.get("id")));
                 payload.put("tipoPagamento", metodo);
@@ -147,6 +146,91 @@ public class PedidosPane {
                 syncPedidos(applyFilter);
             } catch (Exception ex) { warn("✗ Erro ao processar pagamento: " + ex.getMessage(), owner); }
         });
+    }
+
+    private Dialog<Map<String, Object>> criarDialogoPagamento(Map<String, Object> pedido, String metodo) {
+        Dialog<Map<String, Object>> dialog = new Dialog<>();
+        dialog.setTitle("Processar Pagamento");
+        dialog.setHeaderText("Metodo bloqueado pelo cliente: " + metodo);
+        dialog.initOwner(owner);
+
+        ButtonType processar = new ButtonType("Processar", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(processar, ButtonType.CANCEL);
+
+        Map<String, String> detalhesCliente = detalhesPagamentoCliente(pedido.get("detalhesPagamentoSolicitado"));
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(8);
+
+        Map<String, Control> controls = new LinkedHashMap<>();
+        int row = 0;
+        grid.add(lbl("Pedido:"), 0, row);
+        grid.add(lbl("#" + pedido.get("id") + " · Total " + s(pedido, "total") + "€"), 1, row++);
+
+        switch (metodo) {
+            case "MBWAY" -> row = addTextField(grid, controls, row, "numeroTelemovel", "Telemovel",
+                    detalhesCliente.getOrDefault("numeroTelemovel", ""));
+            case "MULTIBANCO" -> {
+                row = addTextField(grid, controls, row, "entidade", "Entidade",
+                        detalhesCliente.getOrDefault("entidade", "11111"));
+                row = addTextField(grid, controls, row, "referencia", "Referencia",
+                        detalhesCliente.getOrDefault("referencia", "123456789"));
+                ComboBox<String> bandeira = combo("MULTIBANCO", "VISA", "MASTERCARD", "AMEX");
+                bandeira.setValue(detalhesCliente.getOrDefault("bandeiraCartao", "MULTIBANCO"));
+                controls.put("bandeiraCartao", bandeira);
+                grid.add(lbl("Bandeira:"), 0, row);
+                grid.add(bandeira, 1, row++);
+            }
+            case "DINHEIRO" -> row = addTextField(grid, controls, row, "valorRecebido", "Valor recebido",
+                    detalhesCliente.getOrDefault("valorRecebido", s(pedido, "total")));
+            case "CARTAO" -> row = addTextField(grid, controls, row, "numeroCartao", "Numero do cartao",
+                    detalhesCliente.getOrDefault("numeroCartao", ""));
+            default -> grid.add(lbl("Metodo nao suportado pela GUI: " + metodo), 0, row, 2, 1);
+        }
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.setResultConverter(button -> {
+            if (button != processar) {
+                return null;
+            }
+            Map<String, Object> detalhes = new LinkedHashMap<>();
+            controls.forEach((campo, control) -> {
+                if (control instanceof TextField textField) {
+                    String value = textField.getText() == null ? "" : textField.getText().trim();
+                    if ("DINHEIRO".equals(metodo) && "valorRecebido".equals(campo) && value.isBlank()) {
+                        value = s(pedido, "total");
+                    }
+                    detalhes.put(campo, isNumericPaymentField(campo) ? normalizeDecimal(value) : value);
+                } else if (control instanceof ComboBox<?> comboBox) {
+                    detalhes.put(campo, comboBox.getValue());
+                }
+            });
+            return detalhes;
+        });
+        return dialog;
+    }
+
+    private int addTextField(GridPane grid, Map<String, Control> controls, int row, String key, String label, String value) {
+        TextField field = field("", 180);
+        field.setText(value);
+        controls.put(key, field);
+        grid.add(lbl(label + ":"), 0, row);
+        grid.add(field, 1, row);
+        return row + 1;
+    }
+
+    private boolean isNumericPaymentField(String campo) {
+        return "valorRecebido".equals(campo);
+    }
+
+    private String normalizeDecimal(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.trim()
+            .replace("€", "")
+            .replace(" ", "")
+            .replace(",", ".");
     }
 
     // L – Start preparation
@@ -258,8 +342,22 @@ public class PedidosPane {
         m.put("restId",      fRestId);
         m.put("estado",      p.getOrDefault("estado", "-"));
         m.put("total",       p.getOrDefault("valorTotal", p.getOrDefault("total", "0.00")));
-        m.put("pagamento",   p.getOrDefault("tipoPagamento", p.getOrDefault("pagamento", "-")));
+        m.put("tipoPagamentoSolicitado", p.getOrDefault("tipoPagamentoSolicitado", "-"));
+        m.put("detalhesPagamentoSolicitado", p.getOrDefault("detalhesPagamentoSolicitado", Map.of()));
+        m.put("pagamento",   p.getOrDefault("tipoPagamentoSolicitado", p.getOrDefault("tipoPagamento", p.getOrDefault("pagamento", "-"))));
         m.put("entregador",  p.getOrDefault("entregador", "-"));
         return m;
+    }
+
+    private Map<String, String> detalhesPagamentoCliente(Object raw) {
+        Map<String, String> detalhes = new LinkedHashMap<>();
+        if (raw instanceof Map<?, ?> map) {
+            map.forEach((key, value) -> {
+                if (key != null && value != null) {
+                    detalhes.put(String.valueOf(key), String.valueOf(value));
+                }
+            });
+        }
+        return detalhes;
     }
 }

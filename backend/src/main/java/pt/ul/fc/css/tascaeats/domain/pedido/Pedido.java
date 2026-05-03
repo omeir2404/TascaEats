@@ -11,7 +11,9 @@ package pt.ul.fc.css.tascaeats.domain.pedido;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
@@ -67,6 +69,15 @@ public class Pedido {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "pagamento_id")
     private Pagamento pagamento;
+
+    @Column(name = "tipo_pagamento_solicitado")
+    private String tipoPagamentoSolicitado;
+
+    @ElementCollection
+    @CollectionTable(name = "pedido_pagamento_detalhes", joinColumns = @JoinColumn(name = "pedido_id"))
+    @jakarta.persistence.MapKeyColumn(name = "campo")
+    @Column(name = "valor")
+    private Map<String, String> detalhesPagamentoSolicitado = new LinkedHashMap<>();
 
     public Pedido() {
     }
@@ -212,5 +223,23 @@ public class Pedido {
 
     public void setPagamento(Pagamento pagamento) {
         this.pagamento = pagamento;
+    }
+
+    public String getTipoPagamentoSolicitado() {
+        return tipoPagamentoSolicitado;
+    }
+
+    public void setTipoPagamentoSolicitado(String tipoPagamentoSolicitado) {
+        this.tipoPagamentoSolicitado = tipoPagamentoSolicitado;
+    }
+
+    public Map<String, String> getDetalhesPagamentoSolicitado() {
+        return detalhesPagamentoSolicitado;
+    }
+
+    public void setDetalhesPagamentoSolicitado(Map<String, String> detalhesPagamentoSolicitado) {
+        this.detalhesPagamentoSolicitado = detalhesPagamentoSolicitado != null
+                ? new LinkedHashMap<>(detalhesPagamentoSolicitado)
+                : new LinkedHashMap<>();
     }
 }

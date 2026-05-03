@@ -170,6 +170,7 @@ public class WebPedidoController {
             @RequestParam String metodoPagamento,
             @RequestParam(required = false) String telemovel,
             @RequestParam(required = false) String bandeiraCartao,
+            @RequestParam(required = false) String referencia,
             @RequestParam(required = false) String rua,
             @RequestParam(required = false) Integer numero,
             @RequestParam(required = false) String complemento,
@@ -215,6 +216,9 @@ public class WebPedidoController {
             } else {
                 pedidoPayload.put("moradaNova", moradaSelection.get("moradaNova"));
             }
+            pedidoPayload.put("tipoPagamentoSolicitado", metodoPagamento);
+            pedidoPayload.put("detalhesPagamentoSolicitado",
+                    buildDetalhesPagamentoSolicitado(metodoPagamento, telemovel, bandeiraCartao, referencia));
 
             restTemplate.postForEntity(backendUrl + "/pedidos", pedidoPayload, String.class);
 
@@ -236,6 +240,26 @@ public class WebPedidoController {
             return "redirect:/checkout";
         }
 
+    }
+
+    private Map<String, String> buildDetalhesPagamentoSolicitado(
+            String metodoPagamento,
+            String telemovel,
+            String bandeiraCartao,
+            String referencia) {
+        Map<String, String> detalhes = new HashMap<>();
+        if ("MBWAY".equalsIgnoreCase(String.valueOf(metodoPagamento)) && hasText(telemovel)) {
+            detalhes.put("numeroTelemovel", telemovel.trim());
+        }
+        if ("MULTIBANCO".equalsIgnoreCase(String.valueOf(metodoPagamento))) {
+            if (hasText(bandeiraCartao)) {
+                detalhes.put("bandeiraCartao", bandeiraCartao.trim());
+            }
+            if (hasText(referencia)) {
+                detalhes.put("referencia", referencia.trim());
+            }
+        }
+        return detalhes;
     }
 
     @GetMapping("/pedidos/{id}")

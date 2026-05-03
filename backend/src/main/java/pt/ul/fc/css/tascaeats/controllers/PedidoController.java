@@ -111,6 +111,8 @@ public class PedidoController {
 				item.put("clienteId", pedido.getClienteId());
 				item.put("restaurantesIds", pedido.getRestaurantesIds());
 				item.put("produtosIds", pedido.getProdutosIds());
+				item.put("tipoPagamentoSolicitado", pedido.getTipoPagamentoSolicitado());
+				item.put("detalhesPagamentoSolicitado", pedido.getDetalhesPagamentoSolicitado());
 				resposta.add(item);
 			}
 

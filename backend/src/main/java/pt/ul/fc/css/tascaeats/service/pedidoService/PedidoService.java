@@ -9,6 +9,8 @@
 package pt.ul.fc.css.tascaeats.service.pedidoService;
 
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -118,6 +120,8 @@ public class PedidoService {
 
         Pedido pedido = new Pedido(null, criarPedidoDto.getClienteId());
         pedido.setValorTotal(valorTotal);
+        pedido.setTipoPagamentoSolicitado(normalizarTipoPagamento(criarPedidoDto.getTipoPagamentoSolicitado()));
+        pedido.setDetalhesPagamentoSolicitado(normalizarDetalhesPagamento(criarPedidoDto.getDetalhesPagamentoSolicitado()));
 
         for (ItemPedidoDTO item : itens) {
             for (int i = 0; i < item.getQuantidade(); i++) {
@@ -206,5 +210,29 @@ public class PedidoService {
         morada.setCodigoPostal(codigoPostal.trim());
 
         return morada;
+    }
+
+    private String normalizarTipoPagamento(String tipoPagamento) {
+        if (tipoPagamento == null || tipoPagamento.isBlank()) {
+            return null;
+        }
+        String normalizado = tipoPagamento.trim().toUpperCase();
+        return switch (normalizado) {
+            case "MBWAY", "MULTIBANCO", "DINHEIRO", "CARTAO" -> normalizado;
+            default -> throw new IllegalArgumentException("Tipo de pagamento nao suportado: " + normalizado);
+        };
+    }
+
+    private Map<String, String> normalizarDetalhesPagamento(Map<String, String> detalhes) {
+        Map<String, String> normalizados = new LinkedHashMap<>();
+        if (detalhes == null) {
+            return normalizados;
+        }
+        detalhes.forEach((campo, valor) -> {
+            if (campo != null && !campo.isBlank() && valor != null && !valor.isBlank()) {
+                normalizados.put(campo.trim(), valor.trim());
+            }
+        });
+        return normalizados;
     }
 }
