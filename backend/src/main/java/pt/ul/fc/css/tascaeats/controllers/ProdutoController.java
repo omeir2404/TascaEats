@@ -26,8 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.HtmlUtils;
-
 import jakarta.validation.Valid;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
@@ -56,9 +54,9 @@ public class ProdutoController {
             Map<String, Object> response = new HashMap<>();
             response.put(MSG_FIELD, "Produto criado com sucesso");
             response.put("id", criado.getId());
-            response.put("nome", sanitizeForOutput(criado.getNome()));
+            response.put("nome", criado.getNome());
             response.put("preco", criado.getPreco());
-            response.put("descricao", sanitizeForOutput(criado.getDescricao()));
+            response.put("descricao", criado.getDescricao());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of(ERROR_FIELD, e.getMessage()));
@@ -162,22 +160,15 @@ public class ProdutoController {
 
 
     //Funções Auxiliares
-    private String sanitizeForOutput(String value) {
-        if (value == null) {
-            return null;
-        }
-        return HtmlUtils.htmlEscape(value);
-    }
-
     private ResponseEntity<Object> respondWithProduto(Produto produto) {
         if (produto == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(ERROR_FIELD, PRODUTO_NOT_FOUND));
         }
         Map<String, Object> response = new HashMap<>();
         response.put("id", produto.getId());
-        response.put("nome", sanitizeForOutput(produto.getNome()));
+        response.put("nome", produto.getNome());
         response.put("preco", produto.getPreco());
-        response.put("descricao", sanitizeForOutput(produto.getDescricao()));
+        response.put("descricao", produto.getDescricao());
         response.put("disponivel", produto.isDisponivel());
         response.put("apagado", produto.isApagado());
         return ResponseEntity.ok(response);
@@ -186,9 +177,9 @@ public class ProdutoController {
     private Map<String, Object> resumoProduto(Produto produto) {
         Map<String, Object> response = new HashMap<>();
         response.put("id", produto.getId());
-        response.put("nome", sanitizeForOutput(produto.getNome()));
+        response.put("nome", produto.getNome());
         response.put("preco", produto.getPreco());
-        response.put("descricao", sanitizeForOutput(produto.getDescricao()));
+        response.put("descricao", produto.getDescricao());
         response.put("disponivel", produto.isDisponivel());
         response.put("apagado", produto.isApagado());
 

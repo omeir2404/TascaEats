@@ -1,0 +1,155 @@
+<!-- ##############################################################
+#                           TASCAEATS                           #
+#                        CSS GRUPO: 25                         #
+#        Autores:                 Numero Aluno:               #
+#     - Omeir Haroon                61810                     #
+#     - Isa David                   61871                     #
+#     - Diogo Roque                 61857                     #
+############################################################## -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa Avancada - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main class="page-shell page-shell--search">
+        <section class="split-intro search-intro">
+            <div class="page-intro">
+                <h2>Explorar restaurantes</h2>
+            </div>
+        </section>
+
+        <section class="filter-shell filter-shell--search">
+            <div class="filtro-container">
+                <form th:action="@{/restaurantes/pesquisa}" method="GET" class="search-filters-form">
+                    <div class="form-group form-group--wide">
+                        <label for="nome">Nome</label>
+                        <input type="text" id="nome" name="nome" th:value="${param.nome}" placeholder="Ex: Tasca do Zé">
+                    </div>
+
+                    <div class="form-group form-group--medium">
+                        <label for="tipoCozinha">Tipo de cozinha</label>
+                        <select id="tipoCozinha" name="tipoCozinha">
+                            <option value="">Todos</option>
+                            <option value="PORTUGUES">Portuguesa</option>
+                            <option value="ITALIANO">Italiana</option>
+                            <option value="JAPONES">Japonesa</option>
+                            <option value="HAMBURGUERIA">Hamburgueria</option>
+                            <option value="VEGETARIANA">Vegetariana</option>
+                            <option value="CHINES">Chinesa</option>
+                            <option value="OUTRO">Outro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group form-group--medium">
+                        <label for="estado">Estado</label>
+                        <select id="estado" name="estado">
+                            <option value="">Qualquer</option>
+                            <option value="ABERTO">Aberto</option>
+                            <option value="FECHADO">Fechado</option>
+                            <option value="RESERVADO">Reservado</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group form-group--compact search-field search-field--pedidos">
+                        <label for="pedidosRealizados" title="Nº de pedidos realizados">Nº de pedidos realizados</label>
+                        <input type="number" id="pedidosRealizados" name="pedidosRealizados" min="0" th:value="${param.pedidosRealizados}">
+                    </div>
+
+                    <div class="form-group form-group--compact search-field search-field--avaliacao">
+                        <label for="avaliacaoMinima">Avaliação mín.</label>
+                        <!-- Número com setas (spinner) entre 1 e 10000 -->
+                        <input type="number" id="avaliacaoMinima" name="avaliacaoMinima" min="1" max="10000" step="1" placeholder="Ex: 100" th:value="${param.avaliacaoMinima}">
+                    </div>
+
+                    <div class="form-group form-group--wide">
+                        <label for="morada">Morada ou cidade</label>
+                        <input type="text" id="morada" name="morada" th:value="${param.morada}" placeholder="Lisboa, Rua Augusta...">
+                    </div>
+
+                    <div class="form-group form-group--compact search-field search-field--preco">
+                        <label for="precoMedioRange">Preço médio max.</label>
+                        <input type="range" id="precoMedioRange" name="precoMedio" min="0" max="200" step="0.5" th:value="${param.precoMedio != null ? param.precoMedio : 0}">
+                        <div class="range-value"><span id="precoMedioValue" th:text="${param.precoMedio != null ? param.precoMedio : 0}">0</span> €</div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit">Aplicar filtros</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <div class="section-header">
+            <div>
+                <h3 class="section-title--brand">Resultados</h3>
+            </div>
+        </div>
+
+        <div class="grid-restaurantes">
+            <article class="card" th:each="restaurante : ${restaurantes}">
+                <div class="card__image"
+                     aria-hidden="true"
+                     th:style="${restaurante['id'] == 1} ? 'background-image: url(/img/tasca_local.png); background-size: cover; background-position: center; background-repeat: no-repeat;' : (${restaurante['id'] == 2} ? 'background-image: url(/img/italiano_local.jpg); background-size: cover; background-position: center; background-repeat: no-repeat;' : (${restaurante['id'] == 3} ? 'background-image: url(/img/sushi_local.png); background-size: cover; background-position: center; background-repeat: no-repeat;' : (${restaurante['id'] == 4} ? 'background-image: url(/img/cafe_local.jpg); background-size: cover; background-position: center; background-repeat: no-repeat;' : '')))"></div>
+
+                <div class="pill-row">
+                    <span class="pill" th:text="${restaurante['tipoRestaurante'] != null ? restaurante['tipoRestaurante'] : restaurante['tipoCozinha']}">OUTRO</span>
+                    <span class="status-pill"
+                          th:classappend="${restaurante['estado'] == 'ABERTO'} ? ' status-pill--open' : ' status-pill--closed'"
+                          th:text="${restaurante['estado']}">ABERTO</span>
+                </div>
+
+                <div>
+                    <h3 th:text="${restaurante['nome']}">Restaurant Name</h3>
+                    <p th:text="${restaurante['morada'] != null and restaurante['morada']['cidade'] != null ? restaurante['morada']['cidade'] : 'Localizacao indisponivel'}">Lisboa</p>
+                </div>
+
+                <div class="inline-pills">
+                    <span class="pill" th:text="'Avaliações: ' + ${restaurante['numeroAvaliacoes']}">Avaliacoes 0</span>
+                </div>
+
+                <div class="card__actions">
+                    <a th:href="@{/restaurantes/{id}/produtos(id=${restaurante['id']})}">
+                        <button>Ver menu</button>
+                    </a>
+                </div>
+            </article>
+
+            <div class="empty-state" th:if="${restaurantes == null or #lists.isEmpty(restaurantes)}">
+                <p>Nao existem restaurantes para estes filtros.</p>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+
+    <script th:src="@{/js/main.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Range slider behaviour: update displayed value and filled track
+            const range = document.getElementById('precoMedioRange');
+            const valueDisplay = document.getElementById('precoMedioValue');
+            function updateRangeDisplay() {
+                if (!range || !valueDisplay) return;
+                const val = Number(range.value);
+                valueDisplay.textContent = val.toFixed(2);
+                // set background to show filled portion
+                const min = Number(range.min) || 0;
+                const max = Number(range.max) || 100;
+                const percent = ((val - min) / (max - min)) * 100;
+                range.style.background = `linear-gradient(90deg, var(--brand) ${percent}%, #e9eceb ${percent}%)`;
+            }
+            if (range && valueDisplay) {
+                updateRangeDisplay();
+                range.addEventListener('input', updateRangeDisplay);
+            }
+        });
+    </script>
+</body>
+</html>

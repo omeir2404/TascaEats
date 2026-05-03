@@ -1,0 +1,67 @@
+<!-- ##############################################################
+#                           TASCAEATS                           #
+#                        CSS GRUPO: 25                         #
+#        Autores:                 Numero Aluno:               #
+#     - Omeir Haroon                61810                     #
+#     - Isa David                   61871                     #
+#     - Diogo Roque                 61857                     #
+############################################################## -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registo - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="page-login-compact">
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main class="page-shell">
+        <section class="auth-layout">
+            <div class="auth-card">
+                <div class="auth-card__media auth-card__media--signup" aria-hidden="true"></div>
+                <div class="page-intro">
+                    <span class="section-eyebrow">Criar conta</span>
+                    <h2 style="font-size: 2rem;">Nova conta</h2>
+                </div>
+
+                <form th:action="@{/registo}" method="POST">
+                    <div class="auth-form-field">
+                        <label for="nome">Nome completo</label>
+                        <input type="text" id="nome" name="nome" required placeholder="Ex: Tiago Silva">
+                    </div>
+
+                    <div class="auth-form-field">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required placeholder="Ex: tiago@email.com">
+                    </div>
+
+                    <div class="auth-form-field">
+                        <label for="papel">Tipo de conta</label>
+                        <select id="papel" name="papel" required>
+                            <option value="CLIENT">Cliente</option>
+                            <option value="COURIER">Entregador</option>
+                            <option value="ADMIN">Administrador</option>
+                        </select>
+                    </div>
+
+                    <div class="auth-form-field">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required placeholder="Define uma password">
+                    </div>
+
+                    <button type="submit">Criar conta</button>
+                </form>
+
+                <p class="auth-card__footer">
+                    Já tens conta? <a th:href="@{/login}" class="search-link">Entrar</a>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+</body>
+</html>

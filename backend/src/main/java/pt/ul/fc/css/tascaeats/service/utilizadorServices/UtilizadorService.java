@@ -178,7 +178,7 @@ public class UtilizadorService {
             address.setCodigoPostal(dto.getCodigoPostal());
             address.setCidade(dto.getCidade());
 
-            client.addAdresses(address); // Usa o método correto do Cliente.java
+            client.addAdresses(address);
         }
     }
 }

@@ -1,0 +1,56 @@
+<!-- ##############################################################
+#                           TASCAEATS                           #
+#                        CSS GRUPO: 25                         #
+#        Autores:                 Numero Aluno:               #
+#     - Omeir Haroon                61810                     #
+#     - Isa David                   61871                     #
+#     - Diogo Roque                 61857                     #
+############################################################## -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .profile-container { max-width: 600px; margin: 30px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .profile-container input { width: 100%; padding: 10px; margin: 10px 0 20px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-danger { background-color: #dc3545; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; margin-top: 20px; }
+        .btn-danger:hover { background-color: #c82333; }
+        .badge { background-color: #e9ecef; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 14px;}
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main>
+        <div class="profile-container">
+            <h2>Account Details</h2>
+            <p>Role: <span class="badge" th:text="${user.papel}">ROLE</span></p>
+
+            <form th:action="@{/perfil/{id}/atualizar(id=${user.id})}" method="POST">
+                <label for="nome">Full Name</label>
+                <input type="text" id="nome" name="nome" th:value="${user.nome}" required>
+
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" th:value="${user.email}" required>
+
+                <button type="submit">Update Profile</button>
+            </form>
+
+            <hr style="margin: 40px 0;">
+
+            <div style="border: 1px solid #f5c6cb; padding: 20px; border-radius: 8px; background-color: #fff3f3;">
+                <h3 style="color: #721c24; margin-top: 0;">Zona de perigo</h3>
+                <p style="color: #721c24;">Depois de eliminar uma conta, não há volta atrás. Certifique-se de que tem a certeza.</p>
+                <form th:action="@{/perfil/{id}/apagar(id=${user.id})}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this account?');">
+                    <button type="submit" class="btn-danger">Delete Account</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+</body>
+</html>

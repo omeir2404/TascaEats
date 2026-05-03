@@ -1,0 +1,55 @@
+<!-- ##############################################################
+#                           TASCAEATS                           #
+#                        CSS GRUPO: 25                         #
+#        Autores:                 Numero Aluno:               #
+#     - Omeir Haroon                61810                     #
+#     - Isa David                   61871                     #
+#     - Diogo Roque                 61857                     #
+############################################################## -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="page-login-compact">
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main class="page-shell">
+        <section class="auth-layout">
+            <div class="auth-card">
+                <div class="auth-card__media auth-card__media--login" aria-hidden="true"></div>
+                <div class="page-intro">
+                    <span class="section-eyebrow">Entrar</span>
+                    <h2 style="font-size: 2rem;">Bem-vindo de volta!</h2>
+                </div>
+
+                <div th:if="${error != null}" class="error-message" th:text="${error}"></div>
+
+                <form th:action="@{/login}" method="POST">
+                    <div class="auth-form-field">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required placeholder="Ex: joao@email.com">
+                    </div>
+
+                    <div class="auth-form-field">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required placeholder="Introduz a tua password">
+                    </div>
+
+                    <button type="submit">Entrar</button>
+                </form>
+
+                <p class="auth-card__footer">
+                    Ainda não tens conta? <a th:href="@{/registo}" class="search-link">Criar conta</a>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+</body>
+</html>

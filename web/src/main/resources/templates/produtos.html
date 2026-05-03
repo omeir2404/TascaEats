@@ -1,0 +1,588 @@
+<!-- ##############################################################
+#                           TASCAEATS                           #
+#                        CSS GRUPO: 25                         #
+#        Autores:                 Numero Aluno:               #
+#     - Omeir Haroon                61810                     #
+#     - Isa David                   61871                     #
+#     - Diogo Roque                 61857                     #
+############################################################## -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .menu-with-cart {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .cart-panel {
+            position: sticky;
+            top: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 18px;
+            padding: 18px;
+            background: #fffdf8;
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .cart-panel h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .cart-panel__meta {
+            color: #667085;
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+        }
+
+        .cart-items {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 16px 0;
+            display: grid;
+            gap: 12px;
+        }
+
+        .cart-item {
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .cart-item__top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .cart-item__name {
+            font-weight: 700;
+        }
+
+        .cart-item__price {
+            font-weight: 700;
+            color: #182126;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+
+        .cart-item__details {
+            color: #667085;
+            font-size: 0.92rem;
+        }
+
+        .cart-item__actions {
+            margin-top: -4px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .cart-item__quantity-control {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #111827;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .cart-item__quantity-value {
+            min-width: 28px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: #182126;
+        }
+
+        .cart-item__quantity-button {
+            min-height: 24px;
+            min-width: 24px;
+            width: 24px;
+            padding: 0;
+            border-radius: 0;
+            background: #111827;
+            color: #fff;
+            box-shadow: none;
+            font-size: 0.82rem;
+            line-height: 1;
+        }
+
+        .cart-item__quantity-button:hover {
+            box-shadow: none;
+            transform: none;
+        }
+
+        .cart-empty {
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #667085;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            margin: 16px 0;
+            padding-top: 16px;
+            border-top: 1px dashed rgba(0, 0, 0, 0.12);
+        }
+
+        .cart-checkout-button,
+        .cart-toggle-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            border: 0;
+            border-radius: 999px;
+            padding: 12px 16px;
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .cart-checkout-button {
+            background: #111827;
+            color: #fff;
+        }
+
+        .cart-toggle-button {
+            margin-bottom: 12px;
+            background: #fff;
+            color: #111827;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-panel.is-collapsed .cart-panel__body {
+            display: none;
+        }
+
+        .cart-panel.is-collapsed {
+            padding-bottom: 14px;
+        }
+
+        .cart-feedback {
+            margin-top: 10px;
+            color: #0f766e;
+            font-size: 0.92rem;
+            min-height: 1.2em;
+        }
+
+        @media (max-width: 1100px) {
+            .menu-with-cart {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-panel {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main class="page-shell page-shell--products">
+        <section class="split-intro">
+            <div class="page-intro">
+                <h2 th:text="'Menu: ' + ${restauranteNome}">Restaurant Name</h2>
+            </div>
+        </section>
+
+        <section class="filter-shell">
+            <div class="filtro-container">
+                <form th:action="@{/restaurantes/{id}/produtos/search(id=${restauranteId})}" method="GET" class="product-filters-form">
+                    <div class="form-group form-group--wide">
+                        <label for="nome">Nome do produto</label>
+                        <input type="text" id="nome" name="nome" placeholder="Ex: Burger" th:value="${nome}">
+                    </div>
+
+                    <div class="form-group form-group--medium">
+                        <label for="precoMax">Preço máx.</label>
+                        <input type="number" id="precoMax" name="precoMax" step="0.50" min="0" placeholder="Ex: 12.50" th:value="${precoMax}">
+                    </div>
+
+                    <div class="form-group form-group--medium">
+                        <label for="categoria">Categoria</label>
+                        <select id="categoria" name="categoria">
+                            <option value="" th:selected="${categoria == null or categoria == ''}">Todas</option>
+                            <option value="DRINK" th:selected="${categoria == 'DRINK'}">Bebida</option>
+                            <option value="MAIN_COURSE" th:selected="${categoria == 'MAIN_COURSE'}">Prato principal</option>
+                            <option value="DESSERT" th:selected="${categoria == 'DESSERT'}">Sobremesa</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group form-group--compact form-checkbox">
+                        <label for="disponivel">Disponível</label>
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="disponivel" name="disponivel" value="true" th:checked="${disponivel}">
+                            <span>Apenas ativos</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group form-group--compact">
+                        <label for="popularidade">Popularidade min.</label>
+                        <input type="number" id="popularidade" name="popularidade" min="0" max="5" step="0.1" placeholder="Ex: 4.5" th:value="${popularidade}">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit">Filtrar menu</button>
+                    </div>
+                </form>
+            </div>
+
+            <aside class="filter-summary">
+                <span class="section-eyebrow">Detalhe</span>
+                <h3>Mais contexto por produto</h3>
+                <p>Os cartões mostram informação essencial na frente e deixam descrição e alergénios no verso.</p>
+            </aside>
+        </section>
+
+        <div class="menu-with-cart">
+            <div>
+                <div class="grid-produtos">
+                    <div class="flip-card" th:each="produto : ${produtos}">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <button type="button" class="btn-flip btn-flip--info" onclick="toggleFlip(this)" title="Ver detalhes">i</button>
+
+                        <div class="section-stack">
+                            <div class="pill-row">
+                                <span class="pill"
+                                      th:text="${produto.categoria == 'MAIN_COURSE' ? 'Prato principal' : (produto.categoria == 'DESSERT' ? 'Sobremesa' : (produto.categoria == 'DRINK' ? 'Bebida' : produto.categoria))}">Categoria</span>
+                                <span class="status-pill"
+                                      th:classappend="${produto.disponivel} ? ' status-pill--open' : ' status-pill--closed'"
+                                      th:text="${produto.disponivel} ? 'Disponível' : 'Indisponível'">Disponível</span>
+                            </div>
+
+                            <div>
+                                <h3 th:text="${produto.nome}">Product Name</h3>
+                                <p th:text="${produto.preco} + ' €'">0.00 €</p>
+                            </div>
+
+                            <div class="inline-pills">
+                                <span class="tag">Detalhes no verso</span>
+                            </div>
+                        </div>
+
+                        <form th:action="@{/carrinho/adicionar}" method="POST" th:if="${produto.disponivel}" class="add-to-cart-form">
+                            <input type="hidden" name="produtoId" th:value="${produto.id}">
+                            <input type="hidden" name="nome" th:value="${produto.nome}">
+                            <input type="hidden" name="preco" th:value="${produto.preco}">
+                            <input type="hidden" name="restauranteId" th:value="${restauranteId}">
+                            <button type="submit" style="width: 100%">Adicionar ao carrinho</button>
+                        </form>
+                    </div>
+
+                    <div class="flip-card-back">
+                        <button type="button" class="btn-flip" onclick="toggleFlip(this)" title="Voltar">x</button>
+
+                        <div class="section-stack">
+                            <div>
+                                <span class="section-eyebrow">Detalhes</span>
+                                <h3 th:text="${produto.nome}">Produto</h3>
+                            </div>
+
+                            <div>
+                                <p><strong>Descrição</strong></p>
+                                <p th:text="${produto.descricao != null ? produto.descricao : 'Sem descrição disponível.'}"></p>
+                            </div>
+
+                            <div>
+                                <p><strong>Alergénios</strong></p>
+                                <p th:text="${produto.alergenios != null ? produto.alergenios : 'A confirmar.'}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+
+                    <div class="empty-state" th:if="${produtos == null or produtos.empty}">
+                        <p>Não foram encontrados produtos com estes filtros.</p>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="cart-panel" id="cartPanel">
+                <button type="button" class="cart-toggle-button" id="cartToggleButton">Carrinho</button>
+                <div class="cart-panel__body">
+                    <h3>O teu carrinho</h3>
+                    <div class="cart-panel__meta" id="cartMeta">Ainda não adicionaste itens.</div>
+                    <ul class="cart-items" id="cartItems"></ul>
+                    <div class="cart-empty" id="cartEmpty">O carrinho está vazio. Escolhe um produto e adiciona-o aqui.</div>
+                    <div class="cart-total">
+                        <span>Total</span>
+                        <span id="cartTotal">0.00 €</span>
+                    </div>
+                    <a class="cart-checkout-button" href="/checkout">Ir para checkout</a>
+                    <div class="cart-feedback" id="cartFeedback"></div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+
+    <script th:src="@{/js/main.js}"></script>
+
+    <script>
+        function toggleFlip(buttonElement) {
+            const card = buttonElement.closest('.flip-card');
+            card.classList.toggle('flipped');
+        }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const cartStorageKey = 'tascaeatsCart';
+            const cartPanel = document.getElementById('cartPanel');
+            const cartToggleButton = document.getElementById('cartToggleButton');
+            const cartItems = document.getElementById('cartItems');
+            const cartEmpty = document.getElementById('cartEmpty');
+            const cartTotal = document.getElementById('cartTotal');
+            const cartMeta = document.getElementById('cartMeta');
+            const cartFeedback = document.getElementById('cartFeedback');
+
+            function readCart() {
+                try {
+                    const raw = sessionStorage.getItem(cartStorageKey);
+                    return raw ? JSON.parse(raw) : [];
+                } catch (error) {
+                    return [];
+                }
+            }
+
+            function writeCart(cart) {
+                sessionStorage.setItem(cartStorageKey, JSON.stringify(cart));
+            }
+
+            function removeSingleCartItem(produtoId) {
+                const cart = readCart();
+                const updatedCart = [];
+
+                cart.forEach(item => {
+                    if (String(item.produtoId) !== String(produtoId)) {
+                        updatedCart.push(item);
+                        return;
+                    }
+
+                    const quantidadeAtual = Number(item.quantidade || 0);
+                    if (quantidadeAtual > 1) {
+                        updatedCart.push({
+                            ...item,
+                            quantidade: quantidadeAtual - 1
+                        });
+                    }
+                });
+
+                writeCart(updatedCart);
+                renderCart();
+            }
+
+            function formatPrice(value) {
+                const number = Number(value) || 0;
+                return `${number.toFixed(2)} €`;
+            }
+
+            function renderCart() {
+                if (!cartItems || !cartEmpty || !cartTotal || !cartMeta) {
+                    return;
+                }
+
+                const cart = readCart();
+                const itemCount = cart.reduce((sum, item) => sum + Number(item.quantidade || 0), 0);
+                const total = cart.reduce((sum, item) => sum + (Number(item.preco || 0) * Number(item.quantidade || 0)), 0);
+
+                cartItems.innerHTML = '';
+                cartMeta.textContent = itemCount > 0
+                    ? `${itemCount} item${itemCount === 1 ? '' : 's'} no carrinho.`
+                    : 'Ainda não adicionaste itens.';
+                cartTotal.textContent = formatPrice(total);
+                cartEmpty.style.display = cart.length === 0 ? 'block' : 'none';
+
+                cart.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'cart-item';
+                    li.innerHTML = `
+                        <div class="cart-item__top">
+                            <span class="cart-item__name">${item.nome}</span>
+                            <span class="cart-item__price">${formatPrice(item.preco)}</span>
+                        </div>
+                        <div class="cart-item__details">${item.quantidade} x ${formatPrice(item.preco)}</div>
+                        <div class="cart-item__actions">
+                            <div class="cart-item__quantity-control">
+                                <button type="button" class="cart-item__quantity-button cart-item__decrement" data-produto-id="${item.produtoId}" aria-label="Remover uma unidade" title="Remover uma unidade">-</button>
+                                <span class="cart-item__quantity-value">${item.quantidade}</span>
+                                <button type="button" class="cart-item__quantity-button cart-item__increment" data-produto-id="${item.produtoId}" data-nome="${item.nome}" data-preco="${item.preco}" data-restaurante-id="${item.restauranteId}" aria-label="Adicionar uma unidade" title="Adicionar uma unidade">+</button>
+                            </div>
+                        </div>
+                    `;
+                    cartItems.appendChild(li);
+                });
+            }
+
+            function upsertCartItem(item) {
+                const cart = readCart();
+                const existing = cart.find(cartItem => String(cartItem.produtoId) === String(item.produtoId));
+
+                if (existing) {
+                    existing.quantidade = Number(existing.quantidade || 0) + Number(item.quantidade || 1);
+                } else {
+                    cart.push(item);
+                }
+
+                writeCart(cart);
+                renderCart();
+            }
+
+            if (cartToggleButton && cartPanel) {
+                cartToggleButton.addEventListener('click', () => {
+                    cartPanel.classList.toggle('is-collapsed');
+                });
+            }
+
+            renderCart();
+
+            if (cartItems) {
+                cartItems.addEventListener('click', async function(event) {
+                    const decrementButton = event.target.closest('.cart-item__decrement');
+                    if (decrementButton) {
+                        const produtoId = decrementButton.dataset.produtoId;
+                        const formData = new FormData();
+                        formData.append('produtoId', produtoId);
+                        formData.append('redirectTo', window.location.pathname);
+
+                        try {
+                            await fetch('/carrinho/remover', {
+                                method: 'POST',
+                                body: formData,
+                                credentials: 'same-origin'
+                            });
+
+                            removeSingleCartItem(produtoId);
+                            if (cartFeedback) {
+                                cartFeedback.textContent = 'Foi removida uma unidade do produto.';
+                            }
+                        } catch (error) {
+                            if (cartFeedback) {
+                                cartFeedback.textContent = 'Nao foi possivel remover o item.';
+                            }
+                        }
+                        return;
+                    }
+
+                    const incrementButton = event.target.closest('.cart-item__increment');
+                    if (!incrementButton) {
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('produtoId', incrementButton.dataset.produtoId);
+                    formData.append('quantidade', '1');
+                    formData.append('nome', incrementButton.dataset.nome || 'Produto');
+                    formData.append('preco', incrementButton.dataset.preco || '0');
+                    formData.append('restauranteId', incrementButton.dataset.restauranteId || '');
+
+                    try {
+                        await fetch('/carrinho/adicionar', {
+                            method: 'POST',
+                            body: formData,
+                            credentials: 'same-origin'
+                        });
+
+                        upsertCartItem({
+                            produtoId: incrementButton.dataset.produtoId,
+                            quantidade: 1,
+                            nome: incrementButton.dataset.nome || 'Produto',
+                            preco: Number(incrementButton.dataset.preco || 0),
+                            restauranteId: incrementButton.dataset.restauranteId || ''
+                        });
+
+                        if (cartFeedback) {
+                            cartFeedback.textContent = 'Foi adicionada uma unidade do produto.';
+                        }
+                    } catch (error) {
+                        if (cartFeedback) {
+                            cartFeedback.textContent = 'Nao foi possivel adicionar o item.';
+                        }
+                    }
+                });
+            }
+
+            document.querySelectorAll('form.add-to-cart-form').forEach(form => {
+                form.addEventListener('submit', async function(event) {
+                    event.preventDefault();
+
+                    if (cartFeedback) {
+                        cartFeedback.textContent = '';
+                    }
+
+                    const formData = new FormData(form);
+                    const produtoId = formData.get('produtoId');
+                    const quantidade = Number(formData.get('quantidade') || 1);
+                    const nome = String(formData.get('nome') || 'Produto');
+                    const preco = Number(formData.get('preco') || 0);
+                    const restauranteId = formData.get('restauranteId');
+
+                    try {
+                        await fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            credentials: 'same-origin'
+                        });
+
+                        upsertCartItem({
+                            produtoId,
+                            quantidade,
+                            nome,
+                            preco,
+                            restauranteId
+                        });
+
+                        if (cartFeedback) {
+                            cartFeedback.textContent = `${nome} adicionado ao carrinho.`;
+                        }
+                    } catch (error) {
+                        if (cartFeedback) {
+                            cartFeedback.textContent = 'Não foi possível adicionar o item.';
+                        }
+                    }
+                });
+            });
+
+            const filterForm = document.querySelector('.filtro-container form');
+            if (filterForm) {
+                const instantInputs = filterForm.querySelectorAll('select, input[type="checkbox"]');
+                instantInputs.forEach(input => {
+                    input.addEventListener('change', () => filterForm.submit());
+                });
+
+                let typingTimer;
+                const typingInterval = 600;
+                const textInputs = filterForm.querySelectorAll('input[type="text"], input[type="number"]');
+
+                textInputs.forEach(input => {
+                    input.addEventListener('input', () => {
+                        clearTimeout(typingTimer);
+                        typingTimer = setTimeout(() => {
+                            filterForm.submit();
+                        }, typingInterval);
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -32,18 +32,6 @@ public class EntregaController {
 		this.entregaService = entregaService;
 	}
 
-	// @PostMapping("/atribuir")
-	// public ResponseEntity<Object> atribuirEntregador(@Valid @RequestBody AtribuirEntregadorDTO dto) {
-	// 	try {
-	// 		Entrega entrega = entregaService.atribuirEntregador(dto);
-	// 		return ResponseEntity.ok(toResumoDTO(entrega));
-	// 	} catch (IllegalArgumentException e) {
-	// 		return mapArgumentError(e);
-	// 	} catch (IllegalStateException e) {
-	// 		return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-	// 	}
-	// }
-
 	@PatchMapping("/pedido/{pedidoId}/iniciar-preparacao")
 	public ResponseEntity<Object> iniciarPreparacao(@PathVariable Long pedidoId) {
 		Pedido pedido = entregaService.iniciarPreparacao(pedidoId);

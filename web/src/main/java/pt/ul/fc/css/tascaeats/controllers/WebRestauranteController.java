@@ -1,3 +1,12 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
 package pt.ul.fc.css.tascaeats.controllers;
 
 import java.util.List;
@@ -47,7 +56,6 @@ public class WebRestauranteController {
         return "restaurantes";
     }
 
-    // 2. Search page: Advanced filters
     @GetMapping("/restaurantes/pesquisa")
     public String pesquisarRestaurantes(
             @RequestParam(required = false) String nome,
@@ -101,7 +109,6 @@ public class WebRestauranteController {
         return "pesquisa";
     }
 
-    // 3. Live Search API for JavaScript Dropdown
     @GetMapping("/api/web/live-search")
     @ResponseBody
     public ResponseEntity<?> liveSearch(@RequestParam String nome) {
@@ -197,12 +204,10 @@ public class WebRestauranteController {
                 imagePath = "/img/sushi_local.png";
             } else if (lower.contains("pizz") || lowerTipo.contains("italiano") || lowerTipo.contains("pizza") || lowerTipo.contains("pizzaria")) {
                 imagePath = "/img/italiano_local.jpg";
-            } else if (lower.contains("cafe") || lowerTipo.contains("caf")) {
-                imagePath = "/img/cafe_local.jpg";
-            } else if (lower.contains("tasca") || lowerTipo.contains("portugues") || lowerTipo.contains("portuguesa")) {
+            } else if (lower.contains("central") || lowerTipo.contains("portugues") || lowerTipo.contains("portuguesa")) {
                 imagePath = "/img/tasca_local.png";
             } else if (lower.contains("verde") || lowerTipo.contains("verde")) {
-                imagePath = "/img/economico.jpg"; // economical image as tasca verde
+                imagePath = "/img/cafe_local.jpg"; // economical image as tasca verde
             }
 
             return Map.<String, Object>of(
@@ -244,11 +249,59 @@ public class WebRestauranteController {
                 "id", produto.getOrDefault("id", 0),
                 "nome", produto.getOrDefault("nome", "Sem nome"),
                 "preco", toDouble(produto.get("preco")),
-                "categoria", produto.getOrDefault("categoria", "OUTRO"),
+                "categoria", resolveCategoria(produto),
                 "disponivel", Boolean.TRUE.equals(produto.get("disponivel")),
                 "descricao", produto.getOrDefault("descricao", ""),
-                "alergenios", produto.getOrDefault("alergenios", "Nenhum indicado")
+                "alergenios", resolveAlergenios(produto)
         )).collect(Collectors.toList());
+    }
+
+    private String resolveCategoria(Map<String, Object> produto) {
+        Object categoria = produto.get("categoria");
+        if (categoria != null && !categoria.toString().isBlank()) {
+            return categoria.toString().trim().toUpperCase();
+        }
+
+        String nome = String.valueOf(produto.getOrDefault("nome", "")).trim().toLowerCase();
+
+        return switch (nome) {
+            case "super bock 33cl", "chá verde", "cha verde", "coca-cola 33cl" -> "DRINK";
+            case "pastel de nata" -> "DESSERT";
+            case "bitoque",
+                 "combinado sushi 15 peças",
+                 "combinado sushi 15 pecas",
+                 "gyoza",
+                 "margherita",
+                 "portuguesa pizza",
+                 "hambúrguer vegetariano",
+                 "hamburguer vegetariano",
+                 "salada mix" -> "MAIN_COURSE";
+            default -> "OUTRO";
+        };
+    }
+
+    private String resolveAlergenios(Map<String, Object> produto) {
+        Object alergenios = produto.get("alergenios");
+        if (alergenios != null && !alergenios.toString().isBlank()) {
+            return alergenios.toString();
+        }
+
+        String nome = String.valueOf(produto.getOrDefault("nome", "")).trim().toLowerCase();
+
+        return switch (nome) {
+            case "bitoque" -> "Ovos";
+            case "super bock 33cl" -> "Glúten";
+            case "pastel de nata" -> "Glúten, ovos, leite";
+            case "combinado sushi 15 peças", "combinado sushi 15 pecas" -> "Peixe, soja, glúten, sésamo";
+            case "chá verde", "cha verde" -> "Nenhum indicado";
+            case "gyoza" -> "Glúten, soja, sésamo";
+            case "margherita" -> "Glúten, leite";
+            case "portuguesa pizza" -> "Glúten, leite, ovos";
+            case "coca-cola 33cl" -> "Nenhum indicado";
+            case "hambúrguer vegetariano", "hamburguer vegetariano" -> "Glúten, soja";
+            case "salada mix" -> "Nenhum indicado";
+            default -> "A confirmar";
+        };
     }
 
     private String fetchRestaurantName(Long restauranteId) {

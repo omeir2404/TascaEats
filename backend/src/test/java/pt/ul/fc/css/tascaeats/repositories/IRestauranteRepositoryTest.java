@@ -42,7 +42,7 @@ public class IRestauranteRepositoryTest {
     @DisplayName("A: Pesquisar restaurante por nome sem case-sensitive.")
     void findByNomeContainingIgnoreCaseDevePesquisarSemCaseSensitive() {
         guardarRestaurante("Tasca Eats", "123456789", EstadoRestaurante.FECHADO, "admin1@gmail.com", null);
-        guardarRestaurante("PIZZARIA CENTRAL", "987654321", EstadoRestaurante.ABERTO, "admin2@gmail.com", null);
+        guardarRestaurante("PIZZARIA DO BAIRRO", "987654321", EstadoRestaurante.ABERTO, "admin2@gmail.com", null);
         guardarRestaurante("Hamburgueria", "111222333", EstadoRestaurante.RESERVADO, "admin3@gmail.com", null);
 
         List<Restaurante> resultados = restauranteRepository.findByNomeContainingIgnoreCase("tasca");

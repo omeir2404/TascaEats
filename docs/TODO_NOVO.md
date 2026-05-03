@@ -220,11 +220,11 @@ Para não haver mistura com a API REST que já têm, vais criar os teus próprio
 O cliente pediu especificamente uma interface web interativa para realizar consultas e buscas complexas
 .
 
-* [ ] **3.1. Ecrã de Pesquisa de Restaurantes (Caso E):**
+* [x] **3.1. Ecrã de Pesquisa de Restaurantes (Caso E):**
   * **Ação:** Criar a página HTML e ligá-la ao backend para permitir procurar restaurantes utilizando os novos filtros: por nome, pedidos realizados, avaliações, morada, tipo de cozinha, horário de funcionamento e preço médio 
-* [ ] **3.2. Ecrã de Pesquisa de Produtos (Caso I):**
+* [x] **3.2. Ecrã de Pesquisa de Produtos (Caso I):**
   * **Ação:** Criar a página HTML que liste produtos de um restaurante, aplicando os filtros: por nome, preço, categoria, disponibilidade e popularidade 
-* [ ] **3.3. Ecrã de Visualização de Menus e Utilizadores:**
+* [x] **3.3. Ecrã de Visualização de Menus e Utilizadores:**
   * **Ação:** Desenvolver páginas de consulta para aplicar os filtros de Menu (nome, número de produtos, preço médio) 
   e Filtros de Utilizador 
 
@@ -233,17 +233,17 @@ O cliente pediu especificamente uma interface web interativa para realizar consu
 #### Passo 4: Implementar Casos de Uso "Castanhos" (Partilhados)
 Estes são os casos de uso transversais, que precisam de existir tanto na versão Web como na versão Nativa
 
-* [ ] **4.1. Autenticação e Registos (Casos A, B, C, D):**
+* [x] **4.1. Autenticação e Registos (Casos A, B, C, D):**
   * **Ação:** Construir os formulários de *Login* (fazendo *mock* onde qualquer palavra-passe é aceite se o utilizador for válido 
   , e as páginas de registo, verificação, atualização e remoção para Clientes, Administradores e Entregadores 
-* [ ] **4.2. Fluxo de Pedidos (Casos J, K, L, M, N):**
+* [x] **4.2. Fluxo de Pedidos (Casos J, K, L, M, N):**
   * **Ação:** Criar as interfaces visuais para a criação de um pedido 
    registo do pagamento (recolhendo bandeira do cartão ou telemóvel conforme o tipo) 
   , atualização do estado 
   , visualização da atribuição do entregador 
    e cancelamento
   .
-* [ ] **4.3. Avaliação de Restaurantes:**
+* [x] **4.3. Avaliação de Restaurantes:**
   * **Ação:** Incluir na interface um formulário para que o cliente possa avaliar o restaurante após uma compra
 
 ---
@@ -261,6 +261,47 @@ O vosso projeto será fortemente penalizado se falhar na execução ou se a usab
   . Demonstrar com clareza o funcionamento real, a aplicação dos filtros e explicar o trabalho desenvolvido pelo grupo
 * [ ] **5.4. Adicionar o Link do Vídeo:**
   * **Ação:** Adicionar o link final do vídeo da interface web no ficheiro `README.md`
+
+
+# tratar de menus
+
+### 📋 Phase 1: Database Entities (JPA Models)
+- [ ] **Create `Menu` Entity**
+  - Define class with `@Entity`.
+  - Add standard fields: `@Id`, `nome`, `descricao`.
+  - Add an aggregate field or calculated method for `precoMedio` (average price).
+  - Define a `@OneToMany` relationship pointing to `Product`.
+- [ ] **Create `Product` Entity**
+  - Define class with `@Entity`.
+  - Add fields: `nome`, `preco`, `categoria`, `disponivel`, `descricao`, `alergenios`.
+  - Define a `@ManyToOne` relationship pointing back to the `Menu`.
+- [ ] **Refactor `Restaurant` Entity**
+  - Define class with `@Entity`.
+  - Add a `@ManyToOne` relationship pointing to the `Menu` (This allows 50 franchise locations to share 1 Menu ID).
+
+### ⚙️ Phase 2: Repositories & Services
+- [ ] **Create Repositories**
+  - Build `MenuRepository` extending `JpaRepository<Menu, Long>`.
+  - Build `ProductRepository` extending `JpaRepository<Product, Long>`.
+- [ ] **Implement Service Logic**
+  - Create `MenuService` to handle business logic (e.g., calculating the total number of items or average price dynamically).
+  - Create `ProductService` to handle the complex filtering (Name, Max Price, Category, Availability) using Spring Data JPA custom queries or Specifications instead of Java Streams.
+
+### 🔌 Phase 3: Controller Refactoring
+- [ ] **Update `WebMenuController`**
+  - Inject `MenuService`.
+  - Replace the `getMockMenus()` list with a call to `menuRepository.findAll()`.
+- [ ] **Update `WebRestauranteController`**
+  - Remove `getMockProdutos()`.
+  - Update the `pesquisarProdutos` endpoint to query the actual database based on the selected `Menu ID` and active filters.
+
+### 🍔 Phase 4: Franchise Data Seeding (Testing)
+- [ ] **Update `data.sql` (or Database Seeder)**
+  - Insert 1 core Franchise Menu (e.g., "Standard Burger Menu").
+  - Insert 10 core Products linked to that 1 Menu.
+  - Insert 3 different Restaurants (e.g., "Downtown Branch", "Airport Branch", "Mall Branch") and assign all of them to the exact same Menu ID.
+- [ ] **Run and Verify**
+  - Boot the application and verify that clicking on any of the 3 franchise locations loads the exact same products without duplicating data in the database.
 
 ### ## Membro 3: Interface Nativa com JavaFX (O "Native Developer")
 

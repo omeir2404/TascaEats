@@ -1,0 +1,61 @@
+<!-- ##############################################################
+#                           TASCAEATS                           #
+#                        CSS GRUPO: 25                         #
+#        Autores:                 Numero Aluno:               #
+#     - Omeir Haroon                61810                     #
+#     - Isa David                   61871                     #
+#     - Diogo Roque                 61857                     #
+############################################################## -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <header th:fragment="cabecalho" class="site-header">
+        <div class="site-header__inner"
+             th:with="cartItems=${session.cartItems},
+                      cartTotal=${cartItems == null or #lists.isEmpty(cartItems) ? 0 : #aggregates.sum(cartItems.![preco * quantidade])}">
+            <nav class="site-nav site-nav--left" aria-label="Navegacao esquerda">
+                <a th:href="@{/restaurantes}">Restaurantes</a>
+                <a th:href="@{/menus}">Menus</a>
+            </nav>
+
+            <div class="brand" role="img" aria-label="TASCA EATS">
+                <div class="brand-copy">
+                    <strong>TASCA EATS</strong>
+                </div>
+            </div>
+
+            <nav class="site-nav site-nav--right" aria-label="Navegacao direita">
+                <a th:href="@{/utilizadores}">Utilizadores</a>
+                <a th:href="@{/meus-pedidos}">Pedidos</a>
+                <div class="header-cart" id="headerCart">
+                    <button type="button" class="header-cart__trigger" id="headerCartTrigger" aria-label="Abrir carrinho" aria-expanded="false">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 5h2l1.1 5.2A2 2 0 0 0 8.05 12H17a2 2 0 0 0 1.95-1.56L20 6H7" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
+                            <circle cx="9" cy="18" r="1.6" fill="currentColor"/>
+                            <circle cx="17" cy="18" r="1.6" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="header-cart__dropdown" id="headerCartDropdown">
+                        <span class="header-cart__eyebrow">Finalize a sua Compra</span>
+                        <h3>Resumo do seu pedido</h3>
+                        <ul class="header-cart__items" id="headerCartItems"></ul>
+                        <p class="header-cart__empty" id="headerCartEmpty" th:if="${cartItems == null or #lists.isEmpty(cartItems)}">Ainda nao adicionaste produtos ao carrinho.</p>
+                        <p class="header-cart__total">
+                            Total: <span id="headerCartTotal" th:text="${#numbers.formatDecimal(cartTotal, 1, 2)} + '€'">0,00€</span>
+                        </p>
+                        <a class="header-cart__checkout" th:href="@{/checkout}">Ir para o checkout</a>
+                    </div>
+                </div>
+                <th:block th:if="${session.loggedUser == null}">
+                    <a th:href="@{/login}">Entrar</a>
+                </th:block>
+                <th:block th:if="${session.loggedUser != null}">
+                    <a th:href="@{/perfil/{id}(id=${session.loggedUser.id})}">Perfil</a>
+                    <a th:href="@{/logout}">Sair</a>
+                </th:block>
+            </nav>
+        </div>
+    </header>
+</body>
+</html>

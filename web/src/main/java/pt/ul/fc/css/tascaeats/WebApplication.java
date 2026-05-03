@@ -1,3 +1,12 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
 package pt.ul.fc.css.tascaeats;
 
 import org.springframework.boot.SpringApplication;
@@ -13,12 +22,6 @@ public class WebApplication {
         SpringApplication.run(WebApplication.class, args);
     }
 
-    /**
-     * Ao declarar este método com @Bean, dizemos ao Spring para criar
-     * uma instância de RestTemplate e guardá-la no seu contexto.
-     * Assim, poderás injetar (via construtor) este RestTemplate
-     * em qualquer WebController teu para fazer chamadas ao Backend!
-     */
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();

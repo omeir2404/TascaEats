@@ -54,7 +54,6 @@ public class PedidoService {
             throw new IllegalArgumentException("O pedido deve conter pelo menos um item.");
         }
 
-        // Validar cliente
         var utilizador = utilizadorRepository.findById(criarPedidoDto.getClienteId())
             .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + criarPedidoDto.getClienteId()));
         if (!(utilizador instanceof Cliente)) {
@@ -62,7 +61,6 @@ public class PedidoService {
         }
         Cliente cliente = (Cliente) utilizador;
 
-        // Validar morada: deve existir uma opção (ID de morada existente ou nova morada)
         if (criarPedidoDto.getMoradaId() == null && criarPedidoDto.getMoradaNova() == null) {
             throw new IllegalArgumentException("Deve ser fornecida uma morada de entrega (ID de morada existente ou dados de nova morada).");
         }
@@ -71,7 +69,6 @@ public class PedidoService {
             throw new IllegalArgumentException("Apenas uma das opções deve ser fornecida: moradaId OU moradaNova.");
         }
 
-        // Se usar morada existente, validar que pertence ao cliente
         if (criarPedidoDto.getMoradaId() != null) {
             boolean moradaValida = cliente.getAddresses().stream()
                 .anyMatch(m -> m.getId().equals(criarPedidoDto.getMoradaId()));
@@ -80,18 +77,15 @@ public class PedidoService {
             }
         }
 
-        // Se for fornecida uma nova morada, criar e associar ao cliente (persistido ao salvar o cliente)
         if (criarPedidoDto.getMoradaNova() != null) {
             Morada nova = novaMoradaDeDTO(criarPedidoDto.getMoradaNova());
             cliente.addAdresses(nova);
-            // Guardar a nova morada associada ao cliente
             utilizadorRepository.save(cliente);
         }
 
         double valorTotal = 0;
         java.util.Set<Long> restaurantesValidados = new java.util.HashSet<>();
 
-        // Validar itens e calcular valor total
         for (ItemPedidoDTO item : criarPedidoDto.getItens()) {
             if (item.getProdutoId() == null || item.getProdutoId() <= 0) {
                 throw new IllegalArgumentException("Produto Id inválido no item.");
@@ -105,18 +99,15 @@ public class PedidoService {
                 throw new IllegalArgumentException("Quantidade inválida no item: deve ser maior que 0.");
             }
 
-            // Validar produto
             Produto produto = produtoRepository.findById(item.getProdutoId())
                 .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + item.getProdutoId()));
 
             produto.validarDisponibilidadeParaPedido();
 
-            // Verificar que o produto pertence ao restaurante indicado no item
             if (produto.getRestaurante() == null || !produto.getRestaurante().getId().equals(item.getRestauranteId())) {
                 throw new IllegalArgumentException("O produto " + item.getProdutoId() + " não pertence ao restaurante " + item.getRestauranteId());
             }
 
-            // Validar restaurante (uma única vez por restaurante)
             if (!restaurantesValidados.contains(item.getRestauranteId())) {
                 Restaurante restaurante = restauranteRepository.findById(item.getRestauranteId())
                     .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + item.getRestauranteId()));
@@ -125,17 +116,13 @@ public class PedidoService {
                 restaurantesValidados.add(item.getRestauranteId());
             }
 
-            // Acumular valor total (quantidade * preço)
             valorTotal += item.getQuantidade() * produto.getPreco();
         }
 
-        // Criar pedido
         Pedido pedido = new Pedido(null, criarPedidoDto.getClienteId());
         pedido.setValorTotal(valorTotal);
 
-        // Adicionar produtos ao pedido
         for (ItemPedidoDTO item : criarPedidoDto.getItens()) {
-            // Adicionar quantidade de vezes (ou ajustar a lógica conforme necessário)
             for (int i = 0; i < item.getQuantidade(); i++) {
                 pedido.adicionarProduto(item.getProdutoId(), item.getRestauranteId());
             }
@@ -179,7 +166,6 @@ public class PedidoService {
         return pedidoRepository.findAll();
     }
 
-    // Converter MoradaDTO para domain Morada
     private Morada novaMoradaDeDTO(pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO dto) {
         if (dto == null) {
             throw new IllegalArgumentException("A morada é obrigatória.");

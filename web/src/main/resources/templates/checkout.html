@@ -1,0 +1,355 @@
+<!-- ##############################################################
+#                           TASCAEATS                           #
+#                        CSS GRUPO: 25                         #
+#        Autores:                 Numero Aluno:               #
+#     - Omeir Haroon                61810                     #
+#     - Isa David                   61871                     #
+#     - Diogo Roque                 61857                     #
+############################################################## -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body.checkout-page {
+            overflow: hidden;
+        }
+
+        body.checkout-page main {
+            padding-top: 12px;
+            padding-bottom: 8px;
+            height: calc(100vh - 85px);
+            overflow: hidden;
+        }
+
+        body.checkout-page .site-footer {
+            display: none;
+        }
+
+        .checkout-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 18px 22px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .checkout-container h2 {
+            color: var(--brand);
+            margin-bottom: 10px;
+        }
+
+        .checkout-summary {
+            background-color: #f8f9fa;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .checkout-summary__items {
+            max-height: 120px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .checkout-summary h4 {
+            margin-top: 0;
+            margin-bottom: 2px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+            color: var(--brand);
+        }
+
+        .checkout-cart-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .checkout-cart-item__info {
+            display: grid;
+            gap: 2px;
+            width: 100%;
+        }
+
+        .checkout-cart-item__top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .checkout-cart-item__name {
+            font-weight: 700;
+            color: #182126;
+        }
+
+        .checkout-cart-item__details {
+            color: #667085;
+            font-size: 0.88rem;
+        }
+
+        .checkout-cart-item__price {
+            font-weight: 700;
+            color: #182126;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+
+        .checkout-quantity-control {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #111827;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #fff;
+            margin-top: -4px;
+            margin-left: auto;
+        }
+
+        .checkout-quantity-value {
+            min-width: 28px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: #182126;
+        }
+
+        .checkout-quantity-button {
+            min-height: 24px;
+            min-width: 24px;
+            width: 24px;
+            padding: 0;
+            border-radius: 0;
+            background: #111827;
+            color: #fff;
+            box-shadow: none;
+            font-size: 0.82rem;
+            line-height: 1;
+        }
+
+        .checkout-quantity-button:hover {
+            box-shadow: none;
+            transform: none;
+        }
+
+        .checkout-quantity-form {
+            margin: 0;
+        }
+
+        .checkout-total {
+            color: var(--brand);
+            text-align: right;
+            margin: 8px 0 0;
+        }
+
+        .checkout-divider {
+            margin: 10px 0 12px;
+        }
+
+        .checkout-form-title {
+            color: var(--brand);
+            margin-bottom: 10px;
+        }
+
+        .payment-method {
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .payment-method:hover {
+            background-color: #f9f9f9;
+        }
+
+        .payment-method label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: #182126;
+            font-weight: 700;
+        }
+
+        .payment-method input[type="radio"] {
+            width: 18px;
+            min-width: 18px;
+            height: 18px;
+            margin: 0;
+            accent-color: var(--brand);
+        }
+
+        .hidden-details {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ccc;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            height: 38px;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .checkout-submit {
+            width: 100%;
+            margin-top: 10px;
+            padding: 11px 15px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body class="checkout-page">
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main>
+        <div class="checkout-container">
+            <h2>Finalize a sua Compra</h2>
+
+            <div th:if="${error != null}" class="error-message" th:text="${error}" style="margin-bottom: 10px;"></div>
+
+            <div class="checkout-summary">
+                <h4>Resumo do seu pedido</h4>
+
+                <div class="checkout-summary__items">
+                    <ul style="list-style-type: none; padding: 0; margin: 0;">
+                        <li th:each="item : ${itens}" class="checkout-cart-item">
+                            <div class="checkout-cart-item__info">
+                                <div class="checkout-cart-item__top">
+                                    <span class="checkout-cart-item__name" th:text="${item.nome}">Product Name</span>
+                                    <span class="checkout-cart-item__price" th:text="${#numbers.formatDecimal(item.preco, 1, 2)} + '€'">0.00€</span>
+                                </div>
+                                <span class="checkout-cart-item__details" th:text="${item.quantidade} + ' x ' + ${item.preco} + '€'">1 x 0.00€</span>
+                                <div class="checkout-quantity-control">
+                                    <form th:action="@{/carrinho/remover}" method="POST" class="checkout-quantity-form">
+                                        <input type="hidden" name="produtoId" th:value="${item.produtoId}">
+                                        <input type="hidden" name="redirectTo" value="/checkout">
+                                        <button type="submit" class="checkout-quantity-button" aria-label="Remover uma unidade" title="Remover uma unidade">-</button>
+                                    </form>
+                                    <span class="checkout-quantity-value" th:text="${item.quantidade}">1</span>
+                                    <form th:action="@{/carrinho/adicionar}" method="POST" class="checkout-quantity-form">
+                                        <input type="hidden" name="produtoId" th:value="${item.produtoId}">
+                                        <input type="hidden" name="quantidade" value="1">
+                                        <input type="hidden" name="nome" th:value="${item.nome}">
+                                        <input type="hidden" name="preco" th:value="${item.preco}">
+                                        <input type="hidden" name="restauranteId" th:value="${item.restauranteId}">
+                                        <button type="submit" class="checkout-quantity-button" aria-label="Adicionar uma unidade" title="Adicionar uma unidade">+</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="checkout-total">Total: <span th:text="${#numbers.formatDecimal(total, 1, 2)} + '€'">0.00€</span></h3>
+            <hr class="checkout-divider">
+
+            <form th:action="@{/checkout/processar}" method="POST" id="checkoutForm">
+                <h4 class="checkout-form-title">Selecione método de pagamento</h4>
+
+                <div class="payment-method" data-payment-option="MBWAY">
+                    <label>
+                        <input type="radio" name="metodoPagamento" value="MBWAY" onchange="togglePaymentDetails()" required>
+                        <span>MBWay</span>
+                    </label>
+                    <div id="mbwayDetails" class="hidden-details">
+                        <div class="form-group">
+                            <label>Phone Number:</label>
+                            <input type="tel" name="telemovel" placeholder="Ex: 912345678" pattern="[0-9]{9}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-method" data-payment-option="MULTIBANCO">
+                    <label>
+                        <input type="radio" name="metodoPagamento" value="MULTIBANCO" onchange="togglePaymentDetails()">
+                        <span>Multibanco</span>
+                    </label>
+                    <div id="cardDetails" class="hidden-details">
+                        <div class="form-group">
+                            <label>Bandeira do cartao:</label>
+                            <select name="bandeiraCartao">
+                                <option value="VISA">Visa</option>
+                                <option value="MASTERCARD">Mastercard</option>
+                                <option value="AMEX">American Express</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Referencia:</label>
+                            <input type="text" placeholder="**** **** **** ****">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-method" data-payment-option="DINHEIRO">
+                    <label>
+                        <input type="radio" name="metodoPagamento" value="DINHEIRO" onchange="togglePaymentDetails()">
+                        <span>Dinheiro</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="checkout-submit">Confirmar pagamento e Finalizar encomenda</button>
+            </form>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+
+    <script>
+        function togglePaymentDetails() {
+            const method = document.querySelector('input[name="metodoPagamento"]:checked').value;
+            const mbwayDiv = document.getElementById('mbwayDetails');
+            const cardDiv = document.getElementById('cardDetails');
+
+            mbwayDiv.style.display = method === 'MBWAY' ? 'block' : 'none';
+            cardDiv.style.display = method === 'MULTIBANCO' ? 'block' : 'none';
+
+            document.querySelector('input[name="telemovel"]').required = method === 'MBWAY';
+            document.querySelector('select[name="bandeiraCartao"]').required = method === 'MULTIBANCO';
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.payment-method').forEach(function(card) {
+                card.addEventListener('click', function(event) {
+                    if (event.target.closest('input, select, option')) {
+                        return;
+                    }
+
+                    const paymentValue = card.dataset.paymentOption;
+                    const radio = card.querySelector(`input[type="radio"][value="${paymentValue}"]`);
+                    if (!radio) {
+                        return;
+                    }
+
+                    radio.checked = true;
+                    togglePaymentDetails();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!-- ##############################################################
+#                           TASCAEATS                           #
+#                        CSS GRUPO: 25                         #
+#        Autores:                 Numero Aluno:               #
+#     - Omeir Haroon                61810                     #
+#     - Isa David                   61871                     #
+#     - Diogo Roque                 61857                     #
+############################################################## -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilizadores - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: cabecalho}"></div>
+
+    <main class="page-shell page-shell--users">
+        <section class="split-intro">
+            <div class="page-intro">
+                <h2>Gestão de utilizadores</h2>
+            </div>
+        </section>
+
+        <section class="filter-shell filter-shell--search">
+            <div class="filtro-container">
+                <form th:action="@{/utilizadores}" method="GET">
+                    <div class="form-group form-group--wide">
+                        <label for="nome">Nome</label>
+                        <input type="text" id="nome" name="nome" placeholder="Ex: João" th:value="${nome}">
+                    </div>
+
+                    <div class="form-group form-group--medium">
+                        <label for="papel">Papel</label>
+                        <select id="papel" name="papel">
+                            <option value="" th:selected="${papel == null or papel == ''}">Todos</option>
+                            <option value="CLIENT" th:selected="${papel == 'CLIENT'}">Cliente</option>
+                            <option value="ADMIN" th:selected="${papel == 'ADMIN'}">Administrador</option>
+                            <option value="COURIER" th:selected="${papel == 'COURIER'}">Entregador</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group form-group--compact form-checkbox">
+                        <label for="apenasAtivos">Estado</label>
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="apenasAtivos" name="apenasAtivos" value="true" th:checked="${apenasAtivos}">
+                            <span>Apenas ativos</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit">Filtrar utilizadores</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="table-shell">
+            <div class="table-header">
+                <div class="section-header">
+                    <div>
+                        <h3>Utilizadores do sistema</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Papel</th>
+                            <th>Estado</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${utilizadores}">
+                            <td th:text="${user.id}">1</td>
+                            <td th:text="${user.nome}">Name</td>
+                            <td>
+                                <span class="user-email" th:text="${user.email}">Email</span>
+                            </td>
+                            <td th:text="${user.papel == 'COURIER' ? 'Entregador' : (user.papel == 'CLIENT' ? 'Cliente' : (user.papel == 'ADMIN' ? 'Administrador' : user.papel))}">Role</td>
+                            <td>
+                                <span th:if="${user.ativo}" class="status-pill status-active">Ativo</span>
+                                <span th:unless="${user.ativo}" class="status-pill status-inactive">Inativo</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/perfil/{id}(id=${user.id})}">
+                                    <button type="button" class="secondary">Editar</button>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="empty-state" th:if="${utilizadores == null or utilizadores.empty}">
+                    <p>Nao existem utilizadores para estes filtros.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div th:replace="~{fragments/footer :: rodape}"></div>
+    
+    <script th:src="@{/js/main.js}"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const filterForm = document.querySelector('.filtro-container form');
+            if (!filterForm) return;
+
+            const instantInputs = filterForm.querySelectorAll('select, input[type="checkbox"]');
+            instantInputs.forEach(input => {
+                input.addEventListener('change', () => filterForm.submit());
+            });
+
+            let typingTimer;
+            const textInputs = filterForm.querySelectorAll('input[type="text"]');
+            
+            textInputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(() => filterForm.submit(), 600);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

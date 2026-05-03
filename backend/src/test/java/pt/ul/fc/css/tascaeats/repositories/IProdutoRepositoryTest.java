@@ -90,7 +90,7 @@ public class IProdutoRepositoryTest {
             String emailAdmin
     ) {
         Restaurante restaurante = guardarRestaurante(nifRestaurante, emailAdmin);
-        Produto produto = new Produto(nome, 12.5, "Descricao " + nome, restaurante);
+        Produto produto = new Produto(nome, 12.5, "Descrição " + nome, restaurante);
 
         if (!disponivel && !apagado) {
             produto.indisponibilizar();

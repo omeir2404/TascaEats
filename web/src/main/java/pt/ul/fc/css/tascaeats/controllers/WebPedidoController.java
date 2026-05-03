@@ -1,3 +1,12 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
 package pt.ul.fc.css.tascaeats.controllers;
 
 import java.util.Comparator;
@@ -122,6 +131,31 @@ public class WebPedidoController {
         return "checkout";
     }
 
+    @PostMapping("/carrinho/remover")
+    public String removerDoCarrinho(
+            @RequestParam Long produtoId,
+            @RequestParam(required = false, defaultValue = "/checkout") String redirectTo,
+            HttpSession session) {
+        List<Map<String, Object>> carrinho = getCarrinho(session);
+
+        carrinho.removeIf(item -> {
+            if (!produtoId.equals(toLong(item.get("produtoId")))) {
+                return false;
+            }
+
+            int quantidadeAtual = toInt(item.get("quantidade"));
+            if (quantidadeAtual <= 1) {
+                return true;
+            }
+
+            item.put("quantidade", quantidadeAtual - 1);
+            return false;
+        });
+
+        session.setAttribute(CART_SESSION_KEY, carrinho);
+        return "redirect:" + sanitizeRedirect(redirectTo);
+    }
+
     @PostMapping("/checkout/processar")
     public String processarCheckout(
             @RequestParam String metodoPagamento,
@@ -139,6 +173,10 @@ public class WebPedidoController {
             session.setAttribute("checkoutError", "Carrinho vazio. Adicione produtos antes de finalizar.");
             return "redirect:/checkout";
         }
+
+        double total = carrinho.stream()
+                .mapToDouble(item -> toDouble(item.get("preco")) * toInt(item.get("quantidade")))
+                .sum();
 
         try {
             List<Map<String, Object>> itensPedido = carrinho.stream().map(item -> {
@@ -161,7 +199,7 @@ public class WebPedidoController {
                 return "redirect:/meus-pedidos";
             }
 
-            Map<String, Object> detalhesPagamento = buildDetalhesPagamento(metodoPagamento, telemovel, bandeiraCartao, pedidoId);
+            Map<String, Object> detalhesPagamento = buildDetalhesPagamento(metodoPagamento, telemovel, bandeiraCartao, pedidoId, total);
             Map<String, Object> pagamentoPayload = new HashMap<>();
             pagamentoPayload.put("pedidoId", pedidoId);
             pagamentoPayload.put("tipoPagamento", metodoPagamento);
@@ -317,7 +355,7 @@ public class WebPedidoController {
         }
     }
 
-    private Map<String, Object> buildDetalhesPagamento(String metodoPagamento, String telemovel, String bandeiraCartao, Long pedidoId) {
+    private Map<String, Object> buildDetalhesPagamento(String metodoPagamento, String telemovel, String bandeiraCartao, Long pedidoId, double total) {
         Map<String, Object> detalhes = new HashMap<>();
         if ("MBWAY".equalsIgnoreCase(metodoPagamento)) {
             detalhes.put("numeroTelemovel", telemovel == null ? "910000000" : telemovel);
@@ -331,7 +369,12 @@ public class WebPedidoController {
             return detalhes;
         }
 
-        detalhes.put("valorRecebido", 0.0);
+        if ("DINHEIRO".equalsIgnoreCase(metodoPagamento)) {
+            detalhes.put("valorRecebido", Math.round(total * 100.0) / 100.0);
+            return detalhes;
+        }
+
+        detalhes.put("valorRecebido", Math.round(total * 100.0) / 100.0);
         return detalhes;
     }
 
@@ -354,5 +397,12 @@ public class WebPedidoController {
             return number.doubleValue();
         }
         return Double.parseDouble(String.valueOf(value));
+    }
+
+    private String sanitizeRedirect(String redirectTo) {
+        if (redirectTo == null || redirectTo.isBlank() || !redirectTo.startsWith("/")) {
+            return "/checkout";
+        }
+        return redirectTo;
     }
 }

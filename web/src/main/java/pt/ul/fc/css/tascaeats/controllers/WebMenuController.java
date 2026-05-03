@@ -1,3 +1,12 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
 package pt.ul.fc.css.tascaeats.controllers;
 
 import java.util.ArrayList;
@@ -113,7 +122,7 @@ public class WebMenuController {
             } else if (rn.contains("pizzaria") || rn.contains("pizza")) {
                 imagePath = "/img/pizza.png";
             } else if (rn.contains("tasca verde") || rn.contains("verde")) {
-                imagePath = "/img/economico.jpg";
+                imagePath = "/img/economico.jpeg";
             } else if (rn.contains("tasca central") || rn.contains("tasca")) {
                 imagePath = "/img/tasca.jpg";
             }
