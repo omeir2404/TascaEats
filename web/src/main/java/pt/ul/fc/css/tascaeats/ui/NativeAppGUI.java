@@ -505,6 +505,7 @@ public class NativeAppGUI extends Application {
         TextField cpF           = new TextField(s(ex, "codigoPostal"));
         TextField cidadeF       = new TextField(s(ex, "cidade"));
         TextField distritoF     = new TextField(s(ex, "distrito"));
+        TextField tipoF = new TextField(s(ex,"tipo"));
 
         GridPane g = formGrid();
         g.add(lbl("Nome:"),         0, 0); g.add(nomeF,     1, 0);
@@ -514,6 +515,8 @@ public class NativeAppGUI extends Application {
         g.add(lbl("Cód. Postal:"),  0, 4); g.add(cpF,       1, 4);
         g.add(lbl("Cidade:"),       0, 5); g.add(cidadeF,   1, 5);
         g.add(lbl("Distrito:"),     0, 6); g.add(distritoF, 1, 6);
+        g.add(lbl("Tipo:"),     0, 7); g.add(tipoF, 1, 7);
+
         dlg.getDialogPane().setContent(g);
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
@@ -530,7 +533,8 @@ public class NativeAppGUI extends Application {
                     "cidade",      cidadeF.getText().trim(),
                     "distrito",    distritoF.getText().trim(),
                     "pais",        "Portugal",
-                    "complemento", ""
+                    "complemento", "",
+                    "Tipo",       tipoF.getText().trim().isBlank() ? "OUTRO" : tipoF.getText().trim()
             );
         });
         return dlg.showAndWait().orElse(null);
@@ -650,7 +654,6 @@ public class NativeAppGUI extends Application {
         Button voltarBtn = new Button("← Voltar a Restaurantes");
         voltarBtn.setOnAction(e -> showRestaurantesPane());
 
-       Malta quando é que vai sair o email do traçar?
  prodStatusLabel = statusLabel("Selecione um restaurante para carregar produtos.");
 
         // initial load
