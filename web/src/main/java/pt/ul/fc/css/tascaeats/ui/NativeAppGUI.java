@@ -603,8 +603,6 @@ public class NativeAppGUI extends Application {
         dispBtn.setOnAction(e -> {
             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
             if (sel == null) { warn("Selecione um produto."); return; }
-            sel.put("disponivel", "Sim".equals(sel.get("disponivel")) ? "Não" : "Sim");
-            table.refresh();
             boolean novaDisp = "Não".equals(s(sel, "disponivel"));
             try {
                 Map<String, Object> payload = Map.of("disponivel", novaDisp);
@@ -696,10 +694,10 @@ public class NativeAppGUI extends Application {
         Dialog<Map<String, Object>> dlg = dialog(ex == null ? "Criar Produto" : "Editar Produto");
 
         ObservableList<String> rNames = FXCollections.observableArrayList();
-        mockRestaurantes.forEach(r -> rNames.add(r.get("nome").toString()));
+        restaurantes.forEach(r -> rNames.add(s(r, "nome")));
         ComboBox<String> restBox = new ComboBox<>(rNames);
-        if (ex != null)        restBox.setValue(s(ex,"restNome"));
-        else if (preRest != null) restBox.setValue(s(preRest,"nome"));
+        if (ex != null)         restBox.setValue(s(ex, "restNome"));
+        else if (preRest != null) restBox.setValue(s(preRest, "nome"));
         else restBox.getSelectionModel().selectFirst();
 
         TextField nomeF  = new TextField(s(ex,"nome"));
@@ -708,20 +706,26 @@ public class NativeAppGUI extends Application {
         catBox.setValue(ex != null ? s(ex,"categoria") : "PRATO");
         ComboBox<String> dispBox = combo("Sim","Não");
         dispBox.setValue(ex != null ? s(ex,"disponivel") : "Sim");
+        TextField nomeF  = new TextField(s(ex, "nome"));
+        TextField precoF = new TextField(ex != null ? String.valueOf(ex.getOrDefault("preco", "")) : "");
+        ComboBox<String> catBox  = combo("PRATO", "BEBIDA", "SOBREMESA", "ENTRADA");
+        if (ex != null) catBox.setValue(s(ex, "categoria"));
+        ComboBox<String> dispBox = combo("Sim", "Não");
+        if (ex != null) dispBox.setValue(s(ex, "disponivel"));
 
         GridPane g = formGrid();
-        g.add(lbl("Restaurante:"), 0,0); g.add(restBox, 1,0);
-        g.add(lbl("Nome:"),        0,1); g.add(nomeF,   1,1);
-        g.add(lbl("Preço (€):"),   0,2); g.add(precoF,  1,2);
-        g.add(lbl("Categoria:"),   0,3); g.add(catBox,  1,3);
-        g.add(lbl("Disponível:"),  0,4); g.add(dispBox, 1,4);
+        g.add(lbl("Restaurante:"), 0, 0); g.add(restBox, 1, 0);
+        g.add(lbl("Nome:"),        0, 1); g.add(nomeF,   1, 1);
+        g.add(lbl("Preço (€):"),   0, 2); g.add(precoF,  1, 2);
+        g.add(lbl("Categoria:"),   0, 3); g.add(catBox,  1, 3);
+        g.add(lbl("Disponível:"),  0, 4); g.add(dispBox, 1, 4);
         dlg.getDialogPane().setContent(g);
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         dlg.setResultConverter(b -> {
             if (b != ButtonType.OK) return null;
-            String rn = restBox.getValue();
-            Object rid = mockRestaurantes.stream().filter(r -> r.get("nome").equals(rn))
+            String rn  = restBox.getValue();
+            Object rid = restaurantes.stream().filter(r -> s(r, "nome").equals(rn))
                 .findFirst().map(r -> r.get("id")).orElse(-1);
             return row("restId", rid, "restNome", rn,
                 "nome", nomeF.getText().trim(), "preco", precoF.getText().trim(),
