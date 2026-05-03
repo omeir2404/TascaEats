@@ -287,7 +287,10 @@ public class WebPedidoController {
     }
 
     @PostMapping("/pedidos/{id}/cancelar")
-    public String cancelarPedido(@PathVariable Long id, HttpSession session) {
+    public String cancelarPedido(
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "") String redirectTo,
+            HttpSession session) {
         try {
             restTemplate.exchange(
                     backendUrl + "/pedidos/" + id + "/cancelar",
@@ -295,9 +298,12 @@ public class WebPedidoController {
                     HttpEntity.EMPTY,
                     Object.class
             );
+            session.setAttribute("pedidoDetalheSuccess", "Pedido cancelado com sucesso.");
         } catch (Exception e) {
             session.setAttribute("pedidoDetalheError", WebErrorMessages.backendFailure("Nao foi possivel cancelar o pedido", e, backendUrl));
-            return "redirect:/pedidos/" + id;
+        }
+        if (hasText(redirectTo)) {
+            return "redirect:" + sanitizeRedirect(redirectTo);
         }
         return "redirect:/pedidos/" + id;
     }
@@ -634,16 +640,86 @@ public class WebPedidoController {
         String dataComHora = (data + " " + hora).trim();
 
         Map<String, Object> normalized = new HashMap<>();
+        String estado = String.valueOf(pedido.getOrDefault("estado", "CRIADO"));
         normalized.put("id", pedido.getOrDefault("id", 0));
         normalized.put("restauranteNome", restauranteId != null ? fetchRestaurantName(restauranteId) : "Restaurante");
         normalized.put("total", toDouble(pedido.get("valorTotal")));
-        normalized.put("estado", pedido.getOrDefault("estado", "PENDING"));
+        normalized.put("estado", estado);
+        normalized.put("estadoLabel", formatEstadoPedido(estado));
+        normalized.put("statusClass", statusClassForPedido(estado));
+        normalized.put("cancelavel", isPedidoCancelavel(estado));
+        normalized.put("statusSteps", buildPedidoStatusSteps(estado));
         normalized.put("entregador", fetchCourierNameForPedido(toLong(pedido.get("id"))));
         normalized.put("data", dataComHora);
         Long pedidoId = toLong(pedido.get("id"));
         normalized.put("avaliado", isPedidoAvaliado(pedidoId));
         normalized.put("avaliacao", fetchAvaliacaoForPedido(pedidoId));
         return normalized;
+    }
+
+    private List<Map<String, Object>> buildPedidoStatusSteps(String estado) {
+        if ("CANCELADO".equalsIgnoreCase(estado)) {
+            return List.of(
+                    statusStep("CRIADO", "Pedido criado", true, false),
+                    statusStep("CANCELADO", "Cancelado", false, true)
+            );
+        }
+
+        List<String> ordem = List.of(
+                "CRIADO",
+                "PAGO",
+                "A_PREPARAR",
+                "PRONTO_PARA_ENTREGA",
+                "ATRIBUIDO_ENTREGADOR",
+                "ENTREGUE"
+        );
+        int currentIndex = ordem.indexOf(estado);
+        if (currentIndex < 0) {
+            currentIndex = 0;
+        }
+
+        List<Map<String, Object>> steps = new java.util.ArrayList<>();
+        for (int i = 0; i < ordem.size(); i++) {
+            String stepEstado = ordem.get(i);
+            steps.add(statusStep(stepEstado, formatEstadoPedido(stepEstado), i < currentIndex, i == currentIndex));
+        }
+        return steps;
+    }
+
+    private Map<String, Object> statusStep(String estado, String label, boolean completed, boolean current) {
+        Map<String, Object> step = new HashMap<>();
+        step.put("estado", estado);
+        step.put("label", label);
+        step.put("completed", completed);
+        step.put("current", current);
+        return step;
+    }
+
+    private boolean isPedidoCancelavel(String estado) {
+        return "CRIADO".equalsIgnoreCase(estado) || "PAGO".equalsIgnoreCase(estado);
+    }
+
+    private String statusClassForPedido(String estado) {
+        if ("ENTREGUE".equalsIgnoreCase(estado)) {
+            return "status-delivered";
+        }
+        if ("CANCELADO".equalsIgnoreCase(estado)) {
+            return "status-cancelled";
+        }
+        return "status-pending";
+    }
+
+    private String formatEstadoPedido(String estado) {
+        return switch (String.valueOf(estado).toUpperCase()) {
+            case "CRIADO" -> "Pedido criado";
+            case "PAGO" -> "Pagamento confirmado";
+            case "A_PREPARAR" -> "Em preparacao";
+            case "PRONTO_PARA_ENTREGA" -> "Pronto para entrega";
+            case "ATRIBUIDO_ENTREGADOR" -> "Entregador atribuido";
+            case "ENTREGUE" -> "Entregue";
+            case "CANCELADO" -> "Cancelado";
+            default -> String.valueOf(estado);
+        };
     }
 
     private boolean isPedidoAvaliado(Long pedidoId) {

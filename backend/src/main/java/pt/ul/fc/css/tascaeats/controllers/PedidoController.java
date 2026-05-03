@@ -76,8 +76,14 @@ public class PedidoController {
 
 	@PatchMapping("/{pedidoId}/cancelar")
 	public ResponseEntity<Object> cancelarPedido(@PathVariable Long pedidoId) {
-		pedidoService.cancelarPedido(pedidoId);
-		return ResponseEntity.ok("Pedido cancelado com sucesso.");
+		try {
+			pedidoService.cancelarPedido(pedidoId);
+			return ResponseEntity.ok("Pedido cancelado com sucesso.");
+		} catch (IllegalArgumentException e) {
+			return mapArgumentError(e);
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+		}
 	}
 
 	@GetMapping
