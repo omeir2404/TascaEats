@@ -18,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 public class WebApplication {
 
     public static void main(String[] args) {
-        // Arranca a aplicação Spring Boot do Frontend Web
         SpringApplication.run(WebApplication.class, args);
     }
 

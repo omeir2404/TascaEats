@@ -44,7 +44,6 @@ public class WebPedidoController {
         this.restTemplate = restTemplate;
     }
 
-    // --- 1. ADD TO CART ---
     @PostMapping("/carrinho/adicionar")
     public String simularAdicionarAoCarrinho(
             @RequestParam Long produtoId,
@@ -61,7 +60,6 @@ public class WebPedidoController {
         try {
             produto = restTemplate.getForObject(backendUrl + "/api/produtos/" + produtoId, Map.class);
         } catch (Exception ignored) {
-            // we'll try to fallback to form-provided data below
         }
 
         if (produto == null) {
@@ -112,7 +110,6 @@ public class WebPedidoController {
         return "redirect:/checkout";
     }
 
-    // --- 2. CHECKOUT PAGE (Payment details) ---
     @GetMapping("/checkout")
     public String mostrarCheckout(Model model, HttpSession session) {
         Long clienteId = getLoggedClientId(session);
@@ -253,7 +250,6 @@ public class WebPedidoController {
 
     }
 
-    // --- 3. ORDER DETAILS (View Status, Cancel, Review) ---
     @GetMapping("/pedidos/{id}")
     public String verPedido(@PathVariable Long id, Model model, HttpSession session) {
         Long clienteId = getLoggedClientId(session);
@@ -291,7 +287,6 @@ public class WebPedidoController {
         return "redirect:/meus-pedidos";
     }
 
-    // --- 4. CANCEL ORDER ---
     @PostMapping("/pedidos/{id}/cancelar")
     public String cancelarPedido(
             @PathVariable Long id,
@@ -363,7 +358,6 @@ public class WebPedidoController {
         return "redirect:/pedidos/" + id;
     }
 
-    // --- 6. MY ORDERS HISTORY ---
     @GetMapping("/meus-pedidos")
     public String listarMeusPedidos(Model model, HttpSession session) {
         Long clienteId = getLoggedClientId(session);

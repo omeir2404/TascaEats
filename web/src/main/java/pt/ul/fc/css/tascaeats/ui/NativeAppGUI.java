@@ -1,3 +1,13 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
+
 package pt.ul.fc.css.tascaeats.ui;
 
 import javafx.application.Application;
@@ -14,11 +24,6 @@ import java.util.Map;
 
 import static pt.ul.fc.css.tascaeats.ui.UiUtils.*;
 
-/**
- * Application entry point.
- * Responsible only for navigation, the top bar, and wiring the panes together.
- * All business logic lives in the individual pane classes.
- */
 public class NativeAppGUI extends Application {
 
     private final AppState state = new AppState();
@@ -29,7 +34,7 @@ public class NativeAppGUI extends Application {
     private Label  headerUserLabel;
     private Button loginBtn, usersBtn, navRestBtn, navProdBtn, navOrderBtn, exitBtn;
 
-    // ── Panes (created once, reused) ──────────────────────────────────────
+    // ── Panes ──────────────────────────────────────
     private UtilizadoresPane utilizadoresPane;
     private RestaurantesPane restaurantesPane;
     private ProdutosPane     produtosPane;

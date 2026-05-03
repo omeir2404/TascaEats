@@ -1,3 +1,13 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
+
 package pt.ul.fc.css.tascaeats.ui;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -10,10 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * HTTP client for all Utilizador-related backend calls.
- * Every method has a clear fallback so the GUI can handle failures gracefully.
- */
 public class UtilizadorApiClient {
 
     private final RestTemplate restTemplate;
@@ -34,9 +40,6 @@ public class UtilizadorApiClient {
 
     // ── A: Login ──────────────────────────────────────────────────────────
 
-    /**
-     * POST /api/login — mock login (any password accepted if user exists).
-     */
     public LoginResult login(String email, String password) {
         try {
             Map<String, Object> payload = Map.of(
@@ -61,13 +64,8 @@ public class UtilizadorApiClient {
 
     // ── C: Registar utilizador ────────────────────────────────────────────
 
-    /**
-     * POST /api/register
-     * tipo must be one of: "client", "restaurant owner", "driver"
-     */
     public RegistoResult registarUtilizador(String nome, String email, String password, String tipo) {
         try {
-            // Montar o payload do registo
             Map<String, Object> payload = Map.of(
                 "name",     nome     != null ? nome.trim()     : "",
                 "email",    email    != null ? email.trim()    : "",
@@ -94,10 +92,7 @@ public class UtilizadorApiClient {
 
     // ── D: Listar, editar e remover utilizadores ──────────────────────────
 
-    /**
-     * GET /api/Utilizadors — returns list normalized to GUI keys
-     * (id, nome, email, papel, ativo, password="")
-     */
+
     public List<Map<String, Object>> listarUtilizadores() {
         try {
             ResponseEntity<List<Map<String, Object>>> resp = restTemplate.exchange(
@@ -114,9 +109,7 @@ public class UtilizadorApiClient {
         return List.of();
     }
 
-    /**
-     * PUT /api/Utilizadors/{id}
-     */
+
     public SimpleResult atualizarUtilizador(Object id, String nome, String email, String password) {
         try {
             var payload = new java.util.LinkedHashMap<String, Object>();
@@ -138,9 +131,7 @@ public class UtilizadorApiClient {
         }
     }
 
-    /**
-     * DELETE /api/Utilizadors/{id}
-     */
+
     public SimpleResult removerUtilizador(Object id) {
         try {
             restTemplate.delete(backendUrl + "/api/Utilizadors/" + id);
@@ -154,10 +145,6 @@ public class UtilizadorApiClient {
 
     // ── Helpers ───────────────────────────────────────────────────────────
 
-    /**
-     * Normalizes a backend user map to the GUI's internal key naming:
-     * id, nome, email, papel, ativo, password (empty — never returned by backend)
-     */
     public Map<String, Object> normalizeUser(Map<String, Object> u) {
         String type  = Objects.toString(u.get("type"), "Cliente");
         boolean ativo = true;

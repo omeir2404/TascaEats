@@ -1,3 +1,13 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
+
 package pt.ul.fc.css.tascaeats.ui;
 
 import javafx.geometry.Insets;
@@ -8,10 +18,6 @@ import javafx.stage.Stage;
 
 import static pt.ul.fc.css.tascaeats.ui.UiUtils.*;
 
-/**
- * Standalone registration screen for the native app.
- * It does not expose the staff user-management table.
- */
 public class RegisterPane {
 
     private final AppState state;

@@ -1,3 +1,13 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
+
 package pt.ul.fc.css.tascaeats.ui;
 
 import javafx.geometry.Insets;
@@ -10,11 +20,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static pt.ul.fc.css.tascaeats.ui.UiUtils.*;
-
-/**
- * Use Case A – Login.
- * Mock login: any password accepted as long as the user exists in the backend.
- */
 public class LoginPane {
 
     private final AppState state;
@@ -64,7 +69,6 @@ public class LoginPane {
         UtilizadorApiClient.LoginResult result = state.utilizadorClient.login(email, pass);
 
         if (result.sucesso()) {
-            // Fetch real user from backend to get id/role
             state.bg(() -> state.utilizadorClient.listarUtilizadores(), allUsers -> {
                 Optional<Map<String, Object>> found = allUsers.stream()
                     .filter(u -> email.equalsIgnoreCase(s(u, "email")))
@@ -77,7 +81,6 @@ public class LoginPane {
                     }
                     state.currentUser = found.get();
                 } else {
-                    // Authenticated but not in list — minimal fallback entry
                     state.currentUser = row("id", "?", "nome", email.split("@")[0],
                         "email", email, "papel", "ADMIN", "ativo", "Sim", "password", "");
                 }

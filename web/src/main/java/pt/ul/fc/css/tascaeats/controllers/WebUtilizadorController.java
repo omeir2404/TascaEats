@@ -68,7 +68,6 @@ public class WebUtilizadorController {
         return "utilizadores";
     }
 
-    // --- 1. LOGIN ---
     @GetMapping("/login")
     public String showLoginForm() {
         return "login";
@@ -107,7 +106,6 @@ public class WebUtilizadorController {
         return "redirect:/"; // Go back to the homepage
     }
 
-    // --- 2. REGISTRATION ---
     @GetMapping("/registo")
     public String showRegistrationForm() {
         return "registo";
@@ -150,7 +148,6 @@ public class WebUtilizadorController {
         }
     }
 
-    // --- 3. PROFILE (VIEW & UPDATE) ---
     @GetMapping("/perfil/{id}")
     public String showProfile(@PathVariable Long id, Model model, HttpSession session) {
         if (!isAuthorizedUser(id, session)) {
@@ -233,7 +230,6 @@ public class WebUtilizadorController {
         return "redirect:/perfil/" + id;
     }
 
-    // --- 4. DELETE ACCOUNT ---
     @PostMapping("/perfil/{id}/apagar")
     public String deleteAccount(@PathVariable Long id, HttpSession session) {
         if (!isAuthorizedUser(id, session)) {

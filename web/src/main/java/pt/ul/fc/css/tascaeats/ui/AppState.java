@@ -1,3 +1,13 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
+
 package pt.ul.fc.css.tascaeats.ui;
 
 import javafx.collections.FXCollections;
@@ -9,22 +19,17 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
-/**
- * Shared application state: live data lists, current user, and HTTP clients.
- * All panes read from and write to this single instance.
- */
 public class AppState {
 
     public static final String BACKEND =
         System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:8080");
 
     // ── HTTP clients ──────────────────────────────────────────────────────
-    // HttpComponentsClientHttpRequestFactory is required to support PATCH
     public final RestTemplate         rest             = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
     public final UtilizadorApiClient  utilizadorClient = new UtilizadorApiClient(rest, BACKEND);
     public final RestauranteApiClient restauranteClient = new RestauranteApiClient(rest, BACKEND);
 
-    // ── Live data (populated from backend) ────────────────────────────────
+    // ── Live data ────────────────────────────────
     public final ObservableList<Map<String, Object>> users        = FXCollections.observableArrayList();
     public final ObservableList<Map<String, Object>> restaurantes = FXCollections.observableArrayList();
     public final ObservableList<Map<String, Object>> produtos     = FXCollections.observableArrayList();

@@ -1,3 +1,13 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
+
 package pt.ul.fc.css.tascaeats.ui;
 
 import javafx.application.Platform;
@@ -13,9 +23,7 @@ import javafx.stage.Stage;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Static UI utility methods shared across all panes.
- */
+
 public final class UiUtils {
 
     private UiUtils() {}

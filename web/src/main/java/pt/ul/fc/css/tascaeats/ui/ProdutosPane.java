@@ -1,3 +1,13 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
+
 package pt.ul.fc.css.tascaeats.ui;
 
 import javafx.collections.FXCollections;
@@ -14,9 +24,6 @@ import java.util.Map;
 
 import static pt.ul.fc.css.tascaeats.ui.UiUtils.*;
 
-/**
- * Use Cases G / H – Manage menus and products.
- */
 public class ProdutosPane {
 
     private final AppState state;
@@ -187,7 +194,6 @@ public class ProdutosPane {
     // ── Payloads ──────────────────────────────────────────────────────────
 
     private Map<String, Object> buildCriarPayload(Map<String, Object> form) {
-        // CriarProdutoDTO: {nome, preco, descricao}
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("nome",     s(form, "nome"));
         p.put("preco",    toDouble(form.get("preco")));
