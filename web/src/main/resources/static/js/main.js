@@ -117,18 +117,23 @@ document.addEventListener("DOMContentLoaded", () => {
                             liveGridResults.innerHTML = '<div class="empty-state"><p>Não existem restaurantes para esta pesquisa.</p></div>';
                         } else {
                             restaurantes.forEach(rest => {
-                                const card = document.createElement('div');
+                                const card = document.createElement('article');
                                 card.className = 'card';
                                 const tipo = rest.tipoRestaurante || rest.tipoCozinha || 'OUTRO';
                                 const estado = rest.estado || 'Unknown';
                                 const statusClass = estado === 'ABERTO' ? 'status-pill status-pill--open' : 'status-pill status-pill--closed';
-                                const imageMap = {
-                                    1: '/img/tasca.jpg',
-                                    2: '/img/pizza.png',
-                                    3: '/img/sushi.jpeg',
-                                    4: '/img/economico.jpeg'
-                                };
-                                const imageUrl = imageMap[rest.id] || '';
+                                
+                                // You can use your image mapping logic or rest.imagePath if the API provides it
+                                const imageUrl = rest.imagePath || ''; 
+                                
+                                const avaliacaoMedia = Number(rest.avaliacaoMedia || 0).toFixed(1);
+                                const numeroAvaliacoes = rest.numeroAvaliacoes || 0;
+
+                                // Check if there are reviews to decide what to show
+                                const avaliacaoHtml = numeroAvaliacoes > 0 
+                                    ? `⭐ ${avaliacaoMedia} <span style="color: #667085; font-weight: normal; font-size: 0.9em;">(${numeroAvaliacoes} avaliações)</span>`
+                                    : `<span style="color: #667085; font-weight: normal; font-size: 0.9em;">🌟 Novo (Sem avaliações)</span>`;
+
                                 card.innerHTML = `
                                     <div class="card__image" aria-hidden="true" style="${imageUrl ? `background-image: url(${imageUrl}); background-size: cover; background-position: center; background-repeat: no-repeat;` : ''}"></div>
                                     <div class="pill-row">
@@ -137,7 +142,9 @@ document.addEventListener("DOMContentLoaded", () => {
                                     </div>
                                     <div>
                                         <h3>${rest.nome}</h3>
-                                        <p>Entrada direta no menu do restaurante.</p>
+                                        <p style="font-weight: bold; font-size: 0.95em; color: #ff6600; margin-top: 8px;">
+                                            ${avaliacaoHtml} 
+                                        </p>
                                     </div>
                                     <div class="card__actions">
                                         <a href="/restaurantes/${rest.id}/produtos">

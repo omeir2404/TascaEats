@@ -171,8 +171,9 @@ public ResponseEntity<List<Restaurante>> pesquisarRestaurantes(
   - [x] Permitir que qualquer utilizador altere os proprios dados cadastrais usando a mesma interface de registo.
   - [x] Mostar estados dos pedidos passo a passo
   - [x] permitir cancelar pedidos
-  - [ ] os restaurantes e pedidos recentes deviam atualizar
-  - [ ] avaliacoes deviam atualizar para o restaurante tambem
+  - [x] os restaurantes e pedidos recentes deviam atualizar
+  - [x] avaliacoes deviam atualizar para o restaurante tambem
+  - [ ] ver reviews para os restaurantes
 
 # membro 1 extra (se der tempo senao quem conseguir)
 

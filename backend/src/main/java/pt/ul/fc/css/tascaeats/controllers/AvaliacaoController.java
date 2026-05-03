@@ -58,4 +58,9 @@ public class AvaliacaoController {
         }
         return ResponseEntity.ok(dto);
     }
+
+    @GetMapping("/restaurante/{restauranteId}")
+    public ResponseEntity<Object> getAvaliacoesByRestaurante(@PathVariable Long restauranteId) {
+        return ResponseEntity.ok(avaliacaoService.getAvaliacoesRestaurante(restauranteId));
+    }
 }

@@ -93,6 +93,16 @@
                             <div>
                                 <h3 th:text="${restaurante['nome']}">Restaurant Name</h3>
                                 <p th:text="${restaurante['morada'] != null and restaurante['morada']['cidade'] != null ? restaurante['morada']['cidade'] : 'Localizacao por confirmar'}">Lisboa</p>
+                                <p style="font-weight: bold; font-size: 0.95em; color: #ff6600; margin: 0;">
+                                    <span th:if="${restaurante['numeroAvaliacoes'] > 0}">
+                                        ⭐ <span th:text="${#numbers.formatDecimal(restaurante['avaliacaoMedia'], 1, 1)}">0.0</span>
+                                        <span style="color: #667085; font-weight: normal; font-size: 0.9em;">(<span th:text="${restaurante['numeroAvaliacoes']}">0</span> avaliações)</span>
+                                    </span>
+                                    
+                                    <span th:unless="${restaurante['numeroAvaliacoes'] > 0}" style="color: #667085; font-weight: normal; font-size: 0.9em;">
+                                        🌟 Novo (Sem avaliações)
+                                    </span>
+                                </p>
                             </div>
 
                             <div class="inline-pills">

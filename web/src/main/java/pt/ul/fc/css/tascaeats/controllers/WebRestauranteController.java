@@ -145,6 +145,7 @@ public class WebRestauranteController {
 
         model.addAttribute("restauranteId", id);
         model.addAttribute("restauranteNome", fetchRestaurantName(id));
+        carregarAvaliacoes(id, model);
         return "produtos";
     }
 
@@ -184,6 +185,8 @@ public class WebRestauranteController {
         model.addAttribute("categoria", categoria);
         model.addAttribute("disponivel", disponivel);
         model.addAttribute("popularidade", popularidade);
+
+        carregarAvaliacoes(id, model);
         return "produtos";
     }
 
@@ -221,6 +224,7 @@ public class WebRestauranteController {
                     "tipoCozinha", tipo,
                     "estado", rest.getOrDefault("estado", "DESCONHECIDO"),
                     "numeroAvaliacoes", rest.getOrDefault("numeroAvaliacoes", 0),
+                    "avaliacaoMedia", rest.getOrDefault("avaliacaoMedia", 0.0),
                     "morada", rest.getOrDefault("morada", Map.of()),
                     "imagePath", imagePath
             );
@@ -333,6 +337,16 @@ public class WebRestauranteController {
             return Double.parseDouble(value.toString());
         } catch (NumberFormatException e) {
             return 0.0;
+        }
+    }
+
+    private void carregarAvaliacoes(Long restauranteId, Model model) {
+        try {
+            String avaliacoesUrl = backendUrl + "/avaliacoes/restaurante/" + restauranteId;
+            List<Map<String, Object>> avaliacoes = restTemplate.getForObject(avaliacoesUrl, List.class);
+            model.addAttribute("avaliacoes", avaliacoes);
+        } catch (Exception e) {
+            model.addAttribute("avaliacoes", List.of());
         }
     }
 }

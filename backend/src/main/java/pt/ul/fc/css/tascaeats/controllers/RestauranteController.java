@@ -168,6 +168,7 @@ public class RestauranteController {
         m.put("estado", r.getEstado());
         m.put("tipoRestaurante", r.getTipoRestaurante());
         m.put("numeroAvaliacoes", r.getNumeroAvaliacoes());
+        m.put("avaliacaoMedia", r.getAvaliacaoMedia());
 
         Map<String, Object> moradaMap = null;
         if (r.getMorada() != null) {

@@ -8,8 +8,6 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.service.avaliacaoServices;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,9 +102,10 @@ public class AvaliacaoService {
 
         String comentario = dto.getComentario() == null ? "" : dto.getComentario().trim();
         Avaliacao avaliacao = new Avaliacao(dto.getClassificacao(), comentario, cliente, restaurante, pedido);
+        
         Avaliacao saved = avaliacaoRepository.save(avaliacao);
 
-        atualizarMediaRestaurante(restaurante, dto.getClassificacao());
+        atualizarMediaRestaurante(restaurante);
         restauranteRepository.save(restaurante);
 
         return saved;
@@ -119,15 +118,32 @@ public class AvaliacaoService {
         return avaliacaoRepository.existsByPedidoId(pedidoId);
     }
 
-    private void atualizarMediaRestaurante(Restaurante restaurante, int novaClassificacao) {
-        int totalAtual = Optional.ofNullable(restaurante.getNumeroAvaliacoes()).orElse(0);
-        double mediaAtual = Optional.ofNullable(restaurante.getAvaliacaoMedia()).orElse(0.0);
+    private void atualizarMediaRestaurante(Restaurante restaurante) {
+        Long restId = restaurante.getId();
+        
+        // Let the database do the heavy lifting!
+        Integer totalAvaliacoes = avaliacaoRepository.countByRestauranteId(restId);
+        Double media = avaliacaoRepository.calculateAverageRatingByRestauranteId(restId);
 
-        double somaAtual = mediaAtual * totalAtual;
-        int novoTotal = totalAtual + 1;
-        double novaMedia = (somaAtual + novaClassificacao) / novoTotal;
+        // Set the total (default to 0 if null)
+        restaurante.setNumeroAvaliacoes(totalAvaliacoes != null ? totalAvaliacoes : 0);
+        
+        // Set the average and round it to 1 decimal place (e.g., 4.56666 -> 4.6)
+        if (media != null) {
+            double roundedMedia = Math.round(media * 10.0) / 10.0;
+            restaurante.setAvaliacaoMedia(roundedMedia);
+        } else {
+            restaurante.setAvaliacaoMedia(0.0);
+        }
+    }
 
-        restaurante.setNumeroAvaliacoes(novoTotal);
-        restaurante.setAvaliacaoMedia(novaMedia);
+    public java.util.List<java.util.Map<String, Object>> getAvaliacoesRestaurante(Long restauranteId) {
+        return avaliacaoRepository.findByRestauranteId(restauranteId).stream().map(a -> {
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("classificacao", a.getClassificacao());
+            map.put("comentario", a.getComentario());
+            map.put("clienteId", a.getCliente().getId()); 
+            return map;
+        }).toList();
     }
 }
