@@ -118,7 +118,7 @@ public class NativeAppGUI extends Application {
 
     private Button navBtn(String text, Runnable action) {
         Button b = new Button(text);
-        b.setStyle("-fx-font-size: 11px; -fx-padding: 6 11; -fx-background-color: transparent; " +
+        b.setStyle("-fx-font-size: 11px; -fx-padding: 6 11; -fx-background-color: transparent;" +
                    "-fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.35); -fx-border-radius: 4;");
         b.setOnAction(e -> action.run());
         return b;
@@ -317,11 +317,10 @@ public class NativeAppGUI extends Application {
         if (ex != null) papelBox.setValue(s(ex, "papel"));
 
         GridPane g = formGrid();
-        g.add(lbl("Nome:"),     0,0); g.add(nomeF,    1,0);
-        g.add(lbl("Email:"),    0,1); g.add(emailF,   1,1);
-        g.add(lbl("Password:"), 0,2); g.add(passF,    1,2);
-        g.add(lbl("Papel:"),    0,3); g.add(papelBox, 1,3);
-        g.add(lbl("Ativo:"),    0,4); g.add(ativoBox, 1,4);
+        g.add(lbl("Nome:"),     0, 0); g.add(nomeF,    1, 0);
+        g.add(lbl("Email:"),    0, 1); g.add(emailF,   1, 1);
+        g.add(lbl("Password:"), 0, 2); g.add(passF,    1, 2);
+        g.add(lbl("Papel:"),    0, 3); g.add(papelBox, 1, 3);
         dlg.getDialogPane().setContent(g);
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
@@ -404,10 +403,11 @@ public class NativeAppGUI extends Application {
                 syncRestaurantes(applyFilter);
             } catch (Exception ex) { warn("✗ Erro ao editar: " + ex.getMessage()); }
         });
+
         estadoBtn.setOnAction(e -> {
             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
             if (sel == null) { warn("Selecione um restaurante."); return; }
-            ChoiceDialog<String> cd = new ChoiceDialog<>(s(sel,"estado"), "ABERTO","FECHADO","RESERVADO");
+            ChoiceDialog<String> cd = new ChoiceDialog<>(s(sel, "estado"), "ABERTO", "FECHADO", "RESERVADO");
             cd.setTitle("Alterar Estado"); cd.setHeaderText("Novo estado:"); cd.initOwner(mainStage);
             cd.showAndWait().ifPresent(st -> {
                 try {
@@ -452,10 +452,7 @@ public class NativeAppGUI extends Application {
         return pane(sectionTitle("E/F – Restaurantes"),
             hbar(lbl("Nome:"), nomeF, lbl("Estado:"), estBox, pesquisar, limpar),
             hbar(criarBtn, editarBtn, estadoBtn, removerBtn, prodBtn),
-            table,
-            new Label("Detalhes:"), details,
-            restStatusLabel
-        );
+            table, new Label("Detalhes:"), details, restStatusLabel);
     }
 
     private void syncRestaurantes(Runnable afterUpdate) {
@@ -499,17 +496,17 @@ public class NativeAppGUI extends Application {
 
     private Map<String, Object> restauranteDialog(Map<String, Object> ex) {
         Dialog<Map<String, Object>> dlg = dialog(ex == null ? "Criar Restaurante" : "Editar Restaurante");
-        TextField nomeF   = new TextField(s(ex,"nome"));
-        TextField nifF    = new TextField(s(ex,"nif"));
+        TextField nomeF  = new TextField(s(ex, "nome"));
+        TextField nifF   = new TextField(s(ex, "nif"));
         TextField cidadeF = new TextField(s(ex,"cidade"));
-        ComboBox<String> estBox = combo("ABERTO","FECHADO","RESERVADO");
-        estBox.setValue(ex != null ? s(ex,"estado") : "ABERTO");
+        ComboBox<String> estBox  = combo("ABERTO", "FECHADO", "RESERVADO");
+        estBox.setValue(ex != null ? s(ex, "estado") : "ABERTO");
 
         GridPane g = formGrid();
-        g.add(lbl("Nome:"),   0,0); g.add(nomeF,   1,0);
-        g.add(lbl("NIF:"),    0,1); g.add(nifF,    1,1);
+        g.add(lbl("Nome:"),   0, 0); g.add(nomeF,   1, 0);
+        g.add(lbl("NIF:"),    0, 1); g.add(nifF,    1, 1);
         g.add(lbl("Cidade:"), 0,2); g.add(cidadeF, 1,2);
-        g.add(lbl("Estado:"), 0,3); g.add(estBox,  1,3);
+        g.add(lbl("Estado:"), 0, 3); g.add(estBox,  1, 3);
         dlg.getDialogPane().setContent(g);
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
@@ -734,9 +731,9 @@ public class NativeAppGUI extends Application {
     private VBox buildOrdersPane() {
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
-            col("ID","id"), col("Cliente","clienteNome"), col("Restaurante","restNome"),
-            col("Estado","estado"), col("Total (€)","total"),
-            col("Pagamento","pagamento"), col("Entregador","entregador")
+            col("ID", "id"), col("Cliente", "clienteNome"), col("Restaurante", "restNome"),
+            col("Estado", "estado"), col("Total (€)", "total"),
+            col("Pagamento", "pagamento"), col("Entregador", "entregador")
         );
 
         TextArea details = new TextArea();
@@ -956,20 +953,20 @@ public class NativeAppGUI extends Application {
 
     private Button primaryButton(String t) {
         Button b = new Button(t);
-        b.setStyle("-fx-font-size: 13px; -fx-padding: 10 28; -fx-background-color: #ff5722; " +
+        b.setStyle("-fx-font-size: 13px; -fx-padding: 10 28; -fx-background-color: #ff5722;" +
                    "-fx-text-fill: white; -fx-background-radius: 6;");
         return b;
     }
 
     private Button colorBtn(String text, String color) {
         Button b = new Button(text);
-        b.setStyle("-fx-padding: 6 10; -fx-background-color: " + color + "; " +
+        b.setStyle("-fx-padding: 6 10; -fx-background-color: " + color + ";" +
                    "-fx-text-fill: white; -fx-font-size: 11px;");
         return b;
     }
 
     @SafeVarargs
-    private <T> TableView<T> tableOf(ObservableList<T> items, TableColumn<T,String>... cols) {
+    private <T> TableView<T> tableOf(ObservableList<T> items, TableColumn<T, String>... cols) {
         TableView<T> t = new TableView<>(items);
         t.getColumns().addAll(cols);
         t.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -980,7 +977,7 @@ public class NativeAppGUI extends Application {
 
     private TableColumn<Map<String, Object>, String> col(String title, String key) {
         TableColumn<Map<String, Object>, String> c = new TableColumn<>(title);
-        c.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getOrDefault(key,"").toString()));
+        c.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getOrDefault(key, "").toString()));
         return c;
     }
 
@@ -988,10 +985,9 @@ public class NativeAppGUI extends Application {
         GridPane g = new GridPane();
         g.setHgap(12); g.setVgap(10);
         g.setPadding(new Insets(16));
-        g.setStyle("-fx-background-color: white; -fx-background-radius: 8; " +
+        g.setStyle("-fx-background-color: white; -fx-background-radius: 8;" +
                    "-fx-border-color: #ddd; -fx-border-radius: 8;");
-        ColumnConstraints c1 = new ColumnConstraints(110), c2 = new ColumnConstraints(230);
-        g.getColumnConstraints().addAll(c1, c2);
+        g.getColumnConstraints().addAll(new ColumnConstraints(110), new ColumnConstraints(230));
         return g;
     }
 
@@ -1013,7 +1009,7 @@ public class NativeAppGUI extends Application {
     private VBox centeredCard(javafx.scene.Node... nodes) {
         VBox box = new VBox(12, nodes);
         box.setPadding(new Insets(24));
-        box.setStyle("-fx-background-color: white; -fx-background-radius: 10; " +
+        box.setStyle("-fx-background-color: white; -fx-background-radius: 10;" +
                      "-fx-border-color: #ddd; -fx-border-radius: 10;");
         return box;
     }
@@ -1044,7 +1040,7 @@ public class NativeAppGUI extends Application {
 
     private Map<String, Object> row(Object... pairs) {
         Map<String, Object> m = new LinkedHashMap<>();
-        for (int i = 0; i < pairs.length - 1; i += 2) m.put(pairs[i].toString(), pairs[i+1]);
+        for (int i = 0; i < pairs.length - 1; i += 2) m.put(pairs[i].toString(), pairs[i + 1]);
         return m;
     }
 
@@ -1062,17 +1058,19 @@ public class NativeAppGUI extends Application {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.initOwner(mainStage); a.setTitle("Sucesso"); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
+
     private void warn(String msg) {
         Alert a = new Alert(Alert.AlertType.WARNING);
         a.initOwner(mainStage); a.setTitle("Aviso"); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
+
     private boolean confirm(String msg) {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
         a.initOwner(mainStage); a.setTitle("Confirmar"); a.setHeaderText(null); a.setContentText(msg);
         return a.showAndWait().map(b -> b == ButtonType.OK).orElse(false);
     }
 
-    private void ok(Label l, String msg) { l.setStyle("-fx-text-fill: #388e3c; -fx-font-size: 13px;"); l.setText(msg); }
+    private void ok(Label l, String msg)  { l.setStyle("-fx-text-fill: #388e3c; -fx-font-size: 13px;"); l.setText(msg); }
     private void err(Label l, String msg) { l.setStyle("-fx-text-fill: #c62828; -fx-font-size: 13px;"); l.setText(msg); }
 
     private String mapPapelToTipo(String papel) {
@@ -1087,7 +1085,7 @@ public class NativeAppGUI extends Application {
     public static class UseCaseRow {
         public String id, descricao, web, native_;
         public UseCaseRow(String id, String descricao, String web, String native_) {
-            this.id=id; this.descricao=descricao; this.web=web; this.native_=native_;
+            this.id = id; this.descricao = descricao; this.web = web; this.native_ = native_;
         }
     }
 }
