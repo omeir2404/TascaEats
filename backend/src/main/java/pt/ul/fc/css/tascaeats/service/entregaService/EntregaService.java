@@ -97,6 +97,7 @@ public class EntregaService {
     @Async
     public void simularPreparacaoRestauranteEAtribuirEntregadorComPausas(Long pedidoId) {
         try {
+            esperarJanelaInicialDeCancelamento();
             esperarEntreFases();
             if (!avancarSeEstadoAtual(pedidoId, EstadoPedido.PAGO, pedido -> pedido.iniciarPreparacao())) {
                 return;
@@ -128,6 +129,10 @@ public class EntregaService {
 
     private void esperarEntreFases() throws InterruptedException {
         Thread.sleep(2000);
+    }
+
+    private void esperarJanelaInicialDeCancelamento() throws InterruptedException {
+        Thread.sleep(4000);
     }
 
     private boolean avancarSeEstadoAtual(Long pedidoId, EstadoPedido estadoEsperado, java.util.function.Consumer<Pedido> transition) {

@@ -292,11 +292,10 @@ public class WebPedidoController {
             @RequestParam(required = false, defaultValue = "") String redirectTo,
             HttpSession session) {
         try {
-            restTemplate.exchange(
+            restTemplate.postForEntity(
                     backendUrl + "/pedidos/" + id + "/cancelar",
-                    HttpMethod.PATCH,
-                    HttpEntity.EMPTY,
-                    Object.class
+                    null, 
+                    String.class
             );
             session.setAttribute("pedidoDetalheSuccess", "Pedido cancelado com sucesso.");
         } catch (Exception e) {

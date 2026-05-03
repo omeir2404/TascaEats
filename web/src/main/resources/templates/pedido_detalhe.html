@@ -114,9 +114,15 @@
     <div th:replace="~{fragments/footer :: rodape}"></div>
 
     <script th:if="${!pedido.finalizado}">
-        window.setTimeout(function () {
+        const orderRefreshTimer = window.setTimeout(function () {
             window.location.reload();
         }, 2000);
+
+        document.querySelectorAll("form").forEach(function (form) {
+            form.addEventListener("submit", function () {
+                window.clearTimeout(orderRefreshTimer);
+            });
+        });
     </script>
 </body>
 </html>
