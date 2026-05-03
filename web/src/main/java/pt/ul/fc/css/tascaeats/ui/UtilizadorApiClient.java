@@ -1,12 +1,11 @@
 package pt.ul.fc.css.tascaeats.ui;
 
-import java.util.Map;
-import java.util.Objects;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,6 +23,8 @@ public class UtilizadorApiClient {
 
     public record RegistoResult(Long id, String email, String type, boolean fallbackUsado, String mensagem) {}
     public record LoginResult(boolean sucesso, boolean fallbackUsado, String mensagem) {}
+    public record SimpleResult(boolean sucesso, boolean fallbackUsado, String mensagem) {}
+
     // ── Constructor ───────────────────────────────────────────────────────
 
     public UtilizadorApiClient(RestTemplate restTemplate, String backendUrl) {
@@ -68,10 +69,10 @@ public class UtilizadorApiClient {
         try {
             // Montar o payload do registo
             Map<String, Object> payload = Map.of(
-                "name", nome != null ? nome.trim() : "",
-                "email", email != null ? email.trim() : "",
+                "name",     nome     != null ? nome.trim()     : "",
+                "email",    email    != null ? email.trim()    : "",
                 "password", password != null ? password.trim() : "",
-                "type", tipo != null ? tipo.trim() : "Cliente"
+                "type",     tipo     != null ? tipo.trim()     : "Cliente"
             );
             ResponseEntity<Map> resp = restTemplate.postForEntity(backendUrl + "/api/register", payload, Map.class);
             if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
@@ -123,11 +124,17 @@ public class UtilizadorApiClient {
             if (email    != null && !email.isBlank())    payload.put("email",    email.trim());
             if (password != null && !password.isBlank()) payload.put("password", password.trim());
 
-        } catch (RestClientException ex) {
-            // Backend indisponível - não usar fallback para login (segurança)
-            // Deixar que o fluxo main use os dados mock como últimas verificações
-            String mensagem = "Backend indisponível — tentando modo demo.";
-            return new LoginResult(false, true, mensagem);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
+            ResponseEntity<Map> resp = restTemplate.exchange(
+                backendUrl + "/api/Utilizadors/" + id, HttpMethod.PUT, entity, Map.class);
+            if (resp.getStatusCode().is2xxSuccessful()) {
+                return new SimpleResult(true, false, "Utilizador atualizado.");
+            }
+            return new SimpleResult(false, false, "Erro: " + resp.getStatusCode());
+        } catch (HttpClientErrorException e) {
+            return new SimpleResult(false, false, "Erro " + e.getStatusCode());
+        } catch (RestClientException e) {
+            return new SimpleResult(false, true, "Backend indisponível.");
         }
     }
 
@@ -142,6 +149,56 @@ public class UtilizadorApiClient {
                 return null;
             }
         }
+    /**
+     * DELETE /api/Utilizadors/{id}
+     */
+    public SimpleResult removerUtilizador(Object id) {
+        try {
+            restTemplate.delete(backendUrl + "/api/Utilizadors/" + id);
+            return new SimpleResult(true, false, "Utilizador removido.");
+        } catch (HttpClientErrorException.NotFound e) {
+            return new SimpleResult(false, false, "Utilizador não encontrado.");
+        } catch (RestClientException e) {
+            return new SimpleResult(false, true, "Backend indisponível.");
+        }
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    /**
+     * Normalizes a backend user map to the GUI's internal key naming:
+     * id, nome, email, papel, ativo, password (empty — never returned by backend)
+     */
+    public Map<String, Object> normalizeUser(Map<String, Object> u) {
+        String type  = Objects.toString(u.get("type"), "Cliente");
+        boolean ativo = true;
+        // Drivers are "active" based on the available field
+        if (type.equalsIgnoreCase("Entregador") || type.equalsIgnoreCase("driver")) {
+            Object avail = u.get("available");
+            ativo = Boolean.TRUE.equals(avail) || "true".equalsIgnoreCase(Objects.toString(avail, "true"));
+        }
+        var m = new java.util.LinkedHashMap<String, Object>();
+        m.put("id",       u.getOrDefault("id", "?"));
+        m.put("nome",     Objects.toString(u.get("name"),  ""));
+        m.put("email",    Objects.toString(u.get("email"), ""));
+        m.put("papel",    mapTypeToPapel(type));
+        m.put("ativo",    ativo ? "Sim" : "Não");
+        m.put("password", "");   // never returned by backend; kept so existing code doesn't NPE
+        return m;
+    }
+
+    private String mapTypeToPapel(String type) {
+        if (type == null) return "CLIENT";
+        String t = type.trim().toLowerCase();
+        if (t.contains("entregador") || t.contains("driver"))   return "COURIER";
+        if (t.contains("admin") || t.contains("restaurante"))   return "ADMIN";
+        return "CLIENT";
+    }
+
+    private Long extractLong(Map<?,?> map, String key) {
+        Object v = map.get(key);
+        if (v instanceof Number n) return n.longValue();
+        if (v != null) { try { return Long.parseLong(v.toString()); } catch (NumberFormatException ignored) {} }
         return null;
     }
 
