@@ -62,6 +62,10 @@ public class Restaurante{
     @Column(name = "preco_medio")
     private Double precoMedio = 0.0;
 
+    @NotNull
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean apagado = false;
+
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "morada_id", nullable = false, unique = true)
     private Morada morada; 
@@ -182,8 +186,24 @@ public class Restaurante{
         this.precoMedio = precoMedio;
     }
 
+    //Apagado
+    public boolean isApagado() {
+        return apagado;
+    }
+
+    public void apagar() {
+        if (this.apagado) {
+            throw new IllegalStateException("O restaurante já está removido.");
+        }
+        this.apagado = true;
+        this.estado = EstadoRestaurante.FECHADO;
+    }
+
     //Estado restaurante
     public void abrir() {
+        if (this.apagado) {
+            throw new IllegalStateException("Não é possível abrir um restaurante removido.");
+        }
         if(this.estado == EstadoRestaurante.ABERTO){
             throw new IllegalStateException("O restaurante já está aberto!");
         }
@@ -191,6 +211,9 @@ public class Restaurante{
     }
 
     public void fechar() {
+        if (this.apagado) {
+            throw new IllegalStateException("Não é possível fechar um restaurante removido.");
+        }
         if(this.estado == EstadoRestaurante.FECHADO){
             throw new IllegalStateException("O restaurante já está fechado!");
         }
@@ -198,6 +221,9 @@ public class Restaurante{
     }
 
     public void reservar() {
+        if (this.apagado) {
+            throw new IllegalStateException("Não é possível reservar um restaurante removido.");
+        }
         if(this.estado == EstadoRestaurante.RESERVADO){
             throw new IllegalStateException("O restaurante já está reservado!");
         }

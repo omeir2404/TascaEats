@@ -120,7 +120,7 @@ public class RestauranteService {
     @Transactional(readOnly = true)
     public Restaurante obterRestaurantePorId(Long id) {
         Optional<Restaurante> restaurantePorId = restauranteRepository.findById(id);
-        if (restaurantePorId.isEmpty()) {
+        if (restaurantePorId.isEmpty() || restaurantePorId.get().isApagado()) {
             throw new IllegalArgumentException("O restaurante não foi encontrado.");
         }
         return restaurantePorId.get();
@@ -129,26 +129,31 @@ public class RestauranteService {
     //Listar restaurantes
 	@Transactional(readOnly = true)
 	public List<Restaurante> listarRestaurantes() {
-		return restauranteRepository.findAll();
+		return restaurantesAtivos(restauranteRepository.findAll());
 	}
 
     //Procurar restaurante por nome
 	@Transactional(readOnly = true)
 	public List<Restaurante> procurarRestaurantePorNome(String nome) {
 		if (nome == null || nome.isBlank()) {
-			return restauranteRepository.findAll(); //Se o utilizador não escrever nada, devolvo todos os restaurantes.
+			return listarRestaurantes(); //Se o utilizador não escrever nada, devolvo todos os restaurantes ativos.
 		}
-		return restauranteRepository.findByNomeContainingIgnoreCase(nome.trim());
+		return restaurantesAtivos(restauranteRepository.findByNomeContainingIgnoreCase(nome.trim()));
 	}
 
 	// Remover restaurante
 	@Transactional(rollbackFor = Exception.class)
 	public boolean removerRestaurante(Long id) {
-		Optional<Restaurante> restaurant = restauranteRepository.findById(id);
-		if (restaurant == null) {
-			return false; // Restaurante não encontrado, não é possível remover
+		Optional<Restaurante> restaurantePorId = restauranteRepository.findById(id);
+		if (restaurantePorId.isEmpty()) {
+			throw new IllegalArgumentException("O restaurante não foi encontrado.");
 		}
-		restauranteRepository.delete(restaurant.get());
+		Restaurante restaurante = restaurantePorId.get();
+		if (restaurante.isApagado()) {
+			return false;
+		}
+		restaurante.apagar();
+		restauranteRepository.save(restaurante);
 		return true;
 	}
 
@@ -156,17 +161,17 @@ public class RestauranteService {
 	@Transactional(readOnly = true)
 	public List<Restaurante> procurarRestaurantePorCidade(String cidade) {
 		if (cidade == null || cidade.isBlank()) {
-			return restauranteRepository.findAll(); //Se o utilizador não escrever nada, devolvo todos os restaurantes.
+			return listarRestaurantes(); //Se o utilizador não escrever nada, devolvo todos os restaurantes ativos.
 		}
-		return restauranteRepository.findByMoradaCidadeIgnoreCase(cidade.trim());
+		return restaurantesAtivos(restauranteRepository.findByMoradaCidadeIgnoreCase(cidade.trim()));
 	}
 
 	@Transactional(readOnly = true)
 	public List<Restaurante> listarPorEstado(EstadoRestaurante estado) {
 		if (estado == null) {
-			return restauranteRepository.findAll(); //Se o utilizador não escrever estado, devolvo todos os estados.
+			return listarRestaurantes(); //Se o utilizador não escrever estado, devolvo todos os estados ativos.
 		}
-		return restauranteRepository.findByEstado(estado);
+		return restaurantesAtivos(restauranteRepository.findByEstado(estado));
 	}
 
 
@@ -202,12 +207,19 @@ public class RestauranteService {
 
 	private List<Restaurante> obterRestaurantesCandidatos(String nomeNormalizado, TipoRestaurante tipoRestaurante, EstadoRestaurante estado) {
 		return restauranteRepository.findAll().stream()
+				.filter(restaurante -> !restaurante.isApagado())
 				.filter(restaurante -> nomeNormalizado == null
 						|| normalizarTexto(restaurante.getNome()).contains(nomeNormalizado))
 				.filter(restaurante -> tipoRestaurante == null
 						|| restaurante.getTipoRestaurante() == tipoRestaurante)
 				.filter(restaurante -> estado == null
 						|| restaurante.getEstado() == estado)
+				.toList();
+	}
+
+	private List<Restaurante> restaurantesAtivos(List<Restaurante> restaurantes) {
+		return restaurantes.stream()
+				.filter(restaurante -> !restaurante.isApagado())
 				.toList();
 	}
 

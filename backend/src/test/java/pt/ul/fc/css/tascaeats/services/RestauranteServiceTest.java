@@ -24,6 +24,7 @@ import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
+import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IRestauranteAdminRepository;
 import pt.ul.fc.css.tascaeats.service.restauranteServices.RestauranteService;
 
@@ -44,6 +45,9 @@ public class RestauranteServiceTest {
 
     @Mock
     private IRestauranteAdminRepository restauranteAdminRepository;
+
+    @Mock
+    private IPedidoRepository pedidoRepository;
 
     @InjectMocks
     private RestauranteService restauranteService;
@@ -243,6 +247,36 @@ public class RestauranteServiceTest {
         assertThat(result.get(0).getNome()).isEqualTo("Restaurante A");
         assertThat(result.get(1).getNome()).isEqualTo("Restaurante B");
         verify(restauranteRepository).findAll();
+    }
+
+    @Test
+    @DisplayName("I1: Listar restaurantes não devolve restaurantes removidos.")
+    void listarRestaurantesNaoDevolveRestaurantesRemovidos() {
+        Restaurante ativo = restauranteSimples("Restaurante A", "111111111");
+        Restaurante removido = restauranteSimples("Restaurante B", "222222222");
+        removido.apagar();
+        when(restauranteRepository.findAll()).thenReturn(java.util.List.of(ativo, removido));
+
+        var result = restauranteService.listarRestaurantes();
+
+        assertThat(result).containsExactly(ativo);
+        verify(restauranteRepository).findAll();
+    }
+
+    @Test
+    @DisplayName("I2: Remover restaurante marca como apagado e fecha o restaurante.")
+    void removerRestauranteMarcaComoApagadoEFecha() {
+        Restaurante restaurante = restauranteSimples("Restaurante A", "111111111");
+        restaurante.abrir();
+        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
+        when(restauranteRepository.save(restaurante)).thenReturn(restaurante);
+
+        boolean removido = restauranteService.removerRestaurante(1L);
+
+        assertThat(removido).isTrue();
+        assertThat(restaurante.isApagado()).isTrue();
+        assertThat(restaurante.getEstado()).isEqualTo(EstadoRestaurante.FECHADO);
+        verify(restauranteRepository).save(restaurante);
     }
 
 

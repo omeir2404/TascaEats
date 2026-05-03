@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -227,6 +228,18 @@ class RestauranteControllerTest {
         mockMvc.perform(get("/api/restaurantes/404"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("O restaurante não foi encontrado."));
+    }
+
+    @Test
+    @DisplayName("K1: DELETE /api/restaurantes/{id} remove restaurante com sucesso")
+    void shouldRemoveRestauranteWhenIdExists() throws Exception {
+        when(restauranteService.removerRestaurante(12L)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/restaurantes/12"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Restaurante removido com sucesso."));
+
+        verify(restauranteService).removerRestaurante(12L);
     }
 
     @Test
