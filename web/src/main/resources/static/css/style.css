@@ -618,6 +618,64 @@ p {
     gap: 18px;
 }
 
+@media (min-width: 768px) {
+    .page-shell--search .search-filters-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+    }
+
+    .page-shell--search .search-filters-form .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+        align-items: stretch;
+    }
+
+    .page-shell--search .search-filters-form .form-group--wide {
+        flex: 0 0 15.5%;
+    }
+
+    .page-shell--search .search-filters-form .form-group--medium {
+        flex: 0 0 9%;
+    }
+
+    .page-shell--search .search-filters-form .form-group--compact {
+        flex: 0 0 9.4%;
+    }
+
+    .page-shell--search .search-filters-form .form-actions {
+        flex: 0 0 10.7%;
+        margin-left: 0;
+        align-self: end;
+    }
+
+    .page-shell--search .search-filters-form input,
+    .page-shell--search .search-filters-form select,
+    .page-shell--search .search-filters-form textarea {
+        height: 36px;
+        padding: 0 8px;
+        font-size: 0.9rem;
+    }
+
+    .page-shell--search .search-filters-form .form-group--compact .range-value {
+        right: 8px;
+    }
+
+    .page-shell--search .search-field--pedidos label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .page-shell--search .search-field--preco {
+        padding-top: 2px;
+    }
+}
+
 .search-intro {
     margin-top: -6px;
     margin-bottom: 8px;
@@ -1079,6 +1137,28 @@ p {
     font-weight: 700;
     width: fit-content;
     margin-top: 2px;
+}
+
+.page-shell--search .search-field--preco {
+    position: relative;
+}
+
+.page-shell--search .search-field--preco input[type="range"] {
+    margin-top: 16px;
+}
+
+.page-shell--search .search-field--preco .range-value {
+    position: absolute;
+    right: 0;
+    bottom: 8px;
+    min-height: auto;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--brand);
+    font-size: 0.85rem;
+    line-height: 1;
+    pointer-events: none;
 }
 
 .page-intro {
@@ -1590,4 +1670,16 @@ input[type="range"]::-moz-range-thumb {
     transform: translateY(-50%);
     z-index: 3;
     margin-left: 0;
+}
+
+.page-shell--search .search-field--preco .range-value {
+    right: 0;
+    top: auto;
+    bottom: 8px;
+    transform: none;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    min-height: auto;
+    line-height: 1;
 }
