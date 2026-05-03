@@ -431,7 +431,7 @@ p {
 
 .page-shell--users .page-intro h2 {
     color: var(--brand);
-    margin-top: 2px;
+    margin-top: -4px;
 }
 
 .page-shell--users {
@@ -439,7 +439,8 @@ p {
 }
 
 .page-shell--users .filtro-container form {
-    gap: 10px;
+    column-gap: 16px;
+    row-gap: 10px;
 }
 
 .page-shell--users .form-group--wide {
@@ -451,6 +452,16 @@ p {
 .page-shell--users .form-actions {
     grid-column: span 2;
     align-items: end;
+}
+
+.page-shell--users .form-group--medium,
+.page-shell--users .form-group--compact {
+    align-items: stretch;
+}
+
+.page-shell--users .form-group--medium label,
+.page-shell--users .form-group--compact label {
+    text-align: left;
 }
 
 .page-shell--users .form-actions {
