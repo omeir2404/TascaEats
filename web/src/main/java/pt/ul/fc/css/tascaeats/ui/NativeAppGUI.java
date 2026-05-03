@@ -37,27 +37,32 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.*;
+
 /**
- * Aplicação JavaFX nativa para TascaEats.
- * Implementa todos os casos de uso A–N com dados em memória (mock) e
- * tentativa de sincronização opcional com o backend REST.
+ * TascaEats Native App — Use Cases A, C, D, E, F, G, H, K, L, M, N.
+ * All data is fetched from the backend REST API.
+ * Mock data is only used as a last-resort fallback when the backend is unreachable.
  */
 public class NativeAppGUI extends Application {
 
-    // ── Mock data (in-memory) ─────────────────────────────────────────────
-    private final ObservableList<Map<String, Object>> mockUsers        = FXCollections.observableArrayList();
-    private final ObservableList<Map<String, Object>> mockRestaurantes = FXCollections.observableArrayList();
-    private final ObservableList<Map<String, Object>> mockProdutos     = FXCollections.observableArrayList();
-    private final ObservableList<Map<String, Object>> mockPedidos      = FXCollections.observableArrayList();
+    // ── Backend URL ───────────────────────────────────────────────────────
+    private static final String BACKEND =
+        System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:8080");
 
-    private int nextUserId = 5, nextRestId = 5, nextProdId = 6, nextPedidoId = 4;
+    // ── Live data lists (populated from backend) ──────────────────────────
+    private final ObservableList<Map<String, Object>> users        = FXCollections.observableArrayList();
+    private final ObservableList<Map<String, Object>> restaurantes = FXCollections.observableArrayList();
+    private final ObservableList<Map<String, Object>> produtos     = FXCollections.observableArrayList();
+    private final ObservableList<Map<String, Object>> pedidos      = FXCollections.observableArrayList();
 
     // ── Session ───────────────────────────────────────────────────────────
     private Map<String, Object> currentUser = null;
 
-    // ── Backend clients (optional, for sync) ────────────────────
-    private RestauranteApiClient apiClient;
-    private UtilizadorApiClient utilizadorApiClient;
+    // ── HTTP clients ──────────────────────────────────────────────────────
+    private RestTemplate          rest;
+    private UtilizadorApiClient   utilizadorClient;
+    private RestauranteApiClient  restauranteClient;
 
     // ── UI state ──────────────────────────────────────────────────────────
     private Stage mainStage;
@@ -153,24 +158,16 @@ public class NativeAppGUI extends Application {
         exitBtn.setStyle("-fx-font-size: 11px; -fx-padding: 6 14; -fx-background-color: #c62828; -fx-text-fill: white;");
         exitBtn.setOnAction(e -> Platform.exit());
 
-        Button loginBtn = navBtn("A - Login", this::showLoginPane);
-        Button usersBtn = navBtn("B/C/D - Utilizadores", this::showUsersPane);
-        navRestaurantesBtn = navBtn("E/F - Restaurantes", this::showRestaurantesPane);
-        navProductsBtn = navBtn("G/H/I – Produtos",     () -> show(buildProductsPane(null)));
-        navOrdersBtn   = navBtn("J/K/L/M/N – Pedidos",  this::showOrdersPane);
+        Button loginBtn = navBtn("A – Login",         this::showLoginPane);
+        Button usersBtn = navBtn("C/D – Utilizadores", this::showUsersPane);
+        navRestBtn  = navBtn("E/F – Restaurantes",  this::showRestaurantesPane);
+        navProdBtn  = navBtn("G/H – Produtos",       () -> show(buildProductsPane(null)));
+        navOrderBtn = navBtn("K/L/M/N – Pedidos",    this::showOrdersPane);
 
-        // Desabilitar botões de navegação até login bem-sucedido
-        updateNavButtonsState();
+        updateNavState();
 
-        header.getChildren().addAll(
-            title,
-            loginBtn,
-            usersBtn,
-            navRestaurantesBtn,
-            navProductsBtn,
-            navOrdersBtn,
-            spacer, headerUserLabel, exitBtn
-        );
+        header.getChildren().addAll(title, loginBtn, usersBtn,
+            navRestBtn, navProdBtn, navOrderBtn, spacer, headerUserLabel, exitBtn);
         return header;
     }
 
@@ -192,12 +189,24 @@ public class NativeAppGUI extends Application {
             exitBtn.setOnAction(e -> Platform.exit());
         }else {
             exitBtn.setOnAction( e -> {
+    private void updateNavState() {
+        boolean loggedIn = currentUser != null;
+        navRestBtn.setDisable(!loggedIn);
+        navProdBtn.setDisable(!loggedIn);
+        navOrderBtn.setDisable(!loggedIn);
+        exitBtn.setOnAction(e -> {
+            if (loggedIn) {
                 currentUser = null;
                 headerUserLabel.setText("Não autenticado");
+                updateNavState();
                 showLoginPane();
                 updateNavButtonsState();
             });
         }
+            } else {
+                Platform.exit();
+            }
+        exitBtn.setText(loggedIn ? "Logout" : "Sair");
     }
 
     private void show(javafx.scene.Node node) { contentArea.getChildren().setAll(node); }
