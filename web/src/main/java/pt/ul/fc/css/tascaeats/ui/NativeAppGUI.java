@@ -340,7 +340,7 @@ public class NativeAppGUI extends Application {
     private VBox buildRestaurantesPane() {
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
-            col("ID","id"), col("Nome","nome"), col("Estado","estado"),
+            col("ID", "id"), col("Nome", "nome"), col("Estado", "estado"),
             col("Cidade","cidade"), col("NIF","nif")
         );
 
@@ -370,25 +370,6 @@ public class NativeAppGUI extends Application {
         Button limpar = new Button("Limpar");
         limpar.setOnAction(e -> { nomeF.clear(); estBox.getSelectionModel().selectFirst(); applyFilter.run(); });
 
-        Button criarBtn   = colorBtn("+ Criar",          "#4caf50");
-        Button editarBtn  = colorBtn("✎ Editar",          "#2196f3");
-        Button estadoBtn  = colorBtn("⟳ Alterar Estado",  "#ff9800");
-        Button removerBtn = colorBtn("✕ Remover",         "#f44336");
-        Button prodBtn    = colorBtn("🍽 Ver Produtos",    "#7b1fa2");
-
-        if(currentUser != null && currentUser.get("papel").equals("ADMIN")) {
-            criarBtn.setDisable(false);
-            editarBtn.setDisable(false);
-            estadoBtn.setDisable(false);
-            removerBtn.setDisable(false);
-            prodBtn.setDisable(false);
-        } else {
-            criarBtn.setDisable(true);
-            editarBtn.setDisable(true);
-            estadoBtn.setDisable(true);
-            removerBtn.setDisable(true);
-            prodBtn.setDisable(true);
-        }
         // F – Management (admin only)
         boolean isAdmin = currentUser != null && "ADMIN".equals(s(currentUser, "papel"));
         Button criarBtn   = colorBtn("+ Criar",         "#4caf50");
@@ -428,25 +409,48 @@ public class NativeAppGUI extends Application {
             if (sel == null) { warn("Selecione um restaurante."); return; }
             ChoiceDialog<String> cd = new ChoiceDialog<>(s(sel,"estado"), "ABERTO","FECHADO","RESERVADO");
             cd.setTitle("Alterar Estado"); cd.setHeaderText("Novo estado:"); cd.initOwner(mainStage);
-            cd.showAndWait().ifPresent(st -> { sel.put("estado",st); display.setAll(mockRestaurantes); table.refresh(); });
+            cd.showAndWait().ifPresent(st -> {
+                try {
+                    Map<String, Object> payload = Map.of("estado", st);
+                    HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
+                    rest.exchange(BACKEND + "/api/restaurantes/" + sel.get("id") + "/estado",
+                        HttpMethod.PATCH, entity, Map.class);
+                    syncRestaurantes(applyFilter);
+                } catch (Exception ex) {
+                    // fallback: try PUT if PATCH not available
+                    try {
+                        Map<String, Object> payload = new LinkedHashMap<>(sel);
+                        payload.put("estado", st);
+                        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
+                        rest.exchange(BACKEND + "/api/restaurantes/" + sel.get("id"), HttpMethod.PUT, entity, Map.class);
+                        syncRestaurantes(applyFilter);
+                    } catch (Exception ex2) { warn("✗ Erro ao alterar estado: " + ex2.getMessage()); }
+                }
+            });
         });
+
         removerBtn.setOnAction(e -> {
             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
             if (sel == null) { warn("Selecione um restaurante."); return; }
-            if (confirm("Remover " + sel.get("nome") + "?")) { mockRestaurantes.remove(sel); filter.run(); }
+            if (!confirm("Remover " + s(sel, "nome") + "?")) return;
+            try {
+                rest.delete(BACKEND + "/api/restaurantes/" + sel.get("id"));
+                info("✓ Restaurante removido.");
+                syncRestaurantes(applyFilter);
+            } catch (Exception ex) { warn("✗ Erro ao remover: " + ex.getMessage()); }
         });
+
         prodBtn.setOnAction(e -> {
             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
             if (sel == null) { warn("Selecione um restaurante."); return; }
             show(buildProductsPane(sel));
         });
 
-        restStatusLabel = new Label("Modo demo — backend não consultado.");
-        restStatusLabel.setStyle("-fx-text-fill: #aaa; -fx-font-size: 10px;");
-        Platform.runLater(this::syncRestaurantesFromBackend);
+        restStatusLabel = statusLabel("A carregar restaurantes...");
+        syncRestaurantes(applyFilter);
 
-        return pane(sectionTitle("E/F – Gestão de Restaurantes"),
-            hbar(lbl("Nome:"), nomeF, lbl("Estado:"), estBox, filtrar, limpar),
+        return pane(sectionTitle("E/F – Restaurantes"),
+            hbar(lbl("Nome:"), nomeF, lbl("Estado:"), estBox, pesquisar, limpar),
             hbar(criarBtn, editarBtn, estadoBtn, removerBtn, prodBtn),
             table,
             new Label("Detalhes:"), details,
@@ -454,48 +458,43 @@ public class NativeAppGUI extends Application {
         );
     }
 
-    private void syncUtilizadoresFromBackend() {
-        Task<List<Map<String, Object>>> task = new Task<>() {
-            @Override protected List<Map<String, Object>> call() {
-                // Call your existing API client to get all users
-                return utilizadorApiClient.listarUtilizadores();
-            }
-        };
-        task.setOnSucceeded(ev -> {
-            List<Map<String, Object>> users = task.getValue();
-            if (users != null && !users.isEmpty()) {
-                mockUsers.setAll(users);
-                if (userStatusLabel != null)
-                    userStatusLabel.setText("✅ Sincronizado com backend.");
-            }
+    private void syncRestaurantes(Runnable afterUpdate) {
+        bg(() -> {
+            try {
+                ResponseEntity<List<Map<String, Object>>> resp = rest.exchange(
+                    BACKEND + "/api/restaurantes", HttpMethod.GET, null,
+                    new ParameterizedTypeReference<>() {});
+                return resp.getBody() != null ? resp.getBody() : List.of();
+            } catch (Exception e) { return List.of(); }
+        }, result -> {
+            List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) result;
+            restaurantes.setAll(typed.stream().map(this::normalizeRestaurante).toList());
+            if (afterUpdate != null) afterUpdate.run();
+            setStatus(restStatusLabel, result.isEmpty()
+                ? "⚠ Sem dados (backend indisponível?)"
+                : "✓ " + result.size() + " restaurantes carregados.");
         });
-        task.setOnFailed(ev -> {
-            if (userStatusLabel != null)
-                userStatusLabel.setText("⚠️ Backend indisponível — modo demo ativo.");
-        });
-        Thread t = new Thread(task, "users-sync"); t.setDaemon(true); t.start();
     }
 
-    private void syncRestaurantesFromBackend() {
-        Task<RestauranteApiClient.RestaurantSearchResult> task = new Task<>() {
-            @Override protected RestauranteApiClient.RestaurantSearchResult call() {
-                return apiClient.listarRestaurantesComFallback(null, null);
-            }
-        };
-        task.setOnSucceeded(ev -> {
-            RestauranteApiClient.RestaurantSearchResult r = task.getValue();
-            if (!r.fallbackUsado() && !r.restaurantes().isEmpty()) {
-                mockRestaurantes.clear();
-                r.restaurantes().forEach(res -> mockRestaurantes.add(
-                    row("id", res.id(), "nome", res.nome(), "estado", res.estado(), "cidade", "-", "nif", "-")
-                ));
-                if (restStatusLabel != null) restStatusLabel.setText("✓ Sincronizado com backend: " + r.mensagem());
-            } else {
-                if (restStatusLabel != null) restStatusLabel.setText("Backend indisponível — modo demo ativo.");
-            }
-        });
-        task.setOnFailed(ev -> { if (restStatusLabel != null) restStatusLabel.setText("Backend indisponível — modo demo ativo."); });
-        Thread t = new Thread(task, "rest-sync"); t.setDaemon(true); t.start();
+    private Map<String, Object> normalizeRestaurante(Map<String, Object> r) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("id",     r.getOrDefault("id", "?"));
+        m.put("nome",   r.getOrDefault("nome", ""));
+        m.put("estado", r.getOrDefault("estado", ""));
+        m.put("tipo",   r.getOrDefault("tipoRestaurante", r.getOrDefault("tipoCozinha", "OUTRO")));
+        m.put("nif",    r.getOrDefault("nif", "-"));
+        // keep full original data for editing
+        m.putAll(r);
+        return m;
+    }
+
+    private Map<String, Object> buildRestaurantePayload(Map<String, Object> form) {
+        Map<String, Object> p = new LinkedHashMap<>();
+        p.put("nome",            s(form, "nome"));
+        p.put("nif",             s(form, "nif"));
+        p.put("estado",          s(form, "estado"));
+        p.put("tipoRestaurante", s(form, "tipo").isBlank() ? "OUTRO" : s(form, "tipo"));
+        return p;
     }
 
     private Map<String, Object> restauranteDialog(Map<String, Object> ex) {
@@ -532,10 +531,10 @@ public class NativeAppGUI extends Application {
         if (restFilter != null) restBox.setValue(s(restFilter, "nome"));
 
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
-        TextField  searchF   = field("Nome do produto...", 150);
-        TextField  precoMaxF = field("Preço máx.", 80);
-        ComboBox<String> catBox  = combo("Todas","PRATO","BEBIDA","SOBREMESA","ENTRADA");
-        ComboBox<String> dispBox = combo("Todos","Sim","Não");
+        TextField       searchF   = field("Nome do produto...", 150);
+        TextField       precoMaxF = field("Preço máx.", 80);
+        ComboBox<String> catBox   = combo("Todas", "PRATO", "BEBIDA", "SOBREMESA", "ENTRADA");
+        ComboBox<String> dispBox  = combo("Todos", "Sim", "Não");
 
         Runnable filter = () -> {
             String rest = restBox.getValue();
