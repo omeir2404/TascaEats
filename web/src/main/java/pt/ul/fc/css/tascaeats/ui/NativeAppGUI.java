@@ -1,10 +1,5 @@
 package pt.ul.fc.css.tascaeats.ui;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,27 +9,12 @@ import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceDialog;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -312,13 +292,6 @@ public class NativeAppGUI extends Application {
         // initial load
         syncUsers(applyFilter);
 
-         return pane(sectionTitle("B/C/D – Gestão de Utilizadores"),
-             hbar(lbl("Nome:"), searchF, lbl("Papel:"), papelBox, filtrar),
-             hbar(criarBtn, editarBtn, removerBtn),
-             table,
-             userStatusLabel
-         );
-     }
         return pane(sectionTitle("C/D – Gestão de Utilizadores"),
             hbar(lbl("Nome:"), searchF, lbl("Papel:"), papelBox, filtrar),
             hbar(criarBtn, editarBtn, removerBtn),
