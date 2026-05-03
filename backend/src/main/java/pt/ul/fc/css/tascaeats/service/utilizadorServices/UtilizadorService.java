@@ -172,8 +172,11 @@ public class UtilizadorService {
 
             address.setRua(dto.getRua());
             address.setNumero(dto.getNumero() == null ? null : dto.getNumero());
+            address.setComplemento(dto.getComplemento());
             address.setCodigoPostal(dto.getCodigoPostal());
             address.setCidade(dto.getCidade());
+            address.setDistrito(dto.getDistrito());
+            address.setPais(dto.getPais());
 
             client.getAddresses().add(0, address);
             address.setClient(client);

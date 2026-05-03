@@ -154,6 +154,9 @@ public class WebUtilizadorController {
             return "redirect:/login";
         }
 
+        moveFlashAttribute(session, model, "profileSuccess");
+        moveFlashAttribute(session, model, "profileError");
+
         try {
             Map<String, Object> user = restTemplate.getForObject(backendUrl + "/api/Utilizadors/" + id, Map.class);
             if (user != null) {
@@ -171,16 +174,40 @@ public class WebUtilizadorController {
             @PathVariable Long id,
             @RequestParam String nome, 
             @RequestParam String email,
+            @RequestParam(required = false) String password,
+            @RequestParam(required = false) String rua,
+            @RequestParam(required = false) Integer numero,
+            @RequestParam(required = false) String complemento,
+            @RequestParam(required = false) String codigoPostal,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String distrito,
+            @RequestParam(required = false) String pais,
+            @RequestParam(required = false) Boolean available,
             HttpSession session) {
         if (!isAuthorizedUser(id, session)) {
             return "redirect:/login";
         }
 
         try {
-            Map<String, Object> payload = Map.of(
-                    "name", nome,
-                    "email", email
-            );
+            Map<String, Object> currentUser = restTemplate.getForObject(backendUrl + "/api/Utilizadors/" + id, Map.class);
+            Map<String, Object> normalizedUser = currentUser == null ? Map.of() : normalizeUser(currentUser);
+            String papel = String.valueOf(normalizedUser.getOrDefault("papel", "CLIENT"));
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("name", nome);
+            payload.put("email", email);
+            payload.put("type", mapPapelToBackendType(papel));
+            if (hasText(password)) {
+                payload.put("password", password.trim());
+            }
+            if ("COURIER".equalsIgnoreCase(papel)) {
+                payload.put("available", Boolean.TRUE.equals(available));
+            }
+
+            Map<String, Object> address = buildOptionalAddressForClient(papel, rua, numero, complemento, codigoPostal, cidade, distrito, pais);
+            if (address != null) {
+                payload.put("address", address);
+            }
 
             restTemplate.exchange(
                     backendUrl + "/api/Utilizadors/" + id,
@@ -191,7 +218,9 @@ public class WebUtilizadorController {
 
             Optional<Map<String, Object>> updatedUser = findUserByEmail(email);
             updatedUser.ifPresent(user -> session.setAttribute("loggedUser", user));
+            session.setAttribute("profileSuccess", "Perfil atualizado com sucesso.");
         } catch (Exception e) {
+            session.setAttribute("profileError", "Nao foi possivel atualizar o perfil. Confirma os dados e tenta novamente.");
             return "redirect:/perfil/" + id;
         }
 
@@ -223,8 +252,9 @@ public class WebUtilizadorController {
 
     private Map<String, Object> normalizeUser(Map<String, Object> user) {
         String type = String.valueOf(user.getOrDefault("type", "client"));
+        String papel = mapBackendTypeToPapel(type);
         boolean ativo = true;
-        if ("entregador".equalsIgnoreCase(type) || "driver".equalsIgnoreCase(type)) {
+        if ("COURIER".equalsIgnoreCase(papel)) {
             ativo = Boolean.TRUE.equals(user.get("available"));
         }
 
@@ -232,9 +262,65 @@ public class WebUtilizadorController {
         normalized.put("id", user.getOrDefault("id", 0));
         normalized.put("nome", user.getOrDefault("name", ""));
         normalized.put("email", user.getOrDefault("email", ""));
-        normalized.put("papel", mapBackendTypeToPapel(type));
+        normalized.put("inicial", buildInitial(String.valueOf(user.getOrDefault("name", ""))));
+        normalized.put("tipoOriginal", type);
+        normalized.put("papel", papel);
         normalized.put("ativo", ativo);
+        normalized.put("cliente", "CLIENT".equalsIgnoreCase(papel));
+        normalized.put("entregador", "COURIER".equalsIgnoreCase(papel));
+        normalized.put("morada", normalizeAddress(user.get("address")));
+        normalized.put("moradaResumo", summarizeAddress((Map<String, Object>) normalized.get("morada")));
         return normalized;
+    }
+
+    private Map<String, Object> normalizeAddress(Object addressObj) {
+        Map<String, Object> address = new HashMap<>();
+        address.put("rua", "");
+        address.put("numero", "");
+        address.put("complemento", "");
+        address.put("codigoPostal", "");
+        address.put("cidade", "");
+        address.put("distrito", "");
+        address.put("pais", "");
+
+        if (addressObj instanceof Map<?, ?> rawAddress) {
+            address.put("rua", valueOrBlank(rawAddress.get("rua")));
+            address.put("numero", valueOrBlank(rawAddress.get("numero")));
+            address.put("complemento", valueOrBlank(rawAddress.get("complemento")));
+            address.put("codigoPostal", valueOrBlank(rawAddress.get("codigoPostal")));
+            address.put("cidade", valueOrBlank(rawAddress.get("cidade")));
+            address.put("distrito", valueOrBlank(rawAddress.get("distrito")));
+            address.put("pais", valueOrBlank(rawAddress.get("pais")));
+        }
+
+        return address;
+    }
+
+    private String valueOrBlank(Object value) {
+        return value == null ? "" : String.valueOf(value);
+    }
+
+    private String buildInitial(String name) {
+        if (!hasText(name)) {
+            return "T";
+        }
+        return name.trim().substring(0, 1);
+    }
+
+    private String summarizeAddress(Map<String, Object> address) {
+        if (address == null || !hasText(String.valueOf(address.get("rua")))) {
+            return "Sem morada definida";
+        }
+
+        StringBuilder summary = new StringBuilder();
+        summary.append(address.get("rua"));
+        if (hasText(String.valueOf(address.get("numero")))) {
+            summary.append(", ").append(address.get("numero"));
+        }
+        if (hasText(String.valueOf(address.get("cidade")))) {
+            summary.append(" - ").append(address.get("cidade"));
+        }
+        return summary.toString();
     }
 
     private Optional<Map<String, Object>> findUserByEmail(String email) {
@@ -326,5 +412,13 @@ public class WebUtilizadorController {
 
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
+    }
+
+    private void moveFlashAttribute(HttpSession session, Model model, String attributeName) {
+        Object value = session.getAttribute(attributeName);
+        if (value != null) {
+            model.addAttribute(attributeName, value);
+            session.removeAttribute(attributeName);
+        }
     }
 }

@@ -8,47 +8,158 @@
 ############################################################## -->
 
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>User Profile - TascaEats</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - TascaEats</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .profile-container { max-width: 600px; margin: 30px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .profile-container input { width: 100%; padding: 10px; margin: 10px 0 20px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .btn-danger { background-color: #dc3545; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; margin-top: 20px; }
-        .btn-danger:hover { background-color: #c82333; }
-        .badge { background-color: #e9ecef; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 14px;}
-    </style>
 </head>
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main>
-        <div class="profile-container">
-            <h2>Account Details</h2>
-            <p>Role: <span class="badge" th:text="${user.papel}">ROLE</span></p>
-
-            <form th:action="@{/perfil/{id}/atualizar(id=${user.id})}" method="POST">
-                <label for="nome">Full Name</label>
-                <input type="text" id="nome" name="nome" th:value="${user.nome}" required>
-
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" th:value="${user.email}" required>
-
-                <button type="submit">Update Profile</button>
-            </form>
-
-            <hr style="margin: 40px 0;">
-
-            <div style="border: 1px solid #f5c6cb; padding: 20px; border-radius: 8px; background-color: #fff3f3;">
-                <h3 style="color: #721c24; margin-top: 0;">Zona de perigo</h3>
-                <p style="color: #721c24;">Depois de eliminar uma conta, não há volta atrás. Certifique-se de que tem a certeza.</p>
-                <form th:action="@{/perfil/{id}/apagar(id=${user.id})}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this account?');">
-                    <button type="submit" class="btn-danger">Delete Account</button>
-                </form>
+    <main class="page-shell page-shell--profile">
+        <section class="profile-header">
+            <div class="page-intro">
+                <span class="section-eyebrow">Conta</span>
+                <h2>O meu perfil</h2>
+                <p>Gere os teus dados, estado da conta e detalhes usados nos pedidos.</p>
             </div>
-        </div>
+            <div class="profile-identity">
+                <div class="profile-avatar" th:text="${user.inicial}">T</div>
+                <div>
+                    <strong th:text="${user.nome}">Nome</strong>
+                    <span th:text="${user.email}">email@tascaeats.pt</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="profile-alert profile-alert--success" th:if="${profileSuccess}" th:text="${profileSuccess}">Perfil atualizado.</div>
+        <div class="profile-alert profile-alert--error" th:if="${profileError}" th:text="${profileError}">Erro ao atualizar.</div>
+
+        <section class="profile-grid">
+            <aside class="profile-summary">
+                <div>
+                    <span class="profile-label">Tipo de conta</span>
+                    <span class="status-pill" th:text="${user.papel == 'COURIER' ? 'Entregador' : (user.papel == 'ADMIN' ? 'Administrador' : 'Cliente')}">Cliente</span>
+                </div>
+                <div>
+                    <span class="profile-label">Estado</span>
+                    <span th:if="${user.ativo}" class="status-pill status-active">Ativo</span>
+                    <span th:unless="${user.ativo}" class="status-pill status-inactive">Inativo</span>
+                </div>
+                <div th:if="${user.cliente}">
+                    <span class="profile-label">Morada principal</span>
+                    <p th:text="${user.moradaResumo}">Sem morada definida</p>
+                </div>
+                <div>
+                    <span class="profile-label">Identificador</span>
+                    <p th:text="'#' + ${user.id}">#1</p>
+                </div>
+            </aside>
+
+            <form class="profile-form" th:action="@{/perfil/{id}/atualizar(id=${user.id})}" method="POST">
+                <section class="profile-panel">
+                    <div class="section-header">
+                        <div>
+                            <h3>Dados pessoais</h3>
+                            <p>Atualiza o nome, email e password da tua conta.</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-form-grid">
+                        <div class="auth-form-field">
+                            <label for="nome">Nome completo</label>
+                            <input type="text" id="nome" name="nome" th:value="${user.nome}" required>
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" th:value="${user.email}" required>
+                        </div>
+
+                        <div class="auth-form-field profile-field--wide">
+                            <label for="password">Nova password</label>
+                            <input type="password" id="password" name="password" placeholder="Deixa em branco para manter a atual">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="profile-panel" th:if="${user.entregador}">
+                    <div class="section-header">
+                        <div>
+                            <h3>Disponibilidade</h3>
+                            <p>Controla se podes receber entregas.</p>
+                        </div>
+                    </div>
+                    <label class="profile-toggle" for="available">
+                        <input type="checkbox" id="available" name="available" value="true" th:checked="${user.ativo}">
+                        <span>Disponivel para entregas</span>
+                    </label>
+                </section>
+
+                <section class="profile-panel" th:if="${user.cliente}">
+                    <div class="section-header">
+                        <div>
+                            <h3>Morada principal</h3>
+                            <p>Esta morada fica preparada para o checkout.</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-form-grid">
+                        <div class="auth-form-field profile-field--wide">
+                            <label for="rua">Rua</label>
+                            <input type="text" id="rua" name="rua" th:value="${user.morada.rua}" placeholder="Ex: Rua do Sol">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="numero">Numero</label>
+                            <input type="number" id="numero" name="numero" min="1" th:value="${user.morada.numero}" placeholder="Ex: 10">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="complemento">Complemento</label>
+                            <input type="text" id="complemento" name="complemento" th:value="${user.morada.complemento}" placeholder="Ex: 2o Esq">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="codigoPostal">Codigo postal</label>
+                            <input type="text" id="codigoPostal" name="codigoPostal" th:value="${user.morada.codigoPostal}" placeholder="Ex: 1000-001">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" id="cidade" name="cidade" th:value="${user.morada.cidade}" placeholder="Ex: Lisboa">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="distrito">Distrito</label>
+                            <input type="text" id="distrito" name="distrito" th:value="${user.morada.distrito}" placeholder="Ex: Lisboa">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="pais">Pais</label>
+                            <input type="text" id="pais" name="pais" th:value="${user.morada.pais}" placeholder="Ex: Portugal">
+                        </div>
+                    </div>
+                </section>
+
+                <div class="profile-actions">
+                    <button type="submit">Guardar alteracoes</button>
+                    <a class="button-link secondary" th:href="@{/restaurantes}">Voltar aos restaurantes</a>
+                </div>
+            </form>
+        </section>
+
+        <section class="profile-danger">
+            <div>
+                <h3>Zona de perigo</h3>
+                <p>Eliminar a conta remove o teu acesso ao TascaEats. Esta acao nao pode ser desfeita.</p>
+            </div>
+            <form th:action="@{/perfil/{id}/apagar(id=${user.id})}" method="POST" onsubmit="return confirm('Tens a certeza que queres eliminar esta conta?');">
+                <button type="submit" class="button-danger">Eliminar conta</button>
+            </form>
+        </section>
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>

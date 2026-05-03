@@ -618,6 +618,182 @@ p {
     gap: 18px;
 }
 
+.page-shell--profile {
+    gap: 18px;
+    padding-top: 22px;
+    padding-bottom: 32px;
+}
+
+.page-shell--profile .page-intro h2 {
+    color: var(--brand);
+}
+
+.profile-header,
+.profile-grid,
+.profile-danger {
+    width: min(1120px, 100%);
+    margin: 0 auto;
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: end;
+}
+
+.profile-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid #e5ded1;
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    min-width: 260px;
+}
+
+.profile-identity strong,
+.profile-identity span {
+    display: block;
+}
+
+.profile-identity span {
+    color: var(--muted);
+    font-size: 0.92rem;
+    overflow-wrap: anywhere;
+}
+
+.profile-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    background: var(--brand);
+    color: #fff;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.profile-summary,
+.profile-panel,
+.profile-danger {
+    background: var(--surface);
+    border: 1px solid #e5ded1;
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+}
+
+.profile-summary {
+    display: grid;
+    gap: 18px;
+    padding: 20px;
+    position: sticky;
+    top: 105px;
+}
+
+.profile-label {
+    display: block;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.profile-form {
+    display: grid;
+    gap: 16px;
+}
+
+.profile-panel {
+    padding: 20px;
+}
+
+.profile-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.profile-field--wide {
+    grid-column: 1 / -1;
+}
+
+.profile-toggle {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    border: 1px solid #d7ddda;
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--text);
+}
+
+.profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.profile-actions .button-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-alert {
+    width: min(1120px, 100%);
+    margin: 0 auto;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.profile-alert--success {
+    background: #e4f3ea;
+    border: 1px solid #b8dec6;
+    color: var(--success);
+}
+
+.profile-alert--error {
+    background: #fff0f4;
+    border: 1px solid #f1c4cf;
+    color: #8f2035;
+}
+
+.profile-danger {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: center;
+    padding: 18px 20px;
+    border-color: #e8c7c2;
+    background: #fff8f6;
+}
+
+.profile-danger h3 {
+    color: var(--danger);
+    margin-bottom: 4px;
+}
+
+.button-danger {
+    background: var(--danger);
+    min-width: 170px;
+}
+
 @media (min-width: 768px) {
     .page-shell--search .search-filters-form {
         display: flex;
@@ -1473,6 +1649,20 @@ th {
     .page-shell--products .product-filters-form .form-actions {
         grid-column: 1 / -1;
     }
+
+    .profile-header,
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-header {
+        display: grid;
+        align-items: start;
+    }
+
+    .profile-summary {
+        position: static;
+    }
 }
 
 @media (max-width: 720px) {
@@ -1499,6 +1689,22 @@ th {
     .site-nav {
         width: 100%;
         gap: 12px;
+    }
+
+    .profile-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-danger,
+    .profile-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .profile-actions button,
+    .profile-actions .button-link,
+    .profile-danger button {
+        width: 100%;
     }
 
     .search-form-inline,
