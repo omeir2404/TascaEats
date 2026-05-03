@@ -429,6 +429,56 @@ p {
     margin-top: 10px;
 }
 
+.page-shell--users .page-intro h2 {
+    color: var(--brand);
+    margin-top: 2px;
+}
+
+.page-shell--users {
+    padding-top: 12px;
+}
+
+.page-shell--users .filtro-container form {
+    gap: 10px;
+}
+
+.page-shell--users .form-group--wide {
+    grid-column: span 5;
+}
+
+.page-shell--users .form-group--medium,
+.page-shell--users .form-group--compact,
+.page-shell--users .form-actions {
+    grid-column: span 2;
+    align-items: end;
+}
+
+.page-shell--users .form-actions {
+    grid-column: span 3;
+    justify-content: flex-end;
+}
+
+.page-shell--users .form-actions button {
+    width: auto;
+    min-width: 190px;
+}
+
+.page-shell--users .table-header h3 {
+    color: var(--brand);
+}
+
+.page-shell--users .table-container {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.page-shell--users .table-container thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+}
+
 .page-shell--menus .filtro-container label {
     font-size: 0.98rem;
 }
@@ -1161,6 +1211,12 @@ th {
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+}
+
+.user-email {
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 .orders-list {

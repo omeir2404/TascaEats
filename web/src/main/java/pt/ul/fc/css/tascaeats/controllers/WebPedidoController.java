@@ -170,6 +170,10 @@ public class WebPedidoController {
             return "redirect:/checkout";
         }
 
+        double total = carrinho.stream()
+                .mapToDouble(item -> toDouble(item.get("preco")) * toInt(item.get("quantidade")))
+                .sum();
+
         try {
             List<Map<String, Object>> itensPedido = carrinho.stream().map(item -> {
                 Map<String, Object> itemPedido = new HashMap<>();
@@ -191,7 +195,7 @@ public class WebPedidoController {
                 return "redirect:/meus-pedidos";
             }
 
-            Map<String, Object> detalhesPagamento = buildDetalhesPagamento(metodoPagamento, telemovel, bandeiraCartao, pedidoId);
+            Map<String, Object> detalhesPagamento = buildDetalhesPagamento(metodoPagamento, telemovel, bandeiraCartao, pedidoId, total);
             Map<String, Object> pagamentoPayload = new HashMap<>();
             pagamentoPayload.put("pedidoId", pedidoId);
             pagamentoPayload.put("tipoPagamento", metodoPagamento);
@@ -342,7 +346,7 @@ public class WebPedidoController {
         }
     }
 
-    private Map<String, Object> buildDetalhesPagamento(String metodoPagamento, String telemovel, String bandeiraCartao, Long pedidoId) {
+    private Map<String, Object> buildDetalhesPagamento(String metodoPagamento, String telemovel, String bandeiraCartao, Long pedidoId, double total) {
         Map<String, Object> detalhes = new HashMap<>();
         if ("MBWAY".equalsIgnoreCase(metodoPagamento)) {
             detalhes.put("numeroTelemovel", telemovel == null ? "910000000" : telemovel);
@@ -356,7 +360,12 @@ public class WebPedidoController {
             return detalhes;
         }
 
-        detalhes.put("valorRecebido", 0.0);
+        if ("DINHEIRO".equalsIgnoreCase(metodoPagamento)) {
+            detalhes.put("valorRecebido", Math.round(total * 100.0) / 100.0);
+            return detalhes;
+        }
+
+        detalhes.put("valorRecebido", Math.round(total * 100.0) / 100.0);
         return detalhes;
     }
 
