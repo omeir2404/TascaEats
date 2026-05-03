@@ -53,6 +53,12 @@
                         <span class="pill"><strong>Data:</strong>&nbsp;<span th:text="${pedido.data}">Date</span></span>
                         <span class="tag"><strong>Total:</strong>&nbsp;<span th:text="${pedido.total} + ' €'">0.00 €</span></span>
                     </div>
+
+                    <div class="order-review" th:if="${pedido.avaliacao != null}" style="margin-top:8px;">
+                        <strong>Avaliação:</strong>
+                        <span th:text="${pedido.avaliacao.classificacao} + ' / 5'">5 / 5</span>
+                        <p th:if="${pedido.avaliacao.comentario != null and pedido.avaliacao.comentario != ''}" th:text="${pedido.avaliacao.comentario}" style="margin:6px 0 0 0;">Comentário</p>
+                    </div>
                 </div>
 
                 <div>
