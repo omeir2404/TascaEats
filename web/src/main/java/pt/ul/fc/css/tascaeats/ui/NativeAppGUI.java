@@ -55,8 +55,9 @@ public class NativeAppGUI extends Application {
     // ── Session ───────────────────────────────────────────────────────────
     private Map<String, Object> currentUser = null;
 
-    // ── Backend client (optional, for restaurant sync) ────────────────────
+    // ── Backend clients (optional, for sync) ────────────────────
     private RestauranteApiClient apiClient;
+    private UtilizadorApiClient utilizadorApiClient;
 
     // ── UI state ──────────────────────────────────────────────────────────
     private Stage mainStage;
@@ -72,6 +73,10 @@ public class NativeAppGUI extends Application {
         mainStage = stage;
         initMockData();
         apiClient = new RestauranteApiClient(
+            new RestTemplate(),
+            System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:8080")
+        );
+        utilizadorApiClient = new UtilizadorApiClient(
             new RestTemplate(),
             System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:8080")
         );
@@ -220,16 +225,50 @@ public class NativeAppGUI extends Application {
         loginBtn.setDefaultButton(true);
         loginBtn.setOnAction(e -> {
             String email = emailF.getText().trim();
-            Optional<Map<String, Object>> found = mockUsers.stream()
-                .filter(u -> u.get("email").toString().equalsIgnoreCase(email))
-                .findFirst();
-            if (found.isPresent()) {
-                currentUser = found.get();
-                updateNavButtonsState();
-                headerUserLabel.setText("Olá, " + currentUser.get("nome") + " (" + currentUser.get("papel") + ")");
-                ok(feedback, "✓ Bem-vindo, " + currentUser.get("nome") + "!");
+            String password = passF.getText();
+
+            if (email.isEmpty()) {
+                err(feedback, "✗ Digite o email.");
+                return;
+            }
+
+            // Tentar autenticar no backend primeiro
+            UtilizadorApiClient.LoginResult backendResult = utilizadorApiClient.login(email, password);
+
+            if (backendResult.sucesso()) {
+                // Login bem-sucedido no backend
+                Optional<Map<String, Object>> found = mockUsers.stream()
+                    .filter(u -> u.get("email").toString().equalsIgnoreCase(email))
+                    .findFirst();
+                if (found.isPresent()) {
+                    currentUser = found.get();
+                    updateNavButtonsState();
+                    headerUserLabel.setText("Olá, " + currentUser.get("nome") + " (" + currentUser.get("papel") + ")");
+                    ok(feedback, "✓ " + backendResult.mensagem());
+                } else {
+                    // Utilizador validado no backend mas não em mockUsers - criar entrada mock
+                    currentUser = row("email", email, "nome", email.split("@")[0], "papel", "CLIENT", "ativo", "Sim");
+                    mockUsers.add(currentUser);
+                    updateNavButtonsState();
+                    headerUserLabel.setText("Olá, " + currentUser.get("nome") + " (Cliente)");
+                    ok(feedback, "✓ Login bem-sucedido (criado em modo demo)");
+                }
+            } else if (backendResult.fallbackUsado()) {
+                // Backend indisponível - tentar modo mock
+                Optional<Map<String, Object>> found = mockUsers.stream()
+                    .filter(u -> u.get("email").toString().equalsIgnoreCase(email))
+                    .findFirst();
+                if (found.isPresent() && found.get().get("password").toString().equals(password)) {
+                    currentUser = found.get();
+                    updateNavButtonsState();
+                    headerUserLabel.setText("Olá, " + currentUser.get("nome") + " (" + currentUser.get("papel") + ")");
+                    ok(feedback, "✓ Bem-vindo, " + currentUser.get("nome") + "! (⚠ " + backendResult.mensagem() + ")");
+                } else {
+                    err(feedback, "⚠ Backend indisponível e utilizador não encontrado em modo demo.");
+                }
             } else {
-                err(feedback, "✗ Utilizador não encontrado.");
+                // Falha no backend com resposta clara
+                err(feedback, "✗ " + backendResult.mensagem());
             }
         });
 
@@ -251,11 +290,13 @@ public class NativeAppGUI extends Application {
         return wrapper;
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // B / C / D – Utilizadores
-    // ─────────────────────────────────────────────────────────────────────
-    private VBox buildUsersPane() {
-        ObservableList<Map<String, Object>> display = FXCollections.observableArrayList(mockUsers);
+     // ─────────────────────────────────────────────────────────────────────
+     // B / C / D – Utilizadores
+     // ─────────────────────────────────────────────────────────────────────
+     private Label userStatusLabel;
+
+     private VBox buildUsersPane() {
+         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList(mockUsers);
         TableView<Map<String, Object>> table = tableOf(display,
             col("ID","id"), col("Nome","nome"), col("Email","email"),
             col("Papel","papel"), col("Ativo","ativo")
@@ -280,10 +321,29 @@ public class NativeAppGUI extends Application {
         criarBtn.setOnAction(e -> {
             Map<String, Object> novo = userDialog(null);
             if (novo != null) {
-                novo.put("id", nextUserId++);
+                // Tentar registar no backend (com fallback para mock)
+                String nome = novo.get("nome").toString();
+                String email = novo.get("email").toString();
+                String password = novo.get("password").toString();
+                String papel = novo.get("papel").toString();
+
+                // Converter papel GUI (CLIENT, ADMIN, COURIER) para tipo API (Cliente, Admin, Entregador)
+                String tipo = mapPapelToTipo(papel);
+
+                // Fazer o registo via API (com fallback automático se backend indisponível)
+                UtilizadorApiClient.RegistoResult result = utilizadorApiClient.registarUtilizador(nome, email, password, tipo);
+
+                // Usar o ID devolvido pelo backend ou o mock
+                novo.put("id", result.id() != null ? result.id() : nextUserId++);
                 mockUsers.add(novo);
                 display.setAll(mockUsers);
-                info("Utilizador registado.");
+
+                // Mostrar mensagem com indicação se foi fallback ou sucesso
+                if (result.fallbackUsado()) {
+                    warn("⚠ " + result.mensagem());
+                } else {
+                    info("✓ " + result.mensagem());
+                }
             }
         });
         if(currentUser != null && !currentUser.get("papel").equals("CLIENT")) {
@@ -300,20 +360,26 @@ public class NativeAppGUI extends Application {
             Map<String, Object> edited = userDialog(sel);
             if (edited != null) { sel.putAll(edited); display.setAll(mockUsers); table.refresh(); }
         });
-        removerBtn.setOnAction(e -> {
-            Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
-            if (sel == null) { warn("Selecione um utilizador."); return; }
-            if (confirm("Remover " + sel.get("nome") + "?")) {
-                mockUsers.remove(sel); display.setAll(mockUsers);
-            }
-        });
+         removerBtn.setOnAction(e -> {
+             Map<String, Object> sel = table.getSelectionModel().getSelectedItem();
+             if (sel == null) { warn("Selecione um utilizador."); return; }
+             if (confirm("Remover " + sel.get("nome") + "?")) {
+                 mockUsers.remove(sel); display.setAll(mockUsers);
+             }
+         });
 
-        return pane(sectionTitle("B/C/D – Gestão de Utilizadores"),
-            hbar(lbl("Nome:"), searchF, lbl("Papel:"), papelBox, filtrar),
-            hbar(criarBtn, editarBtn, removerBtn),
-            table
-        );
-    }
+         userStatusLabel = new Label("Modo demo — backend não consultado.");
+         userStatusLabel.setStyle("-fx-text-fill: #aaa; -fx-font-size: 10px;");
+
+         Platform.runLater(this::syncUtilizadoresFromBackend);
+
+         return pane(sectionTitle("B/C/D – Gestão de Utilizadores"),
+             hbar(lbl("Nome:"), searchF, lbl("Papel:"), papelBox, filtrar),
+             hbar(criarBtn, editarBtn, removerBtn),
+             table,
+             userStatusLabel
+         );
+     }
 
     private Map<String, Object> userDialog(Map<String, Object> ex) {
         Dialog<Map<String, Object>> dlg = dialog(ex == null ? "Registar Utilizador" : "Editar Utilizador");
@@ -434,6 +500,28 @@ public class NativeAppGUI extends Application {
             new Label("Detalhes:"), details,
             restStatusLabel
         );
+    }
+
+    private void syncUtilizadoresFromBackend() {
+        Task<List<Map<String, Object>>> task = new Task<>() {
+            @Override protected List<Map<String, Object>> call() {
+                // Call your existing API client to get all users
+                return utilizadorApiClient.listarUtilizadores();
+            }
+        };
+        task.setOnSucceeded(ev -> {
+            List<Map<String, Object>> users = task.getValue();
+            if (users != null && !users.isEmpty()) {
+                mockUsers.setAll(users);
+                if (userStatusLabel != null)
+                    userStatusLabel.setText("✅ Sincronizado com backend.");
+            }
+        });
+        task.setOnFailed(ev -> {
+            if (userStatusLabel != null)
+                userStatusLabel.setText("⚠️ Backend indisponível — modo demo ativo.");
+        });
+        Thread t = new Thread(task, "users-sync"); t.setDaemon(true); t.start();
     }
 
     private void syncRestaurantesFromBackend() {
@@ -908,6 +996,32 @@ public class NativeAppGUI extends Application {
 
     private void ok(Label l, String msg) { l.setStyle("-fx-text-fill: #388e3c; -fx-font-size: 13px;"); l.setText(msg); }
     private void err(Label l, String msg) { l.setStyle("-fx-text-fill: #c62828; -fx-font-size: 13px;"); l.setText(msg); }
+
+    /**
+     * Converte o papel GUI (CLIENT, ADMIN, COURIER) para o tipo de utilizador da API (Cliente, Admin, Entregador).
+     */
+    private String mapPapelToTipo(String papel) {
+        if (papel == null) return "Cliente";
+        return switch (papel) {
+            case "CLIENT" -> "Cliente";
+            case "ADMIN" -> "Admin";
+            case "COURIER" -> "Entregador";
+            default -> "Cliente";
+        };
+    }
+
+    /**
+     * Converte o tipo de utilizador da API (Cliente, Admin, Entregador) para papel GUI (CLIENT, ADMIN, COURIER).
+     */
+    private String mapTipoToRole(String tipo) {
+        if (tipo == null) return "CLIENT";
+        return switch (tipo) {
+            case "Cliente" -> "CLIENT";
+            case "Admin" -> "ADMIN";
+            case "Entregador" -> "COURIER";
+            default -> "CLIENT";
+        };
+    }
 
     // ─────────────────────────────────────────────────────────────────────
     // Legacy inner class kept for compatibility
