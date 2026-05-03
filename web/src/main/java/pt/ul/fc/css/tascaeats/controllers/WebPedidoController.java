@@ -167,9 +167,6 @@ public class WebPedidoController {
 
     @PostMapping("/checkout/processar")
     public String processarCheckout(
-            @RequestParam String metodoPagamento,
-            @RequestParam(required = false) String telemovel,
-            @RequestParam(required = false) String bandeiraCartao,
             @RequestParam(required = false) String rua,
             @RequestParam(required = false) Integer numero,
             @RequestParam(required = false) String complemento,
@@ -191,10 +188,6 @@ public class WebPedidoController {
             session.setAttribute("checkoutError", "Carrinho vazio. Adicione produtos antes de finalizar.");
             return "redirect:/checkout";
         }
-
-        double total = carrinho.stream()
-                .mapToDouble(item -> toDouble(item.get("preco")) * toInt(item.get("quantidade")))
-                .sum();
 
         try {
             List<Map<String, Object>> itensPedido = carrinho.stream().map(item -> {
@@ -231,14 +224,6 @@ public class WebPedidoController {
                 session.setAttribute("checkoutError", "Pedido criado, mas nao foi possivel obter o ID.");
                 return "redirect:/meus-pedidos";
             }
-
-            Map<String, Object> detalhesPagamento = buildDetalhesPagamento(metodoPagamento, telemovel, bandeiraCartao, pedidoId, total);
-            Map<String, Object> pagamentoPayload = new HashMap<>();
-            pagamentoPayload.put("pedidoId", pedidoId);
-            pagamentoPayload.put("tipoPagamento", metodoPagamento);
-            pagamentoPayload.put("detalhes", detalhesPagamento);
-
-            restTemplate.postForEntity(backendUrl + "/pagamentos", pagamentoPayload, String.class);
 
             session.removeAttribute(CART_SESSION_KEY);
             session.setAttribute("cartCleared", true);
@@ -820,29 +805,6 @@ public class WebPedidoController {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    private Map<String, Object> buildDetalhesPagamento(String metodoPagamento, String telemovel, String bandeiraCartao, Long pedidoId, double total) {
-        Map<String, Object> detalhes = new HashMap<>();
-        if ("MBWAY".equalsIgnoreCase(metodoPagamento)) {
-            detalhes.put("numeroTelemovel", telemovel == null ? "910000000" : telemovel);
-            return detalhes;
-        }
-
-        if ("MULTIBANCO".equalsIgnoreCase(metodoPagamento)) {
-            detalhes.put("entidade", "12345");
-            detalhes.put("referencia", String.format("%09d", Math.abs(pedidoId % 1_000_000_000L)));
-            detalhes.put("bandeiraCartao", bandeiraCartao == null ? "VISA" : bandeiraCartao);
-            return detalhes;
-        }
-
-        if ("DINHEIRO".equalsIgnoreCase(metodoPagamento)) {
-            detalhes.put("valorRecebido", Math.round(total * 100.0) / 100.0);
-            return detalhes;
-        }
-
-        detalhes.put("valorRecebido", Math.round(total * 100.0) / 100.0);
-        return detalhes;
     }
 
     private Long toLong(Object value) {

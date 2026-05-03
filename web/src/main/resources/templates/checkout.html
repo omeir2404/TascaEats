@@ -391,50 +391,7 @@
                     </span>
                 </div>
 
-                <h4 class="checkout-form-title">Selecione método de pagamento</h4>
-
-                <div class="payment-method" data-payment-option="MBWAY">
-                    <label>
-                        <input type="radio" name="metodoPagamento" value="MBWAY" onchange="togglePaymentDetails()" required>
-                        <span>MBWay</span>
-                    </label>
-                    <div id="mbwayDetails" class="hidden-details">
-                        <div class="form-group">
-                            <label>Phone Number:</label>
-                            <input type="tel" name="telemovel" placeholder="Ex: 912345678" pattern="[0-9]{9}">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="payment-method" data-payment-option="MULTIBANCO">
-                    <label>
-                        <input type="radio" name="metodoPagamento" value="MULTIBANCO" onchange="togglePaymentDetails()">
-                        <span>Multibanco</span>
-                    </label>
-                    <div id="cardDetails" class="hidden-details">
-                        <div class="form-group">
-                            <label>Bandeira do cartao:</label>
-                            <select name="bandeiraCartao">
-                                <option value="VISA">Visa</option>
-                                <option value="MASTERCARD">Mastercard</option>
-                                <option value="AMEX">American Express</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Referencia:</label>
-                            <input type="text" placeholder="**** **** **** ****">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="payment-method" data-payment-option="DINHEIRO">
-                    <label>
-                        <input type="radio" name="metodoPagamento" value="DINHEIRO" onchange="togglePaymentDetails()">
-                        <span>Dinheiro</span>
-                    </label>
-                </div>
-
-                <button type="submit" class="checkout-submit">Confirmar pagamento e Finalizar encomenda</button>
+                <button type="submit" class="checkout-submit">Finalizar encomenda</button>
             </form>
         </div>
     </main>
@@ -442,36 +399,7 @@
     <div th:replace="~{fragments/footer :: rodape}"></div>
 
     <script>
-        function togglePaymentDetails() {
-            const method = document.querySelector('input[name="metodoPagamento"]:checked').value;
-            const mbwayDiv = document.getElementById('mbwayDetails');
-            const cardDiv = document.getElementById('cardDetails');
-
-            mbwayDiv.style.display = method === 'MBWAY' ? 'block' : 'none';
-            cardDiv.style.display = method === 'MULTIBANCO' ? 'block' : 'none';
-
-            document.querySelector('input[name="telemovel"]').required = method === 'MBWAY';
-            document.querySelector('select[name="bandeiraCartao"]').required = method === 'MULTIBANCO';
-        }
-
         document.addEventListener("DOMContentLoaded", function() {
-            document.querySelectorAll('.payment-method').forEach(function(card) {
-                card.addEventListener('click', function(event) {
-                    if (event.target.closest('input, select, option')) {
-                        return;
-                    }
-
-                    const paymentValue = card.dataset.paymentOption;
-                    const radio = card.querySelector(`input[type="radio"][value="${paymentValue}"]`);
-                    if (!radio) {
-                        return;
-                    }
-
-                    radio.checked = true;
-                    togglePaymentDetails();
-                });
-            });
-
             const addressStatus = document.getElementById('addressStatus');
             const addressStatusText = document.getElementById('addressStatusText');
             const ruaInput = document.getElementById('rua');

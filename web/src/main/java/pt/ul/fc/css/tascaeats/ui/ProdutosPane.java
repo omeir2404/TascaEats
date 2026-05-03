@@ -48,11 +48,13 @@ public class ProdutosPane {
         TextField        searchF   = field("Nome do produto...", 150);
         TextField        precoMaxF = field("Preço máx.", 80);
         ComboBox<String> dispBox   = combo("Todos", "Sim", "Não");
+        ComboBox<String> apagBox   = combo("Todos", "Sim", "Não");
 
         Runnable applyFilter = () -> {
             String rn   = restBox.getValue();
             String q    = searchF.getText().toLowerCase();
             String disp = dispBox.getValue();
+            String apag = apagBox.getValue();
             Double maxP;
             try { maxP = Double.parseDouble(precoMaxF.getText().trim()); }
             catch (Exception ex) { maxP = null; }
@@ -61,6 +63,7 @@ public class ProdutosPane {
                 .filter(p -> "Todos".equals(rn) || rn.equals(s(p, "restNome")))
                 .filter(p -> q.isBlank() || s(p, "nome").toLowerCase().contains(q))
                 .filter(p -> "Todos".equals(disp) || disp.equals(s(p, "disponivel")))
+                .filter(p -> "Todos".equals(apag) || apag.equals(s(p, "apagado")))
                 .filter(p -> fMax == null || toDouble(p.get("preco")) <= fMax)
                 .toList());
         };
@@ -75,7 +78,7 @@ public class ProdutosPane {
 
         TableView<Map<String, Object>> table = tableOf(display,
             col("ID", "id"), col("Restaurante", "restNome"), col("Nome", "nome"),
-            col("Preço (€)", "preco"), col("Disponível", "disponivel")
+            col("Preço (€)", "preco"), col("Disponível", "disponivel"), col("Apagado", "apagado")
         );
 
         Button filtrar   = new Button("Pesquisar"); filtrar.setOnAction(e -> applyFilter.run());
@@ -99,7 +102,7 @@ public class ProdutosPane {
 
         return pane(sectionTitle("G/H – Gestão de Produtos"),
             hbar(lbl("Restaurante:"), restBox, lbl("Nome:"), searchF,
-                 lbl("Preço≤"), precoMaxF, lbl("Disp:"), dispBox, filtrar),
+                 lbl("Preço≤"), precoMaxF, lbl("Disp:"), dispBox, lbl("Apagado:"), apagBox, filtrar),
             hbar(criarBtn, editarBtn, dispBtn, apagarBtn, new Region(), voltarBtn),
             table, statusLabel);
     }
@@ -126,6 +129,7 @@ public class ProdutosPane {
                     .filter(r -> rid.equals(toLong(r.get("id"))))
                     .findFirst().map(r -> s(r, "nome")).orElse("-"));
                 m.put("disponivel", Boolean.TRUE.equals(p.get("disponivel")) ? "Sim" : "Não");
+                m.put("apagado", Boolean.TRUE.equals(p.get("apagado")) ? "Sim" : "Não");
                 return m;
             }).toList();
 
