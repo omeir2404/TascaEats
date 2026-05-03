@@ -138,17 +138,6 @@ public class UtilizadorApiClient {
         }
     }
 
-    private Long extractLongFromMap(Map<String, Object> map, String key) {
-        Object value = map.get(key);
-        if (value instanceof Number number) {
-            return number.longValue();
-        } else if (value != null) {
-            try {
-                return Long.parseLong(value.toString());
-            } catch (NumberFormatException ignored) {
-                return null;
-            }
-        }
     /**
      * DELETE /api/Utilizadors/{id}
      */

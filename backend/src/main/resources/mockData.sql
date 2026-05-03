@@ -595,4 +595,4 @@ WHERE r.nif = '444555666'
                   WHERE p.nome = 'Salada Mix'
                     AND p.restaurante_id = r.id);
 
-SELECT setval('utilizadores_id_seq', (SELECT MAX(id) FROM utilizadores), true);
+SELECT setval('utilizadores_seq', (SELECT MAX(id) FROM utilizadores), true);
