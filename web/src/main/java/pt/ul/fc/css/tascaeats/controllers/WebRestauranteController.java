@@ -2,6 +2,7 @@ package pt.ul.fc.css.tascaeats.controllers;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
 public class WebRestauranteController {
@@ -25,52 +27,23 @@ public class WebRestauranteController {
         this.restTemplate = restTemplate;
     }
 
-    // --- TEMPORARY MOCK DATA GENERATOR ---
-    private List<Map<String, Object>> getMockRestaurantes() {
-        return List.of(
-            Map.of("id", 1, "nome", "Tasca do Zé", "tipoCozinha", "PORTUGUESA", "estado", "ABERTO", "numeroAvaliacoes", 150),
-            Map.of("id", 2, "nome", "Bella Napoli", "tipoCozinha", "ITALIANA", "estado", "FECHADO", "numeroAvaliacoes", 85),
-            Map.of("id", 3, "nome", "Sushi Zen", "tipoCozinha", "JAPONESA", "estado", "ABERTO", "numeroAvaliacoes", 320),
-            Map.of("id", 4, "nome", "Café Central", "tipoCozinha", "PORTUGUESA", "estado", "ABERTO", "numeroAvaliacoes", 12)
-        );
-    }
-
-    // --- TEMPORARY MOCK PRODUCTS GENERATOR ---
-    private List<Map<String, Object>> getMockProdutos(Long restauranteId) {
-        if (restauranteId == 1) { // Tasca do Zé
-            return List.of(
-                Map.of(
-                    "id", 1, "nome", "Bacalhau à Brás", "preco", 12.50, "categoria", "MAIN_COURSE", "disponivel", true,
-                    "descricao", "Traditional Portuguese dish made with shredded cod, onions, and scrambled eggs.", "alergenios", "Fish, Eggs"
-                ),
-                Map.of(
-                    "id", 2, "nome", "Super Bock 33cl", "preco", 2.00, "categoria", "DRINK", "disponivel", true,
-                    "descricao", "Refreshing cold Portuguese beer.", "alergenios", "Gluten"
-                ),
-                Map.of(
-                    "id", 3, "nome", "Pastel de Nata", "preco", 1.50, "categoria", "DESSERT", "disponivel", false,
-                    "descricao", "Famous Portuguese egg custard tart pastry.", "alergenios", "Eggs, Milk, Gluten"
-                )
-            );
-        } else if (restauranteId == 3) { // Sushi Zen
-            return List.of(
-                Map.of(
-                    "id", 4, "nome", "Combinado Salmon 15 peças", "preco", 22.00, "categoria", "MAIN_COURSE", "disponivel", true,
-                    "descricao", "Chef's selection of 15 premium fresh salmon pieces.", "alergenios", "Fish"
-                ),
-                Map.of(
-                    "id", 5, "nome", "Chá Verde", "preco", 3.00, "categoria", "DRINK", "disponivel", true,
-                    "descricao", "Authentic Japanese hot green tea.", "alergenios", "None"
-                )
-            );
-        }
-        return List.of(); // Return empty menu for other restaurants
-    }
-
-    // 1. Default page: Loads all mock restaurants
+    // 1. Default page: Loads all restaurants from backend
     @GetMapping("/restaurantes")
     public String listarRestaurantes(Model model) {
-        model.addAttribute("restaurantes", getMockRestaurantes());
+        String url = backendUrl + "/api/restaurantes";
+
+        try {
+            List<Map<String, Object>> restaurantes = restTemplate.getForObject(url, List.class);
+            List<Map<String, Object>> restaurantesSanitizados = sanitizeRestaurantes(restaurantes);
+            model.addAttribute("restaurantes", restaurantesSanitizados);
+            model.addAttribute("restauranteDestaque",
+                    restaurantesSanitizados.stream().findFirst().orElse(null));
+        } catch (Exception e) {
+            model.addAttribute("restaurantes", List.of());
+            model.addAttribute("restauranteDestaque", null);
+            model.addAttribute("erro", "Could not connect to the backend API.");
+        }
+
         return "restaurantes";
     }
 
@@ -78,8 +51,53 @@ public class WebRestauranteController {
     @GetMapping("/restaurantes/pesquisa")
     public String pesquisarRestaurantes(
             @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String tipoCozinha,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) Integer pedidosRealizados,
+            @RequestParam(required = false) Double avaliacaoMinima,
+            @RequestParam(required = false) String morada,
+            @RequestParam(required = false) Double precoMedio,
             Model model) {
-        model.addAttribute("restaurantes", getMockRestaurantes());
+        String url = backendUrl + "/api/restaurantes/pesquisa";
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
+
+        if (nome != null && !nome.isBlank()) {
+            builder.queryParam("nome", nome);
+        }
+        if (tipoCozinha != null && !tipoCozinha.isBlank()) {
+            builder.queryParam("tipoCozinha", tipoCozinha);
+        }
+        if (estado != null && !estado.isBlank()) {
+            builder.queryParam("estado", estado);
+        }
+        if (pedidosRealizados != null) {
+            builder.queryParam("pedidosRealizados", pedidosRealizados);
+        }
+        if (avaliacaoMinima != null) {
+            builder.queryParam("avaliacaoMinima", avaliacaoMinima);
+        }
+        if (morada != null && !morada.isBlank()) {
+            builder.queryParam("morada", morada);
+        }
+        if (precoMedio != null) {
+            builder.queryParam("precoMedio", precoMedio);
+        }
+
+        try {
+            List<Map<String, Object>> restaurantes = restTemplate.getForObject(builder.toUriString(), List.class);
+            model.addAttribute("restaurantes", sanitizeRestaurantes(restaurantes));
+        } catch (Exception e) {
+            model.addAttribute("restaurantes", List.of());
+            model.addAttribute("erro", "Could not fetch search results from the backend.");
+        }
+
+        model.addAttribute("nome", nome);
+        model.addAttribute("tipoCozinha", tipoCozinha);
+        model.addAttribute("estado", estado);
+        model.addAttribute("pedidosRealizados", pedidosRealizados);
+        model.addAttribute("avaliacaoMinima", avaliacaoMinima);
+        model.addAttribute("morada", morada);
+        model.addAttribute("precoMedio", precoMedio);
         return "pesquisa";
     }
 
@@ -87,17 +105,35 @@ public class WebRestauranteController {
     @GetMapping("/api/web/live-search")
     @ResponseBody
     public ResponseEntity<?> liveSearch(@RequestParam String nome) {
-        List<Map<String, Object>> filtrados = getMockRestaurantes().stream()
-                .filter(r -> r.get("nome").toString().toLowerCase().contains(nome.toLowerCase()))
-                .toList();
-        return ResponseEntity.ok(filtrados);
+        String targetUrl = UriComponentsBuilder
+                .fromHttpUrl(backendUrl + "/api/restaurantes/pesquisa")
+                .queryParam("nome", nome)
+                .toUriString();
+
+        try {
+            List<Map<String, Object>> searchResults = restTemplate.getForObject(targetUrl, List.class);
+            return ResponseEntity.ok(sanitizeRestaurantes(searchResults));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error fetching live results");
+        }
     }
 
     @GetMapping("/restaurantes/{id}/produtos")
     public String listarProdutos(@PathVariable Long id, Model model) {
-        model.addAttribute("produtos", getMockProdutos(id));
+        String produtosUrl = UriComponentsBuilder.fromHttpUrl(backendUrl + "/api/produtos")
+                .queryParam("restauranteId", id)
+                .toUriString();
+
+        try {
+            List<Map<String, Object>> produtos = restTemplate.getForObject(produtosUrl, List.class);
+            model.addAttribute("produtos", sanitizeProdutos(produtos));
+        } catch (Exception e) {
+            model.addAttribute("produtos", List.of());
+            model.addAttribute("erro", "Could not load menu products from backend.");
+        }
+
         model.addAttribute("restauranteId", id);
-        model.addAttribute("restauranteNome", "Mocked Restaurant #" + id);
+        model.addAttribute("restauranteNome", fetchRestaurantName(id));
         return "produtos";
     }
 
@@ -111,21 +147,135 @@ public class WebRestauranteController {
             @RequestParam(required = false) Double popularidade,
             Model model) {
 
-        List<Map<String, Object>> filtrados = getMockProdutos(id).stream()
-            .filter(p -> nome == null || nome.isBlank() || p.get("nome").toString().toLowerCase().contains(nome.toLowerCase()))
-            .filter(p -> precoMax == null || ((Double) p.get("preco")) <= precoMax)
-            .filter(p -> categoria == null || categoria.isBlank() || p.get("categoria").toString().equalsIgnoreCase(categoria))
-            .filter(p -> !disponivel || (Boolean) p.get("disponivel") == true)
-            .toList();
+        String produtosUrl = UriComponentsBuilder.fromHttpUrl(backendUrl + "/api/produtos")
+                .queryParam("restauranteId", id)
+                .toUriString();
 
-        model.addAttribute("produtos", filtrados);
+        try {
+            List<Map<String, Object>> produtos = restTemplate.getForObject(produtosUrl, List.class);
+            List<Map<String, Object>> produtosFiltrados = sanitizeProdutos(produtos).stream()
+                    .filter(p -> nome == null || nome.isBlank() || p.get("nome").toString().toLowerCase().contains(nome.toLowerCase()))
+                    .filter(p -> precoMax == null || toDouble(p.get("preco")) <= precoMax)
+                    .filter(p -> categoria == null || categoria.isBlank() || categoria.equalsIgnoreCase(String.valueOf(p.get("categoria"))))
+                    .filter(p -> !Boolean.TRUE.equals(disponivel) || Boolean.TRUE.equals(p.get("disponivel")))
+                    .toList();
+
+            model.addAttribute("produtos", produtosFiltrados);
+        } catch (Exception e) {
+            model.addAttribute("produtos", List.of());
+            model.addAttribute("erro", "Product search failed.");
+        }
+
         model.addAttribute("restauranteId", id);
-        model.addAttribute("restauranteNome", id == 1 ? "Tasca do Zé" : (id == 3 ? "Sushi Zen" : "Mocked Restaurant"));
+        model.addAttribute("restauranteNome", fetchRestaurantName(id));
         model.addAttribute("nome", nome);
         model.addAttribute("precoMax", precoMax);
         model.addAttribute("categoria", categoria);
         model.addAttribute("disponivel", disponivel);
         model.addAttribute("popularidade", popularidade);
         return "produtos";
+    }
+
+    private List<Map<String, Object>> sanitizeRestaurantes(List<Map<String, Object>> restaurantes) {
+        if (restaurantes == null) {
+            return List.of();
+        }
+
+        return restaurantes.stream().map(rest -> {
+            Object nomeObj = rest.getOrDefault("nome", "Sem nome");
+            String nome = nomeObj == null ? "" : nomeObj.toString();
+            Object tipoRawObj = rest.getOrDefault("tipoRestaurante", rest.getOrDefault("tipoCozinha", "OUTRO"));
+            String tipoRaw = tipoRawObj == null ? "OUTRO" : tipoRawObj.toString();
+            Object tipoObj = rest.getOrDefault("tipoCozinha", tipoRaw);
+            String tipo = formatTipoCozinha(tipoObj);
+
+            // determine image path based on restaurant name or type (prefer local images)
+            String imagePath = "/img/tasca_local.png"; // default local image
+            String lower = nome.toLowerCase();
+            String lowerTipo = tipo.toLowerCase();
+            if (lower.contains("sushi") || lowerTipo.contains("japones") || lowerTipo.contains("sushi")) {
+                imagePath = "/img/sushi_local.png";
+            } else if (lower.contains("pizz") || lowerTipo.contains("italiano") || lowerTipo.contains("pizza") || lowerTipo.contains("pizzaria")) {
+                imagePath = "/img/italiano_local.jpg";
+            } else if (lower.contains("cafe") || lowerTipo.contains("caf")) {
+                imagePath = "/img/cafe_local.jpg";
+            } else if (lower.contains("tasca") || lowerTipo.contains("portugues") || lowerTipo.contains("portuguesa")) {
+                imagePath = "/img/tasca_local.png";
+            } else if (lower.contains("verde") || lowerTipo.contains("verde")) {
+                imagePath = "/img/economico.jpg"; // economical image as tasca verde
+            }
+
+            return Map.<String, Object>of(
+                    "id", rest.getOrDefault("id", 0),
+                    "nome", nome,
+                    "tipoRestaurante", tipoRaw,
+                    "tipoCozinha", tipo,
+                    "estado", rest.getOrDefault("estado", "DESCONHECIDO"),
+                    "numeroAvaliacoes", rest.getOrDefault("numeroAvaliacoes", 0),
+                    "morada", rest.getOrDefault("morada", Map.of()),
+                    "imagePath", imagePath
+            );
+        }).collect(Collectors.toList());
+    }
+
+    private String formatTipoCozinha(Object tipoObj) {
+        if (tipoObj == null) {
+            return "Outro";
+        }
+
+        return switch (tipoObj.toString().trim().toUpperCase()) {
+            case "PORTUGUES" -> "Portuguesa";
+            case "ITALIANO" -> "Italiana";
+            case "JAPONES" -> "Japonesa";
+            case "HAMBURGUERIA" -> "Hamburgueria";
+            case "VEGETARIANA" -> "Vegetariana";
+            case "CHINES" -> "Chinesa";
+            case "OUTRO" -> "Outro";
+            default -> tipoObj.toString();
+        };
+    }
+
+    private List<Map<String, Object>> sanitizeProdutos(List<Map<String, Object>> produtos) {
+        if (produtos == null) {
+            return List.of();
+        }
+
+        return produtos.stream().map(produto -> Map.<String, Object>of(
+                "id", produto.getOrDefault("id", 0),
+                "nome", produto.getOrDefault("nome", "Sem nome"),
+                "preco", toDouble(produto.get("preco")),
+                "categoria", produto.getOrDefault("categoria", "OUTRO"),
+                "disponivel", Boolean.TRUE.equals(produto.get("disponivel")),
+                "descricao", produto.getOrDefault("descricao", ""),
+                "alergenios", produto.getOrDefault("alergenios", "Nenhum indicado")
+        )).collect(Collectors.toList());
+    }
+
+    private String fetchRestaurantName(Long restauranteId) {
+        try {
+            String restauranteUrl = backendUrl + "/api/restaurantes/" + restauranteId;
+            Map<String, Object> restaurante = restTemplate.getForObject(restauranteUrl, Map.class);
+            if (restaurante == null) {
+                return "Restaurante #" + restauranteId;
+            }
+            Object nome = restaurante.get("nome");
+            return nome != null ? nome.toString() : "Restaurante #" + restauranteId;
+        } catch (Exception e) {
+            return "Restaurante #" + restauranteId;
+        }
+    }
+
+    private double toDouble(Object value) {
+        if (value instanceof Number number) {
+            return number.doubleValue();
+        }
+        if (value == null) {
+            return 0.0;
+        }
+        try {
+            return Double.parseDouble(value.toString());
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
 }
