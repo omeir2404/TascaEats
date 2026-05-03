@@ -725,7 +725,7 @@ public class NativeAppGUI extends Application {
         ObservableList<String> rNames = FXCollections.observableArrayList();
         restaurantes.forEach(r -> rNames.add(s(r, "nome")));
         ComboBox<String> restBox = new ComboBox<>(rNames);
-        if (ex != null)         restBox.setValue(s(ex, "restNome"));
+        if (ex != null)           restBox.setValue(s(ex, "restNome"));
         else if (preRest != null) restBox.setValue(s(preRest, "nome"));
         else restBox.getSelectionModel().selectFirst();
 

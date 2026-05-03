@@ -586,3 +586,20 @@ WHERE r.nif = '444555666'
                     AND p.restaurante_id = r.id);
 
 SELECT setval('utilizadores_seq', (SELECT MAX(id) FROM utilizadores), true);
+SELECT setval('morada_utilizador_seq', (SELECT MAX(id) FROM morada_utilizador), true);
+-- SELECT setval('catalogo_entregas_id_seq', (SELECT MAX(id) FROM catalogo_entregas), true);
+-- SELECT setval('avaliacao_id_seq', (SELECT MAX(id) FROM utilizadores), true);
+-- SELECT setval('avaliacao_id_seq', (SELECT MAX(id) FROM utilizadores), true);
+-- SELECT setval('avaliacao_id_seq', (SELECT MAX(id) FROM utilizadores), true);
+-- SELECT setval('avaliacao_id_seq', (SELECT MAX(id) FROM utilizadores), true);
+-- SELECT setval('avaliacao_id_seq', (SELECT MAX(id) FROM utilizadores), true);
+-- SELECT setval('avaliacao_id_seq', (SELECT MAX(id) FROM utilizadores), true);
+-- SELECT setval('avaliacao_id_seq', (SELECT MAX(id) FROM utilizadores), true);
+-- public | entregas_id_seq          | sequence | Utilizador
+-- public | menus_id_seq             | sequence | Utilizador
+-- public | morada_utilizador_id_seq | sequence | Utilizador
+-- public | morada_utilizador_seq    | sequence | Utilizador
+-- public | pagamentos_id_seq        | sequence | Utilizador
+-- public | pedidos_id_seq           | sequence | Utilizador
+-- public | produto_id_seq           | sequence | Utilizador
+-- public | restaurante_id_seq       | sequence | Utilizador
