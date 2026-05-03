@@ -70,11 +70,16 @@ public class LoginPane {
                     .filter(u -> email.equalsIgnoreCase(s(u, "email")))
                     .findFirst();
                 if (found.isPresent()) {
+                    String papel = s(found.get(), "papel");
+                    if ("CLIENT".equalsIgnoreCase(papel) || "CLIENTE".equalsIgnoreCase(papel)) {
+                        err(feedback, "✗ Acesso negado. A aplicação nativa é exclusiva para Staff.");
+                        return;
+                    }
                     state.currentUser = found.get();
                 } else {
                     // Authenticated but not in list — minimal fallback entry
                     state.currentUser = row("id", "?", "nome", email.split("@")[0],
-                        "email", email, "papel", "CLIENT", "ativo", "Sim", "password", "");
+                        "email", email, "papel", "ADMIN", "ativo", "Sim", "password", "");
                 }
                 ok(feedback, "✓ Login bem-sucedido.");
                 onLoginSuccess.run();

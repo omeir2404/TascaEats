@@ -11,6 +11,7 @@ package pt.ul.fc.css.tascaeats.controllers;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -64,6 +65,8 @@ public class UtilizadorController {
             return ResponseEntity.badRequest().body(error("Invalid registration data"));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(error("Utilizador already exists"));
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error("Utilizador registration conflict"));
         }
     }
 

@@ -63,7 +63,7 @@ public class UtilizadorApiClient {
 
     /**
      * POST /api/register
-     * tipo must be one of: "Cliente", "Admin", "Entregador"
+     * tipo must be one of: "client", "restaurant owner", "driver"
      */
     public RegistoResult registarUtilizador(String nome, String email, String password, String tipo) {
         try {
@@ -72,7 +72,7 @@ public class UtilizadorApiClient {
                 "name",     nome     != null ? nome.trim()     : "",
                 "email",    email    != null ? email.trim()    : "",
                 "password", password != null ? password.trim() : "",
-                "type",     tipo     != null ? tipo.trim()     : "Cliente"
+                "type",     tipo     != null ? tipo.trim()     : "client"
             );
             ResponseEntity<Map> resp = restTemplate.postForEntity(backendUrl + "/api/register", payload, Map.class);
             if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
@@ -84,8 +84,8 @@ public class UtilizadorApiClient {
                 return new RegistoResult(id, respEmail, respType, false, msg);
             }
             return new RegistoResult(null, email, tipo, false, "Resposta inesperada: " + resp.getStatusCode());
-        } catch (HttpClientErrorException e) {
-            return new RegistoResult(null, email, tipo, false, "Erro: " + e.getStatusCode() + " — " + e.getMessage());
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            return new RegistoResult(null, email, tipo, false, "Erro do Servidor: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
         } catch (RestClientException e) {
             return new RegistoResult((long)(System.nanoTime() % 1_000_000), email, tipo, true,
                 "Backend indisponível — registo em modo demo.");

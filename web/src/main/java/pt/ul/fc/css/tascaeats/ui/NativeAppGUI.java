@@ -27,7 +27,7 @@ public class NativeAppGUI extends Application {
     private Stage  mainStage;
     private VBox   contentArea;
     private Label  headerUserLabel;
-    private Button navRestBtn, navProdBtn, navOrderBtn, exitBtn;
+    private Button loginBtn, usersBtn, navRestBtn, navProdBtn, navOrderBtn, exitBtn;
 
     // ── Panes (created once, reused) ──────────────────────────────────────
     private UtilizadoresPane utilizadoresPane;
@@ -78,8 +78,8 @@ public class NativeAppGUI extends Application {
         exitBtn = new Button("Sair");
         exitBtn.setStyle("-fx-font-size: 11px; -fx-padding: 6 14; -fx-background-color: #c62828; -fx-text-fill: white;");
 
-        Button loginBtn  = navBtn("A – Login",          this::showLoginPane);
-        Button usersBtn  = navBtn("C/D – Utilizadores", this::showUsersPane);
+        loginBtn  = navBtn("A – Login",          this::showLoginPane);
+        usersBtn  = navBtn("C/D – Utilizadores", this::showUsersPane);
         navRestBtn  = navBtn("E/F – Restaurantes",  this::showRestaurantesPane);
         navProdBtn  = navBtn("G/H – Produtos",       () -> showProdutosPane(null));
         navOrderBtn = navBtn("K/L/M/N – Pedidos",    this::showOrdersPane);
@@ -93,8 +93,19 @@ public class NativeAppGUI extends Application {
 
     private void updateNavState() {
         boolean loggedIn = state.isLoggedIn();
+        loginBtn.setVisible(!loggedIn);
+        loginBtn.setManaged(!loggedIn);
+        usersBtn.setVisible(loggedIn);
+        usersBtn.setManaged(loggedIn);
+        usersBtn.setDisable(!loggedIn);
+        navRestBtn.setVisible(loggedIn);
+        navRestBtn.setManaged(loggedIn);
         navRestBtn.setDisable(!loggedIn);
+        navProdBtn.setVisible(loggedIn);
+        navProdBtn.setManaged(loggedIn);
         navProdBtn.setDisable(!loggedIn);
+        navOrderBtn.setVisible(loggedIn);
+        navOrderBtn.setManaged(loggedIn);
         navOrderBtn.setDisable(!loggedIn);
         exitBtn.setText(loggedIn ? "Logout" : "Sair");
         exitBtn.setOnAction(e -> {
@@ -113,24 +124,40 @@ public class NativeAppGUI extends Application {
 
     private void show(javafx.scene.Node node) { contentArea.getChildren().setAll(node); }
 
+    private boolean requireLogin() {
+        if (state.isLoggedIn()) return true;
+        headerUserLabel.setText("Não autenticado");
+        updateNavState();
+        showLoginPane();
+        return false;
+    }
+
     private void showLoginPane() {
         LoginPane pane = new LoginPane(state, mainStage,
             this::onLoginSuccess,
-            this::showUsersPane);
+            this::showRegisterPane);
+        show(pane.build());
+    }
+
+    private void showRegisterPane() {
+        RegisterPane pane = new RegisterPane(state, mainStage, this::showLoginPane);
         show(pane.build());
     }
 
     private void showUsersPane() {
+        if (!requireLogin()) return;
         utilizadoresPane = new UtilizadoresPane(state, mainStage);
         show(utilizadoresPane.build());
     }
 
     private void showRestaurantesPane() {
+        if (!requireLogin()) return;
         restaurantesPane = new RestaurantesPane(state, mainStage, this::showProdutosPane);
         show(restaurantesPane.build());
     }
 
     private void showProdutosPane(Map<String, Object> restFilter) {
+        if (!requireLogin()) return;
         // Ensure restaurantes are loaded before building the produtos pane
         if (state.restaurantes.isEmpty() && restaurantesPane != null) {
             restaurantesPane.syncRestaurantes(() -> buildAndShowProdutos(restFilter));
@@ -140,11 +167,13 @@ public class NativeAppGUI extends Application {
     }
 
     private void buildAndShowProdutos(Map<String, Object> restFilter) {
+        if (!requireLogin()) return;
         produtosPane = new ProdutosPane(state, mainStage, this::showRestaurantesPane);
         show(produtosPane.build(restFilter));
     }
 
     private void showOrdersPane() {
+        if (!requireLogin()) return;
         pedidosPane = new PedidosPane(state, mainStage);
         show(pedidosPane.build());
     }

@@ -150,9 +150,9 @@ public class UtilizadoresPane {
 
     private String mapPapelToTipo(String papel) {
         return switch (papel) {
-            case "ADMIN"   -> "Admin";
-            case "COURIER" -> "Entregador";
-            default        -> "Cliente";
+            case "ADMIN"   -> "restaurant owner";
+            case "COURIER" -> "driver";
+            default        -> "client";
         };
     }
 }
