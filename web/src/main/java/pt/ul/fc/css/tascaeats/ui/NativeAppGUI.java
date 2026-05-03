@@ -870,71 +870,67 @@ public class NativeAppGUI extends Application {
         } catch (Exception ex) { warn("✗ Erro ao atualizar estado: " + ex.getMessage()); }
     }
 
-        List<Map<String, Object>> clientes = mockUsers.stream()
-            .filter(u -> "CLIENT".equals(u.get("papel"))).toList();
-        ComboBox<String> clienteBox = new ComboBox<>(FXCollections.observableArrayList(
-            clientes.stream().map(u -> u.get("nome").toString()).toList()));
-        clienteBox.getSelectionModel().selectFirst();
-
-        List<Map<String, Object>> abertos = mockRestaurantes.stream()
-            .filter(r -> "ABERTO".equals(r.get("estado"))).toList();
-        ComboBox<String> restBox = new ComboBox<>(FXCollections.observableArrayList(
-            abertos.stream().map(r -> r.get("nome").toString()).toList()));
-        restBox.getSelectionModel().selectFirst();
-
-        ListView<String> prodList = new ListView<>();
-        prodList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        prodList.setPrefHeight(130);
-
-        Runnable refreshProds = () -> {
-            String rn = restBox.getValue();
-            prodList.setItems(FXCollections.observableArrayList(
-                mockProdutos.stream()
-                    .filter(p -> rn != null && rn.equals(p.get("restNome")) && "Sim".equals(p.get("disponivel")))
-                    .map(p -> p.get("nome") + " — " + p.get("preco") + "€")
-                    .toList()));
-        };
-        restBox.setOnAction(e -> refreshProds.run());
-        refreshProds.run();
-
-        TextField moradaF = new TextField("Rua Exemplo, 1, Lisboa");
-        Label prodHint = new Label("(Ctrl+Click para selecionar vários)");
-        prodHint.setStyle("-fx-font-size: 10px; -fx-text-fill: #888;");
-
-        GridPane g = formGrid();
-        g.add(lbl("Cliente:"),     0,0); g.add(clienteBox, 1,0);
-        g.add(lbl("Restaurante:"), 0,1); g.add(restBox,    1,1);
-        g.add(lbl("Produtos:"),    0,2); g.add(prodList,   1,2);
-        g.add(new Label(),         0,3); g.add(prodHint,   1,3);
-        g.add(lbl("Morada:"),      0,4); g.add(moradaF,    1,4);
-        dlg.getDialogPane().setContent(g);
-        dlg.getDialogPane().setPrefWidth(480);
-        dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        dlg.setResultConverter(b -> {
-            if (b != ButtonType.OK) return null;
-            List<String> selecionados = prodList.getSelectionModel().getSelectedItems();
-            double total = selecionados.stream().mapToDouble(it -> {
-                try { return Double.parseDouble(it.split(" — ")[1].replace("€","")); }
-                catch (Exception ex) { return 0.0; }
-            }).sum();
-            String cNome = clienteBox.getValue();
-            int cId = clientes.stream().filter(u -> u.get("nome").equals(cNome))
-                .findFirst().map(u -> (Integer)u.get("id")).orElse(-1);
-            String rNome = restBox.getValue();
-            Object rId = abertos.stream().filter(r -> r.get("nome").equals(rNome))
-                .findFirst().map(r -> r.get("id")).orElse(-1);
-            return row("clienteNome", cNome, "clienteId", cId,
-                "restNome", rNome, "restId", rId,
-                "estado", "CRIADO", "total", String.format("%.2f", total),
-                "pagamento", "-", "entregador", "-", "morada", moradaF.getText());
+    private void syncPedidos(Runnable afterUpdate) {
+        bg(() -> {
+            try {
+                ResponseEntity<List<Map<String, Object>>> resp = rest.exchange(
+                    BACKEND + "/pedidos", HttpMethod.GET, null,
+                    new ParameterizedTypeReference<>() {});
+                return resp.getBody() != null ? resp.getBody() : List.of();
+            } catch (Exception e) { return List.of(); }
+        }, result -> {
+            List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) result;
+            pedidos.setAll(typed.stream().map(this::normalizePedido).toList());
+            if (afterUpdate != null) afterUpdate.run();
+            setStatus(orderStatusLabel, "✓ " + pedidos.size() + " pedidos carregados.");
         });
+    }
 
-        Map<String, Object> result = dlg.showAndWait().orElse(null);
-        if (result != null && "0.00".equals(result.get("total"))) {
-            warn("Selecione pelo menos um produto."); return null;
+    private Map<String, Object> normalizePedido(Map<String, Object> p) {
+        // Resolve restaurant name
+        Long restId = null;
+        Object rid = p.get("restauranteId");
+        if (rid == null) {
+            Object ids = p.get("restaurantesIds");
+            if (ids instanceof List<?> list && !list.isEmpty()) rid = list.get(0);
         }
-        return result;
+        if (rid != null) restId = toLong(rid);
+        final Long fRestId = restId;
+        String restNome = restaurantes.stream()
+            .filter(r -> fRestId != null && fRestId.equals(toLong(r.get("id"))))
+            .findFirst().map(r -> s(r, "nome")).orElse("Restaurante #" + fRestId);
+
+        // Resolve client name
+        Object cid = p.get("clienteId");
+        String clienteNome = users.stream()
+            .filter(u -> cid != null && cid.toString().equals(Objects.toString(u.get("id"))))
+            .findFirst().map(u -> s(u, "nome")).orElse(Objects.toString(cid, "-"));
+
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("id",          p.getOrDefault("id", "?"));
+        m.put("clienteNome", clienteNome);
+        m.put("clienteId",   cid);
+        m.put("restNome",    restNome);
+        m.put("restId",      fRestId);
+        m.put("estado",      p.getOrDefault("estado", "-"));
+        m.put("total",       p.getOrDefault("valorTotal", p.getOrDefault("total", "0.00")));
+        m.put("pagamento",   p.getOrDefault("tipoPagamento", p.getOrDefault("pagamento", "-")));
+        m.put("entregador",  p.getOrDefault("entregador", "-"));
+        return m;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Background task helper
+    // ─────────────────────────────────────────────────────────────────────
+    private <T> void bg(java.util.concurrent.Callable<T> work, java.util.function.Consumer<T> onDone) {
+        Task<T> task = new Task<>() {
+            @Override protected T call() throws Exception { return work.call(); }
+        };
+        task.setOnSucceeded(ev -> onDone.accept(task.getValue()));
+        task.setOnFailed(ev -> System.err.println("BG task failed: " + task.getException()));
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -946,6 +942,16 @@ public class NativeAppGUI extends Application {
         Label l = new Label(t);
         l.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #222;");
         return l;
+    }
+
+    private Label statusLabel(String text) {
+        Label l = new Label(text);
+        l.setStyle("-fx-text-fill: #888; -fx-font-size: 10px;");
+        return l;
+    }
+
+    private void setStatus(Label l, String text) {
+        if (l != null) Platform.runLater(() -> l.setText(text));
     }
 
     private Button primaryButton(String t) {
