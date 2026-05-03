@@ -119,6 +119,13 @@ public class WebUtilizadorController {
             @RequestParam String email, 
             @RequestParam String password, 
             @RequestParam String papel,
+            @RequestParam(required = false) String rua,
+            @RequestParam(required = false) Integer numero,
+            @RequestParam(required = false) String complemento,
+            @RequestParam(required = false) String codigoPostal,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String distrito,
+            @RequestParam(required = false) String pais,
             Model model) {
         try {
             Map<String, Object> payload = new HashMap<>();
@@ -127,7 +134,7 @@ public class WebUtilizadorController {
             payload.put("password", password);
             payload.put("type", mapPapelToBackendType(papel));
 
-            Map<String, Object> address = buildDefaultAddressIfClient(papel);
+            Map<String, Object> address = buildOptionalAddressForClient(papel, rua, numero, complemento, codigoPostal, cidade, distrito, pais);
             if (address != null) {
                 payload.put("address", address);
             }
@@ -271,19 +278,53 @@ public class WebUtilizadorController {
         };
     }
 
-    private Map<String, Object> buildDefaultAddressIfClient(String papel) {
+    private Map<String, Object> buildOptionalAddressForClient(
+            String papel,
+            String rua,
+            Integer numero,
+            String complemento,
+            String codigoPostal,
+            String cidade,
+            String distrito,
+            String pais) {
         if (!"CLIENT".equalsIgnoreCase(papel)) {
             return null;
         }
 
-        return Map.of(
-                "rua", "Rua Principal",
-                "numero", 1,
-                "complemento", "",
-                "codigoPostal", "1000-001",
-                "cidade", "Lisboa",
-                "distrito", "Lisboa",
-                "pais", "Portugal"
-        );
+        boolean hasAnyField = hasText(rua)
+                || numero != null
+                || hasText(complemento)
+                || hasText(codigoPostal)
+                || hasText(cidade)
+                || hasText(distrito)
+                || hasText(pais);
+
+        if (!hasAnyField) {
+            return null;
+        }
+
+        if (!hasText(rua)
+                || numero == null
+                || numero <= 0
+                || !hasText(codigoPostal)
+                || !hasText(cidade)
+                || !hasText(distrito)
+                || !hasText(pais)) {
+            throw new IllegalArgumentException("If you provide an address, all mandatory address fields must be filled.");
+        }
+
+        Map<String, Object> address = new HashMap<>();
+        address.put("rua", rua.trim());
+        address.put("numero", numero);
+        address.put("complemento", hasText(complemento) ? complemento.trim() : "");
+        address.put("codigoPostal", codigoPostal.trim());
+        address.put("cidade", cidade.trim());
+        address.put("distrito", distrito.trim());
+        address.put("pais", pais.trim());
+        return address;
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 }

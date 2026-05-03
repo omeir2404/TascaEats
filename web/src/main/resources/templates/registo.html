@@ -52,6 +52,43 @@
                         <input type="password" id="password" name="password" required placeholder="Define uma password">
                     </div>
 
+                    <div id="clientAddressFields">
+                        <div class="auth-form-field">
+                            <label for="rua">Morada (opcional) - Rua</label>
+                            <input type="text" id="rua" name="rua" placeholder="Ex: Rua do Sol">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="numero">Numero</label>
+                            <input type="number" id="numero" name="numero" min="1" placeholder="Ex: 10">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="complemento">Complemento (opcional)</label>
+                            <input type="text" id="complemento" name="complemento" placeholder="Ex: 2o Esq">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="codigoPostal">Codigo Postal</label>
+                            <input type="text" id="codigoPostal" name="codigoPostal" placeholder="Ex: 1000-001">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" id="cidade" name="cidade" placeholder="Ex: Lisboa">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="distrito">Distrito</label>
+                            <input type="text" id="distrito" name="distrito" placeholder="Ex: Lisboa">
+                        </div>
+
+                        <div class="auth-form-field">
+                            <label for="pais">Pais</label>
+                            <input type="text" id="pais" name="pais" placeholder="Ex: Portugal">
+                        </div>
+                    </div>
+
                     <button type="submit">Criar conta</button>
                 </form>
 
@@ -63,5 +100,26 @@
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const papelSelect = document.getElementById("papel");
+            const addressContainer = document.getElementById("clientAddressFields");
+
+            function toggleAddressFields() {
+                const isClient = papelSelect.value === "CLIENT";
+                addressContainer.style.display = isClient ? "block" : "none";
+
+                addressContainer.querySelectorAll("input").forEach(function(input) {
+                    if (!isClient) {
+                        input.value = "";
+                    }
+                });
+            }
+
+            papelSelect.addEventListener("change", toggleAddressFields);
+            toggleAddressFields();
+        });
+    </script>
 </body>
 </html>

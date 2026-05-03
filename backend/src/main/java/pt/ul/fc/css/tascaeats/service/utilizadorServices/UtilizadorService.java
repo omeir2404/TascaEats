@@ -141,9 +141,6 @@ public class UtilizadorService {
         if (dto.getType() == null || dto.getType().isBlank()) {
             throw new IllegalArgumentException("Type is required");
         }
-        if ("client".equalsIgnoreCase(dto.getType()) && (dto.getAddress() == null)) {
-            throw new IllegalArgumentException("Morada is required for client Utilizadors");
-        }
         if (dto.getAddress() != null && dto.getAddress().getCodigoPostal() != null
                 && dto.getAddress().getCodigoPostal().chars().filter(ch -> ch == '-').count() != 1) {
             throw new IllegalArgumentException("Codigo Postal so pode ter 1 '-' ");

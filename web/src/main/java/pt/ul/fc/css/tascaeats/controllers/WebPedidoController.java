@@ -111,10 +111,14 @@ public class WebPedidoController {
 
     @GetMapping("/checkout")
     public String mostrarCheckout(Model model, HttpSession session) {
+        Long clienteId = getLoggedClientId(session);
         List<Map<String, Object>> itensCarrinho = getCarrinho(session);
         double total = itensCarrinho.stream()
                 .mapToDouble(item -> toDouble(item.get("preco")) * toInt(item.get("quantidade")))
                 .sum();
+
+        Map<String, Object> defaultAddress = getClientDeliveryAddress(clienteId);
+        boolean hasDefaultAddress = defaultAddress != null;
 
         Object checkoutError = session.getAttribute("checkoutError");
         if (checkoutError != null) {
@@ -124,6 +128,8 @@ public class WebPedidoController {
 
         model.addAttribute("itens", itensCarrinho);
         model.addAttribute("total", Math.round(total * 100.0) / 100.0);
+        model.addAttribute("defaultAddress", defaultAddress);
+        model.addAttribute("hasDefaultAddress", hasDefaultAddress);
         return "checkout";
     }
 
@@ -157,10 +163,18 @@ public class WebPedidoController {
             @RequestParam String metodoPagamento,
             @RequestParam(required = false) String telemovel,
             @RequestParam(required = false) String bandeiraCartao,
+            @RequestParam(required = false) String rua,
+            @RequestParam(required = false) Integer numero,
+            @RequestParam(required = false) String complemento,
+            @RequestParam(required = false) String codigoPostal,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String distrito,
+            @RequestParam(required = false) String pais,
             HttpSession session) {
 
-        Long clienteId = getLoggedUserId(session);
+        Long clienteId = getLoggedClientId(session);
         if (clienteId == null) {
+            session.setAttribute("checkoutError", "Apenas clientes autenticados podem finalizar compras.");
             return "redirect:/login";
         }
 
@@ -183,9 +197,16 @@ public class WebPedidoController {
                 return itemPedido;
             }).toList();
 
+            Map<String, Object> moradaNova = resolveCheckoutAddress(clienteId, rua, numero, complemento, codigoPostal, cidade, distrito, pais);
+            if (moradaNova == null) {
+                session.setAttribute("checkoutError", "Tem de indicar uma morada para finalizar a compra.");
+                return "redirect:/checkout";
+            }
+
             Map<String, Object> pedidoPayload = new HashMap<>();
             pedidoPayload.put("clienteId", clienteId);
             pedidoPayload.put("itens", itensPedido);
+            pedidoPayload.put("moradaNova", moradaNova);
 
             restTemplate.postForEntity(backendUrl + "/pedidos", pedidoPayload, Object.class);
 
@@ -214,7 +235,7 @@ public class WebPedidoController {
 
     @GetMapping("/pedidos/{id}")
     public String verPedido(@PathVariable Long id, Model model, HttpSession session) {
-        Long clienteId = getLoggedUserId(session);
+        Long clienteId = getLoggedClientId(session);
         if (clienteId == null) {
             return "redirect:/login";
         }
@@ -261,7 +282,7 @@ public class WebPedidoController {
 
     @GetMapping("/meus-pedidos")
     public String listarMeusPedidos(Model model, HttpSession session) {
-        Long clienteId = getLoggedUserId(session);
+        Long clienteId = getLoggedClientId(session);
         if (clienteId == null) {
             return "redirect:/login";
         }
@@ -282,15 +303,162 @@ public class WebPedidoController {
         return new java.util.ArrayList<>();
     }
 
-    private Long getLoggedUserId(HttpSession session) {
+    private Long getLoggedClientId(HttpSession session) {
         Object loggedUserObj = session.getAttribute(LOGGED_USER_SESSION_KEY);
         if (loggedUserObj instanceof Map<?, ?> userMap) {
+            if (!isClientRole(userMap.get("papel"))) {
+                return null;
+            }
+
             Object id = userMap.get("id");
             if (id != null) {
                 return toLong(id);
             }
+
+            Object email = userMap.get("email");
+            if (email != null) {
+                Long resolvedId = findClientIdByEmail(String.valueOf(email));
+                if (resolvedId != null) {
+                    return resolvedId;
+                }
+            }
         }
         return null;
+    }
+
+    private Long findClientIdByEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+
+        try {
+            List<Map<String, Object>> users = restTemplate.getForObject(backendUrl + "/api/Utilizadors", List.class);
+            if (users == null) {
+                return null;
+            }
+
+            return users.stream()
+                    .filter(user -> email.equalsIgnoreCase(String.valueOf(user.get("email"))))
+                    .filter(user -> isClientType(user.get("type")))
+                    .map(user -> user.get("id"))
+                    .filter(java.util.Objects::nonNull)
+                    .map(this::toLong)
+                    .findFirst()
+                    .orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private boolean isClientRole(Object papel) {
+        if (papel == null) {
+            return true;
+        }
+        return isClientType(papel);
+    }
+
+    private boolean isClientType(Object type) {
+        if (type == null) {
+            return false;
+        }
+
+        String normalized = String.valueOf(type).trim().toLowerCase();
+        return normalized.contains("client") || normalized.contains("cliente");
+    }
+
+    private Map<String, Object> getClientDeliveryAddress(Long clienteId) {
+        if (clienteId == null) {
+            return null;
+        }
+
+        try {
+            Map<String, Object> user = restTemplate.getForObject(backendUrl + "/api/Utilizadors/" + clienteId, Map.class);
+            if (user == null) {
+                return null;
+            }
+
+            Object addressObj = user.get("address");
+            if (!(addressObj instanceof Map<?, ?> addressRaw)) {
+                return null;
+            }
+
+            String rua = valueAsString(addressRaw.get("rua"));
+            String cidade = valueAsString(addressRaw.get("cidade"));
+            String distrito = valueAsString(addressRaw.get("distrito"));
+            String pais = valueAsString(addressRaw.get("pais"));
+            String codigoPostal = valueAsString(addressRaw.get("codigoPostal"));
+            Integer numero = toInt(addressRaw.get("numero"));
+
+            if (rua == null || cidade == null || distrito == null || pais == null || codigoPostal == null || numero == null || numero <= 0) {
+                return null;
+            }
+
+            Map<String, Object> moradaNova = new HashMap<>();
+            moradaNova.put("rua", rua);
+            moradaNova.put("numero", numero);
+            moradaNova.put("complemento", valueAsString(addressRaw.get("complemento")));
+            moradaNova.put("pais", pais);
+            moradaNova.put("distrito", distrito);
+            moradaNova.put("cidade", cidade);
+            moradaNova.put("codigoPostal", codigoPostal);
+            return moradaNova;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String valueAsString(Object value) {
+        if (value == null) {
+            return null;
+        }
+        String text = String.valueOf(value).trim();
+        return text.isEmpty() ? null : text;
+    }
+
+    private Map<String, Object> resolveCheckoutAddress(
+            Long clienteId,
+            String rua,
+            Integer numero,
+            String complemento,
+            String codigoPostal,
+            String cidade,
+            String distrito,
+            String pais) {
+        boolean hasAnyManualField = hasText(rua)
+                || numero != null
+                || hasText(complemento)
+                || hasText(codigoPostal)
+                || hasText(cidade)
+                || hasText(distrito)
+                || hasText(pais);
+
+        if (hasAnyManualField) {
+            if (!hasText(rua)
+                    || numero == null
+                    || numero <= 0
+                    || !hasText(codigoPostal)
+                    || !hasText(cidade)
+                    || !hasText(distrito)
+                    || !hasText(pais)) {
+                return null;
+            }
+
+            Map<String, Object> moradaNova = new HashMap<>();
+            moradaNova.put("rua", rua.trim());
+            moradaNova.put("numero", numero);
+            moradaNova.put("complemento", hasText(complemento) ? complemento.trim() : "");
+            moradaNova.put("codigoPostal", codigoPostal.trim());
+            moradaNova.put("cidade", cidade.trim());
+            moradaNova.put("distrito", distrito.trim());
+            moradaNova.put("pais", pais.trim());
+            return moradaNova;
+        }
+
+        return getClientDeliveryAddress(clienteId);
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 
     private List<Map<String, Object>> getPedidosDoCliente(Long clienteId) {

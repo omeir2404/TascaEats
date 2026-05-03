@@ -220,6 +220,22 @@
             padding: 11px 15px;
             font-size: 15px;
         }
+
+        .checkout-address-status {
+            margin: 8px 0 14px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border: 1px solid #dbe4e7;
+            background: #f6fafb;
+            color: #1f4b57;
+        }
+
+        .checkout-address-status--warning {
+            border-color: #f0d4a6;
+            background: #fff7e8;
+            color: #8a5a11;
+        }
     </style>
 </head>
 <body class="checkout-page">
@@ -269,6 +285,63 @@
             <hr class="checkout-divider">
 
             <form th:action="@{/checkout/processar}" method="POST" id="checkoutForm">
+                <h4 class="checkout-form-title">Morada de entrega</h4>
+
+                <div th:if="${hasDefaultAddress}" class="payment-method" style="cursor: default;">
+                    <label style="cursor: default;">
+                        <span>Morada predefinida</span>
+                    </label>
+                    <div style="margin-top: 8px; color: #667085; font-size: 0.92rem;" th:text="${defaultAddress.rua + ', ' + defaultAddress.numero + ', ' + defaultAddress.codigoPostal + ' ' + defaultAddress.cidade}">
+                        Rua Exemplo, 1, 1000-001 Lisboa
+                    </div>
+                    <div style="margin-top: 8px; color: #667085; font-size: 0.85rem;">
+                        Pode manter esta morada ou preencher uma nova abaixo.
+                    </div>
+                </div>
+
+                <div class="payment-method" style="cursor: default;">
+                    <label style="cursor: default;">
+                        <span>Nova morada (preencha se quiser substituir)</span>
+                    </label>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label for="rua">Rua</label>
+                        <input type="text" id="rua" name="rua" th:required="${!hasDefaultAddress}" placeholder="Ex: Rua do Sol">
+                    </div>
+                    <div class="form-group">
+                        <label for="numero">Numero</label>
+                        <input type="number" id="numero" name="numero" min="1" th:required="${!hasDefaultAddress}" placeholder="Ex: 10">
+                    </div>
+                    <div class="form-group">
+                        <label for="complemento">Complemento (opcional)</label>
+                        <input type="text" id="complemento" name="complemento" placeholder="Ex: 2o Esq">
+                    </div>
+                    <div class="form-group">
+                        <label for="codigoPostal">Codigo Postal</label>
+                        <input type="text" id="codigoPostal" name="codigoPostal" th:required="${!hasDefaultAddress}" placeholder="Ex: 1000-001">
+                    </div>
+                    <div class="form-group">
+                        <label for="cidade">Cidade</label>
+                        <input type="text" id="cidade" name="cidade" th:required="${!hasDefaultAddress}" placeholder="Ex: Lisboa">
+                    </div>
+                    <div class="form-group">
+                        <label for="distrito">Distrito</label>
+                        <input type="text" id="distrito" name="distrito" th:required="${!hasDefaultAddress}" placeholder="Ex: Lisboa">
+                    </div>
+                    <div class="form-group">
+                        <label for="pais">Pais</label>
+                        <input type="text" id="pais" name="pais" th:required="${!hasDefaultAddress}" placeholder="Ex: Portugal">
+                    </div>
+                </div>
+
+                <div id="addressStatus"
+                     class="checkout-address-status"
+                     th:data-has-default="${hasDefaultAddress ? 'true' : 'false'}">
+                    <span id="addressStatusText"
+                          th:text="${hasDefaultAddress ? 'A usar morada predefinida.' : 'Preencha a morada de entrega para continuar.'}">
+                        A usar morada predefinida.
+                    </span>
+                </div>
+
                 <h4 class="checkout-form-title">Selecione método de pagamento</h4>
 
                 <div class="payment-method" data-payment-option="MBWAY">
@@ -349,6 +422,58 @@
                     togglePaymentDetails();
                 });
             });
+
+            const addressStatus = document.getElementById('addressStatus');
+            const addressStatusText = document.getElementById('addressStatusText');
+            const ruaInput = document.getElementById('rua');
+            const numeroInput = document.getElementById('numero');
+            const complementoInput = document.getElementById('complemento');
+            const codigoPostalInput = document.getElementById('codigoPostal');
+            const cidadeInput = document.getElementById('cidade');
+            const distritoInput = document.getElementById('distrito');
+            const paisInput = document.getElementById('pais');
+
+            function hasText(input) {
+                return !!input && input.value && input.value.trim().length > 0;
+            }
+
+            function updateAddressStatus() {
+                if (!addressStatus || !addressStatusText) {
+                    return;
+                }
+
+                const hasDefault = addressStatus.dataset.hasDefault === 'true';
+                const hasManualAddress = hasText(ruaInput)
+                    || hasText(numeroInput)
+                    || hasText(complementoInput)
+                    || hasText(codigoPostalInput)
+                    || hasText(cidadeInput)
+                    || hasText(distritoInput)
+                    || hasText(paisInput);
+
+                if (hasManualAddress) {
+                    addressStatusText.textContent = 'Vai ser usada a nova morada preenchida.';
+                    addressStatus.classList.remove('checkout-address-status--warning');
+                    return;
+                }
+
+                if (hasDefault) {
+                    addressStatusText.textContent = 'A usar morada predefinida.';
+                    addressStatus.classList.remove('checkout-address-status--warning');
+                    return;
+                }
+
+                addressStatusText.textContent = 'Preencha a morada de entrega para continuar.';
+                addressStatus.classList.add('checkout-address-status--warning');
+            }
+
+            [ruaInput, numeroInput, complementoInput, codigoPostalInput, cidadeInput, distritoInput, paisInput]
+                .filter(Boolean)
+                .forEach(function(input) {
+                    input.addEventListener('input', updateAddressStatus);
+                });
+
+            updateAddressStatus();
         });
     </script>
 </body>
