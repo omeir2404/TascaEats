@@ -66,13 +66,7 @@ public class PedidoService {
             throw new IllegalArgumentException("Apenas uma das opcoes deve ser fornecida: moradaId OU moradaNova.");
         }
 
-        if (criarPedidoDto.getMoradaId() != null && clienteOptional.isEmpty()) {
-            throw new IllegalArgumentException("Cliente nao encontrado: " + criarPedidoDto.getClienteId());
-        }
-
         if (criarPedidoDto.getMoradaId() != null) {
-            Cliente cliente = clienteOptional.orElseThrow(() ->
-                new IllegalArgumentException("Cliente nao encontrado: " + criarPedidoDto.getClienteId()));
             boolean moradaValida = cliente.getAddresses().stream()
                 .anyMatch(m -> m.getId().equals(criarPedidoDto.getMoradaId()));
             if (!moradaValida) {
@@ -82,10 +76,8 @@ public class PedidoService {
 
         if (criarPedidoDto.getMoradaNova() != null) {
             Morada nova = novaMoradaDeDTO(criarPedidoDto.getMoradaNova());
-            clienteOptional.ifPresent(cliente -> {
-                cliente.addAdresses(nova);
-                utilizadorRepository.save(cliente);
-            });
+            cliente.addAdresses(nova);
+            utilizadorRepository.save(cliente);
         }
 
         double valorTotal = 0;
@@ -119,16 +111,6 @@ public class PedidoService {
 
                 restaurante.validarDisponibilidadeParaPedido();
                 restaurantesValidados.add(item.getRestauranteId());
-            }
-
-            Produto produto = produtoRepository.findById(item.getProdutoId())
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + item.getProdutoId()));
-
-            produto.validarDisponibilidadeParaPedido();
-
-            Long produtoRestauranteId = produto.getRestaurante() != null ? produto.getRestaurante().getId() : null;
-            if (produtoRestauranteId != null && !produtoRestauranteId.equals(item.getRestauranteId())) {
-                throw new IllegalArgumentException("O produto " + item.getProdutoId() + " não pertence ao restaurante " + item.getRestauranteId());
             }
 
             valorTotal += item.getQuantidade() * produto.getPreco();
