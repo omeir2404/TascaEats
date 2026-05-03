@@ -43,44 +43,49 @@ public class PedidoService {
 
     public void criarPedido(CriarPedidoDTO criarPedidoDto){
         if (criarPedidoDto == null) {
-            throw new IllegalArgumentException("Pedido inválido.");
+            throw new IllegalArgumentException("Pedido invalido.");
         }
 
         if (criarPedidoDto.getClienteId() == null || criarPedidoDto.getClienteId() <= 0) {
-            throw new IllegalArgumentException("Cliente Id inválido.");
+            throw new IllegalArgumentException("Cliente Id invalido.");
         }
 
         if (criarPedidoDto.getItens() == null || criarPedidoDto.getItens().isEmpty()) {
             throw new IllegalArgumentException("O pedido deve conter pelo menos um item.");
         }
 
-        var utilizador = utilizadorRepository.findById(criarPedidoDto.getClienteId())
-            .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + criarPedidoDto.getClienteId()));
-        if (!(utilizador instanceof Cliente)) {
-            throw new IllegalArgumentException("Apenas clientes podem criar pedidos.");
-        }
-        Cliente cliente = (Cliente) utilizador;
+        Optional<Cliente> clienteOptional = utilizadorRepository.findById(criarPedidoDto.getClienteId())
+            .filter(Cliente.class::isInstance)
+            .map(Cliente.class::cast);
 
         if (criarPedidoDto.getMoradaId() == null && criarPedidoDto.getMoradaNova() == null) {
             throw new IllegalArgumentException("Deve ser fornecida uma morada de entrega (ID de morada existente ou dados de nova morada).");
         }
 
         if (criarPedidoDto.getMoradaId() != null && criarPedidoDto.getMoradaNova() != null) {
-            throw new IllegalArgumentException("Apenas uma das opções deve ser fornecida: moradaId OU moradaNova.");
+            throw new IllegalArgumentException("Apenas uma das opcoes deve ser fornecida: moradaId OU moradaNova.");
+        }
+
+        if (criarPedidoDto.getMoradaId() != null && clienteOptional.isEmpty()) {
+            throw new IllegalArgumentException("Cliente nao encontrado: " + criarPedidoDto.getClienteId());
         }
 
         if (criarPedidoDto.getMoradaId() != null) {
+            Cliente cliente = clienteOptional.orElseThrow(() ->
+                new IllegalArgumentException("Cliente nao encontrado: " + criarPedidoDto.getClienteId()));
             boolean moradaValida = cliente.getAddresses().stream()
                 .anyMatch(m -> m.getId().equals(criarPedidoDto.getMoradaId()));
             if (!moradaValida) {
-                throw new IllegalArgumentException("Morada não encontrada ou não pertence ao cliente: " + criarPedidoDto.getMoradaId());
+                throw new IllegalArgumentException("Morada nao encontrada ou nao pertence ao cliente: " + criarPedidoDto.getMoradaId());
             }
         }
 
         if (criarPedidoDto.getMoradaNova() != null) {
             Morada nova = novaMoradaDeDTO(criarPedidoDto.getMoradaNova());
-            cliente.addAdresses(nova);
-            utilizadorRepository.save(cliente);
+            clienteOptional.ifPresent(cliente -> {
+                cliente.addAdresses(nova);
+                utilizadorRepository.save(cliente);
+            });
         }
 
         double valorTotal = 0;
@@ -88,29 +93,29 @@ public class PedidoService {
 
         for (ItemPedidoDTO item : criarPedidoDto.getItens()) {
             if (item.getProdutoId() == null || item.getProdutoId() <= 0) {
-                throw new IllegalArgumentException("Produto Id inválido no item.");
+                throw new IllegalArgumentException("Produto Id invalido no item.");
             }
 
             if (item.getRestauranteId() == null || item.getRestauranteId() <= 0) {
-                throw new IllegalArgumentException("Restaurante Id inválido no item.");
+                throw new IllegalArgumentException("Restaurante Id invalido no item.");
             }
 
             if (item.getQuantidade() == null || item.getQuantidade() <= 0) {
-                throw new IllegalArgumentException("Quantidade inválida no item: deve ser maior que 0.");
+                throw new IllegalArgumentException("Quantidade invalida no item: deve ser maior que 0.");
             }
 
             Produto produto = produtoRepository.findById(item.getProdutoId())
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + item.getProdutoId()));
+                .orElseThrow(() -> new IllegalArgumentException("Produto nao encontrado: " + item.getProdutoId()));
 
             produto.validarDisponibilidadeParaPedido();
 
             if (produto.getRestaurante() == null || !produto.getRestaurante().getId().equals(item.getRestauranteId())) {
-                throw new IllegalArgumentException("O produto " + item.getProdutoId() + " não pertence ao restaurante " + item.getRestauranteId());
+                throw new IllegalArgumentException("O produto " + item.getProdutoId() + " nao pertence ao restaurante " + item.getRestauranteId());
             }
 
             if (!restaurantesValidados.contains(item.getRestauranteId())) {
                 Restaurante restaurante = restauranteRepository.findById(item.getRestauranteId())
-                    .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + item.getRestauranteId()));
+                    .orElseThrow(() -> new IllegalArgumentException("Restaurante nao encontrado: " + item.getRestauranteId()));
 
                 restaurante.validarDisponibilidadeParaPedido();
                 restaurantesValidados.add(item.getRestauranteId());
@@ -133,12 +138,12 @@ public class PedidoService {
 
     public void cancelarPedido(Long pedidoId){
         if (pedidoId == null) {
-            throw new IllegalArgumentException("ID do pedido inválido.");
+            throw new IllegalArgumentException("ID do pedido invalido.");
         }
 
         Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
         if (pedidoOptional.isEmpty()) {
-            throw new IllegalArgumentException("Pedido não encontrado: " + pedidoId);
+            throw new IllegalArgumentException("Pedido nao encontrado: " + pedidoId);
         }
         Pedido pedido = pedidoOptional.get();
         if(pedido.getEstado() == EstadoPedido.CRIADO || pedido.getEstado() == EstadoPedido.PAGO){
@@ -146,7 +151,7 @@ public class PedidoService {
             pedidoRepository.save(pedido);
         }
         else{
-            throw new IllegalStateException("Pedido no estado " + pedido.getEstado() + " não pode ser cancelado.");
+            throw new IllegalStateException("Pedido no estado " + pedido.getEstado() + " nao pode ser cancelado.");
         }
     }
 
@@ -168,35 +173,35 @@ public class PedidoService {
 
     private Morada novaMoradaDeDTO(pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO dto) {
         if (dto == null) {
-            throw new IllegalArgumentException("A morada é obrigatória.");
+            throw new IllegalArgumentException("A morada e obrigatoria.");
         }
 
         String rua = dto.getRua();
         if (rua == null || rua.isBlank()) {
-            throw new IllegalArgumentException("A rua da morada é obrigatória.");
+            throw new IllegalArgumentException("A rua da morada e obrigatoria.");
         }
 
         Integer numero = dto.getNumero();
         String complemento = dto.getComplemento() != null ? dto.getComplemento().trim() : null;
         String pais = dto.getPais();
         if (pais == null || pais.isBlank()) {
-            throw new IllegalArgumentException("O país é obrigatório.");
+            throw new IllegalArgumentException("O pais e obrigatorio.");
         }
         String distrito = dto.getDistrito();
         if (distrito == null || distrito.isBlank()) {
-            throw new IllegalArgumentException("O distrito é obrigatório.");
+            throw new IllegalArgumentException("O distrito e obrigatorio.");
         }
         String cidade = dto.getCidade();
         if (cidade == null || cidade.isBlank()) {
-            throw new IllegalArgumentException("A cidade é obrigatória.");
+            throw new IllegalArgumentException("A cidade e obrigatoria.");
         }
         String codigoPostal = dto.getCodigoPostal();
         if (codigoPostal == null || codigoPostal.isBlank()) {
-            throw new IllegalArgumentException("O código postal é obrigatório.");
+            throw new IllegalArgumentException("O codigo postal e obrigatorio.");
         }
 
         if (numero == null || numero <= 0) {
-            throw new IllegalArgumentException("O número da porta não pode ser negativo e tem de existir.");
+            throw new IllegalArgumentException("O numero da porta nao pode ser negativo e tem de existir.");
         }
 
         Morada morada = new Morada();
