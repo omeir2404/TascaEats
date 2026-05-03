@@ -21,7 +21,6 @@
     <main class="page-shell">
         <section class="split-intro">
             <div class="page-intro">
-                <span class="section-eyebrow">Pedidos</span>
                 <h2>Histórico de pedidos</h2>
             </div>
             <aside class="intro-aside">
@@ -32,7 +31,7 @@
 
         <section class="orders-list">
             <div th:if="${pedidos == null or pedidos.empty}" class="empty-state">
-                <p>Ainda nao existem pedidos no historico.</p>
+                <p>Ainda não existem pedidos no histórico.</p>
                 <div class="stack-actions" style="justify-content: center; margin-top: 16px;">
                     <a th:href="@{/restaurantes}"><button>Procurar restaurantes</button></a>
                 </div>
@@ -42,9 +41,8 @@
                 <div>
                     <div class="pill-row">
                         <span th:class="'status-pill ' +
-                            (${pedido.estado == 'PENDING'} ? 'status-pending' :
-                            (${pedido.estado == 'DELIVERED'} ? 'status-delivered' : 'status-cancelled'))"
-                            th:text="${pedido.estado}">STATUS</span>
+                            ${pedido.statusClass}"
+                            th:text="${pedido.estadoLabel}">Estado</span>
                     </div>
 
                     <h3 style="margin-top: 12px;" th:text="${pedido.restauranteNome}">Restaurant Name</h3>
@@ -53,12 +51,26 @@
                         <span class="pill"><strong>Data:</strong>&nbsp;<span th:text="${pedido.data}">Date</span></span>
                         <span class="tag"><strong>Total:</strong>&nbsp;<span th:text="${pedido.total} + ' €'">0.00 €</span></span>
                     </div>
+
+                    <div class="order-review" th:if="${pedido.avaliacao != null}" style="margin-top:8px;">
+                        <strong>Avaliação:</strong>
+                        <span th:text="${pedido.avaliacao.classificacao} + ' / 5'">5 / 5</span>
+                        <p th:if="${pedido.avaliacao.comentario != null and pedido.avaliacao.comentario != ''}" th:text="${pedido.avaliacao.comentario}" style="margin:6px 0 0 0;">Comentário</p>
+                    </div>
                 </div>
 
                 <div>
                     <a th:href="@{/pedidos/{id}(id=${pedido.id})}">
                         <button>Ver detalhes</button>
                     </a>
+                    <form th:if="${pedido.cancelavel}"
+                          th:action="@{/pedidos/{id}/cancelar(id=${pedido.id})}"
+                          method="POST"
+                          style="margin-top: 10px;"
+                          onsubmit="return confirm('Tens a certeza que queres cancelar este pedido?');">
+                        <input type="hidden" name="redirectTo" value="/meus-pedidos">
+                        <button type="submit" class="button-danger">Cancelar</button>
+                    </form>
                 </div>
             </article>
         </section>

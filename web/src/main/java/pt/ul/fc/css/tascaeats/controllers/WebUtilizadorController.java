@@ -58,7 +58,7 @@ public class WebUtilizadorController {
             model.addAttribute("utilizadores", filtrados);
         } catch (Exception e) {
             model.addAttribute("utilizadores", List.of());
-            model.addAttribute("error", "Could not load users from backend.");
+            model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel carregar os utilizadores", e, backendUrl));
         }
 
         model.addAttribute("nome", nome);
@@ -93,10 +93,10 @@ public class WebUtilizadorController {
                 session.setAttribute("loggedUser", loggedInUser.get());
                 return "redirect:/restaurantes";
             }
-            model.addAttribute("error", "User authenticated but not found in user list.");
+            model.addAttribute("error", "Login aceite pelo backend, mas nao encontrei os dados do utilizador para criar a sessao. Confirma se o utilizador existe na lista.");
             return "login";
         } catch (Exception e) {
-            model.addAttribute("error", "Login failed: could not connect to backend.");
+            model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel iniciar sessao", e, backendUrl));
             return "login";
         }
     }
@@ -119,6 +119,13 @@ public class WebUtilizadorController {
             @RequestParam String email,
             @RequestParam String password,
             @RequestParam String papel,
+            @RequestParam(required = false) String rua,
+            @RequestParam(required = false) Integer numero,
+            @RequestParam(required = false) String complemento,
+            @RequestParam(required = false) String codigoPostal,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String distrito,
+            @RequestParam(required = false) String pais,
             Model model) {
         try {
             Map<String, Object> payload = new HashMap<>();
@@ -127,15 +134,18 @@ public class WebUtilizadorController {
             payload.put("password", password);
             payload.put("type", mapPapelToBackendType(papel));
 
-            Map<String, Object> address = buildDefaultAddressIfClient(papel);
+            Map<String, Object> address = buildOptionalAddressForClient(papel, rua, numero, complemento, codigoPostal, cidade, distrito, pais);
             if (address != null) {
                 payload.put("address", address);
             }
 
             restTemplate.postForEntity(backendUrl + "/api/register", payload, Map.class);
             return "redirect:/login";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", WebErrorMessages.validationFailure("Nao foi possivel criar a conta", e));
+            return "registo";
         } catch (Exception e) {
-            model.addAttribute("error", "Registration failed. Check the data and try again.");
+            model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel criar a conta", e, backendUrl));
             return "registo";
         }
     }
@@ -147,6 +157,9 @@ public class WebUtilizadorController {
             return "redirect:/login";
         }
 
+        moveFlashAttribute(session, model, "profileSuccess");
+        moveFlashAttribute(session, model, "profileError");
+
         try {
             Map<String, Object> user = restTemplate.getForObject(backendUrl + "/api/Utilizadors/" + id, Map.class);
             if (user != null) {
@@ -154,7 +167,7 @@ public class WebUtilizadorController {
                 return "perfil";
             }
         } catch (Exception e) {
-            model.addAttribute("error", "Could not load user profile.");
+            model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel carregar o perfil", e, backendUrl));
         }
         return "redirect:/utilizadores";
     }
@@ -164,16 +177,40 @@ public class WebUtilizadorController {
             @PathVariable Long id,
             @RequestParam String nome,
             @RequestParam String email,
+            @RequestParam(required = false) String password,
+            @RequestParam(required = false) String rua,
+            @RequestParam(required = false) Integer numero,
+            @RequestParam(required = false) String complemento,
+            @RequestParam(required = false) String codigoPostal,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String distrito,
+            @RequestParam(required = false) String pais,
+            @RequestParam(required = false) Boolean available,
             HttpSession session) {
         if (!isAuthorizedUser(id, session)) {
             return "redirect:/login";
         }
 
         try {
-            Map<String, Object> payload = Map.of(
-                    "name", nome,
-                    "email", email
-            );
+            Map<String, Object> currentUser = restTemplate.getForObject(backendUrl + "/api/Utilizadors/" + id, Map.class);
+            Map<String, Object> normalizedUser = currentUser == null ? Map.of() : normalizeUser(currentUser);
+            String papel = String.valueOf(normalizedUser.getOrDefault("papel", "CLIENT"));
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("name", nome);
+            payload.put("email", email);
+            payload.put("type", mapPapelToBackendType(papel));
+            if (hasText(password)) {
+                payload.put("password", password.trim());
+            }
+            if ("COURIER".equalsIgnoreCase(papel)) {
+                payload.put("available", Boolean.TRUE.equals(available));
+            }
+
+            Map<String, Object> address = buildOptionalAddressForClient(papel, rua, numero, complemento, codigoPostal, cidade, distrito, pais);
+            if (address != null) {
+                payload.put("address", address);
+            }
 
             restTemplate.exchange(
                     backendUrl + "/api/Utilizadors/" + id,
@@ -184,7 +221,12 @@ public class WebUtilizadorController {
 
             Optional<Map<String, Object>> updatedUser = findUserByEmail(email);
             updatedUser.ifPresent(user -> session.setAttribute("loggedUser", user));
+            session.setAttribute("profileSuccess", "Perfil atualizado com sucesso.");
+        } catch (IllegalArgumentException e) {
+            session.setAttribute("profileError", WebErrorMessages.validationFailure("Nao foi possivel atualizar o perfil", e));
+            return "redirect:/perfil/" + id;
         } catch (Exception e) {
+            session.setAttribute("profileError", WebErrorMessages.backendFailure("Nao foi possivel atualizar o perfil", e, backendUrl));
             return "redirect:/perfil/" + id;
         }
 
@@ -202,6 +244,7 @@ public class WebUtilizadorController {
             restTemplate.delete(backendUrl + "/api/Utilizadors/" + id);
             session.invalidate();
         } catch (Exception e) {
+            session.setAttribute("profileError", WebErrorMessages.backendFailure("Nao foi possivel eliminar a conta", e, backendUrl));
             return "redirect:/perfil/" + id;
         }
         return "redirect:/utilizadores";
@@ -216,8 +259,9 @@ public class WebUtilizadorController {
 
     private Map<String, Object> normalizeUser(Map<String, Object> user) {
         String type = String.valueOf(user.getOrDefault("type", "client"));
+        String papel = mapBackendTypeToPapel(type);
         boolean ativo = true;
-        if ("entregador".equalsIgnoreCase(type) || "driver".equalsIgnoreCase(type)) {
+        if ("COURIER".equalsIgnoreCase(papel)) {
             ativo = Boolean.TRUE.equals(user.get("available"));
         }
 
@@ -225,9 +269,65 @@ public class WebUtilizadorController {
         normalized.put("id", user.getOrDefault("id", 0));
         normalized.put("nome", user.getOrDefault("name", ""));
         normalized.put("email", user.getOrDefault("email", ""));
-        normalized.put("papel", mapBackendTypeToPapel(type));
+        normalized.put("inicial", buildInitial(String.valueOf(user.getOrDefault("name", ""))));
+        normalized.put("tipoOriginal", type);
+        normalized.put("papel", papel);
         normalized.put("ativo", ativo);
+        normalized.put("cliente", "CLIENT".equalsIgnoreCase(papel));
+        normalized.put("entregador", "COURIER".equalsIgnoreCase(papel));
+        normalized.put("morada", normalizeAddress(user.get("address")));
+        normalized.put("moradaResumo", summarizeAddress((Map<String, Object>) normalized.get("morada")));
         return normalized;
+    }
+
+    private Map<String, Object> normalizeAddress(Object addressObj) {
+        Map<String, Object> address = new HashMap<>();
+        address.put("rua", "");
+        address.put("numero", "");
+        address.put("complemento", "");
+        address.put("codigoPostal", "");
+        address.put("cidade", "");
+        address.put("distrito", "");
+        address.put("pais", "");
+
+        if (addressObj instanceof Map<?, ?> rawAddress) {
+            address.put("rua", valueOrBlank(rawAddress.get("rua")));
+            address.put("numero", valueOrBlank(rawAddress.get("numero")));
+            address.put("complemento", valueOrBlank(rawAddress.get("complemento")));
+            address.put("codigoPostal", valueOrBlank(rawAddress.get("codigoPostal")));
+            address.put("cidade", valueOrBlank(rawAddress.get("cidade")));
+            address.put("distrito", valueOrBlank(rawAddress.get("distrito")));
+            address.put("pais", valueOrBlank(rawAddress.get("pais")));
+        }
+
+        return address;
+    }
+
+    private String valueOrBlank(Object value) {
+        return value == null ? "" : String.valueOf(value);
+    }
+
+    private String buildInitial(String name) {
+        if (!hasText(name)) {
+            return "T";
+        }
+        return name.trim().substring(0, 1);
+    }
+
+    private String summarizeAddress(Map<String, Object> address) {
+        if (address == null || !hasText(String.valueOf(address.get("rua")))) {
+            return "Sem morada definida";
+        }
+
+        StringBuilder summary = new StringBuilder();
+        summary.append(address.get("rua"));
+        if (hasText(String.valueOf(address.get("numero")))) {
+            summary.append(", ").append(address.get("numero"));
+        }
+        if (hasText(String.valueOf(address.get("cidade")))) {
+            summary.append(" - ").append(address.get("cidade"));
+        }
+        return summary.toString();
     }
 
     private Optional<Map<String, Object>> findUserByEmail(String email) {
@@ -271,19 +371,61 @@ public class WebUtilizadorController {
         };
     }
 
-    private Map<String, Object> buildDefaultAddressIfClient(String papel) {
+    private Map<String, Object> buildOptionalAddressForClient(
+            String papel,
+            String rua,
+            Integer numero,
+            String complemento,
+            String codigoPostal,
+            String cidade,
+            String distrito,
+            String pais) {
         if (!"CLIENT".equalsIgnoreCase(papel)) {
             return null;
         }
 
-        return Map.of(
-                "rua", "Rua Principal",
-                "numero", 1,
-                "complemento", "",
-                "codigoPostal", "1000-001",
-                "cidade", "Lisboa",
-                "distrito", "Lisboa",
-                "pais", "Portugal"
-        );
+        boolean hasAnyField = hasText(rua)
+                || numero != null
+                || hasText(complemento)
+                || hasText(codigoPostal)
+                || hasText(cidade)
+                || hasText(distrito)
+                || hasText(pais);
+
+        if (!hasAnyField) {
+            return null;
+        }
+
+        if (!hasText(rua)
+                || numero == null
+                || numero <= 0
+                || !hasText(codigoPostal)
+                || !hasText(cidade)
+                || !hasText(distrito)
+                || !hasText(pais)) {
+            throw new IllegalArgumentException("If you provide an address, all mandatory address fields must be filled.");
+        }
+
+        Map<String, Object> address = new HashMap<>();
+        address.put("rua", rua.trim());
+        address.put("numero", numero);
+        address.put("complemento", hasText(complemento) ? complemento.trim() : "");
+        address.put("codigoPostal", codigoPostal.trim());
+        address.put("cidade", cidade.trim());
+        address.put("distrito", distrito.trim());
+        address.put("pais", pais.trim());
+        return address;
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
+    private void moveFlashAttribute(HttpSession session, Model model, String attributeName) {
+        Object value = session.getAttribute(attributeName);
+        if (value != null) {
+            model.addAttribute(attributeName, value);
+            session.removeAttribute(attributeName);
+        }
     }
 }

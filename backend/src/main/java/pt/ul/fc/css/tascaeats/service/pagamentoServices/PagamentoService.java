@@ -18,6 +18,7 @@ import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
 import pt.ul.fc.css.tascaeats.repository.pagamentoRepository.IPagamentoRepository;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
+import pt.ul.fc.css.tascaeats.service.entregaService.EntregaService;
 
 @Service
 public class PagamentoService {
@@ -25,11 +26,13 @@ public class PagamentoService {
     private final IPedidoRepository pedidoRepository;
     private final IPagamentoRepository pagamentoRepository;
     private final PagamentoFactory pagamentoFactory;
+    private final EntregaService entregaService;
 
-    public PagamentoService(IPedidoRepository pedidoRepository, IPagamentoRepository pagamentoRepository, PagamentoFactory pagamentoFactory) {
+    public PagamentoService(IPedidoRepository pedidoRepository, IPagamentoRepository pagamentoRepository, PagamentoFactory pagamentoFactory, EntregaService entregaService) {
         this.pedidoRepository = pedidoRepository;
         this.pagamentoRepository = pagamentoRepository;
         this.pagamentoFactory = pagamentoFactory;
+        this.entregaService = entregaService;
     }
 
     @Transactional
@@ -56,5 +59,9 @@ public class PagamentoService {
         pedido.setPagamento(pagamento);
         pedido.confirmarPagamento();
         pedidoRepository.save(pedido);
+
+        // Keep the checkout response immediate. The simulated delivery flow advances in
+        // the background with pauses so the client can still cancel while the order is paid.
+        entregaService.simularPreparacaoRestauranteEAtribuirEntregadorComPausas(pedidoId);
     }
 }

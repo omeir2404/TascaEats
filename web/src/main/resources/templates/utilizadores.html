@@ -25,6 +25,8 @@
             </div>
         </section>
 
+        <div th:if="${error != null}" class="error-message page-error" th:text="${error}">Erro ao carregar dados.</div>
+
         <section class="filter-shell filter-shell--search">
             <div class="filtro-container">
                 <form th:action="@{/utilizadores}" method="GET">

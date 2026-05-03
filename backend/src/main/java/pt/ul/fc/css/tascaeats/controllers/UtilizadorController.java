@@ -165,6 +165,7 @@ public class UtilizadorController {
             return null;
         }
         return new MoradaResponseDTO(
+            address.getId(),
                 address.getRua(),
                 address.getNumero(),
                 address.getComplemento(),

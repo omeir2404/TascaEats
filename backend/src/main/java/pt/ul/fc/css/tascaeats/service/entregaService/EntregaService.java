@@ -10,8 +10,10 @@ package pt.ul.fc.css.tascaeats.service.entregaService;
 
 import java.util.Optional;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import pt.ul.fc.css.tascaeats.domain.entrega.Entrega;
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
@@ -29,14 +31,17 @@ public class EntregaService {
     private final IEntregaRepository entregaRepository;
     private final IUtilizadorRepository utilizadorRepository;
     private final IPedidoRepository pedidoRepository;
+    private final TransactionTemplate transactionTemplate;
 
     public EntregaService(
             IEntregaRepository entregaRepository,
             IUtilizadorRepository utilizadorRepository,
-            IPedidoRepository pedidoRepository) {
+            IPedidoRepository pedidoRepository,
+            TransactionTemplate transactionTemplate) {
         this.entregaRepository = entregaRepository;
         this.utilizadorRepository = utilizadorRepository;
         this.pedidoRepository = pedidoRepository;
+        this.transactionTemplate = transactionTemplate;
     }
 
     @Transactional
@@ -53,6 +58,170 @@ public class EntregaService {
         Pedido pedido = pedidoOptional.get();
         pedido.iniciarPreparacao();
         return pedidoRepository.save(pedido);
+    }
+
+    @Transactional
+    public Pedido simularPreparacaoRestauranteEAtribuirEntregador(Long pedidoId) {
+        if (pedidoId == null) {
+            throw new IllegalArgumentException("ID do pedido inválido.");
+        }
+
+        Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
+        if (pedidoOptional.isEmpty()) {
+            throw new IllegalArgumentException("Pedido não encontrado: " + pedidoId);
+        }
+
+        Pedido pedido = pedidoOptional.get();
+        if (pedido.getEstado() == EstadoPedido.PAGO) {
+            pedido.iniciarPreparacao();
+            pedido.marcarComoPronto();
+        } else if (pedido.getEstado() == EstadoPedido.A_PREPARAR) {
+            pedido.marcarComoPronto();
+        } else if (pedido.getEstado() == EstadoPedido.CRIADO) {
+            pedido.confirmarPagamento();
+            pedido.iniciarPreparacao();
+            pedido.marcarComoPronto();
+        }
+
+        pedido = pedidoRepository.save(pedido);
+        associarEntregadorAutomaticamente(pedido);
+
+        // Continue the simulated flow automatically until delivered.
+        registarRecolha(pedidoId);
+        registarEntregaFinal(pedidoId);
+
+        return pedidoRepository.findById(pedidoId)
+            .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado: " + pedidoId));
+    }
+
+    @Async
+    public void simularPreparacaoRestauranteEAtribuirEntregadorComPausas(Long pedidoId) {
+        try {
+            esperarJanelaInicialDeCancelamento();
+            esperarEntreFases();
+            if (!avancarSeEstadoAtual(pedidoId, EstadoPedido.PAGO, pedido -> pedido.iniciarPreparacao())) {
+                return;
+            }
+
+            esperarEntreFases();
+            if (!avancarSeEstadoAtual(pedidoId, EstadoPedido.A_PREPARAR, pedido -> pedido.marcarComoPronto())) {
+                return;
+            }
+
+            esperarEntreFases();
+            if (!atribuirEntregadorSeEstadoAtual(pedidoId, EstadoPedido.PRONTO_PARA_ENTREGA)) {
+                return;
+            }
+
+            esperarEntreFases();
+            if (!registarRecolhaSeEstadoAtual(pedidoId, EstadoPedido.ATRIBUIDO_ENTREGADOR)) {
+                return;
+            }
+
+            esperarEntreFases();
+            registarEntregaFinalSeEstadoAtual(pedidoId, EstadoPedido.ATRIBUIDO_ENTREGADOR);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            System.err.println("Erro ao simular progresso do pedido " + pedidoId + ": " + e.getMessage());
+        }
+    }
+
+    private void esperarEntreFases() throws InterruptedException {
+        Thread.sleep(2000);
+    }
+
+    private void esperarJanelaInicialDeCancelamento() throws InterruptedException {
+        Thread.sleep(4000);
+    }
+
+    private boolean avancarSeEstadoAtual(Long pedidoId, EstadoPedido estadoEsperado, java.util.function.Consumer<Pedido> transition) {
+        return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
+            Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
+            if (pedidoOptional.isEmpty()) {
+                return false;
+            }
+
+            Pedido pedido = pedidoOptional.get();
+            if (pedido.getEstado() == EstadoPedido.CANCELADO) {
+                return false;
+            }
+            if (pedido.getEstado() != estadoEsperado) {
+                return false;
+            }
+
+            transition.accept(pedido);
+            pedidoRepository.save(pedido);
+            return true;
+        }));
+    }
+
+    private boolean atribuirEntregadorSeEstadoAtual(Long pedidoId, EstadoPedido estadoEsperado) {
+        return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
+            Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
+            if (pedidoOptional.isEmpty()) {
+                return false;
+            }
+
+            Pedido pedido = pedidoOptional.get();
+            if (pedido.getEstado() == EstadoPedido.CANCELADO || pedido.getEstado() != estadoEsperado) {
+                return false;
+            }
+
+            associarEntregadorAutomaticamente(pedido);
+            return true;
+        }));
+    }
+
+    private boolean registarRecolhaSeEstadoAtual(Long pedidoId, EstadoPedido estadoEsperado) {
+        return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
+            Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
+            if (pedidoOptional.isEmpty()) {
+                return false;
+            }
+
+            Pedido pedido = pedidoOptional.get();
+            if (pedido.getEstado() == EstadoPedido.CANCELADO || pedido.getEstado() != estadoEsperado) {
+                return false;
+            }
+
+            Entrega entrega = entregaRepository.findByPedidoId(pedidoId)
+                    .orElseThrow(() -> new IllegalArgumentException("Entrega não encontrada para pedido: " + pedidoId));
+            entrega.registarRecolha();
+            entregaRepository.save(entrega);
+            return true;
+        }));
+    }
+
+    private boolean registarEntregaFinalSeEstadoAtual(Long pedidoId, EstadoPedido estadoEsperado) {
+        return Boolean.TRUE.equals(transactionTemplate.execute(status -> {
+            Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
+            if (pedidoOptional.isEmpty()) {
+                return false;
+            }
+
+            Pedido pedido = pedidoOptional.get();
+            if (pedido.getEstado() == EstadoPedido.CANCELADO || pedido.getEstado() != estadoEsperado) {
+                return false;
+            }
+
+            Entrega entrega = entregaRepository.findByPedidoId(pedidoId)
+                    .orElseThrow(() -> new IllegalArgumentException("Entrega não encontrada para pedido: " + pedidoId));
+            Long entregadorId = entrega.getEntregadorId();
+            Optional<pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador> entregadorOptional = utilizadorRepository.findById(entregadorId);
+            if (entregadorOptional.isEmpty() || !(entregadorOptional.get() instanceof Entregador entregador)) {
+                throw new IllegalArgumentException("Entregador não encontrado: " + entregadorId);
+            }
+
+            entrega.registarConclusao();
+            pedido.marcarComoEntregue();
+            entregador.setAvailable(true);
+
+            utilizadorRepository.save(entregador);
+            pedidoRepository.save(pedido);
+            entregaRepository.save(entrega);
+            return true;
+        }));
     }
 
     
@@ -82,30 +251,29 @@ public class EntregaService {
     private void associarEntregadorAutomaticamente(Pedido pedido) {
         Entregador entregador = null;
         
-        // Find the first available delivery person
+        // Find the first courier without an open delivery. This avoids getting stuck
+        // when the `available` flag becomes stale in persisted environments.
         for (var utilizador : utilizadorRepository.findAll()) {
             if (utilizador instanceof Entregador candidato) {
-                if (candidato.isAvailable() && !entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
+                if (!entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
                     entregador = candidato;
                     break;
                 }
             }
         }
 
-        // If no one is available, you can choose to throw an error (rolls back the transaction) 
-        // or just log it and handle it later. Keeping it strict here:
         if (entregador == null) {
             throw new IllegalStateException("Não há entregadores disponíveis de momento para o pedido: " + pedido.getId());
         }
 
-        // Create the delivery record
         Entrega entrega = new Entrega(pedido, entregador.getId(), ENDERECO_ENTREGA_PENDENTE);
 
-        // Update states
         entregador.setAvailable(false);
-        pedido.atribuirEntregador(); // Changes state to ATRIBUIDO_ENTREGADOR
 
-        // Persist everything
+        if (pedido.getEstado() != EstadoPedido.ATRIBUIDO_ENTREGADOR) {
+            pedido.atribuirEntregador();
+        }
+
         utilizadorRepository.save(entregador);
         pedidoRepository.save(pedido);
         entregaRepository.save(entrega);

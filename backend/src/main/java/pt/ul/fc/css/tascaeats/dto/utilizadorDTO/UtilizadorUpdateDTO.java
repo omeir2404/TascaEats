@@ -23,6 +23,9 @@ public class UtilizadorUpdateDTO {
     MoradaDTO address;
     boolean available;
 
+    public UtilizadorUpdateDTO() {
+    }
+
     public UtilizadorUpdateDTO(@NotNull String name, @NotNull String email, @NotNull String password, @NotNull String type, MoradaDTO address, boolean available) {
         this.name = name;
         this.email = email;

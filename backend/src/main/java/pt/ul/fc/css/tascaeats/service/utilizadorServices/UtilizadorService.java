@@ -97,8 +97,8 @@ public class UtilizadorService {
             existing.setPassword(dto.getPassword());
         }
 
-        if (existing instanceof Cliente client && dto.getAddress() != null && !client.getAddresses().isEmpty()) {
-            // Keep Morada update minimal here; creating Morada requires cleaner mapping in the domain.
+        if (existing instanceof Cliente client && dto.getAddress() != null) {
+            // A morada mais recente fica como predefinida na API.
             applyMorada(client, dto.getAddress());
         }
 
@@ -141,9 +141,6 @@ public class UtilizadorService {
         if (dto.getType() == null || dto.getType().isBlank()) {
             throw new IllegalArgumentException("Type is required");
         }
-        if ("client".equalsIgnoreCase(dto.getType()) && (dto.getAddress() == null)) {
-            throw new IllegalArgumentException("Morada is required for client Utilizadors");
-        }
         if (dto.getAddress() != null && dto.getAddress().getCodigoPostal() != null
                 && dto.getAddress().getCodigoPostal().chars().filter(ch -> ch == '-').count() != 1) {
             throw new IllegalArgumentException("Codigo Postal so pode ter 1 '-' ");
@@ -175,10 +172,14 @@ public class UtilizadorService {
 
             address.setRua(dto.getRua());
             address.setNumero(dto.getNumero() == null ? null : dto.getNumero());
+            address.setComplemento(dto.getComplemento());
             address.setCodigoPostal(dto.getCodigoPostal());
             address.setCidade(dto.getCidade());
+            address.setDistrito(dto.getDistrito());
+            address.setPais(dto.getPais());
 
-            client.addAdresses(address);
+            client.getAddresses().add(0, address);
+            address.setClient(client);
         }
     }
 }

@@ -9,6 +9,7 @@
 package pt.ul.fc.css.tascaeats.dto.moradaDTO;
 
 public class MoradaResponseDTO {
+    private Long id;
     private String rua;
     private Integer numero;
     private String complemento;
@@ -20,7 +21,8 @@ public class MoradaResponseDTO {
     public MoradaResponseDTO() {
     }
 
-    public MoradaResponseDTO(String rua, Integer number, String complemento, String pais, String distrito, String cidade, String codigoPostal) {
+    public MoradaResponseDTO(Long id, String rua, Integer number, String complemento, String pais, String distrito, String cidade, String codigoPostal) {
+        this.id = id;
         this.rua = rua;
         this.numero = number;
         this.complemento = complemento;
@@ -32,6 +34,14 @@ public class MoradaResponseDTO {
 
 
     // ###################### GETTERS e SETTERS #####################################################################
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getRua() {
         return rua;

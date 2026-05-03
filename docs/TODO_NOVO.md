@@ -157,6 +157,24 @@ public ResponseEntity<List<Restaurante>> pesquisarRestaurantes(
 ```
 --
 
+  ### 10. Remaining Functional Tasks
+
+  - [x] Fazer a pagina do historico de pedidos e garantir que os pedidos ficam guardados na BD.
+  - [ ] Ver JavaFX e decidir se a parte nativa vai ser mantida, adaptada ou removida.
+  - [x] Restringir o acesso ao site para apenas depois de criar conta ou fazer login.
+  - [x] Remover a opcao "Entrar" do header quando o utilizador estiver autenticado.
+  - [x] Criar uma pagina para filtrar apenas produtos.
+  - [x] Guardar e mostrar a avaliacao do restaurante feita no final de cada conta/pedido.
+  - [x] Depois do checkout mostrar que a conta foi finalizada e redirecionar para os pedidos recentes.
+  - [ ] Implementar controlo de acesso nos filtros e funcoes por papel de utilizador.
+  - [ ] Garantir que o administrador, cliente e entregador apenas veem as operacoes permitidas para o respetivo papel.
+  - [x] Permitir que qualquer utilizador altere os proprios dados cadastrais usando a mesma interface de registo.
+  - [x] Mostar estados dos pedidos passo a passo
+  - [x] permitir cancelar pedidos
+  - [x] os restaurantes e pedidos recentes deviam atualizar
+  - [x] avaliacoes deviam atualizar para o restaurante tambem
+  - [ ] ver reviews para os restaurantes
+
 # membro 1 extra (se der tempo senao quem conseguir)
 
 O Trabalho de Casa para o Membro 1 (Backend)

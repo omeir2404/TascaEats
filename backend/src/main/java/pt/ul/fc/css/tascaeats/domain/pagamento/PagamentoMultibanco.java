@@ -18,13 +18,16 @@ import jakarta.persistence.Entity;
 @DiscriminatorValue("MULTIBANCO")
 public class PagamentoMultibanco extends Pagamento {
 
-    @Column(name = "entidade", nullable = false)
+    // Allow nulls at the DB level because this is a single-table inheritance mapping
+    // and other payment types will have NULL in these columns. Validation is enforced
+    // in `validarDetalhes()` for MULTIBANCO payments.
+    @Column(name = "entidade", nullable = true)
     private String entidade;
 
-    @Column(name = "referencia", nullable = false)
+    @Column(name = "referencia", nullable = true)
     private String referencia;
 
-    @Column(name = "bandeira_cartao")
+    @Column(name = "bandeira_cartao", nullable = true)
     private String bandeiraCartao;
 
     protected PagamentoMultibanco() {

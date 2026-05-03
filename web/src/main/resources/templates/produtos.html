@@ -202,6 +202,8 @@
             </div>
         </section>
 
+        <div th:if="${erro != null}" class="error-message page-error" th:text="${erro}">Erro ao carregar dados.</div>
+
         <section class="filter-shell">
             <div class="filtro-container">
                 <form th:action="@{/restaurantes/{id}/produtos/search(id=${restauranteId})}" method="GET" class="product-filters-form">
@@ -332,6 +334,32 @@
                 </div>
             </aside>
         </div>
+        <!-- NEW: RESTAURANT REVIEWS SECTION -->
+        <section class="restaurant-reviews" style="margin-top: 50px; padding-top: 30px; border-top: 2px solid #f0f0f0;">
+            <div class="section-header">
+                <div>
+                    <h3>Avaliações dos Clientes</h3>
+                    <p style="color: #667085; font-size: 0.95rem;">O que os clientes dizem sobre este restaurante.</p>
+                </div>
+            </div>
+
+            <div th:if="${avaliacoes == null or avaliacoes.empty}" class="empty-state" style="margin-top: 20px;">
+                <p>Ainda não existem avaliações para este restaurante. Seja o primeiro a encomendar e avaliar!</p>
+            </div>
+
+            <div class="grid-reviews" style="display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-top: 20px;">
+                <article th:each="av : ${avaliacoes}" style="background: white; border: 1px solid #eaeaea; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <strong style="color: #182126;">👤 Cliente #<span th:text="${av.clienteId}"></span></strong>
+                        <span style="background-color: #fff7e8; color: #ff6600; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.9em;">
+                            ⭐ <span th:text="${av.classificacao}">5</span>/5
+                        </span>
+                    </div>
+                    <p style="color: #4b5563; margin: 0; line-height: 1.5; font-size: 0.95em; font-style: italic;" 
+                       th:text="${av.comentario != null and av.comentario != '' ? '&quot;' + av.comentario + '&quot;' : 'Nenhum comentário escrito.'}"></p>
+                </article>
+            </div>
+        </section>
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>

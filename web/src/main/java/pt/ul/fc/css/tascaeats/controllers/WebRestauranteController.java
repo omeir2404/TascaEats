@@ -36,6 +36,11 @@ public class WebRestauranteController {
         this.restTemplate = restTemplate;
     }
 
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/restaurantes";
+    }
+
     // 1. Default page: Loads all restaurants from backend
     @GetMapping("/restaurantes")
     public String listarRestaurantes(Model model) {
@@ -50,7 +55,7 @@ public class WebRestauranteController {
         } catch (Exception e) {
             model.addAttribute("restaurantes", List.of());
             model.addAttribute("restauranteDestaque", null);
-            model.addAttribute("erro", "Could not connect to the backend API.");
+            model.addAttribute("erro", WebErrorMessages.backendFailure("Nao foi possivel carregar os restaurantes", e, backendUrl));
         }
 
         return "restaurantes";
@@ -97,7 +102,7 @@ public class WebRestauranteController {
             model.addAttribute("restaurantes", sanitizeRestaurantes(restaurantes));
         } catch (Exception e) {
             model.addAttribute("restaurantes", List.of());
-            model.addAttribute("erro", "Could not fetch search results from the backend.");
+            model.addAttribute("erro", WebErrorMessages.backendFailure("Nao foi possivel pesquisar restaurantes", e, backendUrl));
         }
 
         model.addAttribute("nome", nome);
@@ -123,7 +128,7 @@ public class WebRestauranteController {
             List<Map<String, Object>> searchResults = restTemplate.getForObject(targetUrl, List.class);
             return ResponseEntity.ok(sanitizeRestaurantes(searchResults));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error fetching live results");
+            return ResponseEntity.status(500).body(WebErrorMessages.backendFailure("Nao foi possivel obter sugestoes de pesquisa", e, backendUrl));
         }
     }
 
@@ -138,11 +143,12 @@ public class WebRestauranteController {
             model.addAttribute("produtos", sanitizeProdutos(produtos));
         } catch (Exception e) {
             model.addAttribute("produtos", List.of());
-            model.addAttribute("erro", "Could not load menu products from backend.");
+            model.addAttribute("erro", WebErrorMessages.backendFailure("Nao foi possivel carregar os produtos do restaurante", e, backendUrl));
         }
 
         model.addAttribute("restauranteId", id);
         model.addAttribute("restauranteNome", fetchRestaurantName(id));
+        carregarAvaliacoes(id, model);
         return "produtos";
     }
 
@@ -172,7 +178,7 @@ public class WebRestauranteController {
             model.addAttribute("produtos", produtosFiltrados);
         } catch (Exception e) {
             model.addAttribute("produtos", List.of());
-            model.addAttribute("erro", "Product search failed.");
+            model.addAttribute("erro", WebErrorMessages.backendFailure("Nao foi possivel pesquisar produtos", e, backendUrl));
         }
 
         model.addAttribute("restauranteId", id);
@@ -182,6 +188,8 @@ public class WebRestauranteController {
         model.addAttribute("categoria", categoria);
         model.addAttribute("disponivel", disponivel);
         model.addAttribute("popularidade", popularidade);
+
+        carregarAvaliacoes(id, model);
         return "produtos";
     }
 
@@ -219,6 +227,7 @@ public class WebRestauranteController {
                     "tipoCozinha", tipo,
                     "estado", rest.getOrDefault("estado", "DESCONHECIDO"),
                     "numeroAvaliacoes", rest.getOrDefault("numeroAvaliacoes", 0),
+                    "avaliacaoMedia", rest.getOrDefault("avaliacaoMedia", 0.0),
                     "morada", rest.getOrDefault("morada", Map.of()),
                     "imagePath", imagePath
             );
@@ -331,6 +340,16 @@ public class WebRestauranteController {
             return Double.parseDouble(value.toString());
         } catch (NumberFormatException e) {
             return 0.0;
+        }
+    }
+
+    private void carregarAvaliacoes(Long restauranteId, Model model) {
+        try {
+            String avaliacoesUrl = backendUrl + "/avaliacoes/restaurante/" + restauranteId;
+            List<Map<String, Object>> avaliacoes = restTemplate.getForObject(avaliacoesUrl, List.class);
+            model.addAttribute("avaliacoes", avaliacoes);
+        } catch (Exception e) {
+            model.addAttribute("avaliacoes", List.of());
         }
     }
 }

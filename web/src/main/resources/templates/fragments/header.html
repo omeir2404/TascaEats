@@ -55,6 +55,11 @@
                     <a th:href="@{/logout}">Sair</a>
                 </th:block>
             </nav>
+            <th:block th:if="${cartCleared}">
+                <script>
+                    try { sessionStorage.removeItem('tascaeatsCart'); } catch(e) { }
+                </script>
+            </th:block>
         </div>
     </header>
 </body>

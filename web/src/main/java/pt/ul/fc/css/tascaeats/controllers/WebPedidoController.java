@@ -115,10 +115,14 @@ public class WebPedidoController {
     // --- 2. CHECKOUT PAGE (Payment details) ---
     @GetMapping("/checkout")
     public String mostrarCheckout(Model model, HttpSession session) {
+        Long clienteId = getLoggedClientId(session);
         List<Map<String, Object>> itensCarrinho = getCarrinho(session);
         double total = itensCarrinho.stream()
                 .mapToDouble(item -> toDouble(item.get("preco")) * toInt(item.get("quantidade")))
                 .sum();
+
+        Map<String, Object> defaultAddress = getClientDeliveryAddress(clienteId);
+        boolean hasDefaultAddress = defaultAddress != null;
 
         Object checkoutError = session.getAttribute("checkoutError");
         if (checkoutError != null) {
@@ -126,8 +130,16 @@ public class WebPedidoController {
             session.removeAttribute("checkoutError");
         }
 
+        Object cartCleared = session.getAttribute("cartCleared");
+        if (cartCleared != null) {
+            model.addAttribute("cartCleared", true);
+            session.removeAttribute("cartCleared");
+        }
+
         model.addAttribute("itens", itensCarrinho);
         model.addAttribute("total", Math.round(total * 100.0) / 100.0);
+        model.addAttribute("defaultAddress", defaultAddress);
+        model.addAttribute("hasDefaultAddress", hasDefaultAddress);
         return "checkout";
     }
 
@@ -161,10 +173,19 @@ public class WebPedidoController {
             @RequestParam String metodoPagamento,
             @RequestParam(required = false) String telemovel,
             @RequestParam(required = false) String bandeiraCartao,
+            @RequestParam(required = false) String rua,
+            @RequestParam(required = false) Integer numero,
+            @RequestParam(required = false) String complemento,
+            @RequestParam(required = false) String codigoPostal,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String distrito,
+            @RequestParam(required = false) String pais,
+            @RequestParam(required = false, defaultValue = "false") Boolean guardarComoPredefinida,
             HttpSession session) {
 
-        Long clienteId = getLoggedUserId(session);
+        Long clienteId = getLoggedClientId(session);
         if (clienteId == null) {
+            session.setAttribute("checkoutError", "Apenas clientes autenticados podem finalizar compras.");
             return "redirect:/login";
         }
 
@@ -187,11 +208,26 @@ public class WebPedidoController {
                 return itemPedido;
             }).toList();
 
+            Map<String, Object> moradaSelection = resolveCheckoutAddress(clienteId, rua, numero, complemento, codigoPostal, cidade, distrito, pais);
+            if (moradaSelection == null) {
+                session.setAttribute("checkoutError", "Tem de indicar uma morada para finalizar a compra.");
+                return "redirect:/checkout";
+            }
+
             Map<String, Object> pedidoPayload = new HashMap<>();
             pedidoPayload.put("clienteId", clienteId);
             pedidoPayload.put("itens", itensPedido);
+            if (moradaSelection.containsKey("moradaId")) {
+                pedidoPayload.put("moradaId", moradaSelection.get("moradaId"));
+            } else {
+                pedidoPayload.put("moradaNova", moradaSelection.get("moradaNova"));
+            }
 
-            restTemplate.postForEntity(backendUrl + "/pedidos", pedidoPayload, Object.class);
+            restTemplate.postForEntity(backendUrl + "/pedidos", pedidoPayload, String.class);
+
+            if (Boolean.TRUE.equals(guardarComoPredefinida) && hasManualAddressInput(rua, numero, complemento, codigoPostal, cidade, distrito, pais)) {
+                saveClientAddressAsDefault(clienteId, (Map<String, Object>) moradaSelection.get("moradaNova"));
+            }
 
             Long pedidoId = findPedidoMaisRecente(clienteId);
             if (pedidoId == null) {
@@ -205,12 +241,13 @@ public class WebPedidoController {
             pagamentoPayload.put("tipoPagamento", metodoPagamento);
             pagamentoPayload.put("detalhes", detalhesPagamento);
 
-            restTemplate.postForEntity(backendUrl + "/pagamentos", pagamentoPayload, Object.class);
+            restTemplate.postForEntity(backendUrl + "/pagamentos", pagamentoPayload, String.class);
 
             session.removeAttribute(CART_SESSION_KEY);
+            session.setAttribute("cartCleared", true);
             return "redirect:/pedidos/" + pedidoId;
         } catch (Exception e) {
-            session.setAttribute("checkoutError", "Falha ao processar checkout: " + e.getMessage());
+            session.setAttribute("checkoutError", WebErrorMessages.backendFailure("Nao foi possivel processar o checkout", e, backendUrl));
             return "redirect:/checkout";
         }
 
@@ -219,7 +256,7 @@ public class WebPedidoController {
     // --- 3. ORDER DETAILS (View Status, Cancel, Review) ---
     @GetMapping("/pedidos/{id}")
     public String verPedido(@PathVariable Long id, Model model, HttpSession session) {
-        Long clienteId = getLoggedUserId(session);
+        Long clienteId = getLoggedClientId(session);
         if (clienteId == null) {
             return "redirect:/login";
         }
@@ -230,6 +267,23 @@ public class WebPedidoController {
                 .findFirst();
 
         if (pedido.isPresent()) {
+            Object cartCleared = session.getAttribute("cartCleared");
+            if (cartCleared != null) {
+                model.addAttribute("cartCleared", true);
+                session.removeAttribute("cartCleared");
+            }
+            Object detalheError = session.getAttribute("pedidoDetalheError");
+            if (detalheError != null) {
+                model.addAttribute("error", detalheError.toString());
+                session.removeAttribute("pedidoDetalheError");
+            }
+
+            Object detalheSuccess = session.getAttribute("pedidoDetalheSuccess");
+            if (detalheSuccess != null) {
+                model.addAttribute("success", detalheSuccess.toString());
+                session.removeAttribute("pedidoDetalheSuccess");
+            }
+
             model.addAttribute("pedido", normalizePedido(pedido.get()));
             return "pedido_detalhe";
         }
@@ -239,16 +293,22 @@ public class WebPedidoController {
 
     // --- 4. CANCEL ORDER ---
     @PostMapping("/pedidos/{id}/cancelar")
-    public String cancelarPedido(@PathVariable Long id) {
+    public String cancelarPedido(
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "") String redirectTo,
+            HttpSession session) {
         try {
-            restTemplate.exchange(
+            restTemplate.postForEntity(
                     backendUrl + "/pedidos/" + id + "/cancelar",
-                    HttpMethod.PATCH,
-                    HttpEntity.EMPTY,
-                    Object.class
+                    null, 
+                    String.class
             );
+            session.setAttribute("pedidoDetalheSuccess", "Pedido cancelado com sucesso.");
         } catch (Exception e) {
-            return "redirect:/pedidos/" + id;
+            session.setAttribute("pedidoDetalheError", WebErrorMessages.backendFailure("Nao foi possivel cancelar o pedido", e, backendUrl));
+        }
+        if (hasText(redirectTo)) {
+            return "redirect:" + sanitizeRedirect(redirectTo);
         }
         return "redirect:/pedidos/" + id;
     }
@@ -258,26 +318,47 @@ public class WebPedidoController {
     public String avaliarRestaurante(
             @PathVariable Long id,
             @RequestParam Integer pontuacao,
-            @RequestParam String comentario) {
+            @RequestParam String comentario,
+            HttpSession session) {
 
-        // Placeholder until backend rating endpoint exists.
         if (pontuacao == null || comentario == null) {
             return "redirect:/pedidos/" + id;
         }
+
+        try {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("classificacao", pontuacao);
+            payload.put("comentario", comentario.trim());
+            payload.put("clienteId", clienteId);
+            payload.put("restauranteId", restauranteId);
+            payload.put("pedidoId", id);
+
+            restTemplate.postForEntity(backendUrl + "/avaliacoes", payload, String.class);
+            session.setAttribute("pedidoDetalheSuccess", "Avaliação submetida com sucesso.");
+        } catch (Exception e) {
+            session.setAttribute("pedidoDetalheError", WebErrorMessages.backendFailure("Nao foi possivel submeter a avaliacao", e, backendUrl));
+        }
+
         return "redirect:/pedidos/" + id;
     }
 
     // --- 6. MY ORDERS HISTORY ---
     @GetMapping("/meus-pedidos")
     public String listarMeusPedidos(Model model, HttpSession session) {
-        Long clienteId = getLoggedUserId(session);
+        Long clienteId = getLoggedClientId(session);
         if (clienteId == null) {
             return "redirect:/login";
         }
 
+        Object cartCleared = session.getAttribute("cartCleared");
+        if (cartCleared != null) {
+            model.addAttribute("cartCleared", true);
+            session.removeAttribute("cartCleared");
+        }
+
         List<Map<String, Object>> pedidos = getPedidosDoCliente(clienteId).stream()
-                .map(this::normalizePedido)
-                .toList();
+            .map(this::normalizePedido)
+            .toList();
 
         model.addAttribute("pedidos", pedidos);
         return "meus_pedidos";
@@ -291,15 +372,227 @@ public class WebPedidoController {
         return new java.util.ArrayList<>();
     }
 
-    private Long getLoggedUserId(HttpSession session) {
+    private Long getLoggedClientId(HttpSession session) {
         Object loggedUserObj = session.getAttribute(LOGGED_USER_SESSION_KEY);
         if (loggedUserObj instanceof Map<?, ?> userMap) {
+            if (!isClientRole(userMap.get("papel"))) {
+                return null;
+            }
+
             Object id = userMap.get("id");
             if (id != null) {
-                return toLong(id);
+                Long resolvedId = toLong(id);
+                if (resolvedId != null && resolvedId > 0) {
+                    return resolvedId;
+                }
+            }
+
+            Object email = userMap.get("email");
+            if (email != null) {
+                Long resolvedId = findClientIdByEmail(String.valueOf(email));
+                if (resolvedId != null) {
+                    return resolvedId;
+                }
             }
         }
         return null;
+    }
+
+    private Long findClientIdByEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+
+        try {
+            List<Map<String, Object>> users = restTemplate.getForObject(backendUrl + "/api/Utilizadors", List.class);
+            if (users == null) {
+                return null;
+            }
+
+            return users.stream()
+                    .filter(user -> email.equalsIgnoreCase(String.valueOf(user.get("email"))))
+                    .filter(user -> isClientType(user.get("type")))
+                    .map(user -> user.get("id"))
+                    .filter(java.util.Objects::nonNull)
+                    .map(this::toLong)
+                    .findFirst()
+                    .orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private boolean isClientRole(Object papel) {
+        if (papel == null) {
+            return true;
+        }
+        return isClientType(papel);
+    }
+
+    private boolean isClientType(Object type) {
+        if (type == null) {
+            return false;
+        }
+
+        String normalized = String.valueOf(type).trim().toLowerCase();
+        return normalized.contains("client") || normalized.contains("cliente");
+    }
+
+    private Map<String, Object> getClientDeliveryAddress(Long clienteId) {
+        if (clienteId == null) {
+            return null;
+        }
+
+        try {
+            Map<String, Object> user = restTemplate.getForObject(backendUrl + "/api/Utilizadors/" + clienteId, Map.class);
+            if (user == null) {
+                return null;
+            }
+
+            Object addressObj = user.get("address");
+            if (!(addressObj instanceof Map<?, ?> addressRaw)) {
+                return null;
+            }
+
+            String rua = valueAsString(addressRaw.get("rua"));
+            String cidade = valueAsString(addressRaw.get("cidade"));
+            String distrito = valueAsString(addressRaw.get("distrito"));
+            String pais = valueAsString(addressRaw.get("pais"));
+            String codigoPostal = valueAsString(addressRaw.get("codigoPostal"));
+            Integer numero = toInt(addressRaw.get("numero"));
+
+            if (rua == null || cidade == null || distrito == null || pais == null || codigoPostal == null || numero == null || numero <= 0) {
+                return null;
+            }
+
+            Map<String, Object> moradaNova = new HashMap<>();
+            moradaNova.put("id", addressRaw.get("id"));
+            moradaNova.put("rua", rua);
+            moradaNova.put("numero", numero);
+            moradaNova.put("complemento", valueAsString(addressRaw.get("complemento")));
+            moradaNova.put("pais", pais);
+            moradaNova.put("distrito", distrito);
+            moradaNova.put("cidade", cidade);
+            moradaNova.put("codigoPostal", codigoPostal);
+            return moradaNova;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String valueAsString(Object value) {
+        if (value == null) {
+            return null;
+        }
+        String text = String.valueOf(value).trim();
+        return text.isEmpty() ? null : text;
+    }
+
+    private Map<String, Object> resolveCheckoutAddress(
+            Long clienteId,
+            String rua,
+            Integer numero,
+            String complemento,
+            String codigoPostal,
+            String cidade,
+            String distrito,
+            String pais) {
+        boolean hasAnyManualField = hasText(rua)
+                || numero != null
+                || hasText(complemento)
+                || hasText(codigoPostal)
+                || hasText(cidade)
+                || hasText(distrito)
+                || hasText(pais);
+
+        if (hasAnyManualField) {
+            if (!hasText(rua)
+                    || numero == null
+                    || numero <= 0
+                    || !hasText(codigoPostal)
+                    || !hasText(cidade)
+                    || !hasText(distrito)
+                    || !hasText(pais)) {
+                return null;
+            }
+
+            Map<String, Object> moradaNova = new HashMap<>();
+            moradaNova.put("rua", rua.trim());
+            moradaNova.put("numero", numero);
+            moradaNova.put("complemento", hasText(complemento) ? complemento.trim() : "");
+            moradaNova.put("codigoPostal", codigoPostal.trim());
+            moradaNova.put("cidade", cidade.trim());
+            moradaNova.put("distrito", distrito.trim());
+            moradaNova.put("pais", pais.trim());
+            Map<String, Object> selection = new HashMap<>();
+            selection.put("moradaNova", moradaNova);
+            return selection;
+        }
+
+        Map<String, Object> defaultAddress = getClientDeliveryAddress(clienteId);
+        if (defaultAddress == null) {
+            return null;
+        }
+
+        Object moradaId = defaultAddress.get("id");
+        if (moradaId != null) {
+            Map<String, Object> selection = new HashMap<>();
+            selection.put("moradaId", moradaId);
+            return selection;
+        }
+
+        Map<String, Object> selection = new HashMap<>();
+        selection.put("moradaNova", defaultAddress);
+        return selection;
+    }
+
+    private boolean hasManualAddressInput(
+            String rua,
+            Integer numero,
+            String complemento,
+            String codigoPostal,
+            String cidade,
+            String distrito,
+            String pais) {
+        return hasText(rua)
+                || numero != null
+                || hasText(complemento)
+                || hasText(codigoPostal)
+                || hasText(cidade)
+                || hasText(distrito)
+                || hasText(pais);
+    }
+
+    private void saveClientAddressAsDefault(Long clienteId, Map<String, Object> moradaNova) {
+        if (clienteId == null || moradaNova == null) {
+            return;
+        }
+
+        try {
+            Map<String, Object> user = restTemplate.getForObject(backendUrl + "/api/Utilizadors/" + clienteId, Map.class);
+            if (user == null) {
+                return;
+            }
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("name", user.get("name"));
+            payload.put("email", user.get("email"));
+            payload.put("password", null);
+            payload.put("type", "client");
+            payload.put("address", moradaNova);
+
+            restTemplate.exchange(
+                    backendUrl + "/api/Utilizadors/" + clienteId,
+                    HttpMethod.PUT,
+                    new HttpEntity<>(payload),
+                    Map.class
+            );
+        } catch (Exception ignored) {
+        }
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 
     private List<Map<String, Object>> getPedidosDoCliente(Long clienteId) {
@@ -333,14 +626,161 @@ public class WebPedidoController {
         String dataComHora = (data + " " + hora).trim();
 
         Map<String, Object> normalized = new HashMap<>();
+        String estado = String.valueOf(pedido.getOrDefault("estado", "CRIADO"));
         normalized.put("id", pedido.getOrDefault("id", 0));
         normalized.put("restauranteNome", restauranteId != null ? fetchRestaurantName(restauranteId) : "Restaurante");
         normalized.put("total", toDouble(pedido.get("valorTotal")));
-        normalized.put("estado", pedido.getOrDefault("estado", "PENDING"));
-        normalized.put("entregador", "A definir");
+        normalized.put("estado", estado);
+        normalized.put("estadoLabel", formatEstadoPedido(estado));
+        normalized.put("statusClass", statusClassForPedido(estado));
+        normalized.put("cancelavel", isPedidoCancelavel(estado));
+        normalized.put("finalizado", isPedidoFinalizado(estado));
+        normalized.put("statusSteps", buildPedidoStatusSteps(estado));
+        normalized.put("entregador", fetchCourierNameForPedido(toLong(pedido.get("id"))));
         normalized.put("data", dataComHora);
-        normalized.put("avaliado", false);
+        Long pedidoId = toLong(pedido.get("id"));
+        normalized.put("avaliado", isPedidoAvaliado(pedidoId));
+        normalized.put("avaliacao", fetchAvaliacaoForPedido(pedidoId));
         return normalized;
+    }
+
+    private List<Map<String, Object>> buildPedidoStatusSteps(String estado) {
+        if ("CANCELADO".equalsIgnoreCase(estado)) {
+            return List.of(
+                    statusStep("CRIADO", "Pedido criado", true, false),
+                    statusStep("CANCELADO", "Cancelado", false, true)
+            );
+        }
+
+        List<String> ordem = List.of(
+                "CRIADO",
+                "PAGO",
+                "A_PREPARAR",
+                "PRONTO_PARA_ENTREGA",
+                "ATRIBUIDO_ENTREGADOR",
+                "ENTREGUE"
+        );
+        int currentIndex = ordem.indexOf(estado);
+        if (currentIndex < 0) {
+            currentIndex = 0;
+        }
+
+        List<Map<String, Object>> steps = new java.util.ArrayList<>();
+        for (int i = 0; i < ordem.size(); i++) {
+            String stepEstado = ordem.get(i);
+            steps.add(statusStep(stepEstado, formatEstadoPedido(stepEstado), i < currentIndex, i == currentIndex));
+        }
+        return steps;
+    }
+
+    private Map<String, Object> statusStep(String estado, String label, boolean completed, boolean current) {
+        Map<String, Object> step = new HashMap<>();
+        step.put("estado", estado);
+        step.put("label", label);
+        step.put("completed", completed);
+        step.put("current", current);
+        return step;
+    }
+
+    private boolean isPedidoCancelavel(String estado) {
+        return "CRIADO".equalsIgnoreCase(estado) || "PAGO".equalsIgnoreCase(estado);
+    }
+
+    private boolean isPedidoFinalizado(String estado) {
+        return "ENTREGUE".equalsIgnoreCase(estado) || "CANCELADO".equalsIgnoreCase(estado);
+    }
+
+    private String statusClassForPedido(String estado) {
+        if ("ENTREGUE".equalsIgnoreCase(estado)) {
+            return "status-delivered";
+        }
+        if ("CANCELADO".equalsIgnoreCase(estado)) {
+            return "status-cancelled";
+        }
+        return "status-pending";
+    }
+
+    private String formatEstadoPedido(String estado) {
+        return switch (String.valueOf(estado).toUpperCase()) {
+            case "CRIADO" -> "Pedido criado";
+            case "PAGO" -> "Pagamento confirmado";
+            case "A_PREPARAR" -> "Em preparação";
+            case "PRONTO_PARA_ENTREGA" -> "Pronto para entrega";
+            case "ATRIBUIDO_ENTREGADOR" -> "Entregador atribuído";
+            case "ENTREGUE" -> "Entregue";
+            case "CANCELADO" -> "Cancelado";
+            default -> String.valueOf(estado);
+        };
+    }
+
+    private boolean isPedidoAvaliado(Long pedidoId) {
+        if (pedidoId == null) {
+            return false;
+        }
+
+        try {
+            Map<String, Object> result = restTemplate.getForObject(backendUrl + "/avaliacoes/pedido/" + pedidoId + "/existe", Map.class);
+            if (result == null) {
+                return false;
+            }
+            Object avaliado = result.get("avaliado");
+            if (avaliado instanceof Boolean value) {
+                return value;
+            }
+            return Boolean.parseBoolean(String.valueOf(avaliado));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Long getFirstRestaurantIdFromPedido(Map<String, Object> pedido) {
+        if (pedido == null) {
+            return null;
+        }
+
+        Object restaurantesIds = pedido.get("restaurantesIds");
+        if (restaurantesIds instanceof List<?> ids && !ids.isEmpty()) {
+            try {
+                return toLong(ids.get(0));
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    private String fetchCourierNameForPedido(Long pedidoId) {
+        if (pedidoId == null) {
+            return "A definir";
+        }
+
+        try {
+            Map<String, Object> entrega = restTemplate.getForObject(backendUrl + "/entregas/pedido/" + pedidoId, Map.class);
+            if (entrega == null) {
+                return "A definir";
+            }
+
+            Object entregadorNome = entrega.get("entregadorNome");
+            if (entregadorNome == null) {
+                return "A definir";
+            }
+
+            String entregadorIdText = String.valueOf(entregadorNome).trim();
+            if (entregadorIdText.isEmpty()) {
+                return "A definir";
+            }
+
+            Map<String, Object> user = restTemplate.getForObject(backendUrl + "/api/Utilizadors/" + entregadorIdText, Map.class);
+            if (user == null) {
+                return entregadorIdText;
+            }
+
+            Object name = user.get("name");
+            return name == null ? entregadorIdText : String.valueOf(name);
+        } catch (Exception e) {
+            return "A definir";
+        }
     }
 
     private String fetchRestaurantName(Long restauranteId) {
@@ -355,6 +795,18 @@ public class WebPedidoController {
         }
     }
 
+    private Map<String, Object> fetchAvaliacaoForPedido(Long pedidoId) {
+        if (pedidoId == null) {
+            return null;
+        }
+        try {
+            Map<String, Object> avaliacao = restTemplate.getForObject(backendUrl + "/avaliacoes/pedido/" + pedidoId, Map.class);
+            return avaliacao;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private Map<String, Object> buildDetalhesPagamento(String metodoPagamento, String telemovel, String bandeiraCartao, Long pedidoId, double total) {
         Map<String, Object> detalhes = new HashMap<>();
         if ("MBWAY".equalsIgnoreCase(metodoPagamento)) {
@@ -363,8 +815,8 @@ public class WebPedidoController {
         }
 
         if ("MULTIBANCO".equalsIgnoreCase(metodoPagamento)) {
-            detalhes.put("entidade", "WEB");
-            detalhes.put("referencia", "MB-" + pedidoId);
+            detalhes.put("entidade", "12345");
+            detalhes.put("referencia", String.format("%09d", Math.abs(pedidoId % 1_000_000_000L)));
             detalhes.put("bandeiraCartao", bandeiraCartao == null ? "VISA" : bandeiraCartao);
             return detalhes;
         }

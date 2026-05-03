@@ -9,9 +9,11 @@
 package pt.ul.fc.css.tascaeats.controllers;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pt.ul.fc.css.tascaeats.domain.entrega.Entrega;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.dto.entregaDTO.EntregaResumoDTO;
+import pt.ul.fc.css.tascaeats.repository.entregaRepository.IEntregaRepository;
 import pt.ul.fc.css.tascaeats.service.entregaService.EntregaService;
 
 @RestController
@@ -27,9 +30,11 @@ import pt.ul.fc.css.tascaeats.service.entregaService.EntregaService;
 public class EntregaController {
 
 	private final EntregaService entregaService;
+	private final IEntregaRepository entregaRepository;
 
-	public EntregaController(EntregaService entregaService) {
+	public EntregaController(EntregaService entregaService, IEntregaRepository entregaRepository) {
 		this.entregaService = entregaService;
+		this.entregaRepository = entregaRepository;
 	}
 
 	@PatchMapping("/pedido/{pedidoId}/iniciar-preparacao")
@@ -72,6 +77,16 @@ public class EntregaController {
 		} catch (IllegalStateException e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		}
+	}
+
+	@GetMapping("/pedido/{pedidoId}")
+	public ResponseEntity<Object> obterEntregaPorPedido(@PathVariable Long pedidoId) {
+		Optional<Entrega> entregaOptional = entregaRepository.findByPedidoId(pedidoId);
+		if (entregaOptional.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(Map.of("error", "Entrega não encontrada para pedido: " + pedidoId));
+		}
+		return ResponseEntity.ok(toResumoDTO(entregaOptional.get()));
 	}
 
 	private ResponseEntity<Object> mapArgumentError(IllegalArgumentException e) {

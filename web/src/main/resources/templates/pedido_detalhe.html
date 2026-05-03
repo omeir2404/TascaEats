@@ -8,75 +8,121 @@
 ############################################################## -->
 
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Order Details - TascaEats</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhe do Pedido - TascaEats</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .order-container { max-width: 600px; margin: 40px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .status-badge { padding: 8px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; display: inline-block; }
-        .status-pending { background-color: #fff3cd; color: #856404; }
-        .status-delivered { background-color: #d4edda; color: #155724; }
-        .status-cancelled { background-color: #f8d7da; color: #721c24; }
-        
-        .review-box { background-color: #f8f9fa; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-top: 30px; }
-        .review-box textarea { width: 100%; height: 80px; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: vertical;}
-    </style>
 </head>
 <body>
     <div th:replace="~{fragments/header :: cabecalho}"></div>
 
-    <main>
-        <div class="order-container">
-            <h2 th:text="'Order #' + ${pedido.id}">Order #1</h2>
-            
-            <p><strong>Restaurant:</strong> <span th:text="${pedido.restauranteNome}">Name</span></p>
-            <p><strong>Date:</strong> <span th:text="${pedido.data}">Date</span></p>
-            <p><strong>Total:</strong> <span th:text="${pedido.total} + '€'">0.00€</span></p>
-            
-            <hr style="margin: 20px 0;">
+    <main class="page-shell page-shell--order-detail">
+        <section class="order-detail-header">
+            <div class="page-intro">
+                <span class="section-eyebrow">Pedido</span>
+                <h2 th:text="'Pedido #' + ${pedido.id}">Pedido #1</h2>
+                <p th:text="${pedido.restauranteNome}">Restaurante</p>
+            </div>
+            <span th:class="'status-pill ' + ${pedido.statusClass}" th:text="${pedido.estadoLabel}">Estado</span>
+        </section>
 
-            <h3>Order Status</h3>
-            <p>
-                <span th:class="'status-badge ' + 
-                    (${pedido.estado == 'PENDING'} ? 'status-pending' : 
-                    (${pedido.estado == 'DELIVERED'} ? 'status-delivered' : 'status-cancelled'))"
-                    th:text="${pedido.estado}">STATUS</span>
-            </p>
-            <p><strong>Assigned Courier:</strong> <span th:text="${pedido.entregador}">Name</span></p>
+        <div th:if="${error}" class="feedback-message feedback-error" th:text="${error}">Erro</div>
+        <div th:if="${success}" class="feedback-message feedback-success" th:text="${success}">Sucesso</div>
 
-            <form th:if="${pedido.estado == 'PENDING'}" th:action="@{/pedidos/{id}/cancelar(id=${pedido.id})}" method="POST" style="margin-top: 20px;">
-                <button type="submit" style="background-color: #dc3545; color: white;" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel Order</button>
-            </form>
+        <section class="order-detail-grid">
+            <article class="order-detail-panel">
+                <div class="section-header">
+                    <div>
+                        <h3>Acompanhamento</h3>
+                        <p>Segue o pedido passo a passo depois do pagamento.</p>
+                    </div>
+                </div>
 
-            <div th:if="${pedido.estado == 'DELIVERED' and !pedido.avaliado}" class="review-box">
-                <h3 style="margin-top: 0;">Rate your experience</h3>
-                <form th:action="@{/pedidos/{id}/avaliar(id=${pedido.id})}" method="POST">
-                    
-                    <label for="pontuacao">Rating (1 to 5 Stars):</label>
-                    <select id="pontuacao" name="pontuacao" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc;">
-                        <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
-                        <option value="4">⭐⭐⭐⭐ (Good)</option>
-                        <option value="3">⭐⭐⭐ (Average)</option>
-                        <option value="2">⭐⭐ (Poor)</option>
-                        <option value="1">⭐ (Terrible)</option>
-                    </select>
+                <ol class="order-timeline">
+                    <li th:each="step : ${pedido.statusSteps}"
+                        th:class="'order-step ' + (${step.completed} ? 'order-step--done' : (${step.current} ? 'order-step--current' : 'order-step--upcoming'))">
+                        <span class="order-step__marker"></span>
+                        <span th:text="${step.label}">Estado</span>
+                    </li>
+                </ol>
+            </article>
 
-                    <label for="comentario" style="display: block; margin-top: 15px;">Comments:</label>
-                    <textarea id="comentario" name="comentario" placeholder="How was the food?"></textarea>
+            <aside class="order-detail-panel order-detail-summary">
+                <h3>Resumo</h3>
+                <dl>
+                    <div>
+                        <dt>Data</dt>
+                        <dd th:text="${pedido.data}">Data</dd>
+                    </div>
+                    <div>
+                        <dt>Total</dt>
+                        <dd th:text="${pedido.total} + ' €'">0.00 €</dd>
+                    </div>
+                    <div>
+                        <dt>Entregador</dt>
+                        <dd th:text="${pedido.entregador}">A definir</dd>
+                    </div>
+                </dl>
 
-                    <button type="submit" style="width: 100%; margin-top: 15px;">Submit Review</button>
+                <form th:if="${pedido.cancelavel}"
+                      th:action="@{/pedidos/{id}/cancelar(id=${pedido.id})}"
+                      method="POST"
+                      onsubmit="return confirm('Tens a certeza que queres cancelar este pedido?');">
+                    <button type="submit" class="button-danger">Cancelar pedido</button>
                 </form>
+                <p th:unless="${pedido.cancelavel}" class="muted">Este pedido já não pode ser cancelado.</p>
+            </aside>
+        </section>
+
+        <section th:if="${pedido.estado == 'ENTREGUE' and !pedido.avaliado}" class="order-detail-panel">
+            <div class="section-header">
+                <div>
+                    <h3>Avaliar experiência</h3>
+                    <p>Partilha a tua avaliação deste pedido.</p>
+                </div>
             </div>
 
-            <div th:if="${pedido.avaliado}" class="review-box" style="background-color: #e9ecef; text-align: center;">
-                <p>✅ <em>Thank you! You have already reviewed this order.</em></p>
-            </div>
+            <form class="review-form" th:action="@{/pedidos/{id}/avaliar(id=${pedido.id})}" method="POST">
+                <div class="auth-form-field">
+                    <label for="pontuacao">Pontuação</label>
+                    <select id="pontuacao" name="pontuacao">
+                        <option value="5">5 - Excelente</option>
+                        <option value="4">4 - Boa</option>
+                        <option value="3">3 - Regular</option>
+                        <option value="2">2 - Fraca</option>
+                        <option value="1">1 - Ma</option>
+                    </select>
+                </div>
 
-        </div>
+                <div class="auth-form-field">
+                    <label for="comentario">Comentário</label>
+                    <textarea id="comentario" name="comentario" placeholder="Como correu a experiência?"></textarea>
+                </div>
+
+                <button type="submit">Submeter avaliação</button>
+            </form>
+        </section>
+
+        <section th:if="${pedido.avaliado}" class="order-detail-panel">
+            <h3>Avaliação submetida</h3>
+            <p>Obrigado. Este pedido já foi avaliado.</p>
+        </section>
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>
+
+    <script th:if="${!pedido.finalizado}">
+        const orderRefreshTimer = window.setTimeout(function () {
+            window.location.reload();
+        }, 2000);
+
+        document.querySelectorAll("form").forEach(function (form) {
+            form.addEventListener("submit", function () {
+                window.clearTimeout(orderRefreshTimer);
+            });
+        });
+    </script>
 </body>
 </html>

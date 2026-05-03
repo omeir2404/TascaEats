@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -74,10 +73,16 @@ public class PedidoController {
 		}
 	}
 
-	@PatchMapping("/{pedidoId}/cancelar")
+	@PostMapping("/{pedidoId}/cancelar")
 	public ResponseEntity<Object> cancelarPedido(@PathVariable Long pedidoId) {
-		pedidoService.cancelarPedido(pedidoId);
-		return ResponseEntity.ok("Pedido cancelado com sucesso.");
+		try {
+			pedidoService.cancelarPedido(pedidoId);
+			return ResponseEntity.ok("Pedido cancelado com sucesso.");
+		} catch (IllegalArgumentException e) {
+			return mapArgumentError(e);
+		} catch (IllegalStateException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+		}
 	}
 
 	@GetMapping
