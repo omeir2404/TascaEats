@@ -65,26 +65,25 @@ public class NativeAppGUI extends Application {
     private RestauranteApiClient  restauranteClient;
 
     // ── UI state ──────────────────────────────────────────────────────────
-    private Stage mainStage;
-    private VBox  contentArea;
-    private Label headerUserLabel;
+    private Stage  mainStage;
+    private VBox   contentArea;
+    private Label  headerUserLabel;
+    private Button navRestBtn, navProdBtn, navOrderBtn, exitBtn;
+
+    // status labels (updated by background sync)
+    private Label userStatusLabel;
     private Label restStatusLabel;
-    private Button navRestaurantesBtn, navProductsBtn, navOrdersBtn, exitBtn;
+    private Label prodStatusLabel;
+    private Label orderStatusLabel;
 
     public static void main(String[] args) { launch(args); }
 
     @Override
     public void start(Stage stage) {
         mainStage = stage;
-        initMockData();
-        apiClient = new RestauranteApiClient(
-            new RestTemplate(),
-            System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:8080")
-        );
-        utilizadorApiClient = new UtilizadorApiClient(
-            new RestTemplate(),
-            System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:8080")
-        );
+        rest              = new RestTemplate();
+        utilizadorClient  = new UtilizadorApiClient(rest, BACKEND);
+        restauranteClient = new RestauranteApiClient(rest, BACKEND);
 
         contentArea = new VBox();
         contentArea.setStyle("-fx-background-color: #f8f9fa;");
@@ -104,40 +103,7 @@ public class NativeAppGUI extends Application {
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    // Init mock data
-    // ─────────────────────────────────────────────────────────────────────
-    private void initMockData() {
-        mockUsers.addAll(
-            row("id",1,"nome","João Silva",   "email","joao@email.com",   "password","123","papel","CLIENT", "ativo","Sim"),
-            row("id",2,"nome","Maria Santos", "email","maria@email.com",  "password","123","papel","ADMIN",  "ativo","Sim"),
-            row("id",3,"nome","Carlos Ferreira","email","carlos@email.com","password","123","papel","COURIER","ativo","Sim"),
-            row("id",4,"nome","Ana Costa",    "email","ana@email.com",    "password","123","papel","CLIENT", "ativo","Não")
-        );
-        mockRestaurantes.addAll(
-            row("id",1,"nome","Tasca do Zé",  "nif","123456789","estado","ABERTO",   "cidade","Lisboa"),
-            row("id",2,"nome","Bella Napoli", "nif","987654321","estado","FECHADO",  "cidade","Porto"),
-            row("id",3,"nome","Sushi Zen",    "nif","456789123","estado","ABERTO",   "cidade","Lisboa"),
-            row("id",4,"nome","Café Central", "nif","321654987","estado","RESERVADO","cidade","Coimbra")
-        );
-        mockProdutos.addAll(
-            row("id",1,"restId",1,"restNome","Tasca do Zé","nome","Bacalhau à Brás",       "preco","12.50","categoria","PRATO",    "disponivel","Sim"),
-            row("id",2,"restId",1,"restNome","Tasca do Zé","nome","Super Bock 33cl",        "preco","2.00", "categoria","BEBIDA",   "disponivel","Sim"),
-            row("id",3,"restId",1,"restNome","Tasca do Zé","nome","Pastel de Nata",         "preco","1.50", "categoria","SOBREMESA","disponivel","Não"),
-            row("id",4,"restId",3,"restNome","Sushi Zen",  "nome","Combinado Salmon 15 pcs","preco","22.00","categoria","PRATO",    "disponivel","Sim"),
-            row("id",5,"restId",3,"restNome","Sushi Zen",  "nome","Chá Verde",              "preco","3.00", "categoria","BEBIDA",   "disponivel","Sim")
-        );
-        mockPedidos.addAll(
-            row("id",1,"clienteNome","João Silva","clienteId",1,"restNome","Tasca do Zé","restId",1,
-                "estado","CRIADO","total","14.50","pagamento","-","entregador","-"),
-            row("id",2,"clienteNome","Ana Costa", "clienteId",4,"restNome","Sushi Zen",  "restId",3,
-                "estado","PAGO",  "total","25.00","pagamento","MBWAY","entregador","-"),
-            row("id",3,"clienteNome","João Silva","clienteId",1,"restNome","Tasca do Zé","restId",1,
-                "estado","ENTREGUE","total","32.75","pagamento","DINHEIRO","entregador","Carlos Ferreira")
-        );
-    }
-
-    // ─────────────────────────────────────────────────────────────────────
-    // Navigation header
+    // Navigation
     // ─────────────────────────────────────────────────────────────────────
     private HBox buildNavHeader() {
         HBox header = new HBox(8);
@@ -156,7 +122,6 @@ public class NativeAppGUI extends Application {
 
         exitBtn = new Button("Sair");
         exitBtn.setStyle("-fx-font-size: 11px; -fx-padding: 6 14; -fx-background-color: #c62828; -fx-text-fill: white;");
-        exitBtn.setOnAction(e -> Platform.exit());
 
         Button loginBtn = navBtn("A – Login",         this::showLoginPane);
         Button usersBtn = navBtn("C/D – Utilizadores", this::showUsersPane);
@@ -179,16 +144,6 @@ public class NativeAppGUI extends Application {
         return b;
     }
 
-    private void updateNavButtonsState() {
-        // Apenas "C/D - Utilizadores" funciona sem login
-        // Depois de login bem-sucedido, todos os botões ficam ativos
-        navRestaurantesBtn.setDisable(currentUser == null);
-        navProductsBtn.setDisable(currentUser == null);
-        navOrdersBtn.setDisable(currentUser == null);
-        if(currentUser == null){
-            exitBtn.setOnAction(e -> Platform.exit());
-        }else {
-            exitBtn.setOnAction( e -> {
     private void updateNavState() {
         boolean loggedIn = currentUser != null;
         navRestBtn.setDisable(!loggedIn);
@@ -200,17 +155,14 @@ public class NativeAppGUI extends Application {
                 headerUserLabel.setText("Não autenticado");
                 updateNavState();
                 showLoginPane();
-                updateNavButtonsState();
-            });
-        }
             } else {
                 Platform.exit();
             }
+        });
         exitBtn.setText(loggedIn ? "Logout" : "Sair");
     }
 
     private void show(javafx.scene.Node node) { contentArea.getChildren().setAll(node); }
-
     private void showLoginPane()        { show(buildLoginPane()); }
     private void showUsersPane()        { show(buildUsersPane()); }
     private void showRestaurantesPane() { show(buildRestaurantesPane()); }
@@ -222,8 +174,8 @@ public class NativeAppGUI extends Application {
     private VBox buildLoginPane() {
         Label title = sectionTitle("A – Login");
 
-        TextField    emailF = new TextField();  emailF.setPromptText("email@exemplo.com");
-        PasswordField passF = new PasswordField(); passF.setPromptText("password");
+        TextField     emailF = new TextField();  emailF.setPromptText("email@exemplo.com");
+        PasswordField passF  = new PasswordField(); passF.setPromptText("password");
 
         GridPane form = formGrid();
         form.add(lbl("Email:"),    0, 0); form.add(emailF, 1, 0);
@@ -286,11 +238,6 @@ public class NativeAppGUI extends Application {
 
     // ─────────────────────────────────────────────────────────────────────
      // B / C / D – Utilizadores
-     // ─────────────────────────────────────────────────────────────────────
-     private Label userStatusLabel;
-
-     private VBox buildUsersPane() {
-         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList(mockUsers);
     // ─────────────────────────────────────────────────────────────────────
     private VBox buildUsersPane() {
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
