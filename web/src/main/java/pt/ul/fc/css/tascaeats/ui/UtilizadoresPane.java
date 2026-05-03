@@ -1,3 +1,13 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
+
 package pt.ul.fc.css.tascaeats.ui;
 
 import javafx.collections.FXCollections;
@@ -11,9 +21,7 @@ import java.util.Map;
 
 import static pt.ul.fc.css.tascaeats.ui.UiUtils.*;
 
-/**
- * Use Cases C / D – Register Admins & Couriers, view/edit/delete users.
- */
+
 public class UtilizadoresPane {
 
     private final AppState state;

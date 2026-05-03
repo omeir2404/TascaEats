@@ -1,3 +1,13 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
+
 package pt.ul.fc.css.tascaeats.ui;
 
 import java.util.ArrayList;
@@ -11,14 +21,10 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-/**
- * Cliente HTTP simples para consumir a API REST do backend.
- */
+
 public class RestauranteApiClient {
 
-    /**
-     * Resultado de pesquisa de restaurantes, com indicação se foi necessário usar fallback local.
-     */
+
     public record RestaurantSearchResult(List<RestauranteResumo> restaurantes, boolean fallbackUsado, String mensagem) {
     }
 
@@ -61,10 +67,7 @@ public class RestauranteApiClient {
         return restaurantes;
     }
 
-    /**
-     * Pesquisa restaurantes mas, se o backend devolver 404 ou estiver indisponível,
-     * devolve dados demo para permitir testar a interface.
-     */
+
     public RestaurantSearchResult listarRestaurantesComFallback(String nome, String estado) {
         try {
             List<RestauranteResumo> restaurantes = listarRestaurantes(nome, estado);

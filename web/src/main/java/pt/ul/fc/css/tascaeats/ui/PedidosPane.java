@@ -1,3 +1,13 @@
+// ##############################################################
+// 						  TASCAEATS								#
+// 						CSS GRUPO: 25							#
+//           Autores:                Numero Aluno:              #
+//        - Omeir Haroon               61810                    #
+//        - Isa David                  61871                    #
+//        - Diogo Roque                61857                    #
+// ##############################################################
+
+
 package pt.ul.fc.css.tascaeats.ui;
 
 import javafx.collections.FXCollections;
@@ -15,9 +25,6 @@ import java.util.Objects;
 
 import static pt.ul.fc.css.tascaeats.ui.UiUtils.*;
 
-/**
- * Use Cases K / L / M / N – Payment, order state, driver assignment, cancellation.
- */
 public class PedidosPane {
 
     private final AppState state;
@@ -220,7 +227,6 @@ public class PedidosPane {
 
     // ── Helpers ───────────────────────────────────────────────────────────
 
-    /** Fire a PATCH with no body to the given path (relative to BACKEND). */
     private void patch(String path) {
         state.rest.exchange(AppState.BACKEND + path, HttpMethod.PATCH, HttpEntity.EMPTY, Object.class);
     }
