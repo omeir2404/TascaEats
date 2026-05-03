@@ -14,7 +14,6 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -28,7 +27,7 @@ public class NativeAppGUI extends Application {
 
     // ── Backend URL ───────────────────────────────────────────────────────
     private static final String BACKEND =
-        System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:8080");
+            System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:8080");
 
     // ── Live data lists (populated from backend) ──────────────────────────
     private final ObservableList<Map<String, Object>> users        = FXCollections.observableArrayList();
@@ -44,7 +43,7 @@ public class NativeAppGUI extends Application {
     private UtilizadorApiClient   utilizadorClient;
     private RestauranteApiClient  restauranteClient;
 
-    // ── UI state ──────────────────────────────────────────────────────────
+    // ── UI ────────────────────────────────────────────────────────────────
     private Stage  mainStage;
     private VBox   contentArea;
     private Label  headerUserLabel;
@@ -112,14 +111,14 @@ public class NativeAppGUI extends Application {
         updateNavState();
 
         header.getChildren().addAll(title, loginBtn, usersBtn,
-            navRestBtn, navProdBtn, navOrderBtn, spacer, headerUserLabel, exitBtn);
+                navRestBtn, navProdBtn, navOrderBtn, spacer, headerUserLabel, exitBtn);
         return header;
     }
 
     private Button navBtn(String text, Runnable action) {
         Button b = new Button(text);
         b.setStyle("-fx-font-size: 11px; -fx-padding: 6 11; -fx-background-color: transparent;" +
-                   "-fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.35); -fx-border-radius: 4;");
+                "-fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.35); -fx-border-radius: 4;");
         b.setOnAction(e -> action.run());
         return b;
     }
@@ -149,7 +148,7 @@ public class NativeAppGUI extends Application {
     private void showOrdersPane()       { show(buildOrdersPane()); }
 
     // ─────────────────────────────────────────────────────────────────────
-    // A – Login
+    // A – Login (mock: any password accepted if user exists in backend)
     // ─────────────────────────────────────────────────────────────────────
     private VBox buildLoginPane() {
         Label title = sectionTitle("A – Login");
@@ -199,8 +198,8 @@ public class NativeAppGUI extends Application {
     private void finishLogin(String email, Label feedback) {
         bg(() -> utilizadorClient.listarUtilizadores(), allUsers -> {
             Optional<Map<String, Object>> found = allUsers.stream()
-                .filter(u -> email.equalsIgnoreCase(s(u, "email")))
-                .findFirst();
+                    .filter(u -> email.equalsIgnoreCase(s(u, "email")))
+                    .findFirst();
             if (found.isPresent()) {
                 currentUser = found.get();
                 updateNavState();
@@ -222,8 +221,8 @@ public class NativeAppGUI extends Application {
     private VBox buildUsersPane() {
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
-            col("ID", "id"), col("Nome", "nome"), col("Email", "email"),
-            col("Papel", "papel"), col("Ativo", "ativo")
+                col("ID", "id"), col("Nome", "nome"), col("Email", "email"),
+                col("Papel", "papel"), col("Ativo", "ativo")
         );
 
         TextField       searchF  = field("Filtrar por nome...", 180);
@@ -233,9 +232,9 @@ public class NativeAppGUI extends Application {
             String q = searchF.getText().toLowerCase();
             String p = papelBox.getValue();
             display.setAll(users.stream()
-                .filter(u -> q.isBlank() || s(u, "nome").toLowerCase().contains(q))
-                .filter(u -> "Todos".equals(p) || p.equals(s(u, "papel")))
-                .toList());
+                    .filter(u -> q.isBlank() || s(u, "nome").toLowerCase().contains(q))
+                    .filter(u -> "Todos".equals(p) || p.equals(s(u, "papel")))
+                    .toList());
         };
         Button filtrar = new Button("Filtrar");
         filtrar.setOnAction(e -> applyFilter.run());
@@ -256,7 +255,7 @@ public class NativeAppGUI extends Application {
             if ("CLIENT".equals(papel)) { warn("Use Case C: só pode registar Admins e Entregadores aqui."); return; }
             String tipo = mapPapelToTipo(papel);
             UtilizadorApiClient.RegistoResult res = utilizadorClient.registarUtilizador(
-                s(novo, "nome"), s(novo, "email"), s(novo, "password"), tipo);
+                    s(novo, "nome"), s(novo, "email"), s(novo, "password"), tipo);
             if (res.fallbackUsado()) {
                 warn("⚠ " + res.mensagem());
             } else if (res.id() != null) {
@@ -273,7 +272,7 @@ public class NativeAppGUI extends Application {
             Map<String, Object> edited = userDialog(sel);
             if (edited == null) return;
             UtilizadorApiClient.SimpleResult res = utilizadorClient.atualizarUtilizador(
-                sel.get("id"), s(edited, "nome"), s(edited, "email"), s(edited, "password"));
+                    sel.get("id"), s(edited, "nome"), s(edited, "email"), s(edited, "password"));
             if (res.sucesso()) { info("✓ " + res.mensagem()); syncUsers(applyFilter); }
             else                { warn("✗ " + res.mensagem()); }
         });
@@ -293,9 +292,9 @@ public class NativeAppGUI extends Application {
         syncUsers(applyFilter);
 
         return pane(sectionTitle("C/D – Gestão de Utilizadores"),
-            hbar(lbl("Nome:"), searchF, lbl("Papel:"), papelBox, filtrar),
-            hbar(criarBtn, editarBtn, removerBtn),
-            table, userStatusLabel);
+                hbar(lbl("Nome:"), searchF, lbl("Papel:"), papelBox, filtrar),
+                hbar(criarBtn, editarBtn, removerBtn),
+                table, userStatusLabel);
     }
 
     private void syncUsers(Runnable afterUpdate) {
@@ -303,7 +302,7 @@ public class NativeAppGUI extends Application {
             users.setAll(result);
             if (afterUpdate != null) afterUpdate.run();
             setStatus(userStatusLabel,
-                result.isEmpty() ? "⚠ Sem dados (backend indisponível?)" : "✓ " + result.size() + " utilizadores carregados.");
+                    result.isEmpty() ? "⚠ Sem dados (backend indisponível?)" : "✓ " + result.size() + " utilizadores carregados.");
         });
     }
 
@@ -325,10 +324,10 @@ public class NativeAppGUI extends Application {
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         dlg.setResultConverter(b -> b == ButtonType.OK ? row(
-            "nome",     nomeF.getText().trim(),
-            "email",    emailF.getText().trim(),
-            "password", passF.getText().trim(),
-            "papel",    papelBox.getValue()
+                "nome",     nomeF.getText().trim(),
+                "email",    emailF.getText().trim(),
+                "password", passF.getText().trim(),
+                "papel",    papelBox.getValue()
         ) : null);
         return dlg.showAndWait().orElse(null);
     }
@@ -339,8 +338,8 @@ public class NativeAppGUI extends Application {
     private VBox buildRestaurantesPane() {
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
-            col("ID", "id"), col("Nome", "nome"), col("Estado", "estado"),
-            col("Cidade","cidade"), col("NIF","nif")
+                col("ID", "id"), col("Nome", "nome"), col("Estado", "estado"),
+                col("Tipo", "tipo"), col("NIF", "nif")
         );
 
         TextArea details = new TextArea();
@@ -348,8 +347,8 @@ public class NativeAppGUI extends Application {
         details.setPromptText("Selecione um restaurante para ver detalhes.");
         table.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
             if (n != null) details.setText(
-                "ID: " + n.get("id") + "\nNome: " + n.get("nome") +
-                "\nEstado: " + n.get("estado") + "\nCidade: " + n.get("cidade") + "\nNIF: " + n.get("nif"));
+                    "ID: " + n.get("id") + "\nNome: " + n.get("nome") +
+                            "\nEstado: " + n.get("estado") + "\nTipo: " + n.get("tipo") + "\nNIF: " + n.get("nif"));
         });
 
         // E – Search filters
@@ -360,9 +359,9 @@ public class NativeAppGUI extends Application {
             String q = nomeF.getText().toLowerCase();
             String e = estBox.getValue();
             display.setAll(restaurantes.stream()
-                .filter(r -> q.isBlank() || s(r, "nome").toLowerCase().contains(q))
-                .filter(r -> "Todos".equals(e) || e.equals(s(r, "estado")))
-                .toList());
+                    .filter(r -> q.isBlank() || s(r, "nome").toLowerCase().contains(q))
+                    .filter(r -> "Todos".equals(e) || e.equals(s(r, "estado")))
+                    .toList());
         };
         Button pesquisar = new Button("Pesquisar"); pesquisar.setDefaultButton(true);
         pesquisar.setOnAction(e -> applyFilter.run());
@@ -382,10 +381,12 @@ public class NativeAppGUI extends Application {
         criarBtn.setOnAction(e -> {
             Map<String, Object> novo = restauranteDialog(null);
             if (novo == null) return;
+            // Backend requires adminEmail as query param
+            String adminEmail = s(currentUser, "email");
+            if (adminEmail.isBlank()) { warn("Não foi possível determinar o email do administrador."); return; }
             try {
-                // POST /api/restaurantes — adapt payload to your backend's expected format
                 Map<String, Object> payload = buildRestaurantePayload(novo);
-                rest.postForEntity(BACKEND + "/api/restaurantes", payload, Map.class);
+                rest.postForEntity(BACKEND + "/api/restaurantes?adminEmail=" + adminEmail, payload, Map.class);
                 info("✓ Restaurante criado.");
                 syncRestaurantes(applyFilter);
             } catch (Exception ex) { warn("✗ Erro ao criar restaurante: " + ex.getMessage()); }
@@ -414,7 +415,7 @@ public class NativeAppGUI extends Application {
                     Map<String, Object> payload = Map.of("estado", st);
                     HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
                     rest.exchange(BACKEND + "/api/restaurantes/" + sel.get("id") + "/estado",
-                        HttpMethod.PATCH, entity, Map.class);
+                            HttpMethod.PATCH, entity, Map.class);
                     syncRestaurantes(applyFilter);
                 } catch (Exception ex) {
                     // fallback: try PUT if PATCH not available
@@ -450,17 +451,17 @@ public class NativeAppGUI extends Application {
         syncRestaurantes(applyFilter);
 
         return pane(sectionTitle("E/F – Restaurantes"),
-            hbar(lbl("Nome:"), nomeF, lbl("Estado:"), estBox, pesquisar, limpar),
-            hbar(criarBtn, editarBtn, estadoBtn, removerBtn, prodBtn),
-            table, new Label("Detalhes:"), details, restStatusLabel);
+                hbar(lbl("Nome:"), nomeF, lbl("Estado:"), estBox, pesquisar, limpar),
+                hbar(criarBtn, editarBtn, estadoBtn, removerBtn, prodBtn),
+                table, new Label("Detalhes:"), details, restStatusLabel);
     }
 
     private void syncRestaurantes(Runnable afterUpdate) {
         bg(() -> {
             try {
                 ResponseEntity<List<Map<String, Object>>> resp = rest.exchange(
-                    BACKEND + "/api/restaurantes", HttpMethod.GET, null,
-                    new ParameterizedTypeReference<>() {});
+                        BACKEND + "/api/restaurantes", HttpMethod.GET, null,
+                        new ParameterizedTypeReference<>() {});
                 return resp.getBody() != null ? resp.getBody() : List.of();
             } catch (Exception e) { return List.of(); }
         }, result -> {
@@ -468,8 +469,8 @@ public class NativeAppGUI extends Application {
             restaurantes.setAll(typed.stream().map(this::normalizeRestaurante).toList());
             if (afterUpdate != null) afterUpdate.run();
             setStatus(restStatusLabel, result.isEmpty()
-                ? "⚠ Sem dados (backend indisponível?)"
-                : "✓ " + result.size() + " restaurantes carregados.");
+                    ? "⚠ Sem dados (backend indisponível?)"
+                    : "✓ " + result.size() + " restaurantes carregados.");
         });
     }
 
@@ -498,21 +499,22 @@ public class NativeAppGUI extends Application {
         Dialog<Map<String, Object>> dlg = dialog(ex == null ? "Criar Restaurante" : "Editar Restaurante");
         TextField nomeF  = new TextField(s(ex, "nome"));
         TextField nifF   = new TextField(s(ex, "nif"));
-        TextField cidadeF = new TextField(s(ex,"cidade"));
+        ComboBox<String> tipoBox  = combo("OUTRO", "PORTUGUES", "ITALIANO", "JAPONES", "HAMBURGUERIA", "CHINES", "VEGETARIANA");
+        tipoBox.setValue(ex != null && !s(ex, "tipo").isBlank() ? s(ex, "tipo") : "OUTRO");
         ComboBox<String> estBox  = combo("ABERTO", "FECHADO", "RESERVADO");
         estBox.setValue(ex != null ? s(ex, "estado") : "ABERTO");
 
         GridPane g = formGrid();
         g.add(lbl("Nome:"),   0, 0); g.add(nomeF,   1, 0);
         g.add(lbl("NIF:"),    0, 1); g.add(nifF,    1, 1);
-        g.add(lbl("Cidade:"), 0,2); g.add(cidadeF, 1,2);
+        g.add(lbl("Tipo:"),   0, 2); g.add(tipoBox, 1, 2);
         g.add(lbl("Estado:"), 0, 3); g.add(estBox,  1, 3);
         dlg.getDialogPane().setContent(g);
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         dlg.setResultConverter(b -> b == ButtonType.OK ? row(
-            "nome", nomeF.getText().trim(), "nif", nifF.getText().trim(),
-            "cidade", cidadeF.getText().trim(), "estado", estBox.getValue()
+                "nome", nomeF.getText().trim(), "nif", nifF.getText().trim(),
+                "tipo", tipoBox.getValue(), "estado", estBox.getValue()
         ) : null);
         return dlg.showAndWait().orElse(null);
     }
@@ -541,12 +543,12 @@ public class NativeAppGUI extends Application {
             Double maxP; try { maxP = Double.parseDouble(precoMaxF.getText().trim()); } catch (Exception ex) { maxP = null; }
             final Double fMax = maxP;
             display.setAll(produtos.stream()
-                .filter(p -> "Todos".equals(rest) || rest.equals(s(p, "restNome")))
-                .filter(p -> q.isBlank() || s(p, "nome").toLowerCase().contains(q))
-                .filter(p -> "Todas".equals(cat) || cat.equals(s(p, "categoria")))
-                .filter(p -> "Todos".equals(disp) || disp.equals(s(p, "disponivel")))
-                .filter(p -> fMax == null || toDouble(p.get("preco")) <= fMax)
-                .toList());
+                    .filter(p -> "Todos".equals(rest) || rest.equals(s(p, "restNome")))
+                    .filter(p -> q.isBlank() || s(p, "nome").toLowerCase().contains(q))
+                    .filter(p -> "Todas".equals(cat) || cat.equals(s(p, "categoria")))
+                    .filter(p -> "Todos".equals(disp) || disp.equals(s(p, "disponivel")))
+                    .filter(p -> fMax == null || toDouble(p.get("preco")) <= fMax)
+                    .toList());
         };
 
         // Reload products when restaurant filter changes
@@ -556,13 +558,13 @@ public class NativeAppGUI extends Application {
                 syncProdutos(null, applyFilter);
             } else {
                 restaurantes.stream().filter(r -> s(r, "nome").equals(chosen)).findFirst()
-                    .ifPresent(r -> syncProdutos(toLong(r.get("id")), applyFilter));
+                        .ifPresent(r -> syncProdutos(toLong(r.get("id")), applyFilter));
             }
         });
 
         TableView<Map<String, Object>> table = tableOf(display,
-            col("ID", "id"), col("Restaurante", "restNome"), col("Nome", "nome"),
-            col("Preço (€)", "preco"), col("Categoria", "categoria"), col("Disponível", "disponivel")
+                col("ID", "id"), col("Restaurante", "restNome"), col("Nome", "nome"),
+                col("Preço (€)", "preco"), col("Categoria", "categoria"), col("Disponível", "disponivel")
         );
 
         Button filtrar   = new Button("Pesquisar"); filtrar.setOnAction(e -> applyFilter.run());
@@ -574,13 +576,17 @@ public class NativeAppGUI extends Application {
         criarBtn.setOnAction(e -> {
             String rNome = restBox.getValue();
             Map<String, Object> preRest = "Todos".equals(rNome) ? null :
-                restaurantes.stream().filter(r -> s(r, "nome").equals(rNome)).findFirst().orElse(null);
+                    restaurantes.stream().filter(r -> s(r, "nome").equals(rNome)).findFirst().orElse(null);
+            if (preRest == null) { warn("Selecione um restaurante específico para criar um produto."); return; }
             Map<String, Object> novo = produtoDialog(null, preRest);
             if (novo == null) return;
+            Long restId = toLong(preRest.get("id"));
             try {
-                rest.postForEntity(BACKEND + "/api/produtos", buildProdutoPayload(novo), Map.class);
+                // Correct endpoint: POST /api/restaurantes/{restauranteId}/produtos
+                rest.postForEntity(BACKEND + "/api/restaurantes/" + restId + "/produtos",
+                        buildProdutoPayload(novo), Map.class);
                 info("✓ Produto criado.");
-                syncProdutos(preRest != null ? toLong(preRest.get("id")) : null, applyFilter);
+                syncProdutos(restId, applyFilter);
             } catch (Exception ex) { warn("✗ Erro ao criar produto: " + ex.getMessage()); }
         });
 
@@ -605,7 +611,7 @@ public class NativeAppGUI extends Application {
                 Map<String, Object> payload = Map.of("disponivel", novaDisp);
                 HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
                 rest.exchange(BACKEND + "/api/produtos/" + sel.get("id") + "/disponibilidade",
-                    HttpMethod.PATCH, entity, Map.class);
+                        HttpMethod.PATCH, entity, Map.class);
                 syncProdutos(toLong(sel.get("restId")), applyFilter);
             } catch (Exception ex) {
                 // fallback: toggle locally if endpoint doesn't exist
@@ -635,20 +641,20 @@ public class NativeAppGUI extends Application {
         else syncProdutos(null, applyFilter);
 
         return pane(sectionTitle("G/H – Gestão de Produtos"),
-            hbar(lbl("Restaurante:"), restBox, lbl("Nome:"), searchF,
-                 lbl("Preço≤"), precoMaxF, lbl("Cat:"), catBox, lbl("Disp:"), dispBox, filtrar),
-            hbar(criarBtn, editarBtn, dispBtn, apagarBtn, new Region(), voltarBtn),
-            table, prodStatusLabel);
+                hbar(lbl("Restaurante:"), restBox, lbl("Nome:"), searchF,
+                        lbl("Preço≤"), precoMaxF, lbl("Cat:"), catBox, lbl("Disp:"), dispBox, filtrar),
+                hbar(criarBtn, editarBtn, dispBtn, apagarBtn, new Region(), voltarBtn),
+                table, prodStatusLabel);
     }
 
     private void syncProdutos(Long restauranteId, Runnable afterUpdate) {
         bg(() -> {
             try {
                 String url = restauranteId != null
-                    ? BACKEND + "/api/produtos?restauranteId=" + restauranteId
-                    : BACKEND + "/api/produtos";
+                        ? BACKEND + "/api/produtos?restauranteId=" + restauranteId
+                        : BACKEND + "/api/produtos";
                 ResponseEntity<List<Map<String, Object>>> resp = rest.exchange(
-                    url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+                        url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
                 return resp.getBody() != null ? resp.getBody() : List.of();
             } catch (Exception e) { return List.of(); }
         }, result -> {
@@ -659,8 +665,8 @@ public class NativeAppGUI extends Application {
                 Long rid = toLong(p.getOrDefault("restauranteId", p.getOrDefault("restId", -1)));
                 m.put("restId", rid);
                 m.put("restNome", restaurantes.stream()
-                    .filter(r -> rid.equals(toLong(r.get("id"))))
-                    .findFirst().map(r -> s(r, "nome")).orElse("-"));
+                        .filter(r -> rid.equals(toLong(r.get("id"))))
+                        .findFirst().map(r -> s(r, "nome")).orElse("-"));
                 m.put("disponivel", Boolean.TRUE.equals(p.get("disponivel")) ? "Sim" : "Não");
                 return m;
             }).toList();
@@ -717,10 +723,10 @@ public class NativeAppGUI extends Application {
             if (b != ButtonType.OK) return null;
             String rn  = restBox.getValue();
             Object rid = restaurantes.stream().filter(r -> s(r, "nome").equals(rn))
-                .findFirst().map(r -> r.get("id")).orElse(-1);
+                    .findFirst().map(r -> r.get("id")).orElse(-1);
             return row("restId", rid, "restNome", rn,
-                "nome", nomeF.getText().trim(), "preco", precoF.getText().trim(),
-                "categoria", catBox.getValue(), "disponivel", dispBox.getValue());
+                    "nome", nomeF.getText().trim(), "preco", precoF.getText().trim(),
+                    "categoria", catBox.getValue(), "disponivel", dispBox.getValue());
         });
         return dlg.showAndWait().orElse(null);
     }
@@ -731,9 +737,9 @@ public class NativeAppGUI extends Application {
     private VBox buildOrdersPane() {
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
-            col("ID", "id"), col("Cliente", "clienteNome"), col("Restaurante", "restNome"),
-            col("Estado", "estado"), col("Total (€)", "total"),
-            col("Pagamento", "pagamento"), col("Entregador", "entregador")
+                col("ID", "id"), col("Cliente", "clienteNome"), col("Restaurante", "restNome"),
+                col("Estado", "estado"), col("Total (€)", "total"),
+                col("Pagamento", "pagamento"), col("Entregador", "entregador")
         );
 
         TextArea details = new TextArea();
@@ -741,10 +747,10 @@ public class NativeAppGUI extends Application {
         details.setPromptText("Selecione um pedido para ver detalhes.");
         table.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
             if (n != null) details.setText(
-                "ID: " + n.get("id") + "\nCliente: " + n.get("clienteNome") +
-                "\nRestaurante: " + n.get("restNome") + "\nEstado: " + n.get("estado") +
-                "\nTotal: " + n.get("total") + "€\nPagamento: " + n.get("pagamento") +
-                "\nEntregador: " + n.get("entregador"));
+                    "ID: " + n.get("id") + "\nCliente: " + n.get("clienteNome") +
+                            "\nRestaurante: " + n.get("restNome") + "\nEstado: " + n.get("estado") +
+                            "\nTotal: " + n.get("total") + "€\nPagamento: " + n.get("pagamento") +
+                            "\nEntregador: " + n.get("entregador"));
         });
 
         ComboBox<String> estadoBox = combo("Todos", "CRIADO", "PAGO", "PREPARACAO", "PRONTO_PARA_ENTREGA", "ENTREGUE", "CANCELADO");
@@ -754,9 +760,9 @@ public class NativeAppGUI extends Application {
             String st = estadoBox.getValue();
             String cl = clienteF.getText().toLowerCase();
             display.setAll(pedidos.stream()
-                .filter(p -> "Todos".equals(st) || st.equals(s(p, "estado")))
-                .filter(p -> cl.isBlank() || s(p, "clienteNome").toLowerCase().contains(cl))
-                .toList());
+                    .filter(p -> "Todos".equals(st) || st.equals(s(p, "estado")))
+                    .filter(p -> cl.isBlank() || s(p, "clienteNome").toLowerCase().contains(cl))
+                    .toList());
         };
         Button filtrar = new Button("Filtrar"); filtrar.setOnAction(e -> applyFilter.run());
         Button refreshBtn = colorBtn("↻ Atualizar", "#607d8b");
@@ -789,42 +795,62 @@ public class NativeAppGUI extends Application {
             });
         });
 
-        // L – start preparation
-        prepBtn.setOnAction(e -> updateEstadoPedido(selected(table), "PAGO", "PREPARACAO", applyFilter));
-        // L – mark ready
-        prontoBtn.setOnAction(e -> updateEstadoPedido(selected(table), "PREPARACAO", "PRONTO_PARA_ENTREGA", applyFilter));
+        // L – start preparation: PATCH /entregas/pedido/{id}/iniciar-preparacao
+        prepBtn.setOnAction(e -> {
+            Map<String, Object> sel = selected(table); if (sel == null) return;
+            if (!"PAGO".equals(s(sel, "estado"))) { warn("Só pedidos PAGO podem iniciar preparação."); return; }
+            try {
+                rest.exchange(BACKEND + "/entregas/pedido/" + sel.get("id") + "/iniciar-preparacao",
+                        HttpMethod.PATCH, HttpEntity.EMPTY, Object.class);
+                info("✓ Preparação iniciada.");
+                syncPedidos(applyFilter);
+            } catch (Exception ex) { warn("✗ Erro ao iniciar preparação: " + ex.getMessage()); }
+        });
 
-        // M – assign driver
+        // L – mark ready: PATCH /entregas/pedido/{id}/marcar-pronto
+        prontoBtn.setOnAction(e -> {
+            Map<String, Object> sel = selected(table); if (sel == null) return;
+            if (!"PREPARACAO".equals(s(sel, "estado"))) { warn("Só pedidos em PREPARACAO podem ser marcados prontos."); return; }
+            try {
+                rest.exchange(BACKEND + "/entregas/pedido/" + sel.get("id") + "/marcar-pronto",
+                        HttpMethod.PATCH, HttpEntity.EMPTY, Object.class);
+                info("✓ Pedido marcado como pronto para entrega.");
+                syncPedidos(applyFilter);
+            } catch (Exception ex) { warn("✗ Erro ao marcar pronto: " + ex.getMessage()); }
+        });
+
+        // M – assign driver (atribuir entregador endpoint is commented out in backend)
+        // The backend EntregaController has this endpoint commented out.
+        // We show the assignment locally and note it's not persisted until backend implements it.
         atribBtn.setOnAction(e -> {
             Map<String, Object> sel = selected(table); if (sel == null) return;
             if (!"PRONTO_PARA_ENTREGA".equals(s(sel, "estado"))) {
                 warn("Pedido deve estar PRONTO_PARA_ENTREGA."); return;
             }
             List<String> couriers = users.stream()
-                .filter(u -> "COURIER".equals(s(u, "papel")) && "Sim".equals(s(u, "ativo")))
-                .map(u -> s(u, "nome")).toList();
+                    .filter(u -> "COURIER".equals(s(u, "papel")) && "Sim".equals(s(u, "ativo")))
+                    .map(u -> s(u, "nome")).toList();
             if (couriers.isEmpty()) { warn("Nenhum entregador disponível."); return; }
             ChoiceDialog<String> cd = new ChoiceDialog<>(couriers.get(0), couriers);
             cd.setTitle("Atribuir Entregador"); cd.setHeaderText("Escolha o entregador:"); cd.initOwner(mainStage);
-            cd.showAndWait().ifPresent(nome -> {
-                users.stream().filter(u -> nome.equals(s(u, "nome")) && "COURIER".equals(s(u, "papel")))
-                    .findFirst().ifPresent(courier -> {
-                        try {
-                            Map<String, Object> payload = Map.of("entregadorId", courier.get("id"));
-                            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
-                            rest.exchange(BACKEND + "/pedidos/" + sel.get("id") + "/entregador",
-                                HttpMethod.PATCH, entity, Map.class);
-                            info("✓ Entregador " + nome + " atribuído.");
-                            syncPedidos(applyFilter);
-                        } catch (Exception ex) { warn("✗ Erro ao atribuir entregador: " + ex.getMessage()); }
-                    });
-            });
+            cd.showAndWait().ifPresent(nome -> info("✓ Entregador " + nome + " anotado (persistência pendente no backend)."));
         });
 
-        // M – register delivery
-        entregBtn.setOnAction(e -> updateEstadoPedido(selected(table), "PRONTO_PARA_ENTREGA", "ENTREGUE", applyFilter));
+        // M – register pickup: PATCH /entregas/pedido/{id}/recolha
+        entregBtn.setOnAction(e -> {
+            Map<String, Object> sel = selected(table); if (sel == null) return;
+            if (!"PRONTO_PARA_ENTREGA".equals(s(sel, "estado"))) {
+                warn("Pedido deve estar PRONTO_PARA_ENTREGA para registar recolha."); return;
+            }
+            try {
+                rest.exchange(BACKEND + "/entregas/pedido/" + sel.get("id") + "/recolha",
+                        HttpMethod.PATCH, HttpEntity.EMPTY, Object.class);
+                info("✓ Recolha registada.");
+                syncPedidos(applyFilter);
+            } catch (Exception ex) { warn("✗ Erro ao registar recolha: " + ex.getMessage()); }
+        });
 
-        // N – cancel
+        // N – cancel: PATCH /pedidos/{id}/cancelar
         cancelBtn.setOnAction(e -> {
             Map<String, Object> sel = selected(table); if (sel == null) return;
             String st = s(sel, "estado");
@@ -834,10 +860,22 @@ public class NativeAppGUI extends Application {
             if (!confirm("Cancelar pedido #" + sel.get("id") + "?")) return;
             try {
                 rest.exchange(BACKEND + "/pedidos/" + sel.get("id") + "/cancelar",
-                    HttpMethod.PATCH, HttpEntity.EMPTY, Map.class);
+                        HttpMethod.PATCH, HttpEntity.EMPTY, Map.class);
                 info("✓ Pedido cancelado.");
                 syncPedidos(applyFilter);
             } catch (Exception ex) { warn("✗ Erro ao cancelar: " + ex.getMessage()); }
+        });
+
+        // Extra: register final delivery: PATCH /entregas/pedido/{id}/entrega-final
+        Button entregaFinalBtn = colorBtn("📬 Entrega Final", "#004d40");
+        entregaFinalBtn.setOnAction(e -> {
+            Map<String, Object> sel = selected(table); if (sel == null) return;
+            try {
+                rest.exchange(BACKEND + "/entregas/pedido/" + sel.get("id") + "/entrega-final",
+                        HttpMethod.PATCH, HttpEntity.EMPTY, Object.class);
+                info("✓ Entrega final registada.");
+                syncPedidos(applyFilter);
+            } catch (Exception ex) { warn("✗ Erro ao registar entrega final: " + ex.getMessage()); }
         });
 
         orderStatusLabel = statusLabel("A carregar pedidos...");
@@ -846,33 +884,18 @@ public class NativeAppGUI extends Application {
         if (users.isEmpty()) syncUsers(null);
 
         return pane(sectionTitle("K/L/M/N – Gestão de Pedidos"),
-            hbar(lbl("Estado:"), estadoBox, lbl("Cliente:"), clienteF, filtrar, refreshBtn),
-            hbar(pagarBtn, prepBtn, prontoBtn, atribBtn, entregBtn, cancelBtn),
-            table, new Label("Detalhes do pedido selecionado:"), details,
-            orderStatusLabel);
-    }
-
-    private void updateEstadoPedido(Map<String, Object> sel, String expectedEstado, String newEstado, Runnable afterUpdate) {
-        if (sel == null) return;
-        if (!expectedEstado.equals(s(sel, "estado"))) {
-            warn("Pedido deve estar em estado " + expectedEstado + "."); return;
-        }
-        try {
-            Map<String, Object> payload = Map.of("estado", newEstado);
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload);
-            rest.exchange(BACKEND + "/pedidos/" + sel.get("id") + "/estado",
-                HttpMethod.PATCH, entity, Map.class);
-            info("✓ Estado atualizado para " + newEstado + ".");
-            syncPedidos(afterUpdate);
-        } catch (Exception ex) { warn("✗ Erro ao atualizar estado: " + ex.getMessage()); }
+                hbar(lbl("Estado:"), estadoBox, lbl("Cliente:"), clienteF, filtrar, refreshBtn),
+                hbar(pagarBtn, prepBtn, prontoBtn, atribBtn, entregBtn, entregaFinalBtn, cancelBtn),
+                table, new Label("Detalhes do pedido selecionado:"), details,
+                orderStatusLabel);
     }
 
     private void syncPedidos(Runnable afterUpdate) {
         bg(() -> {
             try {
                 ResponseEntity<List<Map<String, Object>>> resp = rest.exchange(
-                    BACKEND + "/pedidos", HttpMethod.GET, null,
-                    new ParameterizedTypeReference<>() {});
+                        BACKEND + "/pedidos", HttpMethod.GET, null,
+                        new ParameterizedTypeReference<>() {});
                 return resp.getBody() != null ? resp.getBody() : List.of();
             } catch (Exception e) { return List.of(); }
         }, result -> {
@@ -894,14 +917,14 @@ public class NativeAppGUI extends Application {
         if (rid != null) restId = toLong(rid);
         final Long fRestId = restId;
         String restNome = restaurantes.stream()
-            .filter(r -> fRestId != null && fRestId.equals(toLong(r.get("id"))))
-            .findFirst().map(r -> s(r, "nome")).orElse("Restaurante #" + fRestId);
+                .filter(r -> fRestId != null && fRestId.equals(toLong(r.get("id"))))
+                .findFirst().map(r -> s(r, "nome")).orElse("Restaurante #" + fRestId);
 
         // Resolve client name
         Object cid = p.get("clienteId");
         String clienteNome = users.stream()
-            .filter(u -> cid != null && cid.toString().equals(Objects.toString(u.get("id"))))
-            .findFirst().map(u -> s(u, "nome")).orElse(Objects.toString(cid, "-"));
+                .filter(u -> cid != null && cid.toString().equals(Objects.toString(u.get("id"))))
+                .findFirst().map(u -> s(u, "nome")).orElse(Objects.toString(cid, "-"));
 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id",          p.getOrDefault("id", "?"));
@@ -954,14 +977,14 @@ public class NativeAppGUI extends Application {
     private Button primaryButton(String t) {
         Button b = new Button(t);
         b.setStyle("-fx-font-size: 13px; -fx-padding: 10 28; -fx-background-color: #ff5722;" +
-                   "-fx-text-fill: white; -fx-background-radius: 6;");
+                "-fx-text-fill: white; -fx-background-radius: 6;");
         return b;
     }
 
     private Button colorBtn(String text, String color) {
         Button b = new Button(text);
         b.setStyle("-fx-padding: 6 10; -fx-background-color: " + color + ";" +
-                   "-fx-text-fill: white; -fx-font-size: 11px;");
+                "-fx-text-fill: white; -fx-font-size: 11px;");
         return b;
     }
 
@@ -986,7 +1009,7 @@ public class NativeAppGUI extends Application {
         g.setHgap(12); g.setVgap(10);
         g.setPadding(new Insets(16));
         g.setStyle("-fx-background-color: white; -fx-background-radius: 8;" +
-                   "-fx-border-color: #ddd; -fx-border-radius: 8;");
+                "-fx-border-color: #ddd; -fx-border-radius: 8;");
         g.getColumnConstraints().addAll(new ColumnConstraints(110), new ColumnConstraints(230));
         return g;
     }
@@ -1010,7 +1033,7 @@ public class NativeAppGUI extends Application {
         VBox box = new VBox(12, nodes);
         box.setPadding(new Insets(24));
         box.setStyle("-fx-background-color: white; -fx-background-radius: 10;" +
-                     "-fx-border-color: #ddd; -fx-border-radius: 10;");
+                "-fx-border-color: #ddd; -fx-border-radius: 10;");
         return box;
     }
 
