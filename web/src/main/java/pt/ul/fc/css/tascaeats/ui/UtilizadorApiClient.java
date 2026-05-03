@@ -8,29 +8,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
- * Cliente HTTP para registar utilizadores no backend REST com fallback para modo mock.
+ * HTTP client for all Utilizador-related backend calls.
+ * Every method has a clear fallback so the GUI can handle failures gracefully.
  */
 public class UtilizadorApiClient {
-
-    private final String baseUrl = System.getenv().getOrDefault("BACKEND_API_URL","http://localhost:8080");
-
-    /**
-     * Resultado de registo de utilizador, com indicação se foi necessário usar fallback local.
-     */
-    public record RegistoResult(Long id, String email, String type, boolean fallbackUsado, String mensagem) {
-    }
-
-    /**
-     * Resultado de login, com indicação se foi necessário usar fallback local.
-     */
-    public record LoginResult(boolean sucesso, boolean fallbackUsado, String mensagem) {
-    }
 
     private final RestTemplate restTemplate;
     private final String backendUrl;
 
+    // ── Records ───────────────────────────────────────────────────────────
+
+    public record RegistoResult(Long id, String email, String type, boolean fallbackUsado, String mensagem) {}
+    public record LoginResult(boolean sucesso, boolean fallbackUsado, String mensagem) {}
     // ── Constructor ───────────────────────────────────────────────────────
 
     public UtilizadorApiClient(RestTemplate restTemplate, String backendUrl) {
@@ -38,8 +31,31 @@ public class UtilizadorApiClient {
         this.backendUrl   = normalizeUrl(backendUrl);
     }
 
-    public String getBackendUrl() {
-        return backendUrl;
+    // ── A: Login ──────────────────────────────────────────────────────────
+
+    /**
+     * POST /api/login — mock login (any password accepted if user exists).
+     */
+    public LoginResult login(String email, String password) {
+        try {
+            Map<String, Object> payload = Map.of(
+                "email",    email    != null ? email.trim()    : "",
+                "password", password != null ? password.trim() : ""
+            );
+            ResponseEntity<Map> resp = restTemplate.postForEntity(backendUrl + "/api/login", payload, Map.class);
+            if (resp.getStatusCode().is2xxSuccessful()) {
+                String msg = msgFrom(resp.getBody(), "Login bem-sucedido");
+                return new LoginResult(true, false, msg);
+            }
+            if (resp.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                return new LoginResult(false, false, "Email ou password incorretos.");
+            }
+            return new LoginResult(false, false, "Erro: " + resp.getStatusCode());
+        } catch (HttpClientErrorException.Unauthorized e) {
+            return new LoginResult(false, false, "Email ou password incorretos.");
+        } catch (RestClientException e) {
+            return new LoginResult(false, true, "Backend indisponível — modo demo.");
+        }
     }
 
     /**
@@ -125,7 +141,15 @@ public class UtilizadorApiClient {
                 return new LoginResult(false, false, "Email ou password incorretos.");
             }
 
-            return new LoginResult(false, false, "Erro ao fazer login: " + response.getStatusCode());
+    /**
+     * PUT /api/Utilizadors/{id}
+     */
+    public SimpleResult atualizarUtilizador(Object id, String nome, String email, String password) {
+        try {
+            var payload = new java.util.LinkedHashMap<String, Object>();
+            if (nome     != null && !nome.isBlank())     payload.put("name",     nome.trim());
+            if (email    != null && !email.isBlank())    payload.put("email",    email.trim());
+            if (password != null && !password.isBlank()) payload.put("password", password.trim());
 
         } catch (RestClientException ex) {
             // Backend indisponível - não usar fallback para login (segurança)
