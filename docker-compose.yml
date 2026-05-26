@@ -46,9 +46,88 @@ services:
       - 8081:8080
     environment:
       - BACKEND_API_URL=http://backend:8080
+# --- NEW INFRASTRUCTURE ---
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"     # REST traffic
+      - "8082:8080" # gRPC traffic mapping
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - delivery-backend
+    networks:
+      - dbnet
+
+  # Isolated Database for Delivery Microservice
+  pgserver-entregas:
+    image: postgres:16
+    volumes:
+      - postgres-entregas-data:/var/lib/postgresql/data
+    ports:
+      - 5433:5432 # Mapped to 5433 on your host to avoid clashing with the monolith DB
+    networks:
+      - dbnet
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-Utilizador}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: delivery_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d delivery_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+    restart: unless-stopped
+
+  # Apache Kafka (KRaft mode)
+  kafka:
+    image: apache/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+      KAFKA_LOG4J_ROOT_LOGLEVEL: WARN
+      KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR
+      KAFKA_LOG4J_LOGGERS: "kafka=WARN,kafka.controller=WARN,kafka.coordinator=WARN,state.change.logger=WARN"
+    networks:
+      - dbnet
+    restart: unless-stopped
+
+  # The New Delivery Microservice
+  delivery-backend:
+    build:
+      context: ./delivery-service
+    restart: unless-stopped
+    depends_on:
+      pgserver-entregas:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - dbnet
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pgserver-entregas:5432/delivery_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-Utilizador}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
 volumes:
   postgres-data:
+  postgres-entregas-data:
 
 networks:
   dbnet:
