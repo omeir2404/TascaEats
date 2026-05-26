@@ -10,23 +10,23 @@ O trabalho está dividido em três partes iguais para facilitar a distribuição
 *Objetivo: Estabelecer a infraestrutura distribuída com Docker, configurar o Nginx como ponto único de entrada e criar o esqueleto do novo serviço.*
 
 ### 1.1 Atualização do `docker-compose.yml`
-- [ ] **Adicionar Apache Kafka:** Configurar o serviço do Kafka (e Zookeeper/KRaft) para suportar mensageria. Garantir que expõe as portas corretas para a rede interna `dbnet`.
-- [ ] **Adicionar PostgreSQL Isolado:** Criar um novo serviço de base de dados para o microserviço de entregas (ex: `pgserver-entregas`), distinto do `pgserver` do monólito.
-- [ ] **Adicionar Nginx:** Configurar o contentor Nginx que irá atuar como Reverse Proxy.
-- [ ] **Adicionar Novo Microserviço:** Adicionar a definição do serviço `delivery-backend` ao `docker-compose.yml`, dependente do `pgserver-entregas` e do Kafka.
+- [x] **Adicionar Apache Kafka:** Configurar o serviço do Kafka (e Zookeeper/KRaft) para suportar mensageria. Garantir que expõe as portas corretas para a rede interna `dbnet`.
+- [x] **Adicionar PostgreSQL Isolado:** Criar um novo serviço de base de dados para o microserviço de entregas (ex: `pgserver-entregas`), distinto do `pgserver` do monólito.
+- [x] **Adicionar Nginx:** Configurar o contentor Nginx que irá atuar como Reverse Proxy.
+- [x] **Adicionar Novo Microserviço:** Adicionar a definição do serviço `delivery-backend` ao `docker-compose.yml`, dependente do `pgserver-entregas` e do Kafka.
 
 ### 1.2 Configuração do Nginx (`nginx.conf`)
-- [ ] Criar o ficheiro `nginx.conf` na raiz do projeto (ou pasta `config`).
-- [ ] Configurar blocos `upstream` para apontar para o monólito (`backend:8080`).
-- [ ] Configurar rotas para encaminhar pedidos REST (provenientes da Web).
-- [ ] Configurar rotas para encaminhar pedidos gRPC (provenientes da interface JavaFX).
+- [x] Criar o ficheiro `nginx.conf` na raiz do projeto (ou pasta `config`).
+- [x] Configurar blocos `upstream` para apontar para o monólito (`backend:8080`).
+- [x] Configurar rotas para encaminhar pedidos REST (provenientes da Web).
+- [x] Configurar rotas para encaminhar pedidos gRPC (provenientes da interface JavaFX).
 - [ ] Atualizar o serviço Web (`web`) para fazer chamadas ao Nginx em vez de chamar o monólito diretamente.
 
 ### 1.3 Esqueleto do Microserviço de Entregas
-- [ ] Criar a diretoria `/delivery-service` ao lado do `/backend` e `/web`.
-- [ ] Inicializar um projeto Spring Boot (Maven, Java 17).
-- [ ] Configurar `application.properties` para ligar exclusivamente à nova base de dados PostgreSQL (`pgserver-entregas`).
-- [ ] Configurar dependências: Spring Web, Spring Data JPA, PostgreSQL Driver, Spring Kafka.
+- [x] Criar a diretoria `/delivery-service` ao lado do `/backend` e `/web`.
+- [x] Inicializar um projeto Spring Boot (Maven, Java 17).
+- [x] Configurar `application.properties` para ligar exclusivamente à nova base de dados PostgreSQL (`pgserver-entregas`).
+- [x] Configurar dependências: Spring Web, Spring Data JPA, PostgreSQL Driver, Spring Kafka.
 
 ---
 
