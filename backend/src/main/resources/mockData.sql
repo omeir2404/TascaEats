@@ -589,5 +589,122 @@ WHERE r.nif = '444555666'
         AND p.restaurante_id = r.id
   );
 
+-- Seed: two delivered orders for cliente@tascaeats.local (available for review)
+WITH client AS (
+  SELECT u.id AS cliente_id
+  FROM utilizadores u
+  WHERE u.email = 'cliente@tascaeats.local'
+),
+prod_ids_tasca AS (
+  SELECT p.id AS produto_id, r.id AS restaurante_id
+  FROM produto p
+  JOIN restaurante r ON p.restaurante_id = r.id
+  WHERE r.nif = '123456789' AND p.nome IN ('Bitoque', 'Super Bock 33cl')
+),
+order_tasca AS (
+  INSERT INTO pedidos (data, hora, valor_total, estado, cliente_id, tipo_pagamento_solicitado)
+  SELECT (CURRENT_DATE - INTERVAL '2 days')::date,
+       (CURRENT_TIME - INTERVAL '2 hours')::time,
+       15.50,
+       'ENTREGUE',
+       c.cliente_id,
+       'MBWAY'
+  FROM client c
+  RETURNING id
+)
+INSERT INTO pedido_produtos (pedido_id, produto_id)
+SELECT o.id, pid.produto_id
+FROM order_tasca o
+CROSS JOIN prod_ids_tasca pid;
+
+
+WITH client AS (
+  SELECT u.id AS cliente_id
+  FROM utilizadores u
+  WHERE u.email = 'cliente@tascaeats.local'
+),
+prod_ids_tasca AS (
+  SELECT p.id AS produto_id, r.id AS restaurante_id
+  FROM produto p
+  JOIN restaurante r ON p.restaurante_id = r.id
+  WHERE r.nif = '123456789' AND p.nome IN ('Bitoque', 'Super Bock 33cl')
+),
+order_tasca AS (
+  INSERT INTO pedidos (data, hora, valor_total, estado, cliente_id, tipo_pagamento_solicitado)
+  SELECT (CURRENT_DATE - INTERVAL '2 days')::date,
+       (CURRENT_TIME - INTERVAL '2 hours')::time,
+       15.50,
+       'PAGO',
+       c.cliente_id,
+       'MBWAY'
+  FROM client c
+  RETURNING id
+)
+INSERT INTO pedido_produtos (pedido_id, produto_id)
+SELECT o.id, pid.produto_id
+FROM order_tasca o
+CROSS JOIN prod_ids_tasca pid;
+
+
+
+WITH client AS (
+  SELECT u.id AS cliente_id
+  FROM utilizadores u
+  WHERE u.email = 'cliente@tascaeats.local'
+),
+prod_ids_sushi AS (
+  SELECT p.id AS produto_id, r.id AS restaurante_id
+  FROM produto p
+  JOIN restaurante r ON p.restaurante_id = r.id
+  WHERE r.nif = '987654321' AND p.nome IN ('Combinado Sushi 15 peças', 'Chá Verde')
+),
+order_sushi AS (
+  INSERT INTO pedidos (data, hora, valor_total, estado, cliente_id, tipo_pagamento_solicitado)
+  SELECT (CURRENT_DATE - INTERVAL '1 day')::date,
+       (CURRENT_TIME - INTERVAL '5 hours')::time,
+       30.00,
+       'ENTREGUE',
+       c.cliente_id,
+       'CARTAO'
+  FROM client c
+  RETURNING id
+)
+INSERT INTO pedido_produtos (pedido_id, produto_id)
+SELECT o.id, pid.produto_id
+FROM order_sushi o
+CROSS JOIN prod_ids_sushi pid;
+
+-- Link restaurants for the newly inserted delivered orders (distinct per order)
+WITH client AS (
+  SELECT u.id AS cliente_id
+  FROM utilizadores u
+  WHERE u.email = 'cliente@tascaeats.local'
+)
+INSERT INTO pedido_restaurantes (pedido_id, restaurante_id)
+SELECT p.id, r.id
+FROM pedidos p
+JOIN pedido_produtos pp ON pp.pedido_id = p.id
+JOIN produto prod ON prod.id = pp.produto_id
+JOIN restaurante r ON r.id = prod.restaurante_id
+WHERE p.cliente_id = (SELECT cliente_id FROM client)
+  AND p.estado = 'ENTREGUE'
+GROUP BY p.id, r.id;
+
+
+WITH client AS (
+  SELECT u.id AS cliente_id
+  FROM utilizadores u
+  WHERE u.email = 'cliente@tascaeats.local'
+)
+INSERT INTO pedido_restaurantes (pedido_id, restaurante_id)
+SELECT p.id, r.id
+FROM pedidos p
+JOIN pedido_produtos pp ON pp.pedido_id = p.id
+JOIN produto prod ON prod.id = pp.produto_id
+JOIN restaurante r ON r.id = prod.restaurante_id
+WHERE p.cliente_id = (SELECT cliente_id FROM client)
+  AND p.estado = 'PAGO'
+GROUP BY p.id, r.id;
+
 SELECT setval('utilizadores_seq', (SELECT COALESCE(MAX(id), 1) FROM utilizadores), true);
 SELECT setval('morada_utilizador_seq', COALESCE((SELECT MAX(id) FROM morada_utilizador), 0) + 1, false);
