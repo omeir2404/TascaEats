@@ -10,19 +10,19 @@
 
 package pt.ul.fc.css.tascaeats.ui;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
+import java.util.Map;
+import java.util.function.Consumer;
+
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.function.Consumer;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 public class AppState {
 
     public static final String BACKEND =
-        System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:8080");
+        System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:80");
 
     // ── HTTP clients ──────────────────────────────────────────────────────
     public final RestTemplate         rest             = new RestTemplate(new HttpComponentsClientHttpRequestFactory());

@@ -185,7 +185,7 @@ public class UtilizadorApiClient {
     }
 
     private String normalizeUrl(String raw) {
-        String v = (raw == null || raw.isBlank()) ? "http://localhost:8080" : raw.trim();
+        String v = (raw == null || raw.isBlank()) ? "http://localhost:80" : raw.trim();
         while (v.endsWith("/")) v = v.substring(0, v.length() - 1);
         return v;
     }

@@ -101,7 +101,7 @@ public class RestauranteApiClient {
     }
 
     private String normalizeBackendUrl(String rawUrl) {
-        String value = rawUrl == null || rawUrl.isBlank() ? "http://localhost:8080" : rawUrl.trim();
+        String value = rawUrl == null || rawUrl.isBlank() ? "http://localhost:80" : rawUrl.trim();
         while (value.endsWith("/")) {
             value = value.substring(0, value.length() - 1);
         }

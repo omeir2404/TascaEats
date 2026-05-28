@@ -20,7 +20,7 @@ O trabalho está dividido em três partes iguais para facilitar a distribuição
 - [x] Configurar blocos `upstream` para apontar para o monólito (`backend:8080`).
 - [x] Configurar rotas para encaminhar pedidos REST (provenientes da Web).
 - [x] Configurar rotas para encaminhar pedidos gRPC (provenientes da interface JavaFX).
-- [ ] Atualizar o serviço Web (`web`) para fazer chamadas ao Nginx em vez de chamar o monólito diretamente.
+- [x] Atualizar o serviço Web (`web`) para fazer chamadas ao Nginx em vez de chamar o monólito diretamente.
 
 ### 1.3 Esqueleto do Microserviço de Entregas
 - [x] Criar a diretoria `/delivery-service` ao lado do `/backend` e `/web`.
