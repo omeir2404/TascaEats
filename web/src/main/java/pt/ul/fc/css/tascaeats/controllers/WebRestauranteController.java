@@ -29,7 +29,7 @@ public class WebRestauranteController {
 
     private final RestTemplate restTemplate;
 
-    @Value("${BACKEND_API_URL:http://localhost:8080}")
+    @Value("${BACKEND_API_URL:http://localhost:80}")
     private String backendUrl;
 
     public WebRestauranteController(RestTemplate restTemplate) {
