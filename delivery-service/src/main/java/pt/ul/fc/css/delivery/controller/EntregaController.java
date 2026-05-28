@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import pt.ul.fc.css.delivery.domain.entrega.Entrega;
 import pt.ul.fc.css.delivery.dto.entregaDTO.AtribuirEntregadorDTO;
+import pt.ul.fc.css.delivery.dto.entregaDTO.AtualizarEstadoEntregaDTO;
 import pt.ul.fc.css.delivery.dto.entregaDTO.EntregaResumoDTO;
 import pt.ul.fc.css.delivery.service.EntregaService;
 
@@ -56,6 +57,18 @@ public class EntregaController {
     public ResponseEntity<Object> registarEntregaFinal(@PathVariable Long pedidoId) {
         try {
             return ResponseEntity.ok(toResumoDTO(entregaService.registarEntregaFinal(pedidoId)));
+        } catch (IllegalArgumentException e) {
+            return mapArgumentError(e);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/entregas/pedido/{pedidoId}/estado")
+    public ResponseEntity<Object> atualizarEstadoEntrega(@PathVariable Long pedidoId,
+                                                         @RequestBody AtualizarEstadoEntregaDTO dto) {
+        try {
+            return ResponseEntity.ok(toResumoDTO(entregaService.atualizarEstadoEntrega(pedidoId, dto)));
         } catch (IllegalArgumentException e) {
             return mapArgumentError(e);
         } catch (IllegalStateException e) {

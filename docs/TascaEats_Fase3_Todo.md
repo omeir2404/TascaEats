@@ -47,7 +47,7 @@ O trabalho está dividido em três partes iguais para facilitar a distribuição
     - [x] 1. Registo, atualização e gestão do perfil de Entregadores.
     - [x] 2. Filtros e buscas relativos a entregadores.
     - [x] 3. Atribuição de entregador a um pedido recém-pago.
-    - [ ] 4. Atualização do estado da entrega.
+    - [x] 4. Atualização do estado da entrega.
 
 ### 2.3 Limpeza do Monólito (Backend)
 - [ ] Remover entidades `Entrega` e dependências diretas de bases de dados relacionais ao módulo de entregas.

@@ -10,6 +10,7 @@ import pt.ul.fc.css.delivery.domain.entrega.Entrega;
 import pt.ul.fc.css.delivery.domain.entrega.EstadoEntrega;
 import pt.ul.fc.css.delivery.domain.entregador.Entregador;
 import pt.ul.fc.css.delivery.dto.entregaDTO.AtribuirEntregadorDTO;
+import pt.ul.fc.css.delivery.dto.entregaDTO.AtualizarEstadoEntregaDTO;
 import pt.ul.fc.css.delivery.dto.entregadorDTO.AtualizarEntregadorDTO;
 import pt.ul.fc.css.delivery.dto.entregadorDTO.CriarEntregadorDTO;
 import pt.ul.fc.css.delivery.repository.EntregaRepository;
@@ -163,6 +164,30 @@ public class EntregaService {
         entregador.setAvailable(true);
 
         entregadorRepository.save(entregador);
+        return entregaRepository.save(entrega);
+    }
+
+    @Transactional
+    public Entrega atualizarEstadoEntrega(Long pedidoId, AtualizarEstadoEntregaDTO dto) {
+        Entrega entrega = obterEntregaObrigatoria(pedidoId);
+        if (dto == null || dto.getEstado() == null) {
+            throw new IllegalArgumentException("Estado da entrega nao pode ser nulo.");
+        }
+
+        switch (dto.getEstado()) {
+            case A_CAMINHO -> entrega.registarRecolha();
+            case ENTREGUE -> entrega.registarConclusao();
+            default -> throw new IllegalArgumentException("Estado da entrega invalido.");
+        }
+
+        if (dto.getEstado() == EstadoEntrega.ENTREGUE && entrega.getEntregadorId() != null) {
+            Entregador entregador = entregadorRepository.findById(entrega.getEntregadorId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Entregador nao encontrado: " + entrega.getEntregadorId()));
+            entregador.setAvailable(true);
+            entregadorRepository.save(entregador);
+        }
+
         return entregaRepository.save(entrega);
     }
 
