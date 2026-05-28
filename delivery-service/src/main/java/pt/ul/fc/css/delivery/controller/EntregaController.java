@@ -121,3 +121,41 @@ public class EntregaController {
                 .collect(Collectors.toList()));
     }
 
+
+
+    private ResponseEntity<Object> mapArgumentError(IllegalArgumentException e) {
+        if (isNotFoundMessage(e.getMessage())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        }
+        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+    }
+
+    private boolean isNotFoundMessage(String message) {
+        if (message == null) {
+            return false;
+        }
+        String normalized = message.toLowerCase();
+        return normalized.contains("nao encontrado") || normalized.contains("nao encontrada");
+    }
+
+    private EntregaResumoDTO toResumoDTO(Entrega entrega) {
+        return new EntregaResumoDTO(
+                entrega.getId(),
+                entrega.getPedidoId(),
+                entrega.getEntregadorId(),
+                entrega.getEstado(),
+                entrega.getHoraRecolha(),
+                entrega.getHoraEntrega(),
+                entrega.getEnderecoEntrega());
+    }
+
+    private EntregadorDTO toEntregadorDTO(Entregador entregador) {
+        return new EntregadorDTO(
+                entregador.getId(),
+                entregador.getNome(),
+                entregador.getEmail(),
+                entregador.isAvailable());
+    }
+}
+
+
