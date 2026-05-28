@@ -65,3 +65,59 @@ public class EntregaController {
                 .collect(Collectors.toList()));
     }
 
+
+
+
+
+    @PostMapping("/entregas/atribuir")
+    public ResponseEntity<Object> atribuirEntregador(@RequestBody AtribuirEntregadorDTO dto) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(toResumoDTO(entregaService.atribuirEntregador(dto)));
+        } catch (IllegalArgumentException e) {
+            return mapArgumentError(e);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/entregas/pedido/{pedidoId}/recolha")
+    public ResponseEntity<Object> registarRecolha(@PathVariable Long pedidoId) {
+        try {
+            return ResponseEntity.ok(toResumoDTO(entregaService.registarRecolha(pedidoId)));
+        } catch (IllegalArgumentException e) {
+            return mapArgumentError(e);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/entregas/pedido/{pedidoId}/entrega-final")
+    public ResponseEntity<Object> registarEntregaFinal(@PathVariable Long pedidoId) {
+        try {
+            return ResponseEntity.ok(toResumoDTO(entregaService.registarEntregaFinal(pedidoId)));
+        } catch (IllegalArgumentException e) {
+            return mapArgumentError(e);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/entregas/pedido/{pedidoId}")
+    public ResponseEntity<Object> obterEntregaPorPedido(@PathVariable Long pedidoId) {
+        try {
+            Optional<Entrega> entrega = entregaService.obterEntregaPorPedido(pedidoId);
+            return entrega.<ResponseEntity<Object>>map(value -> ResponseEntity.ok(toResumoDTO(value)))
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(Map.of("error", "Entrega nao encontrada para pedido: " + pedidoId)));
+        } catch (IllegalArgumentException e) {
+            return mapArgumentError(e);
+        }
+    }
+
+    @GetMapping("/entregas/em-curso")
+    public ResponseEntity<List<EntregaResumoDTO>> listarEntregasEmCurso() {
+        return ResponseEntity.ok(entregaService.listarEntregasEmCurso().stream()
+                .map(this::toResumoDTO)
+                .collect(Collectors.toList()));
+    }
+
