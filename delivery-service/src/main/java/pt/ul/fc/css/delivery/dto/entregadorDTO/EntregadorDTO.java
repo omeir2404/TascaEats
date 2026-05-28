@@ -19,7 +19,7 @@ public class EntregadorDTO {
         this.available = available;
     }
 
-    
+
     //********GETTERS E SETTERS*********
 
     public Long getId() {
