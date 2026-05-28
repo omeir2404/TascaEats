@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import pt.ul.fc.css.tascaeats.domain.avaliacao.Avaliacao;
-import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
@@ -79,7 +78,7 @@ public class AvaliacaoService {
         Pedido pedido = pedidoRepository.findById(dto.getPedidoId())
                 .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado: " + dto.getPedidoId()));
 
-        if (pedido.getEstado() != EstadoPedido.ENTREGUE) {
+        if (!pedido.entregaEstaConcluida()) {
             throw new IllegalStateException("Só é possível avaliar pedidos entregues.");
         }
 

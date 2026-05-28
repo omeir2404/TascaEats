@@ -50,8 +50,8 @@ O trabalho está dividido em três partes iguais para facilitar a distribuição
     - [x] 4. Atualização do estado da entrega.
 
 ### 2.3 Limpeza do Monólito (Backend)
-- [ ] Remover entidades `Entrega` e dependências diretas de bases de dados relacionais ao módulo de entregas.
-- [ ] Adaptar o `Pedido` no monólito para armazenar apenas o ID do entregador atribuído ou o estado da entrega em formato "read-only" (para consistência eventual).
+- [x] Remover entidades `Entrega` e dependências diretas de bases de dados relacionais ao módulo de entregas.
+- [x] Adaptar o `Pedido` no monólito para armazenar apenas o ID do entregador atribuído ou o estado da entrega em formato "read-only" (para consistência eventual).
 - [ ] Adaptar/Remover `EntregaController` do monólito, pois o domínio passou para o microserviço.
 
 ---

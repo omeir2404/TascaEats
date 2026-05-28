@@ -108,9 +108,11 @@ public class PedidoController {
 				item.put("hora", pedido.getHora());
 				item.put("valorTotal", pedido.getValorTotal());
 				item.put("estado", pedido.getEstado());
-				item.put("clienteId", pedido.getClienteId());
-				item.put("restaurantesIds", pedido.getRestaurantesIds());
-				item.put("produtosIds", pedido.getProdutosIds());
+                item.put("clienteId", pedido.getClienteId());
+                item.put("entregadorId", pedido.getEntregadorId());
+                item.put("estadoEntregaReadOnly", pedido.getEstadoEntregaReadOnly());
+                item.put("restaurantesIds", pedido.getRestaurantesIds());
+                item.put("produtosIds", pedido.getProdutosIds());
 				item.put("tipoPagamentoSolicitado", pedido.getTipoPagamentoSolicitado());
 				item.put("detalhesPagamentoSolicitado", pedido.getDetalhesPagamentoSolicitado());
 				resposta.add(item);

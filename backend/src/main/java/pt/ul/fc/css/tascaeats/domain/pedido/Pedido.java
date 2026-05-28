@@ -50,6 +50,14 @@ public class Pedido {
     @Column(nullable = false)
     private EstadoPedido estado;
 
+    // Espelho read-only vindo do microserviço de entregas.
+    @Column(name = "entregador_id")
+    private Long entregadorId;
+
+    // Estado lido de forma eventual, sem lógica de transição no monólito.
+    @Column(name = "estado_entrega_read_only")
+    private String estadoEntregaReadOnly;
+
     @Column(name = "cliente_id", nullable = false)
     private Long clienteId;
 
@@ -195,6 +203,22 @@ public class Pedido {
         this.estado = estado;
     }
 
+    public Long getEntregadorId() {
+        return entregadorId;
+    }
+
+    public void setEntregadorId(Long entregadorId) {
+        this.entregadorId = entregadorId;
+    }
+
+    public String getEstadoEntregaReadOnly() {
+        return estadoEntregaReadOnly;
+    }
+
+    public void setEstadoEntregaReadOnly(String estadoEntregaReadOnly) {
+        this.estadoEntregaReadOnly = estadoEntregaReadOnly;
+    }
+
     public Long getClienteId() {
         return clienteId;
     }
@@ -241,5 +265,12 @@ public class Pedido {
         this.detalhesPagamentoSolicitado = detalhesPagamentoSolicitado != null
                 ? new LinkedHashMap<>(detalhesPagamentoSolicitado)
                 : new LinkedHashMap<>();
+    }
+
+    public boolean entregaEstaConcluida() {
+        if (estadoEntregaReadOnly != null) {
+            return "ENTREGUE".equalsIgnoreCase(estadoEntregaReadOnly);
+        }
+        return this.estado == EstadoPedido.ENTREGUE;
     }
 }

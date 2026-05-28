@@ -10,6 +10,7 @@ package pt.ul.fc.css.tascaeats.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -84,6 +85,16 @@ public class PedidoTest {
         pedido.marcarComoEntregue();
 
         assertEquals(EstadoPedido.ENTREGUE, pedido.getEstado());
+    }
+
+    @Test
+    @DisplayName("Pedido: estado de entrega read-only deve ser considerado para consistência eventual")
+    void entregaReadOnlyDeveSerConsiderada() {
+        Pedido pedido = pedidoComEstado(EstadoPedido.PAGO);
+
+        pedido.setEstadoEntregaReadOnly("ENTREGUE");
+
+        assertTrue(pedido.entregaEstaConcluida());
     }
 
     @Test
