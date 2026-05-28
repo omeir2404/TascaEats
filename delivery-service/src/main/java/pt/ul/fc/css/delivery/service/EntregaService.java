@@ -63,34 +63,6 @@ public class EntregaService {
         return entregadorRepository.save(entregador);
     }
 
-    @Transactional
-    public Entregador registarEntregador(Entregador entregador) {
-        if (entregador == null) {
-            throw new IllegalArgumentException("Entregador nao pode ser nulo.");
-        }
-        if (entregador.getEmail() == null || entregador.getEmail().isBlank()) {
-            throw new IllegalArgumentException("Email do entregador e obrigatorio.");
-        }
-        entregador.setAvailable(true);
-        return entregadorRepository.save(entregador);
-    }
-
-    @Transactional
-    public Entregador atualizarEntregador(Long entregadorId, Entregador novosDados) {
-        return atualizarEntregador(entregadorId, new AtualizarEntregadorDTO(
-                novosDados != null ? novosDados.getNome() : null,
-                novosDados != null ? novosDados.getEmail() : null,
-                novosDados != null ? novosDados.isAvailable() : null));
-    }
-
-    @Transactional
-    public Entregador atualizarEntregador(Long entregadorId, Entregador novosDados) {
-        return atualizarEntregador(entregadorId, new AtualizarEntregadorDTO(
-                novosDados != null ? novosDados.getNome() : null,
-                novosDados != null ? novosDados.getEmail() : null,
-                novosDados != null ? novosDados.isAvailable() : null));
-    }
-
     @Transactional(readOnly = true)
     public List<Entregador> listarEntregadores() {
         return entregadorRepository.findAll();

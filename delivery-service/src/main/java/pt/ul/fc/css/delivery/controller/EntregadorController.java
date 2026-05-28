@@ -33,8 +33,7 @@ public class EntregadorController {
     @PostMapping
     public ResponseEntity<Object> registarEntregador(@RequestBody CriarEntregadorDTO dto) {
         try {
-            Entregador entregador = new Entregador(dto.getNome(), dto.getEmail());
-            return ResponseEntity.status(HttpStatus.CREATED).body(toDTO(entregaService.registarEntregador(entregador)));
+            return ResponseEntity.status(HttpStatus.CREATED).body(toDTO(entregaService.registarEntregador(dto)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -44,8 +43,7 @@ public class EntregadorController {
     public ResponseEntity<Object> atualizarEntregador(@PathVariable Long entregadorId,
                                                       @RequestBody AtualizarEntregadorDTO dto) {
         try {
-            Entregador novosDados = new Entregador(dto.getNome(), dto.getEmail(), dto.getAvailable() == null ? true : dto.getAvailable());
-            return ResponseEntity.ok(toDTO(entregaService.atualizarEntregador(entregadorId, novosDados)));
+            return ResponseEntity.ok(toDTO(entregaService.atualizarEntregador(entregadorId, dto)));
         } catch (IllegalArgumentException e) {
             return mapArgumentError(e);
         }
