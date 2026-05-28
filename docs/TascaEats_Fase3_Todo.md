@@ -34,8 +34,8 @@ O trabalho está dividido em três partes iguais para facilitar a distribuição
 *Objetivo: Migrar a lógica de negócio de entregas do monólito para o novo microserviço, garantindo isolamento de dados.*
 
 ### 2.1 Migração de Entidades e DTOs
-- [ ] Mover/Replicar a entidade `Entregador` para o novo microserviço.
-- [ ] Mover/Replicar a entidade `Entrega` (e os seus estados: "A caminho", "Entregue") para o novo microserviço.
+- [x] Mover/Replicar a entidade `Entregador` para o novo microserviço.
+- [x] Mover/Replicar a entidade `Entrega` (e os seus estados: "A caminho", "Entregue") para o novo microserviço.
 - [ ] Importar os DTOs correspondentes (`AtribuirEntregadorDTO`, `EntregaResumoDTO`, etc.).
 - [ ] Garantir que o novo serviço guarda apenas referências lógicas (ex: `pedidoId` (Long/UUID), `morada` (String/Objeto de Valor)) e não referências diretas de chaves estrangeiras a clientes ou restaurantes.
 
