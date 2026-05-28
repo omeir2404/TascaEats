@@ -27,4 +27,69 @@ public class Entregador {
     @Column(name = "available", nullable = false)
     private boolean available = true;
 
-    
+    protected Entregador() {
+    }
+
+    public Entregador(String nome, String email) {
+        this.nome = nome;
+        this.email = email;
+        this.available = true;
+    }
+
+    public Entregador(String nome, String email, boolean available) {
+        this.nome = nome;
+        this.email = email;
+        this.available = available;
+    }
+
+    //********GETTERS E SETTERS*********
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+
+    //********MÉTODOS*********
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Entregador other)) {
+            return false;
+        }
+        return Objects.equals(email, other.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(email);
+    }
+}
