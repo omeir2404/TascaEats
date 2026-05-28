@@ -4,8 +4,13 @@ public class AtribuirEntregadorDTO {
 
     private Long pedidoId;
 
+    //********MÉTODOS*********
+
     protected AtribuirEntregadorDTO() {
     }
+
+
+    //********GETTERS E SETTERS*********
 
     public AtribuirEntregadorDTO(Long pedidoId) {
         this.pedidoId = pedidoId;
