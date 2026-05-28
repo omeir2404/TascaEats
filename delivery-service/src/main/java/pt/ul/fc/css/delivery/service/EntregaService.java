@@ -121,7 +121,12 @@ public class EntregaService {
         }
 
         Entregador entregador = selecionarEntregadorDisponivel();
-        Entrega entrega = new Entrega(dto.getPedidoId(), entregador.getId(), ENDERECO_ENTREGA_PENDENTE);
+        String enderecoEntrega = dto.getEnderecoEntrega();
+        if (enderecoEntrega == null || enderecoEntrega.isBlank()) {
+            enderecoEntrega = ENDERECO_ENTREGA_PENDENTE;
+        }
+
+        Entrega entrega = new Entrega(dto.getPedidoId(), entregador.getId(), enderecoEntrega);
 
         entregador.setAvailable(false);
         entregadorRepository.save(entregador);
