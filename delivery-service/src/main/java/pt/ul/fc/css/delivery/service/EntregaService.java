@@ -74,6 +74,28 @@ public class EntregaService {
     }
 
     @Transactional(readOnly = true)
+    public List<Entregador> buscarEntregadores(String nome, Boolean available) {
+        boolean temNome = nome != null && !nome.isBlank();
+        boolean temDisponibilidade = available != null;
+
+        if (!temNome && !temDisponibilidade) {
+            return listarEntregadores();
+        }
+
+        if (temNome && temDisponibilidade) {
+            return entregadorRepository.findByNomeContainingIgnoreCase(nome).stream()
+                    .filter(entregador -> entregador.isAvailable() == available)
+                    .toList();
+        }
+
+        if (temNome) {
+            return entregadorRepository.findByNomeContainingIgnoreCase(nome);
+        }
+
+        return entregadorRepository.findByAvailable(available);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<Entregador> obterEntregadorPorId(Long entregadorId) {
         if (entregadorId == null) {
             throw new IllegalArgumentException("ID do entregador invalido.");

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,6 +60,15 @@ public class EntregadorController {
     @GetMapping("/disponiveis")
     public ResponseEntity<List<EntregadorDTO>> listarEntregadoresDisponiveis() {
         return ResponseEntity.ok(entregaService.listarEntregadoresDisponiveis().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<EntregadorDTO>> buscarEntregadores(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) Boolean available) {
+        return ResponseEntity.ok(entregaService.buscarEntregadores(nome, available).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList()));
     }

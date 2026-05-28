@@ -44,8 +44,8 @@ O trabalho está dividido em três partes iguais para facilitar a distribuição
 - [x] Migrar lógica do `EntregaService` para o novo serviço.
 - [x] Recriar o `EntregaController` no novo serviço (apenas para gestão interna, se aplicável, ou para ser consumido por eventos).
 - [ ] Implementar as 4 funcionalidades principais descritas no guião:
-    - [ ] 1. Registo, atualização e gestão do perfil de Entregadores.
-    - [ ] 2. Filtros e buscas relativos a entregadores.
+    - [x] 1. Registo, atualização e gestão do perfil de Entregadores.
+    - [x] 2. Filtros e buscas relativos a entregadores.
     - [ ] 3. Atribuição de entregador a um pedido recém-pago.
     - [ ] 4. Atualização do estado da entrega.
 

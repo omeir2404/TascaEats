@@ -10,4 +10,6 @@ public interface EntregadorRepository extends JpaRepository<Entregador, Long> {
     Entregador findByEmail(String email);
 
     List<Entregador> findByAvailable(boolean available);
+
+    List<Entregador> findByNomeContainingIgnoreCase(String nome);
 }
