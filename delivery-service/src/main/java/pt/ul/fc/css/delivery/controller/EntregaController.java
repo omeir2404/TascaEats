@@ -42,3 +42,26 @@ public class EntregaController {
         }
     }
 
+    @PutMapping("/entregadores/{entregadorId}")
+    public ResponseEntity<Object> atualizarEntregador(@PathVariable Long entregadorId, @RequestBody Entregador entregador) {
+        try {
+            return ResponseEntity.ok(toEntregadorDTO(entregaService.atualizarEntregador(entregadorId, entregador)));
+        } catch (IllegalArgumentException e) {
+            return mapArgumentError(e);
+        }
+    }
+
+    @GetMapping("/entregadores")
+    public ResponseEntity<List<EntregadorDTO>> listarEntregadores() {
+        return ResponseEntity.ok(entregaService.listarEntregadores().stream()
+                .map(this::toEntregadorDTO)
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/entregadores/disponiveis")
+    public ResponseEntity<List<EntregadorDTO>> listarEntregadoresDisponiveis() {
+        return ResponseEntity.ok(entregaService.listarEntregadoresDisponiveis().stream()
+                .map(this::toEntregadorDTO)
+                .collect(Collectors.toList()));
+    }
+
