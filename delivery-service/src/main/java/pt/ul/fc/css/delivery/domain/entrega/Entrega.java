@@ -79,7 +79,7 @@ public class Entrega {
         return Duration.between(this.horaRecolha, this.horaEntrega);
     }
 
-    
+
     //********GETTERS E SETTERS*********
     public Long getId() {
         return id;
