@@ -42,7 +42,7 @@ O trabalho está dividido em três partes iguais para facilitar a distribuição
 ### 2.2 Migração de Repositórios e Controladores
 - [x] Migrar `IEntregaRepository` e `IEntregadorRepository` para o novo microserviço.
 - [x] Migrar lógica do `EntregaService` para o novo serviço.
-- [ ] Recriar o `EntregaController` no novo serviço (apenas para gestão interna, se aplicável, ou para ser consumido por eventos).
+- [x] Recriar o `EntregaController` no novo serviço (apenas para gestão interna, se aplicável, ou para ser consumido por eventos).
 - [ ] Implementar as 4 funcionalidades principais descritas no guião:
     - [ ] 1. Registo, atualização e gestão do perfil de Entregadores.
     - [ ] 2. Filtros e buscas relativos a entregadores.
