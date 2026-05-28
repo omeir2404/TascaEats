@@ -10,6 +10,8 @@ import pt.ul.fc.css.delivery.domain.entrega.Entrega;
 import pt.ul.fc.css.delivery.domain.entrega.EstadoEntrega;
 import pt.ul.fc.css.delivery.domain.entregador.Entregador;
 import pt.ul.fc.css.delivery.dto.entregaDTO.AtribuirEntregadorDTO;
+import pt.ul.fc.css.delivery.dto.entregadorDTO.AtualizarEntregadorDTO;
+import pt.ul.fc.css.delivery.dto.entregadorDTO.CriarEntregadorDTO;
 import pt.ul.fc.css.delivery.repository.EntregaRepository;
 import pt.ul.fc.css.delivery.repository.EntregadorRepository;
 
@@ -27,6 +29,41 @@ public class EntregaService {
     }
 
     @Transactional
+    public Entregador registarEntregador(CriarEntregadorDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Entregador nao pode ser nulo.");
+        }
+        if (dto.getEmail() == null || dto.getEmail().isBlank()) {
+            throw new IllegalArgumentException("Email do entregador e obrigatorio.");
+        }
+        Entregador entregador = new Entregador(dto.getNome(), dto.getEmail());
+        return entregadorRepository.save(entregador);
+    }
+
+    @Transactional
+    public Entregador atualizarEntregador(Long entregadorId, AtualizarEntregadorDTO dto) {
+        if (entregadorId == null) {
+            throw new IllegalArgumentException("ID do entregador invalido.");
+        }
+        Entregador entregador = entregadorRepository.findById(entregadorId)
+                .orElseThrow(() -> new IllegalArgumentException("Entregador nao encontrado: " + entregadorId));
+        if (dto == null) {
+            throw new IllegalArgumentException("Novos dados do entregador nao podem ser nulos.");
+        }
+
+        if (dto.getNome() != null) {
+            entregador.setNome(dto.getNome());
+        }
+        if (dto.getEmail() != null) {
+            entregador.setEmail(dto.getEmail());
+        }
+        if (dto.getAvailable() != null) {
+            entregador.setAvailable(dto.getAvailable());
+        }
+        return entregadorRepository.save(entregador);
+    }
+
+    @Transactional
     public Entregador registarEntregador(Entregador entregador) {
         if (entregador == null) {
             throw new IllegalArgumentException("Entregador nao pode ser nulo.");
@@ -40,23 +77,18 @@ public class EntregaService {
 
     @Transactional
     public Entregador atualizarEntregador(Long entregadorId, Entregador novosDados) {
-        if (entregadorId == null) {
-            throw new IllegalArgumentException("ID do entregador invalido.");
-        }
-        Entregador entregador = entregadorRepository.findById(entregadorId)
-                .orElseThrow(() -> new IllegalArgumentException("Entregador nao encontrado: " + entregadorId));
-        if (novosDados == null) {
-            throw new IllegalArgumentException("Novos dados do entregador nao podem ser nulos.");
-        }
+        return atualizarEntregador(entregadorId, new AtualizarEntregadorDTO(
+                novosDados != null ? novosDados.getNome() : null,
+                novosDados != null ? novosDados.getEmail() : null,
+                novosDados != null ? novosDados.isAvailable() : null));
+    }
 
-        if (novosDados.getNome() != null) {
-            entregador.setNome(novosDados.getNome());
-        }
-        if (novosDados.getEmail() != null) {
-            entregador.setEmail(novosDados.getEmail());
-        }
-        entregador.setAvailable(novosDados.isAvailable());
-        return entregadorRepository.save(entregador);
+    @Transactional
+    public Entregador atualizarEntregador(Long entregadorId, Entregador novosDados) {
+        return atualizarEntregador(entregadorId, new AtualizarEntregadorDTO(
+                novosDados != null ? novosDados.getNome() : null,
+                novosDados != null ? novosDados.getEmail() : null,
+                novosDados != null ? novosDados.isAvailable() : null));
     }
 
     @Transactional(readOnly = true)
@@ -67,6 +99,22 @@ public class EntregaService {
     @Transactional(readOnly = true)
     public List<Entregador> listarEntregadoresDisponiveis() {
         return entregadorRepository.findByAvailable(true);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Entregador> obterEntregadorPorId(Long entregadorId) {
+        if (entregadorId == null) {
+            throw new IllegalArgumentException("ID do entregador invalido.");
+        }
+        return entregadorRepository.findById(entregadorId);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Entregador> obterEntregadorPorEmail(String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email do entregador invalido.");
+        }
+        return Optional.ofNullable(entregadorRepository.findByEmail(email));
     }
 
     @Transactional
