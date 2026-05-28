@@ -43,6 +43,7 @@ public class Entregador {
     }
 
     //********GETTERS E SETTERS*********
+
     public Long getId() {
         return id;
     }
@@ -77,6 +78,7 @@ public class Entregador {
 
 
     //********MÉTODOS*********
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

@@ -11,5 +11,6 @@ public enum EstadoEntrega {
     }
 
     //********GETTERS E SETTERS*********
+
     public String getDescricao() {return descricao;}
 }
