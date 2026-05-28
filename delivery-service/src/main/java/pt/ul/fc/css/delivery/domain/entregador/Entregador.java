@@ -9,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-
 @Entity
 @Table(name = "entregadores")
 public class Entregador {
@@ -42,8 +41,6 @@ public class Entregador {
         this.available = available;
     }
 
-    //********GETTERS E SETTERS*********
-
     public Long getId() {
         return id;
     }
@@ -75,9 +72,6 @@ public class Entregador {
     public void setAvailable(boolean available) {
         this.available = available;
     }
-
-
-    //********MÉTODOS*********
 
     @Override
     public boolean equals(Object obj) {

@@ -12,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-
 @Entity
 @Table(name = "entregas")
 public class Entrega {
@@ -42,8 +41,6 @@ public class Entrega {
 
     protected Entrega() {
     }
-
-    //********MÉTODOS*********
 
     public Entrega(Long pedidoId, Long entregadorId, String enderecoEntrega) {
         this.pedidoId = pedidoId;
@@ -78,9 +75,6 @@ public class Entrega {
         }
         return Duration.between(this.horaRecolha, this.horaEntrega);
     }
-
-
-    //********GETTERS E SETTERS*********
 
     public Long getId() {
         return id;

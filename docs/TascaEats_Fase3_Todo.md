@@ -40,7 +40,7 @@ O trabalho está dividido em três partes iguais para facilitar a distribuição
 - [x] Garantir que o novo serviço guarda apenas referências lógicas (ex: `pedidoId` (Long/UUID), `morada` (String/Objeto de Valor)) e não referências diretas de chaves estrangeiras a clientes ou restaurantes.
 
 ### 2.2 Migração de Repositórios e Controladores
-- [ ] Migrar `IEntregaRepository` e `IEntregadorRepository` para o novo microserviço.
+- [x] Migrar `IEntregaRepository` e `IEntregadorRepository` para o novo microserviço.
 - [ ] Migrar lógica do `EntregaService` para o novo serviço.
 - [ ] Recriar o `EntregaController` no novo serviço (apenas para gestão interna, se aplicável, ou para ser consumido por eventos).
 - [ ] Implementar as 4 funcionalidades principais descritas no guião:

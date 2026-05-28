@@ -10,7 +10,7 @@ public enum EstadoEntrega {
         this.descricao = descricao;
     }
 
-    //********GETTERS E SETTERS*********
-
-    public String getDescricao() {return descricao;}
+    public String getDescricao() {
+        return descricao;
+    }
 }

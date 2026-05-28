@@ -7,8 +7,6 @@ public class EntregadorDTO {
     private String email;
     private boolean available;
 
-    //********MÉTODOS*********
-
     public EntregadorDTO() {
     }
 
@@ -18,9 +16,6 @@ public class EntregadorDTO {
         this.email = email;
         this.available = available;
     }
-
-
-    //********GETTERS E SETTERS*********
 
     public Long getId() {
         return id;
