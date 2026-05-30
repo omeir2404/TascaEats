@@ -10,20 +10,49 @@
 
 package pt.ul.fc.css.tascaeats.ui;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static pt.ul.fc.css.tascaeats.ui.UiUtils.*;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.col;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.colorBtn;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.combo;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.confirm;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.field;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.hbar;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.info;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.lbl;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.pane;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.s;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.sectionTitle;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.selected;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.setStatus;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.statusLabel;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.tableOf;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.toLong;
+import static pt.ul.fc.css.tascaeats.ui.UiUtils.warn;
 
 public class PedidosPane {
 

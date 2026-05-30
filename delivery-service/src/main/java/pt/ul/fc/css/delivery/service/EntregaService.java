@@ -149,6 +149,22 @@ public class EntregaService {
         return entregaRepository.save(entrega);
     }
 
+        @Transactional
+        public Entrega iniciarPreparacao(Long pedidoId) {
+            Entrega entrega = obterEntregaObrigatoria(pedidoId);
+            // Placeholder: order preparation is tracked in the Pedido domain, not here
+            // This endpoint acknowledges the request and may be extended for future use
+            return entrega;
+        }
+
+        @Transactional
+        public Entrega marcarPronto(Long pedidoId) {
+            Entrega entrega = obterEntregaObrigatoria(pedidoId);
+            // Placeholder: order readiness is tracked in the Pedido domain, not here
+            // This endpoint acknowledges the request and may be extended for future use
+            return entrega;
+        }
+
     @Transactional
     public Entrega registarEntregaFinal(Long pedidoId) {
         Entrega entrega = obterEntregaObrigatoria(pedidoId);

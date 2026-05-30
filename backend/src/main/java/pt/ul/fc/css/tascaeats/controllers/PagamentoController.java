@@ -35,7 +35,7 @@ public class PagamentoController {
     public ResponseEntity<?> pagarPedido(@Valid @RequestBody ProcessarPagamentoDTO dto) {
         try {
             pagamentoService.processarPagamento(dto);
-            return ResponseEntity.ok("Pagamento processado com sucesso.");
+            return ResponseEntity.ok(Map.of("message", "Pagamento processado com sucesso."));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
         } catch (IllegalArgumentException e) {
