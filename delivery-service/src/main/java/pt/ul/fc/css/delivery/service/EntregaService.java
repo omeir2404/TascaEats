@@ -3,8 +3,15 @@ package pt.ul.fc.css.delivery.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import pt.ul.fc.css.delivery.domain.entrega.Entrega;
 import pt.ul.fc.css.delivery.domain.entrega.EstadoEntrega;
@@ -149,21 +156,15 @@ public class EntregaService {
         return entregaRepository.save(entrega);
     }
 
-        @Transactional
-        public Entrega iniciarPreparacao(Long pedidoId) {
-            Entrega entrega = obterEntregaObrigatoria(pedidoId);
-            // Placeholder: order preparation is tracked in the Pedido domain, not here
-            // This endpoint acknowledges the request and may be extended for future use
-            return entrega;
-        }
+    @Transactional
+    public void iniciarPreparacao(Long pedidoId) {
+        atualizarEstadoPedido(pedidoId, "A_PREPARAR");
+    }
 
-        @Transactional
-        public Entrega marcarPronto(Long pedidoId) {
-            Entrega entrega = obterEntregaObrigatoria(pedidoId);
-            // Placeholder: order readiness is tracked in the Pedido domain, not here
-            // This endpoint acknowledges the request and may be extended for future use
-            return entrega;
-        }
+    @Transactional
+    public void marcarPronto(Long pedidoId) {
+        atualizarEstadoPedido(pedidoId, "PRONTO_PARA_ENTREGA");
+    }
 
     @Transactional
     public Entrega registarEntregaFinal(Long pedidoId) {
@@ -218,6 +219,29 @@ public class EntregaService {
         }
         return entregaRepository.findByPedidoId(pedidoId)
                 .orElseThrow(() -> new IllegalArgumentException("Entrega nao encontrada para pedido: " + pedidoId));
+    }
+
+    private void atualizarEstadoPedido(Long pedidoId, String novoEstado) {
+        if (pedidoId == null) {
+            throw new IllegalArgumentException("ID do pedido invalido.");
+        }
+
+        try {
+            RestTemplate rt = new RestTemplate();
+            String url = "http://backend:8080/pedidos/" + pedidoId + "/estado";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String body = "{\"novoEstado\":\"" + novoEstado + "\"}";
+            HttpEntity<String> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> resp = rt.exchange(url, org.springframework.http.HttpMethod.POST, request, String.class);
+            if (!resp.getStatusCode().is2xxSuccessful()) {
+                throw new IllegalStateException("Falha ao atualizar estado do pedido: " + resp.getStatusCode());
+            }
+        } catch (HttpClientErrorException e) {
+            throw new IllegalStateException("Erro ao atualizar estado do pedido: " + e.getResponseBodyAsString());
+        } catch (RestClientException e) {
+            throw new IllegalStateException("Erro ao contactar backend para atualizar estado do pedido: " + e.getMessage());
+        }
     }
 
     private Entregador selecionarEntregadorDisponivel() {

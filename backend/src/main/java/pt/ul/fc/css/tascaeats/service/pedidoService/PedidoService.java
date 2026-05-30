@@ -8,8 +8,8 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.service.pedidoService;
 
-import java.util.List;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -165,6 +165,34 @@ public class PedidoService {
         }
 
         return pedidoRepository.findAll();
+    }
+
+    public void atualizarEstadoPedido(Long pedidoId, String novoEstado) {
+        if (pedidoId == null) {
+            throw new IllegalArgumentException("ID do pedido invalido.");
+        }
+
+        Optional<Pedido> pedidoOptional = pedidoRepository.findById(pedidoId);
+        if (pedidoOptional.isEmpty()) {
+            throw new IllegalArgumentException("Pedido nao encontrado: " + pedidoId);
+        }
+
+        Pedido pedido = pedidoOptional.get();
+        if (novoEstado == null || novoEstado.isBlank()) {
+            throw new IllegalArgumentException("Novo estado invalido.");
+        }
+
+        String estadoNorm = novoEstado.trim().toUpperCase();
+        switch (estadoNorm) {
+            case "A_PREPARAR" -> pedido.iniciarPreparacao();
+            case "PRONTO_PARA_ENTREGA" -> pedido.marcarComoPronto();
+            case "ATRIBUIDO_ENTREGADOR" -> pedido.atribuirEntregador();
+            case "ENTREGUE" -> pedido.marcarComoEntregue();
+            case "CANCELADO" -> pedido.cancelar();
+            default -> throw new IllegalArgumentException("Estado do pedido invalido: " + novoEstado);
+        }
+
+        pedidoRepository.save(pedido);
     }
 
     private Morada novaMoradaDeDTO(pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO dto) {

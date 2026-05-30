@@ -53,27 +53,35 @@ public class EntregaController {
         }
     }
 
-        @PatchMapping("/entregas/pedido/{pedidoId}/iniciar-preparacao")
-        public ResponseEntity<Object> iniciarPreparacao(@PathVariable Long pedidoId) {
-            try {
-                return ResponseEntity.ok(Map.of("message", "Preparação iniciada para pedido " + pedidoId));
-            } catch (IllegalArgumentException e) {
-                return mapArgumentError(e);
-            } catch (IllegalStateException e) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-            }
+    @PatchMapping("/entregas/pedido/{pedidoId}/iniciar-preparacao")
+    public ResponseEntity<Object> iniciarPreparacao(@PathVariable Long pedidoId) {
+        try {
+            entregaService.iniciarPreparacao(pedidoId);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Preparacao iniciada.",
+                    "pedidoId", pedidoId,
+                    "estado", "A_PREPARAR"));
+        } catch (IllegalArgumentException e) {
+            return mapArgumentError(e);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
         }
+    }
 
-        @PatchMapping("/entregas/pedido/{pedidoId}/marcar-pronto")
-        public ResponseEntity<Object> marcarPronto(@PathVariable Long pedidoId) {
-            try {
-                return ResponseEntity.ok(Map.of("message", "Pedido marcado como pronto " + pedidoId));
-            } catch (IllegalArgumentException e) {
-                return mapArgumentError(e);
-            } catch (IllegalStateException e) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-            }
+    @PatchMapping("/entregas/pedido/{pedidoId}/marcar-pronto")
+    public ResponseEntity<Object> marcarPronto(@PathVariable Long pedidoId) {
+        try {
+            entregaService.marcarPronto(pedidoId);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Pedido marcado como pronto para entrega.",
+                    "pedidoId", pedidoId,
+                    "estado", "PRONTO_PARA_ENTREGA"));
+        } catch (IllegalArgumentException e) {
+            return mapArgumentError(e);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
         }
+    }
 
     @PatchMapping("/entregas/pedido/{pedidoId}/entrega-final")
     public ResponseEntity<Object> registarEntregaFinal(@PathVariable Long pedidoId) {
