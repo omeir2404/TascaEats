@@ -12,12 +12,19 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import pt.ul.fc.css.tascaeats.domain.pagamento.Pagamento;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
+import pt.ul.fc.css.tascaeats.events.PedidoPagoEvent;
+import pt.ul.fc.css.tascaeats.publishers.PedidoPagoPublisher;
 import pt.ul.fc.css.tascaeats.repository.pagamentoRepository.IPagamentoRepository;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
+import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IClienteRepository;
+
 
 @Service
 public class PagamentoService {
@@ -25,11 +32,19 @@ public class PagamentoService {
     private final IPedidoRepository pedidoRepository;
     private final IPagamentoRepository pagamentoRepository;
     private final PagamentoFactory pagamentoFactory;
+    private final IClienteRepository clienteRepository;
+    private final PedidoPagoPublisher pedidoPagoPublisher;
 
-    public PagamentoService(IPedidoRepository pedidoRepository, IPagamentoRepository pagamentoRepository, PagamentoFactory pagamentoFactory) {
+    public PagamentoService(IPedidoRepository pedidoRepository,
+                            IPagamentoRepository pagamentoRepository,
+                            PagamentoFactory pagamentoFactory,
+                            IClienteRepository clienteRepository,
+                            PedidoPagoPublisher pedidoPagoPublisher) {
         this.pedidoRepository = pedidoRepository;
         this.pagamentoRepository = pagamentoRepository;
         this.pagamentoFactory = pagamentoFactory;
+        this.clienteRepository = clienteRepository;
+        this.pedidoPagoPublisher = pedidoPagoPublisher;
     }
 
     @Transactional
@@ -53,8 +68,40 @@ public class PagamentoService {
 
         pagamentoRepository.save(pagamento);
 
+        // publish event when payment is made
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                String endereco = clienteRepository.findById(pedido.getClienteId())
+                        .map(cliente -> formatarMorada(cliente.getAddress()))
+                        .orElse("ENDERECO_NAO_INFORMADO");
+                pedidoPagoPublisher.publicar(new PedidoPagoEvent(
+                        pedido.getId(),
+                        pedido.getClienteId(),
+                        endereco
+                ));
+            }
+        });
+
         pedido.setPagamento(pagamento);
         pedido.confirmarPagamento();
         pedidoRepository.save(pedido);
+    }
+
+    private String formatarMorada(Morada morada) {
+        if (morada == null) {
+            return "ENDERECO_NAO_INFORMADO";
+        }
+        return String.join(", ",
+                valorOuVazio(morada.getRua()) + " " + (morada.getNumero() == null ? "" : morada.getNumero()),
+                valorOuVazio(morada.getCodigoPostal()),
+                valorOuVazio(morada.getCidade()),
+                valorOuVazio(morada.getDistrito()),
+                valorOuVazio(morada.getPais())
+        ).replaceAll("(,\\s*)+", ", ").replaceAll("^,\\s*|,\\s*$", "");
+    }
+
+    private String valorOuVazio(String valor) {
+        return valor == null ? "" : valor.trim();
     }
 }
