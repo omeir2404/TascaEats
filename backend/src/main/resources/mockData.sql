@@ -68,11 +68,9 @@ WHERE menu_id IS NOT NULL;
 
 INSERT INTO utilizadores (id, nome, email, password)
 SELECT nextval('utilizadores_id_seq'), 'Admin Tasca Eats', 'admin.restaurante@tascaeats.local', 'admin123'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM utilizadores
-    WHERE email = 'admin.restaurante@tascaeats.local'
-);
+WHERE NOT EXISTS (SELECT 1
+                  FROM utilizadores
+                  WHERE email = 'admin.restaurante@tascaeats.local');
 
 INSERT INTO utilizadores (id, nome, email, password)
 SELECT nextval('utilizadores_id_seq'), 'Cliente Tasca', 'cliente@tascaeats.local', 'cliente123'
@@ -715,92 +713,100 @@ WHERE r.nif = '444555666'
         AND p.menu_id = m.id
   );
 
--- Seed: two delivered orders for cliente@tascaeats.local (available for review)
+-- Seed: orders for cliente@tascaeats.local.
+-- Kept idempotent because the Docker Postgres volume persists between runs and
+-- spring.sql.init.mode=always executes this file on every backend startup.
 WITH client AS (
   SELECT u.id AS cliente_id
   FROM utilizadores u
-  WHERE u.email = 'cliente@tascaeats.local'
-),
-prod_ids_tasca AS (
-  SELECT p.id AS produto_id, r.id AS restaurante_id
-  FROM produto p
-           JOIN restaurante r ON r.menu_id = p.menu_id
-  WHERE r.nif = '123456789' AND p.nome IN ('Bitoque', 'Super Bock 33cl')
-),
-order_tasca AS (
-  INSERT INTO pedidos (data, hora, valor_total, estado, cliente_id, tipo_pagamento_solicitado)
-  SELECT (CURRENT_DATE - INTERVAL '2 days')::date,
+  WHERE u.email = 'cliente@tascaeats.local')
+INSERT
+INTO pedidos (data, hora, valor_total, estado, cliente_id, tipo_pagamento_solicitado)
+SELECT (CURRENT_DATE - INTERVAL '2 days')::date,
        (CURRENT_TIME - INTERVAL '2 hours')::time,
        15.50,
        'ENTREGUE',
        c.cliente_id,
        'MBWAY'
-  FROM client c
-  RETURNING id
-)
-INSERT INTO pedido_produtos (pedido_id, produto_id)
-SELECT o.id, pid.produto_id
-FROM order_tasca o
-CROSS JOIN prod_ids_tasca pid;
-
+FROM client c
+WHERE NOT EXISTS (SELECT 1
+                  FROM pedidos p
+                  WHERE p.cliente_id = c.cliente_id
+                    AND p.valor_total = 15.50
+                    AND p.estado = 'ENTREGUE'
+                    AND p.tipo_pagamento_solicitado = 'MBWAY');
 
 WITH client AS (
   SELECT u.id AS cliente_id
   FROM utilizadores u
-  WHERE u.email = 'cliente@tascaeats.local'
-),
-prod_ids_tasca AS (
-  SELECT p.id AS produto_id, r.id AS restaurante_id
-  FROM produto p
-           JOIN restaurante r ON r.menu_id = p.menu_id
-  WHERE r.nif = '123456789' AND p.nome IN ('Bitoque', 'Super Bock 33cl')
-),
-order_tasca AS (
-  INSERT INTO pedidos (data, hora, valor_total, estado, cliente_id, tipo_pagamento_solicitado)
-  SELECT (CURRENT_DATE - INTERVAL '2 days')::date,
+  WHERE u.email = 'cliente@tascaeats.local')
+INSERT
+INTO pedidos (data, hora, valor_total, estado, cliente_id, tipo_pagamento_solicitado)
+SELECT (CURRENT_DATE - INTERVAL '2 days')::date,
        (CURRENT_TIME - INTERVAL '2 hours')::time,
        15.50,
        'PAGO',
        c.cliente_id,
        'MBWAY'
-  FROM client c
-  RETURNING id
-)
-INSERT INTO pedido_produtos (pedido_id, produto_id)
-SELECT o.id, pid.produto_id
-FROM order_tasca o
-CROSS JOIN prod_ids_tasca pid;
-
-
+FROM client c
+WHERE NOT EXISTS (SELECT 1
+                  FROM pedidos p
+                  WHERE p.cliente_id = c.cliente_id
+                    AND p.valor_total = 15.50
+                    AND p.estado = 'PAGO'
+                    AND p.tipo_pagamento_solicitado = 'MBWAY');
 
 WITH client AS (
   SELECT u.id AS cliente_id
   FROM utilizadores u
-  WHERE u.email = 'cliente@tascaeats.local'
-),
-prod_ids_sushi AS (
-  SELECT p.id AS produto_id, r.id AS restaurante_id
-  FROM produto p
-           JOIN restaurante r ON r.menu_id = p.menu_id
-  WHERE r.nif = '987654321' AND p.nome IN ('Combinado Sushi 15 peças', 'Chá Verde')
-),
-order_sushi AS (
-  INSERT INTO pedidos (data, hora, valor_total, estado, cliente_id, tipo_pagamento_solicitado)
-  SELECT (CURRENT_DATE - INTERVAL '1 day')::date,
+  WHERE u.email = 'cliente@tascaeats.local')
+INSERT
+INTO pedidos (data, hora, valor_total, estado, cliente_id, tipo_pagamento_solicitado)
+SELECT (CURRENT_DATE - INTERVAL '1 day')::date,
        (CURRENT_TIME - INTERVAL '5 hours')::time,
        30.00,
        'ENTREGUE',
        c.cliente_id,
        'CARTAO'
-  FROM client c
-  RETURNING id
-)
-INSERT INTO pedido_produtos (pedido_id, produto_id)
-SELECT o.id, pid.produto_id
-FROM order_sushi o
-CROSS JOIN prod_ids_sushi pid;
+FROM client c
+WHERE NOT EXISTS (SELECT 1
+                  FROM pedidos p
+                  WHERE p.cliente_id = c.cliente_id
+                    AND p.valor_total = 30.00
+                    AND p.estado = 'ENTREGUE'
+                    AND p.tipo_pagamento_solicitado = 'CARTAO');
 
--- Link restaurants for the newly inserted delivered orders (distinct per order)
+WITH client AS (
+  SELECT u.id AS cliente_id
+  FROM utilizadores u
+  WHERE u.email = 'cliente@tascaeats.local'),
+     seed_pedidos AS (SELECT p.id, p.valor_total, p.estado, p.tipo_pagamento_solicitado
+                      FROM pedidos p
+                      WHERE p.cliente_id = (SELECT cliente_id FROM client)
+                        AND (
+                          (p.valor_total = 15.50 AND p.tipo_pagamento_solicitado = 'MBWAY' AND
+                           p.estado IN ('ENTREGUE', 'PAGO'))
+                              OR
+                          (p.valor_total = 30.00 AND p.tipo_pagamento_solicitado = 'CARTAO' AND p.estado = 'ENTREGUE')
+                          )),
+     seed_produtos AS (SELECT sp.id AS pedido_id, prod.id AS produto_id
+                       FROM seed_pedidos sp
+                                JOIN restaurante r ON (
+                           (sp.valor_total = 15.50 AND r.nif = '123456789')
+                               OR (sp.valor_total = 30.00 AND r.nif = '987654321')
+                           )
+                                JOIN produto prod ON prod.menu_id = r.menu_id
+                       WHERE (sp.valor_total = 15.50 AND prod.nome IN ('Bitoque', 'Super Bock 33cl'))
+                          OR (sp.valor_total = 30.00 AND prod.nome IN ('Combinado Sushi 15 peças', 'Chá Verde')))
+INSERT
+INTO pedido_produtos (pedido_id, produto_id)
+SELECT sp.pedido_id, sp.produto_id
+FROM seed_produtos sp
+WHERE NOT EXISTS (SELECT 1
+                  FROM pedido_produtos pp
+                  WHERE pp.pedido_id = sp.pedido_id
+                    AND pp.produto_id = sp.produto_id);
+
 WITH client AS (
   SELECT u.id AS cliente_id
   FROM utilizadores u
@@ -813,25 +819,11 @@ JOIN pedido_produtos pp ON pp.pedido_id = p.id
 JOIN produto prod ON prod.id = pp.produto_id
 JOIN restaurante r ON r.menu_id = prod.menu_id
 WHERE p.cliente_id = (SELECT cliente_id FROM client)
-  AND p.estado = 'ENTREGUE'
   AND r.nif IN ('123456789', '987654321')
-GROUP BY p.id, r.id;
-
-
-WITH client AS (
-  SELECT u.id AS cliente_id
-  FROM utilizadores u
-  WHERE u.email = 'cliente@tascaeats.local'
-)
-INSERT INTO pedido_restaurantes (pedido_id, restaurante_id)
-SELECT p.id, r.id
-FROM pedidos p
-JOIN pedido_produtos pp ON pp.pedido_id = p.id
-JOIN produto prod ON prod.id = pp.produto_id
-JOIN restaurante r ON r.menu_id = prod.menu_id
-WHERE p.cliente_id = (SELECT cliente_id FROM client)
-  AND p.estado = 'PAGO'
-  AND r.nif IN ('123456789', '987654321')
+  AND NOT EXISTS (SELECT 1
+                  FROM pedido_restaurantes pr
+                  WHERE pr.pedido_id = p.id
+                    AND pr.restaurante_id = r.id)
 GROUP BY p.id, r.id;
 
 SELECT setval('utilizadores_seq', (SELECT COALESCE(MAX(id), 1) FROM utilizadores), true);
