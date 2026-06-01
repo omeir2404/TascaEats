@@ -74,7 +74,7 @@ public class PedidosPane {
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
             col("ID", "id"), col("Cliente", "clienteNome"), col("Restaurante", "restNome"),
-            col("Estado", "estado"), col("Total (€)", "total"),
+            col("Estado", "estado"), col("Entrega", "estadoEntrega"), col("Total (€)", "total"),
             col("Pagamento", "pagamento"), col("Entregador", "entregador")
         );
 
@@ -85,6 +85,7 @@ public class PedidosPane {
             if (n != null) details.setText(
                 "ID: " + n.get("id") + "\nCliente: " + n.get("clienteNome") +
                 "\nRestaurante: " + n.get("restNome") + "\nEstado: " + n.get("estado") +
+                "\nEstado da entrega: " + n.get("estadoEntrega") +
                 "\nTotal: " + n.get("total") + "€\nPagamento: " + n.get("pagamento") +
                 "\nDados do cliente: " + n.get("detalhesPagamentoSolicitado") +
                 "\nEntregador: " + n.get("entregador"));
@@ -359,12 +360,7 @@ public class PedidosPane {
             warn("Pedido deve estar PRONTO_PARA_ENTREGA.", owner); return;
         }
         try {
-            NativeGrpcClient.GrpcResult res = state.grpc.invoke("updateOrderStatus", Map.of(
-                "pedidoId", sel.get("id"),
-                "novoEstado", "ATRIBUIDO_ENTREGADOR"));
-            if (!res.success()) {
-                throw new IllegalStateException(res.message());
-            }
+            patch("/entregas/pedido/" + sel.get("id") + "/atribuir-entregador");
             info("✓ Entregador atribuído automaticamente.", owner);
             syncPedidos(applyFilter);
         } catch (Exception ex) { warn("✗ Erro ao atribuir entregador: " + ex.getMessage(), owner); }
@@ -386,6 +382,9 @@ public class PedidosPane {
     // M – Register final delivery
     private void handleEntregaFinal(TableView<Map<String, Object>> table, Runnable applyFilter) {
         Map<String, Object> sel = selected(table, owner); if (sel == null) return;
+        if (!"A_CAMINHO".equals(s(sel, "estadoEntrega"))) {
+            warn("Pedido deve ter recolha registada para finalizar a entrega.", owner); return;
+        }
         try {
             patch("/entregas/pedido/" + sel.get("id") + "/entrega-final");
             info("✓ Entrega final registada.", owner);
@@ -447,6 +446,7 @@ public class PedidosPane {
         m.put("restNome",    restNome);
         m.put("restId",      fRestId);
         m.put("estado",      p.getOrDefault("estado", "-"));
+        m.put("estadoEntrega", p.getOrDefault("estadoEntregaReadOnly", "-"));
         m.put("total",       p.getOrDefault("valorTotal", p.getOrDefault("total", "0.00")));
         m.put("tipoPagamentoSolicitado", p.getOrDefault("tipoPagamentoSolicitado", "-"));
         m.put("detalhesPagamentoSolicitado", p.getOrDefault("detalhesPagamentoSolicitado", Map.of()));
@@ -456,6 +456,7 @@ public class PedidosPane {
             .filter(u -> entregadorId != null && entregadorId.toString().equals(Objects.toString(u.get("id"))))
             .findFirst().map(u -> s(u, "nome")).orElse(Objects.toString(entregadorId, "-"));
         m.put("entregador",  p.getOrDefault("entregador", entregadorNome));
+        m.put("entregadorId", entregadorId);
         return m;
     }
 

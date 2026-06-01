@@ -7,6 +7,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -44,9 +45,26 @@ public class MenusPane {
                 col("ID", "id"),
                 col("Nome", "nome"),
                 col("Produtos", "numeroProdutos"),
+                col("Lojas", "numeroRestaurantes"),
                 col("Restaurantes", "restauranteNome"),
                 col("Preco medio", "precoMedio")
         );
+
+        TextArea details = new TextArea();
+        details.setEditable(false);
+        details.setPrefRowCount(4);
+        details.setPromptText("Selecione um menu para ver detalhes.");
+        table.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) -> {
+            if (selected != null) {
+                details.setText(
+                        "ID: " + selected.get("id") +
+                        "\nNome: " + selected.get("nome") +
+                        "\nProdutos: " + selected.get("numeroProdutos") +
+                        "\nRestaurantes: " + selected.get("restauranteNome") +
+                        "\nPreco medio: " + selected.get("precoMedio")
+                );
+            }
+        });
 
         Button pesquisarBtn = new Button("Pesquisar");
         Button limparBtn = new Button("Limpar");
@@ -75,19 +93,26 @@ public class MenusPane {
                 hbar(lbl("Nome:"), searchF, pesquisarBtn, limparBtn),
                 hbar(criarBtn, editarBtn, removerBtn),
                 table,
+                new Label("Detalhes:"),
+                details,
                 statusLabel);
     }
 
     public void syncMenus(Runnable afterUpdate) {
-        state.bg(() -> state.grpc.invokeList("listMenus", Map.of()), result -> {
-            List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) result;
+        state.bg(() -> state.grpc.invoke("listMenus", Map.of()), result -> {
+            if (!result.success()) {
+                state.menus.clear();
+                setStatus(statusLabel, "Erro gRPC ao carregar menus: " + result.message());
+                return;
+            }
+            List<Map<String, Object>> typed = state.grpc.readList(result.bodyJson());
             state.menus.setAll(typed.stream().map(this::normalize).toList());
             if (afterUpdate != null) {
                 afterUpdate.run();
             }
-            setStatus(statusLabel, result.isEmpty()
+            setStatus(statusLabel, typed.isEmpty()
                     ? "Sem menus registados."
-                    : result.size() + " menus carregados.");
+                    : typed.size() + " menus carregados.");
         });
     }
 
@@ -153,10 +178,20 @@ public class MenusPane {
         m.put("id", menu.getOrDefault("id", "?"));
         m.put("nome", menu.getOrDefault("nome", ""));
         m.put("numeroProdutos", menu.getOrDefault("numeroProdutos", 0));
-        m.put("restauranteNome", menu.getOrDefault("restauranteNome", "Sem restaurante atribuido"));
+        m.put("numeroRestaurantes", menu.getOrDefault("numeroRestaurantes", 0));
+        m.put("restauranteNome", restaurantesTexto(menu));
         m.put("precoMedio", menu.getOrDefault("precoMedio", 0.0));
         m.putAll(menu);
+        m.put("restauranteNome", restaurantesTexto(m));
         return m;
+    }
+
+    private String restaurantesTexto(Map<String, Object> menu) {
+        Object nomes = menu.get("restaurantesNomes");
+        if (nomes instanceof List<?> list && !list.isEmpty()) {
+            return list.stream().map(String::valueOf).reduce((a, b) -> a + ", " + b).orElse("");
+        }
+        return s(menu, "restauranteNome").isBlank() ? "Sem restaurante atribuido" : s(menu, "restauranteNome");
     }
 
     private Map<String, Object> menuDialog(Map<String, Object> ex) {

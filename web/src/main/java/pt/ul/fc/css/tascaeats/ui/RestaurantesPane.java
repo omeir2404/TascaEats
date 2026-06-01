@@ -40,7 +40,8 @@ public class RestaurantesPane {
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
             col("ID", "id"), col("Nome", "nome"), col("Estado", "estado"),
-            col("Tipo", "tipo"), col("Menu", "menuNome"), col("NIF", "nif")
+            col("Tipo", "tipo"), col("Cidade", "cidade"), col("Menu", "menuNome"),
+            col("Produtos", "numeroProdutosMenu"), col("NIF", "nif")
         );
 
         TextArea details = new TextArea();
@@ -50,7 +51,9 @@ public class RestaurantesPane {
             if (n != null) details.setText(
                 "ID: " + n.get("id") + "\nNome: " + n.get("nome") +
                 "\nEstado: " + n.get("estado") + "\nTipo: " + n.get("tipo") +
-                "\nMenu: " + n.get("menuNome") + "\nNIF: " + n.get("nif"));
+                "\nCidade: " + n.get("cidade") + "\nMenu: " + n.get("menuNome") +
+                "\nProdutos no menu: " + n.get("numeroProdutosMenu") +
+                "\nFranquia: " + n.get("franquia") + "\nNIF: " + n.get("nif"));
         });
 
         // E – Search
@@ -107,14 +110,19 @@ public class RestaurantesPane {
 
     public void syncRestaurantes(Runnable afterUpdate) {
         state.bg(() -> {
-            return state.grpc.invokeList("listRestaurants", Map.of());
+            return state.grpc.invoke("listRestaurants", Map.of());
         }, result -> {
-            List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) result;
+            if (!result.success()) {
+                state.restaurantes.clear();
+                setStatus(statusLabel, "Erro gRPC ao carregar restaurantes: " + result.message());
+                return;
+            }
+            List<Map<String, Object>> typed = state.grpc.readList(result.bodyJson());
             state.restaurantes.setAll(typed.stream().map(this::normalize).toList());
             if (afterUpdate != null) afterUpdate.run();
-            setStatus(statusLabel, result.isEmpty()
+            setStatus(statusLabel, typed.isEmpty()
                 ? "⚠ Sem dados (backend indisponível?)"
-                : "✓ " + result.size() + " restaurantes carregados.");
+                : "✓ " + typed.size() + " restaurantes carregados.");
         });
     }
 
@@ -226,8 +234,18 @@ public class RestaurantesPane {
         m.put("tipo",   r.getOrDefault("tipoRestaurante", r.getOrDefault("tipoCozinha", "OUTRO")));
         m.put("nif",    r.getOrDefault("nif", "-"));
         m.putAll(r); // keep original fields for editing (morada, etc.)
+        Map<String, Object> morada = mapValue(r.get("morada"));
+        m.put("rua", morada.getOrDefault("rua", ""));
+        m.put("numero", morada.getOrDefault("numeroPorta", morada.getOrDefault("numero", 1)));
+        m.put("codigoPostal", morada.getOrDefault("codigoPostal", ""));
+        m.put("cidade", morada.getOrDefault("cidade", morada.getOrDefault("localidade", "")));
+        m.put("distrito", morada.getOrDefault("distrito", ""));
+        m.put("pais", morada.getOrDefault("pais", "Portugal"));
+        m.put("complemento", morada.getOrDefault("complemento", ""));
         m.put("menuId", r.getOrDefault("menuId", null));
         m.put("menuNome", s(r, "menuNome").isBlank() ? "Sem menu" : s(r, "menuNome"));
+        m.put("numeroProdutosMenu", r.getOrDefault("numeroProdutosMenu", 0));
+        m.put("franquia", s(r, "franquia").isBlank() ? "-" : s(r, "franquia"));
         return m;
     }
 
@@ -236,7 +254,34 @@ public class RestaurantesPane {
             return;
         }
         List<Map<String, Object>> menus = state.grpc.invokeList("listMenus", Map.of());
-        state.menus.setAll(menus);
+        state.menus.setAll(menus.stream().map(this::normalizeMenu).toList());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> mapValue(Object value) {
+        if (value instanceof Map<?, ?> map) {
+            return (Map<String, Object>) map;
+        }
+        return Map.of();
+    }
+
+    private Map<String, Object> normalizeMenu(Map<String, Object> menu) {
+        Map<String, Object> m = new LinkedHashMap<>(menu);
+        m.put("id", menu.getOrDefault("id", "?"));
+        m.put("nome", menu.getOrDefault("nome", ""));
+        m.put("numeroProdutos", menu.getOrDefault("numeroProdutos", 0));
+        m.put("numeroRestaurantes", menu.getOrDefault("numeroRestaurantes", 0));
+        m.put("restauranteNome", restaurantesTexto(menu));
+        m.put("precoMedio", menu.getOrDefault("precoMedio", 0.0));
+        return m;
+    }
+
+    private String restaurantesTexto(Map<String, Object> menu) {
+        Object nomes = menu.get("restaurantesNomes");
+        if (nomes instanceof List<?> list && !list.isEmpty()) {
+            return list.stream().map(String::valueOf).reduce((a, b) -> a + ", " + b).orElse("");
+        }
+        return s(menu, "restauranteNome").isBlank() ? "Sem restaurante atribuido" : s(menu, "restauranteNome");
     }
 
     private Map<String, Object> restauranteDialog(Map<String, Object> ex) {

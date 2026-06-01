@@ -11,6 +11,50 @@ ALTER TABLE restaurante
 ALTER TABLE produto
     ALTER COLUMN restaurante_id DROP NOT NULL;
 
+INSERT INTO menus (id, nome)
+SELECT nextval('menus_id_seq'), 'Menu Tasca Central'
+WHERE NOT EXISTS (SELECT 1 FROM menus WHERE nome = 'Menu Tasca Central');
+
+INSERT INTO menus (id, nome)
+SELECT nextval('menus_id_seq'), 'Menu Sushi Zen'
+WHERE NOT EXISTS (SELECT 1 FROM menus WHERE nome = 'Menu Sushi Zen');
+
+INSERT INTO menus (id, nome)
+SELECT nextval('menus_id_seq'), 'Menu Pizzaria do Bairro'
+WHERE NOT EXISTS (SELECT 1 FROM menus WHERE nome = 'Menu Pizzaria do Bairro');
+
+INSERT INTO menus (id, nome)
+SELECT nextval('menus_id_seq'), 'Menu Verde'
+WHERE NOT EXISTS (SELECT 1 FROM menus WHERE nome = 'Menu Verde');
+
+UPDATE restaurante r
+SET menu_id = m.id
+FROM menus m
+WHERE r.nif IN ('123456789', '123456780')
+  AND m.nome = 'Menu Tasca Central'
+  AND (r.menu_id IS NULL OR r.menu_id <> m.id);
+
+UPDATE restaurante r
+SET menu_id = m.id
+FROM menus m
+WHERE r.nif = '987654321'
+  AND m.nome = 'Menu Sushi Zen'
+  AND (r.menu_id IS NULL OR r.menu_id <> m.id);
+
+UPDATE restaurante r
+SET menu_id = m.id
+FROM menus m
+WHERE r.nif = '111222333'
+  AND m.nome = 'Menu Pizzaria do Bairro'
+  AND (r.menu_id IS NULL OR r.menu_id <> m.id);
+
+UPDATE restaurante r
+SET menu_id = m.id
+FROM menus m
+WHERE r.nif = '444555666'
+  AND m.nome = 'Menu Verde'
+  AND (r.menu_id IS NULL OR r.menu_id <> m.id);
+
 UPDATE produto p
 SET menu_id = r.menu_id
 FROM restaurante r
