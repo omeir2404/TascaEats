@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package pt.ul.fc.css.tascaeats.grpc;
+
+option java_multiple_files = true;
+option java_package = "pt.ul.fc.css.tascaeats.grpc";
+option java_outer_classname = "NativeAppProto";
+
+service NativeAppService {
+  rpc Invoke (NativeAppRequest) returns (NativeAppResponse);
+}
+
+message NativeAppRequest {
+  string operation = 1;
+  string payload_json = 2;
+}
+
+message NativeAppResponse {
+  bool success = 1;
+  string message = 2;
+  string body_json = 3;
+}
