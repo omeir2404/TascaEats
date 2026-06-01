@@ -56,7 +56,7 @@ public class Produto{
     private boolean apagado = false;
 
     @ManyToOne
-    @JoinColumn(name= "restaurante_id", nullable= false)
+    @JoinColumn(name= "restaurante_id")
     private Restaurante restaurante;
 
     @ManyToMany

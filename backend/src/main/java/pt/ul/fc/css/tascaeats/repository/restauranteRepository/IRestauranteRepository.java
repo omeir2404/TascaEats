@@ -31,6 +31,8 @@ public interface IRestauranteRepository extends JpaRepository<Restaurante, Long>
 
 	List<Restaurante> findByEstado(EstadoRestaurante estado);
 
+	List<Restaurante> findByMenuId(Long menuId);
+
 	@Query(value = """
 		SELECT r.*
 		FROM restaurante r

@@ -45,7 +45,7 @@ public class MenuService {
 
     public Menu criarMenu(String nome, List<Long> produtosIds) {
         Menu menu = criarMenu(nome);
-        if (produtosIds != null && !produtosIds.isEmpty()) {
+        if (produtosIds != null) {
             associarProdutosAoMenu(menu.getId(), produtosIds);
             return obterMenuPorId(menu.getId());
         }
@@ -74,7 +74,12 @@ public class MenuService {
         Menu menu = obterMenuPorId(menuId);
         List<Long> idsNormalizados = normalizarIds(produtosIds);
         if (idsNormalizados.isEmpty()) {
-            return menu;
+            List<Produto> atuais = new ArrayList<>(menu.getProdutos());
+            for (Produto produto : atuais) {
+                menu.removerProduto(produto);
+            }
+            produtoRepository.saveAll(atuais);
+            return menuRepository.save(menu);
         }
 
         List<Produto> produtos = produtoRepository.findAllById(idsNormalizados);
@@ -82,19 +87,15 @@ public class MenuService {
             throw new IllegalArgumentException("Alguns produtos não foram encontrados.");
         }
 
-        Set<Long> existentes = new LinkedHashSet<>();
-        for (Produto produto : menu.getProdutos()) {
-            if (produto.getId() != null) {
-                existentes.add(produto.getId());
+        List<Produto> atuais = new ArrayList<>(menu.getProdutos());
+        for (Produto produto : atuais) {
+            if (produto.getId() == null || !idsNormalizados.contains(produto.getId())) {
+                menu.removerProduto(produto);
             }
         }
 
         for (Produto produto : produtos) {
-            produto.setMenu(menu);
-            if (produto.getId() != null && !existentes.contains(produto.getId())) {
-                menu.adicionarProduto(produto);
-                existentes.add(produto.getId());
-            }
+            menu.adicionarProduto(produto);
         }
 
         produtoRepository.saveAll(produtos);
@@ -111,6 +112,24 @@ public class MenuService {
 
         restaurante.setMenu(menu);
         return restauranteRepository.save(restaurante);
+    }
+
+    public void removerMenu(Long menuId) {
+        Menu menu = obterMenuPorId(menuId);
+        List<Restaurante> restaurantes = restauranteRepository.findByMenuId(menu.getId());
+        for (Restaurante restaurante : restaurantes) {
+            restaurante.setMenu(null);
+        }
+        restauranteRepository.saveAll(restaurantes);
+        List<Produto> produtos = new ArrayList<>(menu.getProdutos());
+        for (Produto produto : produtos) {
+            menu.removerProduto(produto);
+            if (!produto.isApagado()) {
+                produto.apagar();
+            }
+        }
+        produtoRepository.saveAll(produtos);
+        menuRepository.delete(menu);
     }
 
     @Transactional(readOnly = true)

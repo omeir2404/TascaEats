@@ -63,6 +63,23 @@ public class ProdutoController {
         }
     }
 
+    @PostMapping("/menus/{menuId}/produtos")
+    public ResponseEntity<Map<String, Object>> criarProdutoNoMenu(@PathVariable Long menuId, @Valid @RequestBody CriarProdutoDTO dto) {
+        try {
+            Produto criado = produtoService.criarProdutoNoMenu(menuId, dto);
+            Map<String, Object> response = new HashMap<>();
+            response.put(MSG_FIELD, "Produto criado com sucesso");
+            response.put("id", criado.getId());
+            response.put("nome", criado.getNome());
+            response.put("preco", criado.getPreco());
+            response.put("descricao", criado.getDescricao());
+            response.put("menuId", criado.getMenu() == null ? null : criado.getMenu().getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of(ERROR_FIELD, e.getMessage()));
+        }
+    }
+
     //Atualizar produto
     @PutMapping("/produtos/{id}")
     public ResponseEntity<Object> atualizarProduto(@PathVariable Long id, @Valid @RequestBody AtualizarProdutoDTO dto) {
@@ -104,6 +121,7 @@ public class ProdutoController {
     @GetMapping("/produtos")
     public ResponseEntity<List<Map<String, Object>>> listarProdutos(@RequestParam(required = false) String nome,
             @RequestParam(required = false) Long restauranteId,
+            @RequestParam(required = false) Long menuId,
             @RequestParam(required = false, defaultValue = "false") boolean ativos,
             @RequestParam(required = false, defaultValue = "false") boolean disponiveis) {
 
@@ -111,6 +129,8 @@ public class ProdutoController {
 
         if (restauranteId != null) {
             produtos = produtoService.listarProdutosPorRestaurante(restauranteId);
+        } else if (menuId != null) {
+            produtos = produtoService.listarProdutosPorMenu(menuId);
         } else if (nome != null && !nome.isBlank()) {
             produtos = produtoService.procurarProdutoPorNome(nome);
         } else if (disponiveis) {
@@ -171,6 +191,13 @@ public class ProdutoController {
         response.put("descricao", produto.getDescricao());
         response.put("disponivel", produto.isDisponivel());
         response.put("apagado", produto.isApagado());
+        if (produto.getRestaurante() != null) {
+            response.put("restauranteId", produto.getRestaurante().getId());
+        }
+        if (produto.getMenu() != null) {
+            response.put("menuId", produto.getMenu().getId());
+            response.put("menuNome", produto.getMenu().getNome());
+        }
         return ResponseEntity.ok(response);
     }
 
@@ -185,6 +212,10 @@ public class ProdutoController {
 
         if (produto.getRestaurante() != null) {
             response.put("restauranteId", produto.getRestaurante().getId());
+        }
+        if (produto.getMenu() != null) {
+            response.put("menuId", produto.getMenu().getId());
+            response.put("menuNome", produto.getMenu().getNome());
         }
 
         return response;

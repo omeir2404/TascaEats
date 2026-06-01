@@ -11,11 +11,11 @@ package pt.ul.fc.css.tascaeats.domain.menu;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import pt.ul.fc.css.tascaeats.domain.produto.Produto;
-import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import pt.ul.fc.css.tascaeats.domain.produto.Produto;
+import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 
 @Entity
 @Table(name = "menus")
@@ -29,8 +29,11 @@ public class Menu {
     @Column(nullable = false)
     private String nome;
 
-    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "menu", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Produto> produtos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "menu")
+    private List<Restaurante> restaurantes = new ArrayList<>();
 
 
     // *********CONSTRUTORES**********
@@ -59,6 +62,10 @@ public class Menu {
 
     public List<Produto> getProdutos() {
         return produtos;
+    }
+
+    public List<Restaurante> getRestaurantes() {
+        return restaurantes;
     }
 
     public void adicionarProduto(Produto produto) {

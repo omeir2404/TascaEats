@@ -84,6 +84,7 @@ public class PedidoService {
 
         double valorTotal = 0;
         java.util.Set<Long> restaurantesValidados = new java.util.HashSet<>();
+        java.util.Map<Long, Restaurante> restaurantesPorId = new java.util.HashMap<>();
 
         for (ItemPedidoDTO item : itens) {
             if (item.getProdutoId() == null || item.getProdutoId() <= 0) {
@@ -103,16 +104,25 @@ public class PedidoService {
 
             produto.validarDisponibilidadeParaPedido();
 
-            if (produto.getRestaurante() == null || !produto.getRestaurante().getId().equals(item.getRestauranteId())) {
-                throw new IllegalArgumentException("O produto " + item.getProdutoId() + " nao pertence ao restaurante " + item.getRestauranteId());
-            }
+            Restaurante restaurante = restaurantesPorId.computeIfAbsent(item.getRestauranteId(), restauranteId ->
+                    restauranteRepository.findById(restauranteId)
+                    .orElseThrow(() -> new IllegalArgumentException("Restaurante nao encontrado: " + item.getRestauranteId()))
+            );
 
             if (!restaurantesValidados.contains(item.getRestauranteId())) {
-                Restaurante restaurante = restauranteRepository.findById(item.getRestauranteId())
-                    .orElseThrow(() -> new IllegalArgumentException("Restaurante nao encontrado: " + item.getRestauranteId()));
-
                 restaurante.validarDisponibilidadeParaPedido();
                 restaurantesValidados.add(item.getRestauranteId());
+            }
+
+            boolean produtoDoMenuDoRestaurante = restaurante.getMenu() != null
+                    && produto.getMenu() != null
+                    && produto.getMenu().getId().equals(restaurante.getMenu().getId());
+            boolean produtoLegadoDoRestaurante = produto.getMenu() == null
+                    && produto.getRestaurante() != null
+                    && produto.getRestaurante().getId() != null
+                    && produto.getRestaurante().getId().equals(item.getRestauranteId());
+            if (!produtoDoMenuDoRestaurante && !produtoLegadoDoRestaurante) {
+                throw new IllegalArgumentException("O produto " + item.getProdutoId() + " nao pertence ao menu do restaurante " + item.getRestauranteId());
             }
 
             valorTotal += item.getQuantidade() * produto.getPreco();

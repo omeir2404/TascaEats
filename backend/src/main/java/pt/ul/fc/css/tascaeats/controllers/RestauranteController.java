@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import pt.ul.fc.css.tascaeats.domain.menu.Menu;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.TipoRestaurante;
@@ -184,6 +185,7 @@ public class RestauranteController {
         m.put("tipoRestaurante", r.getTipoRestaurante());
         m.put("numeroAvaliacoes", r.getNumeroAvaliacoes());
         m.put("avaliacaoMedia", r.getAvaliacaoMedia());
+        adicionarResumoMenu(m, r.getMenu());
 
         Map<String, Object> moradaMap = null;
         if (r.getMorada() != null) {
@@ -207,6 +209,8 @@ public class RestauranteController {
         response.put("nome", r.getNome());
         response.put("nif", r.getNif());
         response.put("estado", r.getEstado());
+        response.put("tipoRestaurante", r.getTipoRestaurante());
+        adicionarResumoMenu(response, r.getMenu());
 
         Map<String, Object> moradaMap = null;
         if (r.getMorada() != null) {
@@ -221,6 +225,18 @@ public class RestauranteController {
         }
         response.put("morada", moradaMap);
         return response;
+    }
+
+    private void adicionarResumoMenu(Map<String, Object> response, Menu menu) {
+        if (menu == null) {
+            response.put("menuId", null);
+            response.put("menuNome", "");
+            response.put("numeroProdutosMenu", 0);
+            return;
+        }
+        response.put("menuId", menu.getId());
+        response.put("menuNome", menu.getNome());
+        response.put("numeroProdutosMenu", menu.getProdutos().size());
     }
 
 

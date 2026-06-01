@@ -9,17 +9,21 @@
 package pt.ul.fc.css.tascaeats.service.produtoService;
 
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import pt.ul.fc.css.tascaeats.domain.menu.Menu;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarProdutoDTO;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
+import pt.ul.fc.css.tascaeats.repository.menuRepository.IMenuRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 
@@ -27,10 +31,12 @@ import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepos
 public class ProdutoService {
     private final IProdutoRepository produtoRepository;
     private final IRestauranteRepository restauranteRepository;
+    private final IMenuRepository menuRepository;
 
-    public ProdutoService(IProdutoRepository produtoRepository, IRestauranteRepository restauranteRepository) {
+    public ProdutoService(IProdutoRepository produtoRepository, IRestauranteRepository restauranteRepository, IMenuRepository menuRepository) {
         this.produtoRepository = produtoRepository;
         this.restauranteRepository = restauranteRepository;
+        this.menuRepository = menuRepository;
     }
 
     //Criar Produto
@@ -39,12 +45,20 @@ public class ProdutoService {
             throw new IllegalArgumentException("Os dados do produto são obrigatórios.");
         }
 
-        Restaurante restaurante = restauranteRepository.findById(restauranteId).orElse(null);
-        if (restaurante == null) {
-            throw new IllegalArgumentException("O restaurante não foi encontrado.");
-        }
-
+        Restaurante restaurante = obterRestauranteComMenu(restauranteId);
         Produto produto = new Produto(dto.getNome(), dto.getPreco(), dto.getDescricao(), restaurante);
+        restaurante.getMenu().adicionarProduto(produto);
+        return produtoRepository.save(produto);
+    }
+
+    public Produto criarProdutoNoMenu(Long menuId, CriarProdutoDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Os dados do produto são obrigatórios.");
+        }
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new IllegalArgumentException("O menu não foi encontrado."));
+        Produto produto = new Produto(dto.getNome(), dto.getPreco(), dto.getDescricao(), null);
+        menu.adicionarProduto(produto);
         return produtoRepository.save(produto);
     }
 
@@ -91,7 +105,25 @@ public class ProdutoService {
         if (restauranteId == null || restauranteId <= 0) {
             throw new IllegalArgumentException("O id do restaurante é obrigatório.");
         }
-        return produtoRepository.findByRestauranteId(restauranteId);
+        Restaurante restaurante = restauranteRepository.findById(restauranteId)
+                .orElseThrow(() -> new IllegalArgumentException("O restaurante não foi encontrado."));
+        Map<Long, Produto> produtos = new LinkedHashMap<>();
+        if (restaurante.getMenu() != null) {
+            for (Produto produto : produtoRepository.findByMenuId(restaurante.getMenu().getId())) {
+                produtos.put(produto.getId(), produto);
+            }
+        }
+        for (Produto produto : produtoRepository.findByRestauranteId(restauranteId)) {
+            produtos.put(produto.getId(), produto);
+        }
+        return List.copyOf(produtos.values());
+    }
+
+    public List<Produto> listarProdutosPorMenu(Long menuId) {
+        if (menuId == null || menuId <= 0) {
+            throw new IllegalArgumentException("O id do menu é obrigatório.");
+        }
+        return produtoRepository.findByMenuId(menuId);
     }
 
     public List<Produto> listarProdutos() {
@@ -173,5 +205,17 @@ public class ProdutoService {
             return null;
         }
         return texto.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private Restaurante obterRestauranteComMenu(Long restauranteId) {
+        if (restauranteId == null || restauranteId <= 0) {
+            throw new IllegalArgumentException("O id do restaurante é obrigatório.");
+        }
+        Restaurante restaurante = restauranteRepository.findById(restauranteId)
+                .orElseThrow(() -> new IllegalArgumentException("O restaurante não foi encontrado."));
+        if (restaurante.getMenu() == null) {
+            throw new IllegalStateException("O restaurante não tem menu atribuído.");
+        }
+        return restaurante;
     }
 }
