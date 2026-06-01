@@ -3,16 +3,8 @@ package pt.ul.fc.css.delivery.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import pt.ul.fc.css.delivery.domain.entrega.Entrega;
 import pt.ul.fc.css.delivery.domain.entrega.EstadoEntrega;
@@ -21,6 +13,7 @@ import pt.ul.fc.css.delivery.dto.entregaDTO.AtribuirEntregadorDTO;
 import pt.ul.fc.css.delivery.dto.entregaDTO.AtualizarEstadoEntregaDTO;
 import pt.ul.fc.css.delivery.dto.entregadorDTO.AtualizarEntregadorDTO;
 import pt.ul.fc.css.delivery.dto.entregadorDTO.CriarEntregadorDTO;
+import pt.ul.fc.css.delivery.events.EntregaAtualizadaPublisher;
 import pt.ul.fc.css.delivery.repository.EntregaRepository;
 import pt.ul.fc.css.delivery.repository.EntregadorRepository;
 
@@ -31,14 +24,14 @@ public class EntregaService {
 
     private final EntregaRepository entregaRepository;
     private final EntregadorRepository entregadorRepository;
-    private final String backendApiUrl;
+    private final EntregaAtualizadaPublisher entregaAtualizadaPublisher;
 
     public EntregaService(EntregaRepository entregaRepository,
                           EntregadorRepository entregadorRepository,
-                          @Value("${backend.api.url:${BACKEND_API_URL:http://localhost:8080}}") String backendApiUrl) {
+                          EntregaAtualizadaPublisher entregaAtualizadaPublisher) {
         this.entregaRepository = entregaRepository;
         this.entregadorRepository = entregadorRepository;
-        this.backendApiUrl = backendApiUrl;
+        this.entregaAtualizadaPublisher = entregaAtualizadaPublisher;
     }
 
     @Transactional
@@ -143,7 +136,9 @@ public class EntregaService {
 
         entregador.setAvailable(false);
         entregadorRepository.save(entregador);
-        return entregaRepository.save(entrega);
+        Entrega guardada = entregaRepository.save(entrega);
+        entregaAtualizadaPublisher.publicar(guardada, "ATRIBUIDO_ENTREGADOR");
+        return guardada;
     }
 
     @Transactional(readOnly = true)
@@ -158,18 +153,25 @@ public class EntregaService {
     public Entrega registarRecolha(Long pedidoId) {
         Entrega entrega = obterEntregaObrigatoria(pedidoId);
         entrega.registarRecolha();
-        return entregaRepository.save(entrega);
+        Entrega guardada = entregaRepository.save(entrega);
+        entregaAtualizadaPublisher.publicar(guardada, "ATRIBUIDO_ENTREGADOR");
+        return guardada;
     }
 
     @Transactional
     public void iniciarPreparacao(Long pedidoId) {
-        atualizarEstadoPedido(pedidoId, "A_PREPARAR");
+        entregaAtualizadaPublisher.publicarPedido(pedidoId, "A_PREPARAR");
     }
 
     @Transactional
     public Optional<Entrega> marcarPronto(Long pedidoId) {
-        atualizarEstadoPedido(pedidoId, "PRONTO_PARA_ENTREGA");
-        return entregaRepository.findByPedidoId(pedidoId);
+        Optional<Entrega> entrega = entregaRepository.findByPedidoId(pedidoId);
+        if (entrega.isPresent()) {
+            entregaAtualizadaPublisher.publicar(entrega.get(), "PRONTO_PARA_ENTREGA");
+        } else {
+            entregaAtualizadaPublisher.publicarPedido(pedidoId, "PRONTO_PARA_ENTREGA");
+        }
+        return entrega;
     }
 
     @Transactional
@@ -187,7 +189,9 @@ public class EntregaService {
         entregador.setAvailable(true);
 
         entregadorRepository.save(entregador);
-        return entregaRepository.save(entrega);
+        Entrega guardada = entregaRepository.save(entrega);
+        entregaAtualizadaPublisher.publicar(guardada, "ENTREGUE");
+        return guardada;
     }
 
     @Transactional
@@ -211,7 +215,10 @@ public class EntregaService {
             entregadorRepository.save(entregador);
         }
 
-        return entregaRepository.save(entrega);
+        Entrega guardada = entregaRepository.save(entrega);
+        entregaAtualizadaPublisher.publicar(guardada,
+                dto.getEstado() == EstadoEntrega.ENTREGUE ? "ENTREGUE" : "ATRIBUIDO_ENTREGADOR");
+        return guardada;
     }
 
     @Transactional(readOnly = true)
@@ -227,29 +234,6 @@ public class EntregaService {
                 .orElseThrow(() -> new IllegalArgumentException("Entrega nao encontrada para pedido: " + pedidoId));
     }
 
-    private void atualizarEstadoPedido(Long pedidoId, String novoEstado) {
-        if (pedidoId == null) {
-            throw new IllegalArgumentException("ID do pedido invalido.");
-        }
-
-        try {
-            RestTemplate rt = new RestTemplate();
-            String url = backendBaseUrl() + "/pedidos/" + pedidoId + "/estado";
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            String body = "{\"novoEstado\":\"" + novoEstado + "\"}";
-            HttpEntity<String> request = new HttpEntity<>(body, headers);
-            ResponseEntity<String> resp = rt.exchange(url, org.springframework.http.HttpMethod.POST, request, String.class);
-            if (!resp.getStatusCode().is2xxSuccessful()) {
-                throw new IllegalStateException("Falha ao atualizar estado do pedido: " + resp.getStatusCode());
-            }
-        } catch (HttpClientErrorException e) {
-            throw new IllegalStateException("Erro ao atualizar estado do pedido: " + e.getResponseBodyAsString());
-        } catch (RestClientException e) {
-            throw new IllegalStateException("Erro ao contactar backend para atualizar estado do pedido: " + e.getMessage());
-        }
-    }
-
     private Entregador selecionarEntregadorDisponivel() {
         List<Entregador> entregadoresDisponiveis = entregadorRepository.findByAvailable(true);
         for (Entregador candidato : entregadoresDisponiveis) {
@@ -258,15 +242,5 @@ public class EntregaService {
             }
         }
         throw new IllegalStateException("Nao ha entregadores disponiveis de momento.");
-    }
-
-    private String backendBaseUrl() {
-        String value = backendApiUrl == null || backendApiUrl.isBlank()
-                ? "http://localhost:8080"
-                : backendApiUrl.trim();
-        while (value.endsWith("/")) {
-            value = value.substring(0, value.length() - 1);
-        }
-        return value;
     }
 }
