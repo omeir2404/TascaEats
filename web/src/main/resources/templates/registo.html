@@ -40,15 +40,6 @@
                     </div>
 
                     <div class="auth-form-field">
-                        <label for="papel">Tipo de conta</label>
-                        <select id="papel" name="papel" required>
-                            <option value="CLIENT">Cliente</option>
-                            <option value="COURIER">Entregador</option>
-                            <option value="ADMIN">Administrador</option>
-                        </select>
-                    </div>
-
-                    <div class="auth-form-field">
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" required placeholder="Define uma password">
                     </div>
@@ -101,27 +92,5 @@
     </main>
 
     <div th:replace="~{fragments/footer :: rodape}"></div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const papelSelect = document.getElementById("papel");
-            const addressContainer = document.getElementById("clientAddressFields");
-
-            function toggleAddressFields() {
-                const isClient = papelSelect.value === "CLIENT";
-                addressContainer.style.display = isClient ? "block" : "none";
-
-                addressContainer.querySelectorAll("input").forEach(function(input) {
-                    if (!isClient) {
-                        input.value = "";
-                    }
-                    input.required = false;
-                });
-            }
-
-            papelSelect.addEventListener("change", toggleAddressFields);
-            toggleAddressFields();
-        });
-    </script>
 </body>
 </html>

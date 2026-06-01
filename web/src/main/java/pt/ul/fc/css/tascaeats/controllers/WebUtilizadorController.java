@@ -42,30 +42,8 @@ public class WebUtilizadorController {
     }
 
     @GetMapping("/utilizadores")
-    public String listarUtilizadores(
-            @RequestParam(required = false) String nome,
-            @RequestParam(required = false) String papel,
-            @RequestParam(required = false, defaultValue = "false") Boolean apenasAtivos,
-            Model model) {
-
-        try {
-            List<Map<String, Object>> utilizadores = restTemplate.getForObject(backendUrl + "/api/Utilizadors", List.class);
-            List<Map<String, Object>> filtrados = normalizeUsers(utilizadores).stream()
-                    .filter(u -> nome == null || nome.isBlank() || u.get("nome").toString().toLowerCase().contains(nome.toLowerCase()))
-                    .filter(u -> papel == null || papel.isBlank() || u.get("papel").toString().equalsIgnoreCase(papel))
-                    .filter(u -> !Boolean.TRUE.equals(apenasAtivos) || Boolean.TRUE.equals(u.get("ativo")))
-                    .toList();
-            model.addAttribute("utilizadores", filtrados);
-        } catch (Exception e) {
-            model.addAttribute("utilizadores", List.of());
-            model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel carregar os utilizadores", e, backendUrl));
-        }
-
-        model.addAttribute("nome", nome);
-        model.addAttribute("papel", papel);
-        model.addAttribute("apenasAtivos", apenasAtivos);
-
-        return "utilizadores";
+    public String listarUtilizadores() {
+        return "redirect:/restaurantes";
     }
 
     @GetMapping("/login")
@@ -116,7 +94,6 @@ public class WebUtilizadorController {
             @RequestParam String nome,
             @RequestParam String email,
             @RequestParam String password,
-            @RequestParam String papel,
             @RequestParam(required = false) String rua,
             @RequestParam(required = false) Integer numero,
             @RequestParam(required = false) String complemento,
@@ -130,9 +107,9 @@ public class WebUtilizadorController {
             payload.put("name", nome);
             payload.put("email", email);
             payload.put("password", password);
-            payload.put("type", mapPapelToBackendType(papel));
+            payload.put("type", "client");
 
-            Map<String, Object> address = buildOptionalAddressForClient(papel, rua, numero, complemento, codigoPostal, cidade, distrito, pais);
+            Map<String, Object> address = buildOptionalAddressForClient("CLIENT", rua, numero, complemento, codigoPostal, cidade, distrito, pais);
             if (address != null) {
                 payload.put("address", address);
             }
@@ -166,7 +143,7 @@ public class WebUtilizadorController {
         } catch (Exception e) {
             model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel carregar o perfil", e, backendUrl));
         }
-        return "redirect:/utilizadores";
+        return "redirect:/login";
     }
 
     @PostMapping("/perfil/{id}/atualizar")
@@ -243,7 +220,7 @@ public class WebUtilizadorController {
             session.setAttribute("profileError", WebErrorMessages.backendFailure("Nao foi possivel eliminar a conta", e, backendUrl));
             return "redirect:/perfil/" + id;
         }
-        return "redirect:/utilizadores";
+        return "redirect:/";
     }
 
     private List<Map<String, Object>> normalizeUsers(List<Map<String, Object>> backendUsers) {
