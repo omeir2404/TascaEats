@@ -1,5 +1,9 @@
 package pt.ul.fc.css.tascaeats.grpc;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +45,7 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
     private final ProdutoController produtoController;
     private final PedidoController pedidoController;
     private final PagamentoController pagamentoController;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final HttpClient httpClient = HttpClient.newHttpClient();
     private final String deliveryApiUrl;
 
     public NativeGrpcService(ObjectMapper mapper,
@@ -128,8 +132,32 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
     }
 
     private NativeAppResponse deliveryPatch(String path) {
-        restTemplate.patchForObject(deliveryApiUrl + path, null, Object.class);
-        return ok(Map.of("message", "Operacao de entrega executada."));
+        try {
+            HttpRequest request = HttpRequest.newBuilder(URI.create(deliveryApiUrl + path))
+                    .method("PATCH", HttpRequest.BodyPublishers.noBody())
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                return NativeAppResponse.newBuilder()
+                        .setSuccess(false)
+                        .setMessage("Delivery service returned HTTP " + response.statusCode())
+                        .setBodyJson(response.body() == null || response.body().isBlank() ? "{}" : response.body())
+                        .build();
+            }
+            return NativeAppResponse.newBuilder()
+                    .setSuccess(true)
+                    .setMessage("OK")
+                    .setBodyJson(response.body() == null || response.body().isBlank()
+                            ? mapper.writeValueAsString(Map.of("message", "Operacao de entrega executada."))
+                            : response.body())
+                    .build();
+        } catch (Exception e) {
+            return NativeAppResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage())
+                    .setBodyJson("{}")
+                    .build();
+        }
     }
 
     private NativeAppResponse respond(ResponseEntity<?> entity) throws Exception {

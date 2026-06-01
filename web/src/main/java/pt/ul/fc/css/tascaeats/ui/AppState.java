@@ -21,7 +21,7 @@ public class AppState {
     public static final String GRPC_HOST =
         System.getenv().getOrDefault("NATIVE_GRPC_HOST", "localhost");
     public static final int GRPC_PORT =
-        Integer.parseInt(System.getenv().getOrDefault("NATIVE_GRPC_PORT", "8082"));
+        Integer.parseInt(System.getenv().getOrDefault("NATIVE_GRPC_PORT", "9090"));
 
     // ── gRPC clients ─────────────────────────────────────────────────────
     public final NativeGrpcClient     grpc             = new NativeGrpcClient(GRPC_HOST, GRPC_PORT);
@@ -43,11 +43,15 @@ public class AppState {
 
     // ── Background task runner ────────────────────────────────────────────
     public <T> void bg(java.util.concurrent.Callable<T> work, Consumer<T> onDone) {
+        bg(work, onDone, error -> System.err.println("BG task failed: " + error));
+    }
+
+    public <T> void bg(java.util.concurrent.Callable<T> work, Consumer<T> onDone, Consumer<Throwable> onError) {
         Task<T> task = new Task<>() {
             @Override protected T call() throws Exception { return work.call(); }
         };
         task.setOnSucceeded(ev -> onDone.accept(task.getValue()));
-        task.setOnFailed(ev -> System.err.println("BG task failed: " + task.getException()));
+        task.setOnFailed(ev -> onError.accept(task.getException()));
         Thread t = new Thread(task);
         t.setDaemon(true);
         t.start();

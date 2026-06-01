@@ -10,10 +10,17 @@
 
 package pt.ul.fc.css.tascaeats.ui;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -51,8 +58,12 @@ import static pt.ul.fc.css.tascaeats.ui.UiUtils.warn;
 
 public class PedidosPane {
 
+    private static final TypeReference<List<Map<String, Object>>> LIST_TYPE = new TypeReference<>() {};
+
     private final AppState state;
     private final Stage    owner;
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final HttpClient httpClient = HttpClient.newHttpClient();
     private Label          statusLabel;
 
     public PedidosPane(AppState state, Stage owner) {
@@ -132,15 +143,79 @@ public class PedidosPane {
     // ── Sync ─────────────────────────────────────────────────────────────
 
     public void syncPedidos(Runnable afterUpdate) {
-        state.bg(() -> {
-            return state.grpc.invokeList("listOrders", Map.of());
-        }, result -> {
-            List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) result;
+        state.bg(this::loadPedidos, load -> {
+            if (state.users.isEmpty()) {
+                state.users.setAll(load.users());
+            }
+            if (state.restaurantes.isEmpty()) {
+                state.restaurantes.setAll(load.restaurantes());
+            }
+            List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) load.pedidos();
             state.pedidos.setAll(typed.stream().map(this::normalizePedido).toList());
             if (afterUpdate != null) afterUpdate.run();
-            setStatus(statusLabel, "✓ " + state.pedidos.size() + " pedidos carregados.");
-        });
+            String source = load.fallbackUsado() ? " via REST" : "";
+            setStatus(statusLabel, "✓ " + state.pedidos.size() + " pedidos carregados" + source + ".");
+        }, error -> setStatus(statusLabel, "✗ Erro ao carregar pedidos: " + error.getMessage()));
     }
+
+    private PedidoLoadResult loadPedidos() throws Exception {
+        List<Map<String, Object>> users = state.users.isEmpty()
+            ? state.utilizadorClient.listarUtilizadores()
+            : List.copyOf(state.users);
+        List<Map<String, Object>> restaurantes = state.restaurantes.isEmpty()
+            ? state.grpc.invokeList("listRestaurants", Map.of())
+            : List.copyOf(state.restaurantes);
+
+        NativeGrpcClient.GrpcResult res = state.grpc.invoke("listOrders", Map.of());
+        if (res.success()) {
+            return new PedidoLoadResult(state.grpc.readList(res.bodyJson()), false, users, restaurantes);
+        }
+
+        Exception grpcError = new IllegalStateException(res.message());
+        for (String baseUrl : restBaseUrlCandidates()) {
+            try {
+                HttpRequest request = HttpRequest.newBuilder(URI.create(baseUrl + "/pedidos"))
+                    .GET()
+                    .build();
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                    return new PedidoLoadResult(mapper.readValue(response.body(), LIST_TYPE), true, users, restaurantes);
+                }
+            } catch (Exception ignored) {
+                // Try the next configured URL.
+            }
+        }
+        throw grpcError;
+    }
+
+    private List<String> restBaseUrlCandidates() {
+        String configured = System.getenv().getOrDefault("NATIVE_REST_URL",
+            System.getenv().getOrDefault("BACKEND_API_URL", ""));
+        List<String> urls = new java.util.ArrayList<>();
+        addBaseUrl(urls, configured);
+        addBaseUrl(urls, "http://localhost:8080");
+        addBaseUrl(urls, "http://localhost:80");
+        return urls;
+    }
+
+    private void addBaseUrl(List<String> urls, String value) {
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        String normalized = value.trim();
+        while (normalized.endsWith("/")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+        if (!urls.contains(normalized)) {
+            urls.add(normalized);
+        }
+    }
+
+    private record PedidoLoadResult(
+        List<Map<String, Object>> pedidos,
+        boolean fallbackUsado,
+        List<Map<String, Object>> users,
+        List<Map<String, Object>> restaurantes) {}
 
     // ── Handlers ──────────────────────────────────────────────────────────
 
