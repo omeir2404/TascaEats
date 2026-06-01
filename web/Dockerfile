@@ -1,5 +1,5 @@
 # Etapa 1: Construção (Build)
-FROM maven:3.9.14-eclipse-temurin-17-alpine AS builder
+FROM maven:3.9.14-eclipse-temurin-17 AS builder
 WORKDIR /workspace
 # Copia apenas o pom.xml primeiro para otimizar o cache do Docker
 COPY pom.xml .
