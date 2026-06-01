@@ -40,7 +40,7 @@ public class RestaurantesPane {
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
             col("ID", "id"), col("Nome", "nome"), col("Estado", "estado"),
-            col("Tipo", "tipo"), col("NIF", "nif")
+            col("Tipo", "tipo"), col("Menu", "menuNome"), col("NIF", "nif")
         );
 
         TextArea details = new TextArea();
@@ -49,7 +49,8 @@ public class RestaurantesPane {
         table.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
             if (n != null) details.setText(
                 "ID: " + n.get("id") + "\nNome: " + n.get("nome") +
-                "\nEstado: " + n.get("estado") + "\nTipo: " + n.get("tipo") + "\nNIF: " + n.get("nif"));
+                "\nEstado: " + n.get("estado") + "\nTipo: " + n.get("tipo") +
+                "\nMenu: " + n.get("menuNome") + "\nNIF: " + n.get("nif"));
         });
 
         // E – Search
@@ -75,16 +76,19 @@ public class RestaurantesPane {
         Button editarBtn  = colorBtn("✎ Editar",          "#2196f3");
         Button estadoBtn  = colorBtn("⟳ Alterar Estado",  "#ff9800");
         Button removerBtn = colorBtn("✕ Remover",         "#f44336");
+        Button assignMenuBtn = colorBtn("Atribuir Menu", "#455a64");
         Button menuBtn    = colorBtn("🍽 Ver Menu",    "#7b1fa2");
 
         boolean isAdmin = state.isAdmin();
         criarBtn.setDisable(!isAdmin); editarBtn.setDisable(!isAdmin);
         estadoBtn.setDisable(!isAdmin); removerBtn.setDisable(!isAdmin);
+        assignMenuBtn.setDisable(!isAdmin);
 
         criarBtn.setOnAction(e   -> handleCriar(applyFilter));
         editarBtn.setOnAction(e  -> handleEditar(table, applyFilter));
         estadoBtn.setOnAction(e  -> handleEstado(table, applyFilter));
         removerBtn.setOnAction(e -> handleRemover(table, applyFilter));
+        assignMenuBtn.setOnAction(e -> handleAtribuirMenu(table, applyFilter));
         menuBtn.setOnAction(e -> {
             Map<String, Object> sel = selected(table, owner);
             if (sel != null) onViewProdutos.accept(sel);
@@ -95,7 +99,7 @@ public class RestaurantesPane {
 
         return pane(sectionTitle("E/F – Restaurantes"),
             hbar(lbl("Nome:"), nomeF, lbl("Estado:"), estBox, pesquisar, limpar),
-            hbar(criarBtn, editarBtn, estadoBtn, removerBtn, menuBtn),
+            hbar(criarBtn, editarBtn, estadoBtn, removerBtn, assignMenuBtn, menuBtn),
             table, new Label("Detalhes:"), details, statusLabel);
     }
 
@@ -163,6 +167,38 @@ public class RestaurantesPane {
         } else { warn("✗ Erro ao remover: " + res.message(), owner); }
     }
 
+    private void handleAtribuirMenu(TableView<Map<String, Object>> table, Runnable applyFilter) {
+        Map<String, Object> sel = selected(table, owner);
+        if (sel == null) {
+            return;
+        }
+        carregarMenusSeNecessario();
+        if (state.menus.isEmpty()) {
+            warn("Crie um menu antes de o atribuir a um restaurante.", owner);
+            return;
+        }
+
+        List<String> opcoes = state.menus.stream()
+                .map(menu -> menu.get("id") + " - " + s(menu, "nome"))
+                .toList();
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(opcoes.get(0), opcoes);
+        dialog.setTitle("Atribuir Menu");
+        dialog.setHeaderText("Menu para " + s(sel, "nome"));
+        dialog.initOwner(owner);
+        dialog.showAndWait().ifPresent(escolha -> {
+            Long menuId = toLong(escolha.split(" - ", 2)[0]);
+            NativeGrpcClient.GrpcResult res = state.grpc.invoke("assignMenuToRestaurant",
+                    Map.of("restauranteId", sel.get("id"), "menuId", menuId));
+            if (res.success()) {
+                info("Menu atribuido ao restaurante.", owner);
+                state.menus.clear();
+                syncRestaurantes(applyFilter);
+            } else {
+                warn("Erro ao atribuir menu: " + res.message(), owner);
+            }
+        });
+    }
+
     // ── Payload / Dialog / Normalize ──────────────────────────────────────
 
     private Map<String, Object> buildPayload(Map<String, Object> form) {
@@ -190,7 +226,17 @@ public class RestaurantesPane {
         m.put("tipo",   r.getOrDefault("tipoRestaurante", r.getOrDefault("tipoCozinha", "OUTRO")));
         m.put("nif",    r.getOrDefault("nif", "-"));
         m.putAll(r); // keep original fields for editing (morada, etc.)
+        m.put("menuId", r.getOrDefault("menuId", null));
+        m.put("menuNome", s(r, "menuNome").isBlank() ? "Sem menu" : s(r, "menuNome"));
         return m;
+    }
+
+    private void carregarMenusSeNecessario() {
+        if (!state.menus.isEmpty()) {
+            return;
+        }
+        List<Map<String, Object>> menus = state.grpc.invokeList("listMenus", Map.of());
+        state.menus.setAll(menus);
     }
 
     private Map<String, Object> restauranteDialog(Map<String, Object> ex) {

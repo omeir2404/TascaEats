@@ -32,11 +32,12 @@ public class NativeAppGUI extends Application {
     private Stage  mainStage;
     private VBox   contentArea;
     private Label  headerUserLabel;
-    private Button loginBtn, usersBtn, navRestBtn, navProdBtn, navOrderBtn, exitBtn;
+    private Button loginBtn, usersBtn, navRestBtn, navMenuBtn, navProdBtn, navOrderBtn, exitBtn;
 
     // ── Panes ──────────────────────────────────────
     private UtilizadoresPane utilizadoresPane;
     private RestaurantesPane restaurantesPane;
+    private MenusPane        menusPane;
     private ProdutosPane     produtosPane;
     private PedidosPane      pedidosPane;
 
@@ -86,13 +87,14 @@ public class NativeAppGUI extends Application {
         loginBtn  = navBtn("A – Login",          this::showLoginPane);
         usersBtn  = navBtn("C/D – Utilizadores", this::showUsersPane);
         navRestBtn  = navBtn("E/F – Restaurantes",  this::showRestaurantesPane);
+        navMenuBtn  = navBtn("Menus",                this::showMenusPane);
         navProdBtn  = navBtn("G/H – Produtos",       () -> showProdutosPane(null));
         navOrderBtn = navBtn("K/L/M/N – Pedidos",    this::showOrdersPane);
 
         updateNavState();
 
         header.getChildren().addAll(title, loginBtn, usersBtn,
-            navRestBtn, navProdBtn, navOrderBtn, spacer, headerUserLabel, exitBtn);
+            navRestBtn, navMenuBtn, navProdBtn, navOrderBtn, spacer, headerUserLabel, exitBtn);
         return header;
     }
 
@@ -106,6 +108,9 @@ public class NativeAppGUI extends Application {
         navRestBtn.setVisible(loggedIn);
         navRestBtn.setManaged(loggedIn);
         navRestBtn.setDisable(!loggedIn);
+        navMenuBtn.setVisible(loggedIn);
+        navMenuBtn.setManaged(loggedIn);
+        navMenuBtn.setDisable(!loggedIn);
         navProdBtn.setVisible(loggedIn);
         navProdBtn.setManaged(loggedIn);
         navProdBtn.setDisable(!loggedIn);
@@ -159,6 +164,12 @@ public class NativeAppGUI extends Application {
         if (!requireLogin()) return;
         restaurantesPane = new RestaurantesPane(state, mainStage, this::showProdutosPane);
         show(restaurantesPane.build());
+    }
+
+    private void showMenusPane() {
+        if (!requireLogin()) return;
+        menusPane = new MenusPane(state, mainStage);
+        show(menusPane.build());
     }
 
     private void showProdutosPane(Map<String, Object> restFilter) {

@@ -31,6 +31,7 @@ public class AppState {
     // ── Live data ────────────────────────────────
     public final ObservableList<Map<String, Object>> users        = FXCollections.observableArrayList();
     public final ObservableList<Map<String, Object>> restaurantes = FXCollections.observableArrayList();
+    public final ObservableList<Map<String, Object>> menus        = FXCollections.observableArrayList();
     public final ObservableList<Map<String, Object>> produtos     = FXCollections.observableArrayList();
     public final ObservableList<Map<String, Object>> pedidos      = FXCollections.observableArrayList();
 

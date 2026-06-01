@@ -76,7 +76,7 @@ public class ProdutosPane {
 
         TableView<Map<String, Object>> table = tableOf(display,
             col("ID", "id"), col("Restaurante", "restNome"), col("Nome", "nome"),
-            col("Preço (€)", "preco"), col("Disponível", "disponivel"), col("Apagado", "apagado")
+            col("Menu", "menuNome"), col("Preço (€)", "preco"), col("Disponível", "disponivel"), col("Apagado", "apagado")
         );
 
         Button filtrar   = new Button("Pesquisar"); filtrar.setOnAction(e -> applyFilter.run());
@@ -116,11 +116,21 @@ public class ProdutosPane {
             List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) result;
             List<Map<String, Object>> enriched = typed.stream().map(p -> {
                 Map<String, Object> m = new LinkedHashMap<>(p);
-                Long rid = toLong(p.getOrDefault("restauranteId", p.getOrDefault("restId", -1)));
+                Long rid = restauranteId != null
+                    ? restauranteId
+                    : toLong(p.getOrDefault("restauranteId", p.getOrDefault("restId", -1)));
+                if (rid < 0 && p.get("menuId") != null) {
+                    Long menuId = toLong(p.get("menuId"));
+                    rid = state.restaurantes.stream()
+                        .filter(r -> menuId.equals(toLong(r.get("menuId"))))
+                        .findFirst().map(r -> toLong(r.get("id"))).orElse(-1L);
+                }
+                Long finalRid = rid;
                 m.put("restId", rid);
                 m.put("restNome", state.restaurantes.stream()
-                    .filter(r -> rid.equals(toLong(r.get("id"))))
+                    .filter(r -> finalRid.equals(toLong(r.get("id"))))
                     .findFirst().map(r -> s(r, "nome")).orElse("-"));
+                m.put("menuNome", p.getOrDefault("menuNome", ""));
                 m.put("disponivel", Boolean.TRUE.equals(p.get("disponivel")) ? "Sim" : "Não");
                 m.put("apagado", Boolean.TRUE.equals(p.get("apagado")) ? "Sim" : "Não");
                 return m;
@@ -144,6 +154,10 @@ public class ProdutosPane {
         Map<String, Object> preRest = "Todos".equals(rNome) ? null :
             state.restaurantes.stream().filter(r -> s(r, "nome").equals(rNome)).findFirst().orElse(null);
         if (preRest == null) { warn("Selecione um restaurante específico para criar um produto.", owner); return; }
+        if (preRest.get("menuId") == null || s(preRest, "menuId").isBlank()) {
+            warn("Atribua um menu ao restaurante antes de criar produtos.", owner);
+            return;
+        }
         Map<String, Object> novo = produtoDialog(null, preRest);
         if (novo == null) return;
         Long restId = toLong(preRest.get("id"));

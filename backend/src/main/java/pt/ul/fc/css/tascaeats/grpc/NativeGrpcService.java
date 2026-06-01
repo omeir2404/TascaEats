@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.grpc.stub.StreamObserver;
+import pt.ul.fc.css.tascaeats.controllers.MenuController;
 import pt.ul.fc.css.tascaeats.controllers.PagamentoController;
 import pt.ul.fc.css.tascaeats.controllers.PedidoController;
 import pt.ul.fc.css.tascaeats.controllers.ProdutoController;
@@ -18,6 +19,7 @@ import pt.ul.fc.css.tascaeats.controllers.RestauranteController;
 import pt.ul.fc.css.tascaeats.controllers.UtilizadorController;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
+import pt.ul.fc.css.tascaeats.dto.menuDTO.MenuDTO;
 import pt.ul.fc.css.tascaeats.dto.pedidoDTO.AtualizarEstadoPedidoDTO;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarProdutoDTO;
@@ -38,6 +40,7 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
     private final ObjectMapper mapper;
     private final UtilizadorController utilizadorController;
     private final RestauranteController restauranteController;
+    private final MenuController menuController;
     private final ProdutoController produtoController;
     private final PedidoController pedidoController;
     private final PagamentoController pagamentoController;
@@ -46,6 +49,7 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
     public NativeGrpcService(ObjectMapper mapper,
                              UtilizadorController utilizadorController,
                              RestauranteController restauranteController,
+                             MenuController menuController,
                              ProdutoController produtoController,
                              PedidoController pedidoController,
                              PagamentoController pagamentoController,
@@ -53,6 +57,7 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
         this.mapper = mapper;
         this.utilizadorController = utilizadorController;
         this.restauranteController = restauranteController;
+        this.menuController = menuController;
         this.produtoController = produtoController;
         this.pedidoController = pedidoController;
         this.pagamentoController = pagamentoController;
@@ -97,9 +102,19 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
                     longValue(payload.get("id")),
                     map(Map.of("estado", stringValue(payload.get("estado"))), AtualizarEstadoRestauranteDTO.class)));
             case "deleteRestaurant" -> respond(restauranteController.removerRestaurante(longValue(payload.get("id"))));
+            case "listMenus" -> respond(menuController.listarMenus(stringValue(payload.get("nome"))));
+            case "createMenu" -> respond(menuController.criarMenu(map(payload, MenuDTO.class)));
+            case "updateMenu" -> respond(menuController.atualizarMenu(
+                    longValue(payload.get("id")),
+                    map(payload, MenuDTO.class)));
+            case "deleteMenu" -> respond(menuController.removerMenu(longValue(payload.get("id"))));
+            case "assignMenuToRestaurant" -> respond(menuController.associarMenuAoRestaurante(
+                    longValue(payload.get("restauranteId")),
+                    longValue(payload.get("menuId"))));
             case "listProducts" -> respond(produtoController.listarProdutos(
                     stringValue(payload.get("nome")),
                     optionalLong(payload.get("restauranteId")),
+                    optionalLong(payload.get("menuId")),
                     boolValue(payload.get("ativos")),
                     boolValue(payload.get("disponiveis"))));
             case "createProduct" -> respond(produtoController.criarProduto(
