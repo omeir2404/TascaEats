@@ -146,7 +146,7 @@ public final class UiUtils {
     public static TableColumn<Map<String, Object>, String> col(String title, String key) {
         TableColumn<Map<String, Object>, String> c = new TableColumn<>(title);
         c.setCellValueFactory(cd -> new SimpleStringProperty(
-            cd.getValue().getOrDefault(key, "").toString()));
+            Objects.toString(cd.getValue().get(key), "")));
         return c;
     }
 
