@@ -80,12 +80,24 @@ A estrutura deste README segue as convenções de documentação da Fase 1 (ver 
 * `docker-compose.yml`, `run.sh` e `bootstrapdb.sql` — scripts auxiliares para iniciar a *stack* e preencher a base de dados.
 
 ## Base de Dados / Migrações
-Este projeto armazena alguns metadados de seleção de pagamento em `Pedido`. Se usar uma base de dados persistente, deve garantir que o esquema contém as novas colunas e a tabela de coleção introduzidas para os detalhes do pagamento solicitado. Adicione uma migração (Flyway/Liquibase ou instruções ALTER manuais) para adicionar:
+
+Este projeto armazena alguns metadados de seleção de pagamento em `Pedido` e usa `Menu` como entidade própria
+reutilizável por vários restaurantes/franquias. Se usar uma base de dados persistente, deve garantir que o esquema
+contém as novas colunas/tabelas e que as ligações antigas restaurante-produto foram migradas para menu-produto.
+
+Para pagamento, adicione:
 
 * Coluna `tipo_pagamento_solicitado` em `pedido` (VARCHAR)
 * Tabela de coleção de elementos `pedido_pagamento_detalhes` com `pedido_id`, `campo`, `valor`
 
-Sem estas adições, a criação de pedidos com detalhes de pagamento selecionados pelo cliente irá falhar.
+Para menus partilháveis, garanta:
+
+* Tabela `menus` com `id` e `nome`
+* Coluna `menu_id` em `restaurante`, permitindo restaurantes sem menu temporariamente
+* Coluna `menu_id` em `produto`
+* Coluna `restaurante_id` em `produto` sem `NOT NULL`, porque produtos pertencem ao menu e não a uma loja concreta
+
+Sem estas adições, a criação/listagem de produtos por menu e a atribuição de menus a restaurantes poderá falhar.
 
 Exemplo de SQL (migração manual) - executar uma vez contra a base de dados usada pelo backend:
 
@@ -98,6 +110,17 @@ CREATE TABLE pedido_pagamento_detalhes (
     valor varchar,
     CONSTRAINT fk_pedido_pagamento_detalhes_pedido FOREIGN KEY (pedido_id) REFERENCES pedido (id)
 );
+
+ALTER TABLE restaurante ALTER COLUMN menu_id DROP NOT NULL;
+ALTER TABLE produto ADD COLUMN IF NOT EXISTS menu_id bigint;
+ALTER TABLE produto ALTER COLUMN restaurante_id DROP NOT NULL;
+
+UPDATE produto p
+SET menu_id = r.menu_id
+FROM restaurante r
+WHERE p.restaurante_id = r.id
+  AND p.menu_id IS NULL
+  AND r.menu_id IS NOT NULL;
 
 -- Se usar sequências para dados pré-preenchidos, avance as sequências após inserir IDs explícitos
 -- ex: SELECT setval('pedido_id_seq', (SELECT MAX(id) FROM pedido));
