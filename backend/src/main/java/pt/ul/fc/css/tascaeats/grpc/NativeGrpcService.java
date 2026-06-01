@@ -174,6 +174,7 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
         String action = switch (parts[4]) {
             case "iniciar-preparacao" -> "INICIAR_PREPARACAO";
             case "marcar-pronto" -> "MARCAR_PRONTO";
+            case "atribuir-entregador" -> "ATRIBUIR_ENTREGADOR";
             case "recolha" -> "REGISTAR_RECOLHA";
             case "entrega-final" -> "ENTREGA_FINAL";
             default -> throw new IllegalArgumentException("Comando de entrega invalido: " + parts[4]);
