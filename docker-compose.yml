@@ -123,7 +123,9 @@ services:
       until /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list >/dev/null 2>&1; do
         sleep 2;
       done;
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic pedido-pago-topic --partitions 1 --replication-factor 1
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic pedido-pago-topic --partitions 1 --replication-factor 1;
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic entrega-atualizada-topic --partitions 1 --replication-factor 1;
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic delivery-command-topic --partitions 1 --replication-factor 1
       "
 
   # The New Delivery Microservice
