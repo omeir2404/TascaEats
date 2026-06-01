@@ -1,17 +1,11 @@
 package pt.ul.fc.css.tascaeats.grpc;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +28,7 @@ import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorLoginDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
+import pt.ul.fc.css.tascaeats.publishers.DeliveryCommandPublisher;
 
 @Service
 public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImplBase {
@@ -46,8 +41,7 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
     private final ProdutoController produtoController;
     private final PedidoController pedidoController;
     private final PagamentoController pagamentoController;
-    private final HttpClient httpClient = HttpClient.newHttpClient();
-    private final String deliveryApiUrl;
+    private final DeliveryCommandPublisher deliveryCommandPublisher;
 
     public NativeGrpcService(ObjectMapper mapper,
                              UtilizadorController utilizadorController,
@@ -55,14 +49,14 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
                              ProdutoController produtoController,
                              PedidoController pedidoController,
                              PagamentoController pagamentoController,
-                             @Value("${delivery.api.url:${DELIVERY_API_URL:http://localhost:80}}") String deliveryApiUrl) {
+                             DeliveryCommandPublisher deliveryCommandPublisher) {
         this.mapper = mapper;
         this.utilizadorController = utilizadorController;
         this.restauranteController = restauranteController;
         this.produtoController = produtoController;
         this.pedidoController = pedidoController;
         this.pagamentoController = pagamentoController;
-        this.deliveryApiUrl = trimTrailingSlash(deliveryApiUrl);
+        this.deliveryCommandPublisher = deliveryCommandPublisher;
     }
 
     @Override
@@ -137,23 +131,12 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
 
     private NativeAppResponse deliveryPatch(String path) {
         try {
-            HttpRequest request = HttpRequest.newBuilder(URI.create(deliveryApiUrl + path))
-                    .method("PATCH", HttpRequest.BodyPublishers.noBody())
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                return NativeAppResponse.newBuilder()
-                        .setSuccess(false)
-                        .setMessage("Delivery service returned HTTP " + response.statusCode())
-                        .setBodyJson(response.body() == null || response.body().isBlank() ? "{}" : response.body())
-                        .build();
-            }
+            DeliveryCommand command = parseDeliveryCommand(path);
+            deliveryCommandPublisher.publicar(command.pedidoId(), command.action());
             return NativeAppResponse.newBuilder()
                     .setSuccess(true)
                     .setMessage("OK")
-                    .setBodyJson(response.body() == null || response.body().isBlank()
-                            ? mapper.writeValueAsString(Map.of("message", "Operacao de entrega executada."))
-                            : response.body())
+                    .setBodyJson(mapper.writeValueAsString(Map.of("message", "Comando de entrega publicado.")))
                     .build();
         } catch (Exception e) {
             return NativeAppResponse.newBuilder()
@@ -163,6 +146,27 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
                     .build();
         }
     }
+
+    private DeliveryCommand parseDeliveryCommand(String path) {
+        if (path == null) {
+            throw new IllegalArgumentException("Path de entrega invalido.");
+        }
+        String[] parts = path.split("/");
+        if (parts.length < 5) {
+            throw new IllegalArgumentException("Path de entrega invalido: " + path);
+        }
+        Long pedidoId = Long.parseLong(parts[3]);
+        String action = switch (parts[4]) {
+            case "iniciar-preparacao" -> "INICIAR_PREPARACAO";
+            case "marcar-pronto" -> "MARCAR_PRONTO";
+            case "recolha" -> "REGISTAR_RECOLHA";
+            case "entrega-final" -> "ENTREGA_FINAL";
+            default -> throw new IllegalArgumentException("Comando de entrega invalido: " + parts[4]);
+        };
+        return new DeliveryCommand(pedidoId, action);
+    }
+
+    private record DeliveryCommand(Long pedidoId, String action) {}
 
     private NativeAppResponse respond(ResponseEntity<?> entity) throws Exception {
         HttpStatusCode status = entity.getStatusCode();
@@ -229,11 +233,4 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
         return text.isBlank() || "Todos".equalsIgnoreCase(text) ? null : Enum.valueOf(enumType, text);
     }
 
-    private String trimTrailingSlash(String value) {
-        String v = value == null || value.isBlank() ? "http://localhost:80" : value.trim();
-        while (v.endsWith("/")) {
-            v = v.substring(0, v.length() - 1);
-        }
-        return v;
-    }
 }
