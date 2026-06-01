@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -95,6 +96,7 @@ public class PedidoController {
 	}
 
 	@GetMapping
+	@Transactional(readOnly = true)
 	public ResponseEntity<Object> listarPedidos(
 			@RequestParam(required = false) Long clienteId,
 			@RequestParam(required = false) EstadoPedido estado) {

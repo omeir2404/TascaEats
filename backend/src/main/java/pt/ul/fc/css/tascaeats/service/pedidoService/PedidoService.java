@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
@@ -161,20 +162,27 @@ public class PedidoService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<Pedido> listarPedidos(Long clienteId, EstadoPedido estado) {
+        List<Pedido> pedidos;
         if (clienteId != null && estado != null) {
-            return pedidoRepository.findByClienteIdAndEstado(clienteId, estado);
+            pedidos = pedidoRepository.findByClienteIdAndEstado(clienteId, estado);
+        } else if (clienteId != null) {
+            pedidos = pedidoRepository.findByClienteId(clienteId);
+        } else if (estado != null) {
+            pedidos = pedidoRepository.findByEstado(estado);
+        } else {
+            pedidos = pedidoRepository.findAll();
         }
 
-        if (clienteId != null) {
-            return pedidoRepository.findByClienteId(clienteId);
-        }
+        pedidos.forEach(this::inicializarColecoesPedido);
+        return pedidos;
+    }
 
-        if (estado != null) {
-            return pedidoRepository.findByEstado(estado);
-        }
-
-        return pedidoRepository.findAll();
+    private void inicializarColecoesPedido(Pedido pedido) {
+        pedido.getRestaurantesIds().size();
+        pedido.getProdutosIds().size();
+        pedido.getDetalhesPagamentoSolicitado().size();
     }
 
     public void atualizarEstadoPedido(Long pedidoId, String novoEstado) {

@@ -363,6 +363,7 @@ public class PedidosPane {
             patch("/entregas/pedido/" + sel.get("id") + "/atribuir-entregador");
             info("✓ Entregador atribuído automaticamente.", owner);
             syncPedidos(applyFilter);
+            syncPedidosAfterDelay(applyFilter);
         } catch (Exception ex) { warn("✗ Erro ao atribuir entregador: " + ex.getMessage(), owner); }
     }
 
@@ -376,6 +377,7 @@ public class PedidosPane {
             patch("/entregas/pedido/" + sel.get("id") + "/recolha");
             info("✓ Recolha registada.", owner);
             syncPedidos(applyFilter);
+            syncPedidosAfterDelay(applyFilter);
         } catch (Exception ex) { warn("✗ Erro ao registar recolha: " + ex.getMessage(), owner); }
     }
 
@@ -389,6 +391,7 @@ public class PedidosPane {
             patch("/entregas/pedido/" + sel.get("id") + "/entrega-final");
             info("✓ Entrega final registada.", owner);
             syncPedidos(applyFilter);
+            syncPedidosAfterDelay(applyFilter);
         } catch (Exception ex) { warn("✗ Erro ao registar entrega final: " + ex.getMessage(), owner); }
     }
 
@@ -452,12 +455,23 @@ public class PedidosPane {
         m.put("detalhesPagamentoSolicitado", p.getOrDefault("detalhesPagamentoSolicitado", Map.of()));
         m.put("pagamento",   p.getOrDefault("tipoPagamentoSolicitado", p.getOrDefault("tipoPagamento", p.getOrDefault("pagamento", "-"))));
         Object entregadorId = p.get("entregadorId");
-        String entregadorNome = state.users.stream()
-            .filter(u -> entregadorId != null && entregadorId.toString().equals(Objects.toString(u.get("id"))))
-            .findFirst().map(u -> s(u, "nome")).orElse(Objects.toString(entregadorId, "-"));
-        m.put("entregador",  p.getOrDefault("entregador", entregadorNome));
+        Object entregador = p.get("entregador");
+        m.put("entregador", hasValue(entregador)
+            ? entregador
+            : (entregadorId == null ? "-" : "Entregador #" + entregadorId));
         m.put("entregadorId", entregadorId);
         return m;
+    }
+
+    private void syncPedidosAfterDelay(Runnable applyFilter) {
+        state.bg(() -> {
+            Thread.sleep(1200);
+            return null;
+        }, ignored -> syncPedidos(applyFilter));
+    }
+
+    private boolean hasValue(Object value) {
+        return value != null && !Objects.toString(value, "").isBlank();
     }
 
     private Map<String, String> detalhesPagamentoCliente(Object raw) {
