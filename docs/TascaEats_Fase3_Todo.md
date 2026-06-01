@@ -60,20 +60,24 @@ O trabalho está dividido em três partes iguais para facilitar a distribuição
 *Objetivo: Estabelecer a comunicação assíncrona orientada a eventos e validar as interfaces gráficas.*
 
 ### 3.1 O Monólito como Produtor (Producer)
-- [ ] Configurar o `KafkaTemplate` no `backend` (monólito).
-- [ ] Criar tópicos Kafka (ex: `pedido-pago-topic`).
-- [ ] Injetar produção de eventos no `PagamentoService` ou `PedidoService`: quando o estado de um pedido passa a "PAGO", emitir um evento para o Kafka contendo o `pedidoId` e dados da morada.
+
+- [x] Configurar o `KafkaTemplate` no `backend` (monólito).
+- [x] Criar tópicos Kafka (ex: `pedido-pago-topic`).
+- [x] Injetar produção de eventos no `PagamentoService` ou `PedidoService`: quando o estado de um pedido passa a "PAGO",
+  emitir um evento para o Kafka contendo o `pedidoId` e dados da morada.
 
 ### 3.2 O Microserviço como Consumidor (Consumer)
-- [ ] Configurar `@KafkaListener` no `delivery-service`.
-- [ ] Implementar a escuta do tópico `pedido-pago-topic`.
-- [ ] Ao receber a mensagem, acionar a lógica de "Atribuição de Entregador" (automática ou manual).
-- [ ] (Opcional, mas recomendado - Saga/Coreografia) Após atualizar o estado da entrega para "Entregue", o microserviço emite um evento (ex: `entrega-concluida-topic`) para o monólito atualizar a sua vista de leitura do Pedido.
+
+- [x] Configurar `@KafkaListener` no `delivery-service`.
+- [x] Implementar a escuta do tópico `pedido-pago-topic`.
+- [x] Ao receber a mensagem, acionar a lógica de "Atribuição de Entregador" (automática ou manual).
+- [x] (Opcional, mas recomendado - Saga/Coreografia) Após atualizar o estado da entrega para "Entregue", o microserviço
+  emite um evento (ex: `entrega-concluida-topic`) para o monólito atualizar a sua vista de leitura do Pedido.
 
 ### 3.3 Validação de Interfaces e UI
 - [ ] Confirmar que a Interface Web (Thymeleaf) consegue ler o estado dos pedidos através do monólito (que foi atualizado por consistência eventual).
 - [ ] Confirmar que a GUI nativa (JavaFX) ainda funciona sem alterações estruturais, apenas comunicando via gRPC através do Nginx.
-- [ ] Corrigir possíveis *bugs* de dessincronização visual que possam surgir da latência dos eventos.
+- [x] Corrigir possíveis *bugs* de dessincronização visual que possam surgir da latência dos eventos.
 
 ### 3.4 Testes Finais e Entrega
 - [ ] **Teste de Orquestração:** Garantir que o comando `docker-compose up --build` levanta todo o sistema sem erros (Postgres 1, Postgres 2, Kafka, Monólito, Microserviço, Nginx, Web).
