@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +37,7 @@ public class MenuController {
     }
 
     @GetMapping("/menus")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> listarMenus(@RequestParam(required = false) String nome) {
         List<Menu> menus = nome == null || nome.isBlank()
                 ? menuService.listarMenus()
@@ -44,6 +46,7 @@ public class MenuController {
     }
 
     @GetMapping("/menus/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<Object> obterMenu(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(resumoMenu(menuService.obterMenuPorId(id)));
@@ -53,6 +56,7 @@ public class MenuController {
     }
 
     @PostMapping("/menus")
+    @Transactional
     public ResponseEntity<Object> criarMenu(@Valid @RequestBody MenuDTO dto) {
         try {
             Menu criado = menuService.criarMenu(dto.getNome(), dto.getProdutosIds());
@@ -63,6 +67,7 @@ public class MenuController {
     }
 
     @PutMapping("/menus/{id}")
+    @Transactional
     public ResponseEntity<Object> atualizarMenu(@PathVariable Long id, @RequestBody MenuDTO dto) {
         try {
             Menu atualizado = menuService.atualizarMenu(id, dto.getNome(), dto.getProdutosIds());
@@ -105,6 +110,8 @@ public class MenuController {
         response.put("precoMedio", precoMedio(menu.getProdutos()));
         response.put("produtosIds", menu.getProdutos().stream().map(Produto::getId).toList());
         response.put("restaurantesIds", menu.getRestaurantes().stream().map(Restaurante::getId).toList());
+        response.put("numeroRestaurantes", menu.getRestaurantes().size());
+        response.put("restaurantesNomes", menu.getRestaurantes().stream().map(Restaurante::getNome).toList());
         response.put("restauranteId", menu.getRestaurantes().isEmpty() ? null : menu.getRestaurantes().get(0).getId());
         response.put("restauranteNome", menu.getRestaurantes().isEmpty()
                 ? "Sem restaurante atribuído"

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -116,6 +117,7 @@ public class RestauranteController {
 
     //Obter restaurante por id
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<Object> obterRestaurante(@PathVariable Long id) {
         try {
             Restaurante restaurante = restauranteService.obterRestaurantePorId(id);
@@ -127,6 +129,7 @@ public class RestauranteController {
     
     //Listar restaurantes
     @GetMapping
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> listarRestaurantes(@RequestParam(required = false) String nome, @RequestParam(required = false) String cidade, @RequestParam(required = false) EstadoRestaurante estado) {
         List<Restaurante> restaurantes;
 
@@ -149,6 +152,7 @@ public class RestauranteController {
     }
 
     @GetMapping("/pesquisa")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> pesquisarRestaurantes(@RequestParam(required = false) String nome,
                                                                            @RequestParam(name = "tipoCozinha", required = false) TipoRestaurante tipoCozinha,
                                                                            @RequestParam(required = false) EstadoRestaurante estado,
@@ -181,6 +185,8 @@ public class RestauranteController {
         Map<String, Object> m = new HashMap<>();
         m.put("id", r.getId());
         m.put("nome", r.getNome());
+        m.put("nif", r.getNif());
+        m.put("franquia", r.getFranquia());
         m.put("estado", r.getEstado());
         m.put("tipoRestaurante", r.getTipoRestaurante());
         m.put("numeroAvaliacoes", r.getNumeroAvaliacoes());
