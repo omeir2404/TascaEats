@@ -662,16 +662,24 @@ public class WebPedidoController {
         normalized.put("statusClass", statusClassForPedido(estado));
         normalized.put("cancelavel", isPedidoCancelavel(estado));
         normalized.put("finalizado", isPedidoFinalizado(estado));
-        normalized.put("statusSteps", buildPedidoStatusSteps(estado));
-        normalized.put("entregador", fetchCourierNameForPedido(toLong(pedido.get("id"))));
-        normalized.put("data", dataComHora);
         Long pedidoId = toLong(pedido.get("id"));
+        Map<String, Object> entrega = fetchEntregaForPedido(pedidoId);
+        Object estadoEntregaValue = pedido.get("estadoEntregaReadOnly");
+        if (!hasTextValue(estadoEntregaValue) && entrega != null) {
+            estadoEntregaValue = entrega.get("estado");
+        }
+        String estadoEntrega = hasTextValue(estadoEntregaValue) ? String.valueOf(estadoEntregaValue) : "";
+
+        normalized.put("estadoEntrega", estadoEntrega);
+        normalized.put("statusSteps", buildPedidoStatusSteps(estado, estadoEntrega));
+        normalized.put("entregador", formatCourier(entrega, pedido.get("entregadorId")));
+        normalized.put("data", dataComHora);
         normalized.put("avaliado", isPedidoAvaliado(pedidoId));
         normalized.put("avaliacao", fetchAvaliacaoForPedido(pedidoId));
         return normalized;
     }
 
-    private List<Map<String, Object>> buildPedidoStatusSteps(String estado) {
+    private List<Map<String, Object>> buildPedidoStatusSteps(String estado, String estadoEntrega) {
         if ("CANCELADO".equalsIgnoreCase(estado)) {
             return List.of(
                     statusStep("CRIADO", "Pedido criado", true, false),
@@ -685,9 +693,11 @@ public class WebPedidoController {
                 "A_PREPARAR",
                 "PRONTO_PARA_ENTREGA",
                 "ATRIBUIDO_ENTREGADOR",
+                "A_CAMINHO",
                 "ENTREGUE"
         );
-        int currentIndex = ordem.indexOf(estado);
+        String estadoAtual = "A_CAMINHO".equalsIgnoreCase(estadoEntrega) ? "A_CAMINHO" : estado;
+        int currentIndex = ordem.indexOf(estadoAtual);
         if (currentIndex < 0) {
             currentIndex = 0;
         }
@@ -734,6 +744,7 @@ public class WebPedidoController {
             case "A_PREPARAR" -> "Em preparação";
             case "PRONTO_PARA_ENTREGA" -> "Pronto para entrega";
             case "ATRIBUIDO_ENTREGADOR" -> "Entregador atribuído";
+            case "A_CAMINHO" -> "Recolhido pelo entregador";
             case "ENTREGUE" -> "Entregue";
             case "CANCELADO" -> "Cancelado";
             default -> String.valueOf(estado);
@@ -777,37 +788,38 @@ public class WebPedidoController {
         return null;
     }
 
-    private String fetchCourierNameForPedido(Long pedidoId) {
+    private Map<String, Object> fetchEntregaForPedido(Long pedidoId) {
         if (pedidoId == null) {
-            return "A definir";
+            return null;
         }
 
         try {
-            Map<String, Object> entrega = restTemplate.getForObject(backendUrl + "/entregas/pedido/" + pedidoId, Map.class);
-            if (entrega == null) {
-                return "A definir";
-            }
-
-            Object entregadorNome = entrega.get("entregadorNome");
-            if (entregadorNome == null) {
-                return "A definir";
-            }
-
-            String entregadorIdText = String.valueOf(entregadorNome).trim();
-            if (entregadorIdText.isEmpty()) {
-                return "A definir";
-            }
-
-            Map<String, Object> user = restTemplate.getForObject(backendUrl + "/api/Utilizadors/" + entregadorIdText, Map.class);
-            if (user == null) {
-                return entregadorIdText;
-            }
-
-            Object name = user.get("name");
-            return name == null ? entregadorIdText : String.valueOf(name);
+            return restTemplate.getForObject(backendUrl + "/entregas/pedido/" + pedidoId, Map.class);
         } catch (Exception e) {
-            return "A definir";
+            return null;
         }
+    }
+
+    private String formatCourier(Map<String, Object> entrega, Object fallbackEntregadorId) {
+        if (entrega != null) {
+            Object nome = entrega.get("entregadorNome");
+            Object id = entrega.get("entregadorId");
+            if (hasTextValue(nome)) {
+                return id == null ? String.valueOf(nome) : String.valueOf(nome) + " (#" + id + ")";
+            }
+            if (id != null) {
+                return "Entregador #" + id;
+            }
+        }
+
+        if (fallbackEntregadorId != null) {
+            return "Entregador #" + fallbackEntregadorId;
+        }
+        return "A definir";
+    }
+
+    private boolean hasTextValue(Object value) {
+        return value != null && !String.valueOf(value).trim().isEmpty();
     }
 
     private String fetchRestaurantName(Long restauranteId) {

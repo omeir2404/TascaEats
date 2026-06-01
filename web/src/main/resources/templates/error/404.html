@@ -1,11 +1,24 @@
 <!DOCTYPE html>
-<html th:replace="~{layout :: layout(~{::section})}">
-
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Página não encontrada - TascaEats</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
 <body>
-<section>
-    <h2>Restaurante não encontrado</h2>
+<div th:replace="~{fragments/header :: cabecalho}"></div>
 
-</section>
+<main class="page-shell">
+    <section class="page-intro">
+        <h2>Página não encontrada</h2>
+        <p>O recurso pedido não existe ou já não está disponível.</p>
+        <a th:href="@{/restaurantes}">
+            <button>Voltar aos restaurantes</button>
+        </a>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: rodape}"></div>
 </body>
-
 </html>

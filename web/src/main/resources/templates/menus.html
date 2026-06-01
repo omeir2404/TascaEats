@@ -69,9 +69,11 @@
                 </div>
 
                 <div class="menu-card__actions">
-                    <a th:href="@{/restaurantes/{id}/produtos(id=${menu.restauranteId})}">
+                    <a th:href="@{/restaurantes/{id}/produtos(id=${menu.restauranteId})}"
+                       th:if="${menu.restauranteId != null}">
                         <button>Ver menu</button>
                     </a>
+                    <button disabled th:if="${menu.restauranteId == null}">Sem restaurante atribuído</button>
                 </div>
             </article>
 

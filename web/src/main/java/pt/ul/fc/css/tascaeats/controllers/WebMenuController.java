@@ -48,10 +48,10 @@ public class WebMenuController {
         List<Map<String, Object>> filtrados = menus.stream()
                 .filter(m -> nome == null
                         || nome.isBlank()
-                        || m.get("nome").toString().toLowerCase().contains(nome.toLowerCase())
-                        || m.get("restauranteNome").toString().toLowerCase().contains(nome.toLowerCase()))
-                .filter(m -> numeroProdutosMin == null || ((Integer) m.get("numeroProdutos")) >= numeroProdutosMin)
-                .filter(m -> precoMedioMax == null || ((Double) m.get("precoMedio")) <= precoMedioMax)
+                        || String.valueOf(m.getOrDefault("nome", "")).toLowerCase().contains(nome.toLowerCase())
+                        || String.valueOf(m.getOrDefault("restauranteNome", "")).toLowerCase().contains(nome.toLowerCase()))
+                .filter(m -> numeroProdutosMin == null || toInt(m.get("numeroProdutos")) >= numeroProdutosMin)
+                .filter(m -> precoMedioMax == null || toDouble(m.get("precoMedio")) <= precoMedioMax)
                 .toList();
 
         model.addAttribute("menus", filtrados);
@@ -85,5 +85,27 @@ public class WebMenuController {
             menu.put("imagePath", imagePath);
         }
         return menus;
+    }
+
+    private int toInt(Object value) {
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        try {
+            return Integer.parseInt(String.valueOf(value));
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private double toDouble(Object value) {
+        if (value instanceof Number number) {
+            return number.doubleValue();
+        }
+        try {
+            return Double.parseDouble(String.valueOf(value));
+        } catch (Exception e) {
+            return 0.0;
+        }
     }
 }
