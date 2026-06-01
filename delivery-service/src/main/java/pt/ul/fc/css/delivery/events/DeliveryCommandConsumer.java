@@ -27,6 +27,7 @@ public class DeliveryCommandConsumer {
         switch (event.action()) {
             case "INICIAR_PREPARACAO" -> entregaService.iniciarPreparacao(event.pedidoId());
             case "MARCAR_PRONTO" -> entregaService.marcarPronto(event.pedidoId());
+            case "ATRIBUIR_ENTREGADOR" -> entregaService.atribuirEntregador(event.pedidoId());
             case "REGISTAR_RECOLHA" -> entregaService.registarRecolha(event.pedidoId());
             case "ENTREGA_FINAL" -> entregaService.registarEntregaFinal(event.pedidoId());
             default -> throw new IllegalArgumentException("Comando de entrega invalido: " + event.action());

@@ -141,6 +141,11 @@ public class EntregaService {
         return guardada;
     }
 
+    @Transactional
+    public Entrega atribuirEntregador(Long pedidoId) {
+        return atribuirEntregador(new AtribuirEntregadorDTO(pedidoId));
+    }
+
     @Transactional(readOnly = true)
     public Optional<Entrega> obterEntregaPorPedido(Long pedidoId) {
         if (pedidoId == null) {
