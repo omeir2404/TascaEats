@@ -11,16 +11,24 @@ package pt.ul.fc.css.tascaeats.service.pedidoService;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Utilizador;
 import pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO;
 import pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
@@ -35,6 +43,10 @@ public class PedidoService {
     private final IUtilizadorRepository utilizadorRepository;
     private final IRestauranteRepository restauranteRepository;
     private final IProdutoRepository produtoRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${delivery.api.url:${DELIVERY_API_URL:http://localhost:80}}")
+    private String deliveryApiUrl;
 
     public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository) {
         this.pedidoRepository = pedidoRepository;
@@ -185,14 +197,102 @@ public class PedidoService {
         String estadoNorm = novoEstado.trim().toUpperCase();
         switch (estadoNorm) {
             case "A_PREPARAR" -> pedido.iniciarPreparacao();
-            case "PRONTO_PARA_ENTREGA" -> pedido.marcarComoPronto();
-            case "ATRIBUIDO_ENTREGADOR" -> pedido.atribuirEntregador();
+            case "PRONTO_PARA_ENTREGA" -> {
+                pedido.marcarComoPronto();
+                atribuirEntregadorAutomaticamente(pedido);
+            }
+            case "ATRIBUIDO_ENTREGADOR" -> atribuirEntregadorAutomaticamente(pedido);
             case "ENTREGUE" -> pedido.marcarComoEntregue();
             case "CANCELADO" -> pedido.cancelar();
             default -> throw new IllegalArgumentException("Estado do pedido invalido: " + novoEstado);
         }
 
         pedidoRepository.save(pedido);
+    }
+
+    private void atribuirEntregadorAutomaticamente(Pedido pedido) {
+        if (pedido.getEstado() == EstadoPedido.ATRIBUIDO_ENTREGADOR && pedido.getEntregadorId() != null) {
+            return;
+        }
+        if (pedido.getEstado() != EstadoPedido.PRONTO_PARA_ENTREGA) {
+            throw new IllegalStateException("O pedido tem de estar pronto para poder ser atribuído a um entregador.");
+        }
+
+        Map<String, Object> entrega = criarOuObterEntrega(pedido.getId());
+        Long backendEntregadorId = resolverEntregadorBackendId(entrega);
+
+        pedido.atribuirEntregador();
+        pedido.setEntregadorId(backendEntregadorId);
+        pedido.setEstadoEntregaReadOnly(Objects.toString(entrega.getOrDefault("estado", "ATRIBUIDA"), "ATRIBUIDA"));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> criarOuObterEntrega(Long pedidoId) {
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                    deliveryBaseUrl() + "/entregas/atribuir",
+                    Map.of("pedidoId", pedidoId),
+                    Map.class);
+            return response.getBody() == null ? Map.of() : response.getBody();
+        } catch (HttpClientErrorException.Conflict e) {
+            String body = e.getResponseBodyAsString();
+            if (body != null && body.toLowerCase().contains("ja tem uma entrega")) {
+                return obterEntregaExistente(pedidoId);
+            }
+            throw new IllegalStateException("Erro ao atribuir entregador: " + body);
+        } catch (HttpClientErrorException e) {
+            throw new IllegalStateException("Erro ao atribuir entregador: " + e.getResponseBodyAsString());
+        } catch (RestClientException e) {
+            throw new IllegalStateException("Erro ao contactar serviço de entregas: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> obterEntregaExistente(Long pedidoId) {
+        try {
+            Map<String, Object> entrega = restTemplate.getForObject(
+                    deliveryBaseUrl() + "/entregas/pedido/" + pedidoId,
+                    Map.class);
+            return entrega == null ? Map.of() : entrega;
+        } catch (RestClientException e) {
+            throw new IllegalStateException("Pedido ja tem entrega, mas nao foi possivel consulta-la: " + e.getMessage());
+        }
+    }
+
+    private Long resolverEntregadorBackendId(Map<String, Object> entrega) {
+        String email = Objects.toString(entrega.get("entregadorEmail"), "");
+        if (!email.isBlank()) {
+            Optional<Utilizador> utilizador = utilizadorRepository.findByEmail(email);
+            if (utilizador.isPresent()) {
+                Utilizador backendUser = utilizador.get();
+                if (backendUser instanceof Entregador entregador) {
+                    entregador.setAvailable(false);
+                    utilizadorRepository.save(entregador);
+                }
+                return backendUser.getId();
+            }
+        }
+
+        Object entregadorId = entrega.get("entregadorId");
+        if (entregadorId instanceof Number number) {
+            return number.longValue();
+        }
+        if (entregadorId != null) {
+            try {
+                return Long.parseLong(entregadorId.toString());
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private String deliveryBaseUrl() {
+        String value = deliveryApiUrl == null || deliveryApiUrl.isBlank() ? "http://localhost:80" : deliveryApiUrl.trim();
+        while (value.endsWith("/")) {
+            value = value.substring(0, value.length() - 1);
+        }
+        return value;
     }
 
     private Morada novaMoradaDeDTO(pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO dto) {

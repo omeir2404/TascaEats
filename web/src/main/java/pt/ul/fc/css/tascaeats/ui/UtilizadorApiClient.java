@@ -105,18 +105,22 @@ public class UtilizadorApiClient {
 
     public Map<String, Object> normalizeUser(Map<String, Object> u) {
         String type  = Objects.toString(u.get("type"), "Cliente");
+        String papel = mapTypeToPapel(type);
         boolean ativo = true;
-        // Drivers are "active" based on the available field
-        if (type.equalsIgnoreCase("Entregador") || type.equalsIgnoreCase("driver")) {
+        String disponivel = "-";
+        // Drivers are "active" based on the available field.
+        if ("COURIER".equals(papel)) {
             Object avail = u.get("available");
             ativo = Boolean.TRUE.equals(avail) || "true".equalsIgnoreCase(Objects.toString(avail, "true"));
+            disponivel = ativo ? "Sim" : "Não";
         }
         var m = new java.util.LinkedHashMap<String, Object>();
         m.put("id",       u.getOrDefault("id", "?"));
         m.put("nome",     Objects.toString(u.get("name"),  ""));
         m.put("email",    Objects.toString(u.get("email"), ""));
-        m.put("papel",    mapTypeToPapel(type));
+        m.put("papel",    papel);
         m.put("ativo",    ativo ? "Sim" : "Não");
+        m.put("disponivel", disponivel);
         m.put("password", "");   // never returned by backend; kept so existing code doesn't NPE
         return m;
     }

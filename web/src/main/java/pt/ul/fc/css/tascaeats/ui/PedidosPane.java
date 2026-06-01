@@ -27,7 +27,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Dialog;
@@ -122,7 +121,7 @@ public class PedidosPane {
         pagarBtn.setOnAction(e      -> handlePagamento(table, applyFilter));
         prepBtn.setOnAction(e       -> handleIniciarPrep(table, applyFilter));
         prontoBtn.setOnAction(e     -> handleMarcarPronto(table, applyFilter));
-        atribBtn.setOnAction(e      -> handleAtribuirEntregador(table));
+        atribBtn.setOnAction(e      -> handleAtribuirEntregador(table, applyFilter));
         entregBtn.setOnAction(e     -> handleRecolha(table, applyFilter));
         entregFinalBtn.setOnAction(e -> handleEntregaFinal(table, applyFilter));
         cancelBtn.setOnAction(e     -> handleCancelar(table, applyFilter));
@@ -348,32 +347,34 @@ public class PedidosPane {
         if (!"A_PREPARAR".equals(s(sel, "estado"))) { warn("Só pedidos em A_PREPARAR podem ser marcados prontos.", owner); return; }
         try {
             patch("/entregas/pedido/" + sel.get("id") + "/marcar-pronto");
-            info("✓ Pedido marcado como pronto para entrega.", owner);
+            info("✓ Pedido pronto e entregador atribuído automaticamente.", owner);
             syncPedidos(applyFilter);
         } catch (Exception ex) { warn("✗ Erro ao marcar pronto: " + ex.getMessage(), owner); }
     }
 
-    // M – Assign driver (endpoint commented out in backend, shows note)
-    private void handleAtribuirEntregador(TableView<Map<String, Object>> table) {
+    // M – Assign driver
+    private void handleAtribuirEntregador(TableView<Map<String, Object>> table, Runnable applyFilter) {
         Map<String, Object> sel = selected(table, owner); if (sel == null) return;
         if (!"PRONTO_PARA_ENTREGA".equals(s(sel, "estado"))) {
             warn("Pedido deve estar PRONTO_PARA_ENTREGA.", owner); return;
         }
-        List<String> couriers = state.users.stream()
-            .filter(u -> "COURIER".equals(s(u, "papel")) && "Sim".equals(s(u, "ativo")))
-            .map(u -> s(u, "nome")).toList();
-        if (couriers.isEmpty()) { warn("Nenhum entregador disponível.", owner); return; }
-        ChoiceDialog<String> cd = new ChoiceDialog<>(couriers.get(0), couriers);
-        cd.setTitle("Atribuir Entregador"); cd.setHeaderText("Escolha o entregador:"); cd.initOwner(owner);
-        cd.showAndWait().ifPresent(nome ->
-            info("✓ Entregador " + nome + " anotado (persistência pendente no backend).", owner));
+        try {
+            NativeGrpcClient.GrpcResult res = state.grpc.invoke("updateOrderStatus", Map.of(
+                "pedidoId", sel.get("id"),
+                "novoEstado", "ATRIBUIDO_ENTREGADOR"));
+            if (!res.success()) {
+                throw new IllegalStateException(res.message());
+            }
+            info("✓ Entregador atribuído automaticamente.", owner);
+            syncPedidos(applyFilter);
+        } catch (Exception ex) { warn("✗ Erro ao atribuir entregador: " + ex.getMessage(), owner); }
     }
 
     // M – Register pickup
     private void handleRecolha(TableView<Map<String, Object>> table, Runnable applyFilter) {
         Map<String, Object> sel = selected(table, owner); if (sel == null) return;
-        if (!"PRONTO_PARA_ENTREGA".equals(s(sel, "estado"))) {
-            warn("Pedido deve estar PRONTO_PARA_ENTREGA para registar recolha.", owner); return;
+        if (!"ATRIBUIDO_ENTREGADOR".equals(s(sel, "estado"))) {
+            warn("Pedido deve ter entregador atribuído para registar recolha.", owner); return;
         }
         try {
             patch("/entregas/pedido/" + sel.get("id") + "/recolha");
@@ -450,7 +451,11 @@ public class PedidosPane {
         m.put("tipoPagamentoSolicitado", p.getOrDefault("tipoPagamentoSolicitado", "-"));
         m.put("detalhesPagamentoSolicitado", p.getOrDefault("detalhesPagamentoSolicitado", Map.of()));
         m.put("pagamento",   p.getOrDefault("tipoPagamentoSolicitado", p.getOrDefault("tipoPagamento", p.getOrDefault("pagamento", "-"))));
-        m.put("entregador",  p.getOrDefault("entregador", "-"));
+        Object entregadorId = p.get("entregadorId");
+        String entregadorNome = state.users.stream()
+            .filter(u -> entregadorId != null && entregadorId.toString().equals(Objects.toString(u.get("id"))))
+            .findFirst().map(u -> s(u, "nome")).orElse(Objects.toString(entregadorId, "-"));
+        m.put("entregador",  p.getOrDefault("entregador", entregadorNome));
         return m;
     }
 

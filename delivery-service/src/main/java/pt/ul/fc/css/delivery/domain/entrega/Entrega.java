@@ -46,6 +46,7 @@ public class Entrega {
         this.pedidoId = pedidoId;
         this.entregadorId = entregadorId;
         this.enderecoEntrega = enderecoEntrega;
+        this.estado = EstadoEntrega.ATRIBUIDA;
     }
 
     public void registarRecolha() {

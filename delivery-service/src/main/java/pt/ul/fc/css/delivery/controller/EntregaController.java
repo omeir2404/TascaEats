@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import pt.ul.fc.css.delivery.domain.entrega.Entrega;
+import pt.ul.fc.css.delivery.domain.entregador.Entregador;
 import pt.ul.fc.css.delivery.dto.entregaDTO.AtribuirEntregadorDTO;
 import pt.ul.fc.css.delivery.dto.entregaDTO.AtualizarEstadoEntregaDTO;
 import pt.ul.fc.css.delivery.dto.entregaDTO.EntregaResumoDTO;
@@ -71,11 +72,12 @@ public class EntregaController {
     @PatchMapping("/entregas/pedido/{pedidoId}/marcar-pronto")
     public ResponseEntity<Object> marcarPronto(@PathVariable Long pedidoId) {
         try {
-            entregaService.marcarPronto(pedidoId);
-            return ResponseEntity.ok(Map.of(
-                    "message", "Pedido marcado como pronto para entrega.",
-                    "pedidoId", pedidoId,
-                    "estado", "PRONTO_PARA_ENTREGA"));
+            Optional<Entrega> entrega = entregaService.marcarPronto(pedidoId);
+            return entrega.<ResponseEntity<Object>>map(value -> ResponseEntity.ok(toResumoDTO(value)))
+                    .orElseGet(() -> ResponseEntity.ok(Map.of(
+                            "message", "Pedido marcado como pronto para entrega.",
+                            "pedidoId", pedidoId,
+                            "estado", "PRONTO_PARA_ENTREGA")));
         } catch (IllegalArgumentException e) {
             return mapArgumentError(e);
         } catch (IllegalStateException e) {
@@ -143,10 +145,13 @@ public class EntregaController {
     }
 
     private EntregaResumoDTO toResumoDTO(Entrega entrega) {
+        Entregador entregador = entregaService.obterEntregadorPorId(entrega.getEntregadorId()).orElse(null);
         return new EntregaResumoDTO(
                 entrega.getId(),
                 entrega.getPedidoId(),
                 entrega.getEntregadorId(),
+                entregador == null ? null : entregador.getNome(),
+                entregador == null ? null : entregador.getEmail(),
                 entrega.getEstado(),
                 entrega.getHoraRecolha(),
                 entrega.getHoraEntrega(),

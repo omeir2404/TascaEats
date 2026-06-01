@@ -257,8 +257,10 @@ public class WebUtilizadorController {
         String type = String.valueOf(user.getOrDefault("type", "client"));
         String papel = mapBackendTypeToPapel(type);
         boolean ativo = true;
+        String disponivelEntrega = "-";
         if ("COURIER".equalsIgnoreCase(papel)) {
             ativo = Boolean.TRUE.equals(user.get("available"));
+            disponivelEntrega = ativo ? "Sim" : "Não";
         }
 
         Map<String, Object> normalized = new HashMap<>();
@@ -269,6 +271,7 @@ public class WebUtilizadorController {
         normalized.put("tipoOriginal", type);
         normalized.put("papel", papel);
         normalized.put("ativo", ativo);
+        normalized.put("disponivelEntrega", disponivelEntrega);
         normalized.put("cliente", "CLIENT".equalsIgnoreCase(papel));
         normalized.put("entregador", "COURIER".equalsIgnoreCase(papel));
         normalized.put("morada", normalizeAddress(user.get("address")));

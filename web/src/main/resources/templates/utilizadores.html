@@ -78,6 +78,7 @@
                             <th>Email</th>
                             <th>Papel</th>
                             <th>Estado</th>
+                            <th>Disponível</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -93,6 +94,7 @@
                                 <span th:if="${user.ativo}" class="status-pill status-active">Ativo</span>
                                 <span th:unless="${user.ativo}" class="status-pill status-inactive">Inativo</span>
                             </td>
+                            <td th:text="${user.disponivelEntrega}">-</td>
                             <td>
                                 <a th:href="@{/perfil/{id}(id=${user.id})}">
                                     <button type="button" class="secondary">Editar</button>

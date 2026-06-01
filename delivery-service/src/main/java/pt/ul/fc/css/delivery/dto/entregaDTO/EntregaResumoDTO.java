@@ -9,6 +9,8 @@ public class EntregaResumoDTO {
     private Long id;
     private Long pedidoId;
     private Long entregadorId;
+    private String entregadorNome;
+    private String entregadorEmail;
     private EstadoEntrega estado;
     private LocalDateTime horaRecolha;
     private LocalDateTime horaEntrega;
@@ -21,6 +23,8 @@ public class EntregaResumoDTO {
             Long id,
             Long pedidoId,
             Long entregadorId,
+            String entregadorNome,
+            String entregadorEmail,
             EstadoEntrega estado,
             LocalDateTime horaRecolha,
             LocalDateTime horaEntrega,
@@ -28,6 +32,8 @@ public class EntregaResumoDTO {
         this.id = id;
         this.pedidoId = pedidoId;
         this.entregadorId = entregadorId;
+        this.entregadorNome = entregadorNome;
+        this.entregadorEmail = entregadorEmail;
         this.estado = estado;
         this.horaRecolha = horaRecolha;
         this.horaEntrega = horaEntrega;
@@ -56,6 +62,22 @@ public class EntregaResumoDTO {
 
     public void setEntregadorId(Long entregadorId) {
         this.entregadorId = entregadorId;
+    }
+
+    public String getEntregadorNome() {
+        return entregadorNome;
+    }
+
+    public void setEntregadorNome(String entregadorNome) {
+        this.entregadorNome = entregadorNome;
+    }
+
+    public String getEntregadorEmail() {
+        return entregadorEmail;
+    }
+
+    public void setEntregadorEmail(String entregadorEmail) {
+        this.entregadorEmail = entregadorEmail;
     }
 
     public EstadoEntrega getEstado() {

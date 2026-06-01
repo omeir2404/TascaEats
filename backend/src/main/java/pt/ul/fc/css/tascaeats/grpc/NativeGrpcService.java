@@ -24,6 +24,7 @@ import pt.ul.fc.css.tascaeats.controllers.RestauranteController;
 import pt.ul.fc.css.tascaeats.controllers.UtilizadorController;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
+import pt.ul.fc.css.tascaeats.dto.pedidoDTO.AtualizarEstadoPedidoDTO;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarProdutoDTO;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
@@ -120,6 +121,9 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
             case "listOrders" -> respond(pedidoController.listarPedidos(
                     optionalLong(payload.get("clienteId")),
                     null));
+            case "updateOrderStatus" -> respond(pedidoController.atualizarEstadoPedido(
+                    longValue(payload.get("pedidoId")),
+                    map(Map.of("novoEstado", stringValue(payload.get("novoEstado"))), AtualizarEstadoPedidoDTO.class)));
             case "cancelOrder" -> respond(pedidoController.cancelarPedidoPatch(longValue(payload.get("pedidoId"))));
             case "processPayment" -> respond(pagamentoController.pagarPedido(map(payload, ProcessarPagamentoDTO.class)));
             case "deliveryPatch" -> deliveryPatch(stringValue(payload.get("path")));

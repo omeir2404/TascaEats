@@ -3,6 +3,7 @@ package pt.ul.fc.css.delivery.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -30,10 +31,14 @@ public class EntregaService {
 
     private final EntregaRepository entregaRepository;
     private final EntregadorRepository entregadorRepository;
+    private final String backendApiUrl;
 
-    public EntregaService(EntregaRepository entregaRepository, EntregadorRepository entregadorRepository) {
+    public EntregaService(EntregaRepository entregaRepository,
+                          EntregadorRepository entregadorRepository,
+                          @Value("${backend.api.url:${BACKEND_API_URL:http://localhost:8080}}") String backendApiUrl) {
         this.entregaRepository = entregaRepository;
         this.entregadorRepository = entregadorRepository;
+        this.backendApiUrl = backendApiUrl;
     }
 
     @Transactional
@@ -162,8 +167,9 @@ public class EntregaService {
     }
 
     @Transactional
-    public void marcarPronto(Long pedidoId) {
+    public Optional<Entrega> marcarPronto(Long pedidoId) {
         atualizarEstadoPedido(pedidoId, "PRONTO_PARA_ENTREGA");
+        return entregaRepository.findByPedidoId(pedidoId);
     }
 
     @Transactional
@@ -228,7 +234,7 @@ public class EntregaService {
 
         try {
             RestTemplate rt = new RestTemplate();
-            String url = "http://backend:8080/pedidos/" + pedidoId + "/estado";
+            String url = backendBaseUrl() + "/pedidos/" + pedidoId + "/estado";
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             String body = "{\"novoEstado\":\"" + novoEstado + "\"}";
@@ -252,5 +258,15 @@ public class EntregaService {
             }
         }
         throw new IllegalStateException("Nao ha entregadores disponiveis de momento.");
+    }
+
+    private String backendBaseUrl() {
+        String value = backendApiUrl == null || backendApiUrl.isBlank()
+                ? "http://localhost:8080"
+                : backendApiUrl.trim();
+        while (value.endsWith("/")) {
+            value = value.substring(0, value.length() - 1);
+        }
+        return value;
     }
 }

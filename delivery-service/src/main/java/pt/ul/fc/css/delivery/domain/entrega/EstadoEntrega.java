@@ -1,6 +1,7 @@
 package pt.ul.fc.css.delivery.domain.entrega;
 
 public enum EstadoEntrega {
+    ATRIBUIDA("Atribuida"),
     A_CAMINHO("A caminho"),
     ENTREGUE("Entregue");
 

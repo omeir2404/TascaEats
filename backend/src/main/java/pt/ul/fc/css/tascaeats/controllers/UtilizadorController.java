@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -81,6 +82,7 @@ public class UtilizadorController {
     }
 
     @GetMapping("/Utilizadors")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<UtilizadorRespostaDTO>> getUtilizadors() {
         List<UtilizadorRespostaDTO> Utilizadors = UtilizadorService.getAllUtilizadors()
                 .stream()
@@ -90,6 +92,7 @@ public class UtilizadorController {
     }
 
     @GetMapping("/Utilizadors/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<Object> getUtilizadorById(@PathVariable("id") Long id) {
         Utilizador Utilizador = UtilizadorService.getUtilizadorById(id);
         if (Utilizador == null) {
@@ -99,6 +102,7 @@ public class UtilizadorController {
     }
 
     @PutMapping("/Utilizadors/{id}")
+    @Transactional
     public ResponseEntity<Object> updateUtilizador(@PathVariable("id") Long id,
                                              @RequestBody UtilizadorUpdateDTO dto) {
         try {

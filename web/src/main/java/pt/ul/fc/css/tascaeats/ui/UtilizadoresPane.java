@@ -37,7 +37,7 @@ public class UtilizadoresPane {
         ObservableList<Map<String, Object>> display = FXCollections.observableArrayList();
         TableView<Map<String, Object>> table = tableOf(display,
             col("ID", "id"), col("Nome", "nome"), col("Email", "email"),
-            col("Papel", "papel"), col("Ativo", "ativo")
+            col("Papel", "papel"), col("Ativo", "ativo"), col("Disponível", "disponivel")
         );
 
         TextField        searchF  = field("Filtrar por nome...", 180);
