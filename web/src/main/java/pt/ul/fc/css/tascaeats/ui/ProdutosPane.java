@@ -15,8 +15,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -111,14 +109,9 @@ public class ProdutosPane {
 
     public void syncProdutos(Long restauranteId, Runnable afterUpdate) {
         state.bg(() -> {
-            try {
-                String url = restauranteId != null
-                    ? AppState.BACKEND + "/api/produtos?restauranteId=" + restauranteId
-                    : AppState.BACKEND + "/api/produtos";
-                ResponseEntity<List<Map<String, Object>>> resp = state.rest.exchange(
-                    url, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
-                return resp.getBody() != null ? resp.getBody() : List.of();
-            } catch (Exception e) { return List.of(); }
+            return restauranteId != null
+                ? state.grpc.invokeList("listProducts", Map.of("restauranteId", restauranteId))
+                : state.grpc.invokeList("listProducts", Map.of());
         }, result -> {
             List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) result;
             List<Map<String, Object>> enriched = typed.stream().map(p -> {
@@ -154,45 +147,44 @@ public class ProdutosPane {
         Map<String, Object> novo = produtoDialog(null, preRest);
         if (novo == null) return;
         Long restId = toLong(preRest.get("id"));
-        try {
-            state.rest.postForEntity(AppState.BACKEND + "/api/restaurantes/" + restId + "/produtos",
-                buildCriarPayload(novo), Map.class);
+        NativeGrpcClient.GrpcResult res = state.grpc.invoke("createProduct",
+            Map.of("restauranteId", restId, "produto", buildCriarPayload(novo)));
+        if (res.success()) {
             info("✓ Produto criado.", owner);
             syncProdutos(restId, applyFilter);
-        } catch (Exception ex) { warn("✗ Erro ao criar produto: " + ex.getMessage(), owner); }
+        } else { warn("✗ Erro ao criar produto: " + res.message(), owner); }
     }
 
     private void handleEditar(TableView<Map<String, Object>> table, Runnable applyFilter) {
         Map<String, Object> sel = selected(table, owner); if (sel == null) return;
         Map<String, Object> edited = produtoDialog(sel, null); if (edited == null) return;
-        try {
-            // AtualizarProdutoDTO: {id, nome, preco, descricao}
-            state.rest.exchange(AppState.BACKEND + "/api/produtos/" + sel.get("id"),
-                HttpMethod.PUT, new HttpEntity<>(buildAtualizarPayload(edited, sel.get("id"))), Map.class);
+        NativeGrpcClient.GrpcResult res = state.grpc.invoke("updateProduct",
+            Map.of("id", sel.get("id"), "produto", buildAtualizarPayload(edited, sel.get("id"))));
+        if (res.success()) {
             info("✓ Produto atualizado.", owner);
             syncProdutos(toLong(sel.get("restId")), applyFilter);
-        } catch (Exception ex) { warn("✗ Erro ao editar: " + ex.getMessage(), owner); }
+        } else { warn("✗ Erro ao editar: " + res.message(), owner); }
     }
 
     private void handleDisponibilidade(TableView<Map<String, Object>> table, Runnable applyFilter) {
         Map<String, Object> sel = selected(table, owner); if (sel == null) return;
         boolean novaDisp = "Não".equals(s(sel, "disponivel"));
-        try {
-            state.rest.exchange(AppState.BACKEND + "/api/produtos/" + sel.get("id") + "/disponibilidade",
-                HttpMethod.PATCH, new HttpEntity<>(Map.of("disponivel", novaDisp)), Map.class);
+        NativeGrpcClient.GrpcResult res = state.grpc.invoke("updateProductAvailability",
+            Map.of("id", sel.get("id"), "disponivel", novaDisp));
+        if (res.success()) {
             info("✓ Disponibilidade atualizada.", owner);
             syncProdutos(toLong(sel.get("restId")), applyFilter);
-        } catch (Exception ex) { warn("✗ Erro ao atualizar disponibilidade: " + ex.getMessage(), owner); }
+        } else { warn("✗ Erro ao atualizar disponibilidade: " + res.message(), owner); }
     }
 
     private void handleApagar(TableView<Map<String, Object>> table, Runnable applyFilter) {
         Map<String, Object> sel = selected(table, owner); if (sel == null) return;
         if (!confirm("Apagar " + s(sel, "nome") + "?", owner)) return;
-        try {
-            state.rest.delete(AppState.BACKEND + "/api/produtos/" + sel.get("id"));
+        NativeGrpcClient.GrpcResult res = state.grpc.invoke("deleteProduct", Map.of("id", sel.get("id")));
+        if (res.success()) {
             info("✓ Produto apagado.", owner);
             syncProdutos(toLong(sel.get("restId")), applyFilter);
-        } catch (Exception ex) { warn("✗ Erro ao apagar: " + ex.getMessage(), owner); }
+        } else { warn("✗ Erro ao apagar: " + res.message(), owner); }
     }
 
     // ── Payloads ──────────────────────────────────────────────────────────

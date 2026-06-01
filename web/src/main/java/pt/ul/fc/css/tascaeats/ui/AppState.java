@@ -13,21 +13,20 @@ package pt.ul.fc.css.tascaeats.ui;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.web.client.RestTemplate;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 public class AppState {
 
-    public static final String BACKEND =
-        System.getenv().getOrDefault("BACKEND_API_URL", "http://localhost:80");
+    public static final String GRPC_HOST =
+        System.getenv().getOrDefault("NATIVE_GRPC_HOST", "localhost");
+    public static final int GRPC_PORT =
+        Integer.parseInt(System.getenv().getOrDefault("NATIVE_GRPC_PORT", "8082"));
 
-    // ── HTTP clients ──────────────────────────────────────────────────────
-    public final RestTemplate         rest             = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
-    public final UtilizadorApiClient  utilizadorClient = new UtilizadorApiClient(rest, BACKEND);
-    public final RestauranteApiClient restauranteClient = new RestauranteApiClient(rest, BACKEND);
+    // ── gRPC clients ─────────────────────────────────────────────────────
+    public final NativeGrpcClient     grpc             = new NativeGrpcClient(GRPC_HOST, GRPC_PORT);
+    public final UtilizadorApiClient  utilizadorClient = new UtilizadorApiClient(grpc);
+    public final RestauranteApiClient restauranteClient = new RestauranteApiClient(grpc);
 
     // ── Live data ────────────────────────────────
     public final ObservableList<Map<String, Object>> users        = FXCollections.observableArrayList();

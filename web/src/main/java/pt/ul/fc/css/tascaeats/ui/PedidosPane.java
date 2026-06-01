@@ -15,11 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
@@ -138,12 +133,7 @@ public class PedidosPane {
 
     public void syncPedidos(Runnable afterUpdate) {
         state.bg(() -> {
-            try {
-                ResponseEntity<List<Map<String, Object>>> resp = state.rest.exchange(
-                    AppState.BACKEND + "/pedidos", HttpMethod.GET, null,
-                    new ParameterizedTypeReference<>() {});
-                return resp.getBody() != null ? resp.getBody() : List.of();
-            } catch (Exception e) { return List.of(); }
+            return state.grpc.invokeList("listOrders", Map.of());
         }, result -> {
             List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) result;
             state.pedidos.setAll(typed.stream().map(this::normalizePedido).toList());
@@ -170,7 +160,11 @@ public class PedidosPane {
                 payload.put("pedidoId",      toLong(sel.get("id")));
                 payload.put("tipoPagamento", metodo);
                 payload.put("detalhes",      detalhes);
-                state.rest.postForEntity(AppState.BACKEND + "/pagamentos", payload, Map.class);
+                NativeGrpcClient.GrpcResult res = state.grpc.invoke("processPayment", payload);
+                if (!res.success()) {
+                    warn("✗ Erro ao processar pagamento: " + res.message(), owner);
+                    return;
+                }
                 info("✓ Pagamento via " + metodo + " processado.", owner);
                 syncPedidos(applyFilter);
             } catch (Exception ex) { warn("✗ Erro ao processar pagamento: " + ex.getMessage(), owner); }
@@ -341,7 +335,14 @@ public class PedidosPane {
     // ── Helpers ───────────────────────────────────────────────────────────
 
     private void patch(String path) {
-        state.rest.exchange(AppState.BACKEND + path, HttpMethod.PATCH, HttpEntity.EMPTY, Object.class);
+        String operation = path.contains("/cancelar") ? "cancelOrder" : "deliveryPatch";
+        Map<String, Object> payload = path.contains("/cancelar")
+            ? Map.of("pedidoId", path.split("/")[2])
+            : Map.of("path", path);
+        NativeGrpcClient.GrpcResult res = state.grpc.invoke(operation, payload);
+        if (!res.success()) {
+            throw new IllegalStateException(res.message());
+        }
     }
 
     private Map<String, Object> normalizePedido(Map<String, Object> p) {

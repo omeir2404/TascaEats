@@ -29,10 +29,12 @@ services:
       - dbnet
     ports:
       - 8080:8080
+      - 9090:9090
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pgserver:5432/${POSTGRES_DB:-postgres}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-Utilizador}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      DELIVERY_API_URL: http://delivery-backend:8080
 
   web:
     build:

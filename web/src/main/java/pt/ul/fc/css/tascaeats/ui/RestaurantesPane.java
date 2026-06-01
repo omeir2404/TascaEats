@@ -15,8 +15,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -105,12 +103,7 @@ public class RestaurantesPane {
 
     public void syncRestaurantes(Runnable afterUpdate) {
         state.bg(() -> {
-            try {
-                ResponseEntity<List<Map<String, Object>>> resp = state.rest.exchange(
-                    AppState.BACKEND + "/api/restaurantes", HttpMethod.GET, null,
-                    new ParameterizedTypeReference<>() {});
-                return resp.getBody() != null ? resp.getBody() : List.of();
-            } catch (Exception e) { return List.of(); }
+            return state.grpc.invokeList("listRestaurants", Map.of());
         }, result -> {
             List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) result;
             state.restaurantes.setAll(typed.stream().map(this::normalize).toList());
@@ -128,23 +121,23 @@ public class RestaurantesPane {
         if (novo == null) return;
         String adminEmail = s(state.currentUser, "email");
         if (adminEmail.isBlank()) { warn("Não foi possível determinar o email do administrador.", owner); return; }
-        try {
-            state.rest.postForEntity(AppState.BACKEND + "/api/restaurantes?adminEmail=" + adminEmail,
-                buildPayload(novo), Map.class);
+        NativeGrpcClient.GrpcResult res = state.grpc.invoke("createRestaurant",
+            Map.of("adminEmail", adminEmail, "restaurante", buildPayload(novo)));
+        if (res.success()) {
             info("✓ Restaurante criado.", owner);
             syncRestaurantes(applyFilter);
-        } catch (Exception ex) { warn("✗ Erro ao criar: " + ex.getMessage(), owner); }
+        } else { warn("✗ Erro ao criar: " + res.message(), owner); }
     }
 
     private void handleEditar(TableView<Map<String, Object>> table, Runnable applyFilter) {
         Map<String, Object> sel = selected(table, owner); if (sel == null) return;
         Map<String, Object> edited = restauranteDialog(sel); if (edited == null) return;
-        try {
-            state.rest.exchange(AppState.BACKEND + "/api/restaurantes/" + sel.get("id"),
-                HttpMethod.PUT, new HttpEntity<>(buildPayload(edited)), Map.class);
+        NativeGrpcClient.GrpcResult res = state.grpc.invoke("updateRestaurant",
+            Map.of("id", sel.get("id"), "restaurante", buildPayload(edited)));
+        if (res.success()) {
             info("✓ Restaurante atualizado.", owner);
             syncRestaurantes(applyFilter);
-        } catch (Exception ex) { warn("✗ Erro ao editar: " + ex.getMessage(), owner); }
+        } else { warn("✗ Erro ao editar: " + res.message(), owner); }
     }
 
     private void handleEstado(TableView<Map<String, Object>> table, Runnable applyFilter) {
@@ -152,22 +145,22 @@ public class RestaurantesPane {
         ChoiceDialog<String> cd = new ChoiceDialog<>(s(sel, "estado"), "ABERTO", "FECHADO", "RESERVADO");
         cd.setTitle("Alterar Estado"); cd.setHeaderText("Novo estado:"); cd.initOwner(owner);
         cd.showAndWait().ifPresent(st -> {
-            try {
-                state.rest.exchange(AppState.BACKEND + "/api/restaurantes/" + sel.get("id") + "/estado",
-                    HttpMethod.PATCH, new HttpEntity<>(Map.of("estado", st)), Map.class);
+            NativeGrpcClient.GrpcResult res = state.grpc.invoke("updateRestaurantStatus",
+                Map.of("id", sel.get("id"), "estado", st));
+            if (res.success()) {
                 syncRestaurantes(applyFilter);
-            } catch (Exception ex) { warn("✗ Erro ao alterar estado: " + ex.getMessage(), owner); }
+            } else { warn("✗ Erro ao alterar estado: " + res.message(), owner); }
         });
     }
 
     private void handleRemover(TableView<Map<String, Object>> table, Runnable applyFilter) {
         Map<String, Object> sel = selected(table, owner); if (sel == null) return;
         if (!confirm("Remover " + s(sel, "nome") + "?", owner)) return;
-        try {
-            state.rest.delete(AppState.BACKEND + "/api/restaurantes/" + sel.get("id"));
+        NativeGrpcClient.GrpcResult res = state.grpc.invoke("deleteRestaurant", Map.of("id", sel.get("id")));
+        if (res.success()) {
             info("✓ Restaurante removido.", owner);
             syncRestaurantes(applyFilter);
-        } catch (Exception ex) { warn("✗ Erro ao remover: " + ex.getMessage(), owner); }
+        } else { warn("✗ Erro ao remover: " + res.message(), owner); }
     }
 
     // ── Payload / Dialog / Normalize ──────────────────────────────────────

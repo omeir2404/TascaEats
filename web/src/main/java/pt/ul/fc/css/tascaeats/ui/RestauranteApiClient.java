@@ -15,12 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
 
 public class RestauranteApiClient {
 
@@ -28,33 +22,24 @@ public class RestauranteApiClient {
     public record RestaurantSearchResult(List<RestauranteResumo> restaurantes, boolean fallbackUsado, String mensagem) {
     }
 
-    private static final ParameterizedTypeReference<List<Map<String, Object>>> LIST_TYPE = new ParameterizedTypeReference<>() {
-    };
+    private final NativeGrpcClient grpcClient;
 
-    private final RestTemplate restTemplate;
-    private final String backendUrl;
-
-    public RestauranteApiClient(RestTemplate restTemplate, String backendUrl) {
-        this.restTemplate = restTemplate;
-        this.backendUrl = normalizeBackendUrl(backendUrl);
+    public RestauranteApiClient(NativeGrpcClient grpcClient) {
+        this.grpcClient = grpcClient;
     }
 
     public String getBackendUrl() {
-        return backendUrl;
+        return AppState.GRPC_HOST + ":" + AppState.GRPC_PORT;
     }
 
     public List<RestauranteResumo> listarRestaurantes(String nome, String estado) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(backendUrl).path("/api/restaurantes");
-
+        var payload = new java.util.LinkedHashMap<String, Object>();
         if (nome != null && !nome.isBlank()) {
-            builder.queryParam("nome", nome.trim());
+            payload.put("nome", nome.trim());
         } else if (estado != null && !estado.isBlank()) {
-            builder.queryParam("estado", estado.trim());
+            payload.put("estado", estado.trim());
         }
-
-        List<Map<String, Object>> resposta = restTemplate
-                .exchange(builder.toUriString(), HttpMethod.GET, null, LIST_TYPE)
-                .getBody();
+        List<Map<String, Object>> resposta = grpcClient.invokeList("listRestaurants", payload);
 
         if (resposta == null || resposta.isEmpty()) {
             return List.of();
@@ -69,17 +54,11 @@ public class RestauranteApiClient {
 
 
     public RestaurantSearchResult listarRestaurantesComFallback(String nome, String estado) {
-        try {
-            List<RestauranteResumo> restaurantes = listarRestaurantes(nome, estado);
-            String mensagem = restaurantes.isEmpty()
-                    ? "Nenhum restaurante encontrado."
-                    : restaurantes.size() + " restaurante(s) carregado(s) com sucesso.";
-            return new RestaurantSearchResult(restaurantes, false, mensagem);
-        } catch (RestClientException ex) {
-            List<RestauranteResumo> demo = filtrarDemoRestaurantes(nome, estado);
-            String mensagem = "Backend devolveu 404/erro temporário — a usar dados demo para testar os ecrãs.";
-            return new RestaurantSearchResult(demo, true, mensagem);
-        }
+        List<RestauranteResumo> restaurantes = listarRestaurantes(nome, estado);
+        String mensagem = restaurantes.isEmpty()
+                ? "Nenhum restaurante encontrado."
+                : restaurantes.size() + " restaurante(s) carregado(s) com sucesso.";
+        return new RestaurantSearchResult(restaurantes, false, mensagem);
     }
 
     private RestauranteResumo toResumo(Map<String, Object> item) {
@@ -98,14 +77,6 @@ public class RestauranteApiClient {
         String nome = Objects.toString(item.get("nome"), "");
         String estado = Objects.toString(item.get("estado"), "");
         return new RestauranteResumo(id, nome, estado);
-    }
-
-    private String normalizeBackendUrl(String rawUrl) {
-        String value = rawUrl == null || rawUrl.isBlank() ? "http://localhost:80" : rawUrl.trim();
-        while (value.endsWith("/")) {
-            value = value.substring(0, value.length() - 1);
-        }
-        return value;
     }
 
     private List<RestauranteResumo> filtrarDemoRestaurantes(String nome, String estado) {
@@ -133,4 +104,3 @@ public class RestauranteApiClient {
         );
     }
 }
-
