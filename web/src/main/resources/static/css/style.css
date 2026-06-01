@@ -888,8 +888,8 @@ p {
 .order-timeline {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+    gap: 22px 12px;
     counter-reset: order-step;
 }
 
@@ -916,6 +916,10 @@ p {
 }
 
 .order-step:last-child::before {
+    display: none;
+}
+
+.order-step:nth-child(4n)::before {
     display: none;
 }
 
@@ -1857,7 +1861,15 @@ th {
         gap: 18px 12px;
     }
 
+    .order-step:nth-child(4n)::before {
+        display: block;
+    }
+
     .order-step:nth-child(3n)::before {
+        display: none;
+    }
+
+    .order-step:last-child::before {
         display: none;
     }
 }
@@ -1922,6 +1934,10 @@ th {
     }
 
     .order-step:nth-child(3n)::before {
+        display: block;
+    }
+
+    .order-step:nth-child(4n)::before {
         display: block;
     }
 
