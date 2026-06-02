@@ -21,7 +21,7 @@ public class AppState {
     public static final String GRPC_HOST =
         System.getenv().getOrDefault("NATIVE_GRPC_HOST", "localhost");
     public static final int GRPC_PORT =
-        Integer.parseInt(System.getenv().getOrDefault("NATIVE_GRPC_PORT", "9090"));
+        Integer.parseInt(System.getenv().getOrDefault("NATIVE_GRPC_PORT", "8082"));
 
     // ── gRPC clients ─────────────────────────────────────────────────────
     public final NativeGrpcClient     grpc             = new NativeGrpcClient(GRPC_HOST, GRPC_PORT);

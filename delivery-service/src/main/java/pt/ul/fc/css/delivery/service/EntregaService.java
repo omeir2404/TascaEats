@@ -2,6 +2,10 @@ package pt.ul.fc.css.delivery.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -240,12 +244,41 @@ public class EntregaService {
     }
 
     private Entregador selecionarEntregadorDisponivel() {
+        entregadorRepository.flush();
+        entregaRepository.flush();
+
         List<Entregador> entregadoresDisponiveis = entregadorRepository.findByAvailable(true);
-        for (Entregador candidato : entregadoresDisponiveis) {
-            if (!entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId())) {
-                return candidato;
-            }
+        Map<Long, LocalDateTime> ultimaEntregaConcluidaPorEntregador = entregaRepository.findAll().stream()
+                .filter(entrega -> entrega.getEntregadorId() != null)
+                .filter(entrega -> entrega.getHoraEntrega() != null)
+                .collect(Collectors.toMap(
+                        Entrega::getEntregadorId,
+                        Entrega::getHoraEntrega,
+                        (atual, nova) -> atual.isAfter(nova) ? atual : nova));
+
+        Long maiorIdComHistorico = ultimaEntregaConcluidaPorEntregador.keySet().stream()
+                .max(Long::compareTo)
+                .orElse(null);
+
+        List<Entregador> semHistoricoPreferenciais = entregadoresDisponiveis.stream()
+                .filter(candidato -> !entregaRepository.existsByEntregadorIdAndHoraEntregaIsNull(candidato.getId()))
+                .filter(candidato -> !ultimaEntregaConcluidaPorEntregador.containsKey(candidato.getId()))
+                .filter(candidato -> maiorIdComHistorico == null || candidato.getId() > maiorIdComHistorico)
+                .toList();
+
+        if (!semHistoricoPreferenciais.isEmpty()) {
+            return semHistoricoPreferenciais.stream()
+                    .max(Comparator.comparing(Entregador::getId))
+                    .orElseThrow();
         }
-        throw new IllegalStateException("Nao ha entregadores disponiveis de momento.");
+
+        return entregadoresDisponiveis.stream()
+                .filter(candidato -> ultimaEntregaConcluidaPorEntregador.containsKey(candidato.getId()))
+                .min(Comparator
+                        .comparing((Entregador candidato) -> ultimaEntregaConcluidaPorEntregador.get(candidato.getId()))
+                        .thenComparing(Entregador::getId))
+                .orElseGet(() -> entregadoresDisponiveis.stream()
+                        .max(Comparator.comparing(Entregador::getId))
+                        .orElseThrow(() -> new IllegalStateException("Nao ha entregadores disponiveis de momento.")));
     }
 }

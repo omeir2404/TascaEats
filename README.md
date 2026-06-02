@@ -1,5 +1,5 @@
 
-# TascaEats Fase 2
+# TascaEats Fase 3
 
 ## Grupo 25
 
@@ -13,6 +13,7 @@
 ## Ponto de Situação
 * **Interface Web:** corre na porta 8081 (contentor) / 8081 no host usando o `docker-compose` predefinido.
 * **API de Backend:** corre na porta 8080.
+* **GUI nativa (gRPC):** usa a porta 8082 no host, via Nginx, por omissao.
 * **Base de Dados:** PostgreSQL (contentor).
 
 ## Limitações Notáveis
@@ -20,7 +21,7 @@
 * Cancelar um pedido a partir da GUI mostra um erro de UI/traceback, mas o cancelamento é concluído com sucesso no servidor; considere isto um *bug* estético.
 
 
-Este projeto implementa os requisitos da Fase 2 (ver `docs/fase2.pdf`), incluindo:
+Este projeto inclui o trabalho de migração para a Fase 3 (ver `docs/fase3.pdf`), incluindo:
 
 * Método de pagamento selecionado pelo cliente persistido com o pedido (`tipo_pagamento_solicitado` + `pedido_pagamento_detalhes`).
 * O *checkout* transmite a seleção de pagamento para o backend e esta é armazenada no `Pedido`.

@@ -52,7 +52,7 @@ O trabalho está dividido em três partes iguais para facilitar a distribuição
 ### 2.3 Limpeza do Monólito (Backend)
 - [x] Remover entidades `Entrega` e dependências diretas de bases de dados relacionais ao módulo de entregas.
 - [x] Adaptar o `Pedido` no monólito para armazenar apenas o ID do entregador atribuído ou o estado da entrega em formato "read-only" (para consistência eventual).
-- [ ] Adaptar/Remover `EntregaController` do monólito, pois o domínio passou para o microserviço.
+- [x] Adaptar/Remover `EntregaController` do monólito, pois o domínio passou para o microserviço.
 
 ---
 
