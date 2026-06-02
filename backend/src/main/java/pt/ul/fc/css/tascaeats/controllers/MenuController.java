@@ -107,6 +107,7 @@ public class MenuController {
         response.put("id", menu.getId());
         response.put("nome", menu.getNome());
         response.put("numeroProdutos", menu.getProdutos().size());
+        response.put("numeroProdutosAtivos", numeroProdutosAtivos(menu.getProdutos()));
         response.put("precoMedio", precoMedio(menu.getProdutos()));
         response.put("produtosIds", menu.getProdutos().stream().map(Produto::getId).toList());
         response.put("restaurantesIds", menu.getRestaurantes().stream().map(Restaurante::getId).toList());
@@ -117,6 +118,13 @@ public class MenuController {
                 ? "Sem restaurante atribuído"
                 : menu.getRestaurantes().stream().map(Restaurante::getNome).reduce((a, b) -> a + ", " + b).orElse(""));
         return response;
+    }
+
+    private long numeroProdutosAtivos(List<Produto> produtos) {
+        if (produtos == null) {
+            return 0L;
+        }
+        return produtos.stream().filter(produto -> !produto.isApagado()).count();
     }
 
     private double precoMedio(List<Produto> produtos) {

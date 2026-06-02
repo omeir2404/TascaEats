@@ -50,7 +50,7 @@ public class WebMenuController {
                         || nome.isBlank()
                         || String.valueOf(m.getOrDefault("nome", "")).toLowerCase().contains(nome.toLowerCase())
                         || String.valueOf(m.getOrDefault("restauranteNome", "")).toLowerCase().contains(nome.toLowerCase()))
-                .filter(m -> numeroProdutosMin == null || toInt(m.get("numeroProdutos")) >= numeroProdutosMin)
+                .filter(m -> numeroProdutosMin == null || toInt(m.get("numeroProdutosAtivos")) >= numeroProdutosMin)
                 .filter(m -> precoMedioMax == null || toDouble(m.get("precoMedio")) <= precoMedioMax)
                 .toList();
 
@@ -68,7 +68,10 @@ public class WebMenuController {
             return List.of();
         }
 
-        for (Map<String, Object> menu : menus) {
+        return menus.stream()
+                .filter(this::hasAssignedRestaurant)
+                .filter(this::hasVisibleProducts)
+                .peek(menu -> {
             String texto = String.valueOf(menu.getOrDefault("restauranteNome", menu.getOrDefault("nome", ""))).toLowerCase();
             String imagePath = "/img/tasca.jpg";
             String rn = texto == null ? "" : texto.toLowerCase();
@@ -83,8 +86,30 @@ public class WebMenuController {
             }
 
             menu.put("imagePath", imagePath);
+            menu.put("numeroProdutos", toInt(menu.get("numeroProdutosAtivos")));
+                })
+                .toList();
+    }
+
+    private boolean hasAssignedRestaurant(Map<String, Object> menu) {
+        Object restauranteId = menu.get("restauranteId");
+        if (restauranteId instanceof Number number) {
+            return number.longValue() > 0;
         }
-        return menus;
+        if (restauranteId != null && !restauranteId.toString().isBlank() && !"null".equalsIgnoreCase(restauranteId.toString())) {
+            try {
+                return Long.parseLong(restauranteId.toString()) > 0;
+            } catch (NumberFormatException e) {
+                return true;
+            }
+        }
+
+        Object restaurantesIds = menu.get("restaurantesIds");
+        return restaurantesIds instanceof List<?> ids && !ids.isEmpty();
+    }
+
+    private boolean hasVisibleProducts(Map<String, Object> menu) {
+        return toInt(menu.get("numeroProdutosAtivos")) > 0;
     }
 
     private int toInt(Object value) {

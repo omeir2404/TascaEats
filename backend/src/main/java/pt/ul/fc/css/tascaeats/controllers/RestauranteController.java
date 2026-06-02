@@ -75,6 +75,7 @@ public class RestauranteController {
 
     //Atualizar restaurante
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<Object> atualizarRestaurante(@PathVariable Long id, @Valid @RequestBody AtualizarRestauranteDTO dto) {
         try {
             Restaurante atualizado = restauranteService.atualizarRestaurante(id, dto);
@@ -88,6 +89,7 @@ public class RestauranteController {
 
     //Atualizar estado do restaurante
     @PatchMapping("/{id}/estado")
+    @Transactional
     public ResponseEntity<Object> atualizarEstado(@PathVariable Long id, @Valid @RequestBody AtualizarEstadoRestauranteDTO dto) {
         try {
             Restaurante atualizado = restauranteService.atualizarEstado(id, dto);
@@ -101,6 +103,7 @@ public class RestauranteController {
 
     //Abrir restaurante
     @PatchMapping("/{id}/abrir")
+    @Transactional
     public ResponseEntity<Object> abrirRestaurante(@PathVariable Long id) {
         AtualizarEstadoRestauranteDTO dto = new AtualizarEstadoRestauranteDTO();
         dto.setEstado(EstadoRestaurante.ABERTO);
@@ -109,6 +112,7 @@ public class RestauranteController {
 
     //Fechar restaurante
     @PatchMapping("/{id}/fechar")
+    @Transactional
     public ResponseEntity<Object> fecharRestaurante(@PathVariable Long id) {
         AtualizarEstadoRestauranteDTO dto = new AtualizarEstadoRestauranteDTO();
         dto.setEstado(EstadoRestaurante.FECHADO);
@@ -238,11 +242,15 @@ public class RestauranteController {
             response.put("menuId", null);
             response.put("menuNome", "");
             response.put("numeroProdutosMenu", 0);
+            response.put("numeroProdutosAtivosMenu", 0L);
             return;
         }
         response.put("menuId", menu.getId());
         response.put("menuNome", menu.getNome());
         response.put("numeroProdutosMenu", menu.getProdutos().size());
+        response.put("numeroProdutosAtivosMenu", menu.getProdutos().stream()
+                .filter(produto -> !produto.isApagado())
+                .count());
     }
 
 

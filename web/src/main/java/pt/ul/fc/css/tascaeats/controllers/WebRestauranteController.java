@@ -10,6 +10,7 @@
 package pt.ul.fc.css.tascaeats.controllers;
 
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -133,6 +134,11 @@ public class WebRestauranteController {
 
     @GetMapping("/restaurantes/{id}/produtos")
     public String listarProdutos(@PathVariable Long id, Model model) {
+        Map<String, Object> restaurante = fetchRestaurant(id);
+        if (!hasAssignedMenu(restaurante)) {
+            return "redirect:/restaurantes";
+        }
+
         String produtosUrl = UriComponentsBuilder.fromHttpUrl(backendUrl + "/api/produtos")
                 .queryParam("restauranteId", id)
                 .toUriString();
@@ -146,7 +152,7 @@ public class WebRestauranteController {
         }
 
         model.addAttribute("restauranteId", id);
-        model.addAttribute("restauranteNome", fetchRestaurantName(id));
+        model.addAttribute("restauranteNome", restaurantName(restaurante, id));
         carregarAvaliacoes(id, model);
         return "produtos";
     }
@@ -160,6 +166,10 @@ public class WebRestauranteController {
             @RequestParam(required = false, defaultValue = "false") Boolean disponivel,
             @RequestParam(required = false) Double popularidade,
             Model model) {
+        Map<String, Object> restaurante = fetchRestaurant(id);
+        if (!hasAssignedMenu(restaurante)) {
+            return "redirect:/restaurantes";
+        }
 
         String produtosUrl = UriComponentsBuilder.fromHttpUrl(backendUrl + "/api/produtos")
                 .queryParam("restauranteId", id)
@@ -181,7 +191,7 @@ public class WebRestauranteController {
         }
 
         model.addAttribute("restauranteId", id);
-        model.addAttribute("restauranteNome", fetchRestaurantName(id));
+        model.addAttribute("restauranteNome", restaurantName(restaurante, id));
         model.addAttribute("nome", nome);
         model.addAttribute("precoMax", precoMax);
         model.addAttribute("categoria", categoria);
@@ -197,7 +207,7 @@ public class WebRestauranteController {
             return List.of();
         }
 
-        return restaurantes.stream().map(rest -> {
+        return restaurantes.stream().filter(this::hasAssignedMenu).map(rest -> {
             Object nomeObj = rest.getOrDefault("nome", "Sem nome");
             String nome = nomeObj == null ? "" : nomeObj.toString();
             Object tipoRawObj = rest.getOrDefault("tipoRestaurante", rest.getOrDefault("tipoCozinha", "OUTRO"));
@@ -219,17 +229,19 @@ public class WebRestauranteController {
                 imagePath = "/img/cafe_local.jpg"; // economical image as tasca verde
             }
 
-            return Map.<String, Object>of(
-                    "id", rest.getOrDefault("id", 0),
-                    "nome", nome,
-                    "tipoRestaurante", tipoRaw,
-                    "tipoCozinha", tipo,
-                    "estado", rest.getOrDefault("estado", "DESCONHECIDO"),
-                    "numeroAvaliacoes", rest.getOrDefault("numeroAvaliacoes", 0),
-                    "avaliacaoMedia", rest.getOrDefault("avaliacaoMedia", 0.0),
-                    "morada", rest.getOrDefault("morada", Map.of()),
-                    "imagePath", imagePath
-            );
+            Map<String, Object> normalized = new LinkedHashMap<>();
+            normalized.put("id", rest.getOrDefault("id", 0));
+            normalized.put("nome", nome);
+            normalized.put("tipoRestaurante", tipoRaw);
+            normalized.put("tipoCozinha", tipo);
+            normalized.put("estado", rest.getOrDefault("estado", "DESCONHECIDO"));
+            normalized.put("numeroAvaliacoes", rest.getOrDefault("numeroAvaliacoes", 0));
+            normalized.put("avaliacaoMedia", rest.getOrDefault("avaliacaoMedia", 0.0));
+            normalized.put("morada", rest.getOrDefault("morada", Map.of()));
+            normalized.put("menuId", rest.get("menuId"));
+            normalized.put("menuNome", rest.getOrDefault("menuNome", ""));
+            normalized.put("imagePath", imagePath);
+            return normalized;
         }).collect(Collectors.toList());
     }
 
@@ -255,7 +267,9 @@ public class WebRestauranteController {
             return List.of();
         }
 
-        return produtos.stream().map(produto -> Map.<String, Object>of(
+        return produtos.stream()
+                .filter(produto -> !Boolean.TRUE.equals(produto.get("apagado")))
+                .map(produto -> Map.<String, Object>of(
                 "id", produto.getOrDefault("id", 0),
                 "nome", produto.getOrDefault("nome", "Sem nome"),
                 "preco", toDouble(produto.get("preco")),
@@ -314,17 +328,60 @@ public class WebRestauranteController {
         };
     }
 
-    private String fetchRestaurantName(Long restauranteId) {
+    private Map<String, Object> fetchRestaurant(Long restauranteId) {
         try {
             String restauranteUrl = backendUrl + "/api/restaurantes/" + restauranteId;
-            Map<String, Object> restaurante = restTemplate.getForObject(restauranteUrl, Map.class);
-            if (restaurante == null) {
-                return "Restaurante #" + restauranteId;
-            }
-            Object nome = restaurante.get("nome");
-            return nome != null ? nome.toString() : "Restaurante #" + restauranteId;
+            return restTemplate.getForObject(restauranteUrl, Map.class);
         } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String restaurantName(Map<String, Object> restaurante, Long restauranteId) {
+        if (restaurante == null) {
             return "Restaurante #" + restauranteId;
+        }
+        Object nome = restaurante.get("nome");
+        return nome != null ? nome.toString() : "Restaurante #" + restauranteId;
+    }
+
+    private boolean hasAssignedMenu(Map<String, Object> restaurante) {
+        if (restaurante == null) {
+            return false;
+        }
+        Object menuId = restaurante.get("menuId");
+        if (menuId instanceof Number number) {
+            return number.longValue() > 0 && hasVisibleProducts(restaurante);
+        }
+        if (menuId == null || menuId.toString().isBlank() || "null".equalsIgnoreCase(menuId.toString())) {
+            return false;
+        }
+        try {
+            return Long.parseLong(menuId.toString()) > 0 && hasVisibleProducts(restaurante);
+        } catch (NumberFormatException e) {
+            return hasVisibleProducts(restaurante);
+        }
+    }
+
+    private boolean hasVisibleProducts(Map<String, Object> restaurante) {
+        Object ativos = restaurante.get("numeroProdutosAtivosMenu");
+        if (ativos != null) {
+            return toLong(ativos) > 0;
+        }
+        return toLong(restaurante.get("numeroProdutosMenu")) > 0;
+    }
+
+    private long toLong(Object value) {
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        if (value == null) {
+            return 0L;
+        }
+        try {
+            return Long.parseLong(value.toString());
+        } catch (NumberFormatException e) {
+            return 0L;
         }
     }
 
