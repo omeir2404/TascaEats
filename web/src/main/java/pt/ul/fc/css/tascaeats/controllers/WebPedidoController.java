@@ -666,7 +666,10 @@ public class WebPedidoController {
         Map<String, Object> entrega = fetchEntregaForPedido(pedidoId);
         Object estadoEntregaValue = pedido.get("estadoEntregaReadOnly");
         if (!hasTextValue(estadoEntregaValue) && entrega != null) {
-            estadoEntregaValue = entrega.get("estado");
+            estadoEntregaValue = firstNonBlank(
+                    entrega.get("estadoEntrega"),
+                    entrega.get("estado"),
+                    entrega.get("estadoPedido"));
         }
         String estadoEntrega = hasTextValue(estadoEntregaValue) ? String.valueOf(estadoEntregaValue) : "";
 
@@ -820,6 +823,18 @@ public class WebPedidoController {
 
     private boolean hasTextValue(Object value) {
         return value != null && !String.valueOf(value).trim().isEmpty();
+    }
+
+    private Object firstNonBlank(Object... values) {
+        if (values == null) {
+            return null;
+        }
+        for (Object value : values) {
+            if (hasTextValue(value)) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private String fetchRestaurantName(Long restauranteId) {
