@@ -65,6 +65,7 @@ class GuiHappyPathIntegrationTest {
 
     private static Long clienteId;
     private static Long restauranteId;
+    private static Long menuId;
     private static Long produtoId;
     private static Long pedidoId;
 
@@ -158,6 +159,18 @@ class GuiHappyPathIntegrationTest {
         restauranteId = toLong(required(createResponse.getBody(), "id"));
         assertThat(restauranteId).isNotNull();
 
+        ResponseEntity<Map<String, Object>> menuResponse =
+                postMap("/api/menus", mapOf("nome", "Menu Tasca Nova"));
+
+        assertThat(menuResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        menuId = toLong(required(menuResponse.getBody(), "id"));
+        assertThat(menuId).isNotNull();
+
+        ResponseEntity<Map<String, Object>> assignMenuResponse =
+                putMap("/api/restaurantes/" + restauranteId + "/menu/" + menuId, Map.of());
+
+        assertThat(assignMenuResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
         ResponseEntity<Map<String, Object>> openResponse = patchMap(
                 "/api/restaurantes/" + restauranteId + "/estado",
                 mapOf("estado", "ABERTO"));
@@ -170,6 +183,7 @@ class GuiHappyPathIntegrationTest {
     @Order(4)
     void catalogManagementCreatesAndEnablesProduct() {
         assertThat(restauranteId).as("restauranteId created in order 3").isNotNull();
+        assertThat(menuId).as("menuId created in order 3").isNotNull();
 
         Map<String, Object> payload = mapOf(
                 "nome", "Bitoque",
@@ -177,7 +191,7 @@ class GuiHappyPathIntegrationTest {
                 "descricao", "Bitoque com ovo");
 
         ResponseEntity<Map<String, Object>> createResponse =
-                postMap("/api/restaurantes/" + restauranteId + "/produtos", payload);
+                postMap("/api/menus/" + menuId + "/produtos", payload);
 
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         produtoId = toLong(required(createResponse.getBody(), "id"));
@@ -247,6 +261,15 @@ class GuiHappyPathIntegrationTest {
         return restTemplate.exchange(
                 path,
                 HttpMethod.POST,
+                jsonEntity(payload),
+                new ParameterizedTypeReference<>() {
+                });
+    }
+
+    private ResponseEntity<Map<String, Object>> putMap(String path, Map<String, Object> payload) {
+        return restTemplate.exchange(
+                path,
+                HttpMethod.PUT,
                 jsonEntity(payload),
                 new ParameterizedTypeReference<>() {
                 });
