@@ -18,7 +18,8 @@ public class DeliveryCommandConsumer {
             topics = "delivery-command-topic",
             groupId = "delivery-service-commands",
             properties = {
-                    "spring.json.value.default.type=pt.ul.fc.css.delivery.events.DeliveryCommandEvent"
+                    "spring.json.value.default.type=pt.ul.fc.css.delivery.events.DeliveryCommandEvent",
+                    "spring.json.use.type.headers=false" // <-- ADD THIS LINE
             })
     public void consumir(DeliveryCommandEvent event) {
         if (event == null || event.pedidoId() == null || event.action() == null) {

@@ -14,7 +14,13 @@ public class EntregaAtualizadaConsumer {
         this.pedidoService = pedidoService;
     }
 
-    @KafkaListener(topics = "entrega-atualizada-topic", groupId = "tascaeats-backend")
+    @KafkaListener(
+            topics = "entrega-atualizada-topic", 
+            groupId = "tascaeats-backend",
+            properties = {
+                    "spring.json.value.default.type=pt.ul.fc.css.tascaeats.events.EntregaAtualizadaEvent",
+                    "spring.json.use.type.headers=false" // <-- ADD THIS LINE
+            })
     public void consumir(EntregaAtualizadaEvent event) {
         pedidoService.aplicarAtualizacaoEntrega(
                 event.pedidoId(),
