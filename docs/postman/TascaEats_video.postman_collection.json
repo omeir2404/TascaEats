@@ -449,7 +449,7 @@
                   "mode": "raw",
                   "raw": "{\n  \"nome\": \"Bacalhau\",\n  \"preco\": 12.5,\n  \"descricao\": \"Prato do dia\"\n}"
                 },
-                "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/produtos"
+                "url": "{{baseUrl}}/api/menus/{{menuId}}/produtos"
               }
             },
             {
@@ -490,7 +490,7 @@
                   "mode": "raw",
                   "raw": "{\n  \"nome\": \"Bacalhau\",\n  \"preco\": -1,\n  \"descricao\": \"Prato do dia\"\n}"
                 },
-                "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/produtos"
+                "url": "{{baseUrl}}/api/menus/{{menuId}}/produtos"
               }
             },
             {

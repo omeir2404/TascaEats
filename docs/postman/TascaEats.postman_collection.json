@@ -274,7 +274,7 @@
       "name": "Products",
       "item": [
         {
-          "name": "Create Product For Restaurant",
+          "name": "Create Product For Menu",
           "request": {
             "method": "POST",
             "header": [
@@ -287,7 +287,7 @@
               "mode": "raw",
               "raw": "{\n  \"nome\": \"Bacalhau\",\n  \"preco\": 12.5,\n  \"descricao\": \"Prato do dia\"\n}"
             },
-            "url": "{{baseUrl}}/api/restaurantes/{{restauranteId}}/produtos"
+            "url": "{{baseUrl}}/api/menus/{{menuId}}/produtos"
           }
         },
         {

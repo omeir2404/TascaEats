@@ -250,8 +250,20 @@ function restaurantAddress(idx) {
           pm.expect(restauranteId).to.exist;
         });
 
+        const createMenu = await send("POST", "/api/menus", {
+          nome: `Menu Seq ${seed}-${a + 1}-${r}`
+        }, 201);
+
+        const menuId = createMenu.json && createMenu.json.id;
+        pm.test("Menu id created", function () {
+          pm.expect(menuId).to.exist;
+        });
+
+        await send("PUT", `/api/restaurantes/${restauranteId}/menu/${menuId}`, {}, 200);
+
         restaurants.push({
           id: restauranteId,
+          menuId,
           adminEmail: admins[a].email
         });
 
@@ -265,10 +277,11 @@ function restaurantAddress(idx) {
     // F/G) Create products in bulk for each restaurant
     for (let i = 0; i < restaurants.length; i += 1) {
       const restauranteId = restaurants[i].id;
+      const menuId = restaurants[i].menuId;
       productsByRestaurant[restauranteId] = [];
 
       for (let p = 1; p <= productsPerRestaurant; p += 1) {
-        const createProduct = await send("POST", `/api/restaurantes/${restauranteId}/produtos`, {
+        const createProduct = await send("POST", `/api/menus/${menuId}/produtos`, {
           nome: `Produto ${i + 1}-${p}`,
           preco: Number((6 + p + (i * 0.5)).toFixed(2)),
           descricao: `Produto seed ${seed} restaurante ${i + 1}`
