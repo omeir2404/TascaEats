@@ -21,6 +21,7 @@ services:
   backend:
     build:
       context: ./backend
+      network: host
     restart: unless-stopped
     depends_on:
       pgserver:
@@ -42,6 +43,7 @@ services:
   web:
     build:
       context: ./web
+      network: host
     restart: unless-stopped
     depends_on:
       - backend
@@ -132,6 +134,7 @@ services:
   delivery-backend:
     build:
       context: ./delivery-service
+      network: host
     restart: unless-stopped
     depends_on:
       pgserver-entregas:

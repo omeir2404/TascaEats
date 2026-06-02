@@ -27,6 +27,7 @@ import pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
+import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IEntregadorRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
 
 @Service
@@ -36,12 +37,15 @@ public class PedidoService {
     private final IUtilizadorRepository utilizadorRepository;
     private final IRestauranteRepository restauranteRepository;
     private final IProdutoRepository produtoRepository;
+    private final IEntregadorRepository entregadorRepository;
 
-    public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository) {
+    public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository, IEntregadorRepository entregadorRepository) {
         this.pedidoRepository = pedidoRepository;
         this.utilizadorRepository = utilizadorRepository;
         this.restauranteRepository = restauranteRepository;
         this.produtoRepository = produtoRepository;
+        this.entregadorRepository = entregadorRepository; 
+        
     }
 
     public void criarPedido(CriarPedidoDTO criarPedidoDto){
@@ -224,21 +228,15 @@ public class PedidoService {
         if (entregadorId != null) {
             pedido.setEntregadorId(entregadorId);
 
-            // Synchronize the driver's availability state inside the Monolith's DB
-            utilizadorRepository.findById(entregadorId).ifPresent(utilizador -> {
-                if (utilizador instanceof pt.ul.fc.css.tascaeats.domain.utilizador.Entregador) {
-                    pt.ul.fc.css.tascaeats.domain.utilizador.Entregador entregador = 
-                        (pt.ul.fc.css.tascaeats.domain.utilizador.Entregador) utilizador;
-                    
-                    // If the delivery is marked completed, the driver is free again. 
-                    // Otherwise, they are busy.
-                    if ("ENTREGUE".equalsIgnoreCase(estadoPedido) || "ENTREGUE".equalsIgnoreCase(estadoEntrega)) {
-                        entregador.setAvailable(true);
-                    } else {
-                        entregador.setAvailable(false);
-                    }
-                    utilizadorRepository.save(entregador);
+            // Procura diretamente no repositório de entregadores para contornar o Proxy do Hibernate
+            entregadorRepository.findById(entregadorId).ifPresent(entregador -> {
+                // Se o estado for ENTREGUE, liberta o estafeta, caso contrário (inclusive A_CAMINHO) fica ocupado
+                if ("ENTREGUE".equalsIgnoreCase(estadoPedido) || "ENTREGUE".equalsIgnoreCase(estadoEntrega)) {
+                    entregador.setAvailable(true);
+                } else {
+                    entregador.setAvailable(false);
                 }
+                entregadorRepository.save(entregador);
             });
         }
         
