@@ -77,7 +77,7 @@ SELECT nextval('utilizadores_id_seq'), 'Cliente Tasca', 'cliente@tascaeats.local
 WHERE NOT EXISTS (SELECT 1
                   FROM utilizadores
                   WHERE email = 'cliente@tascaeats.local');
-
+  
 INSERT INTO utilizadores (id, nome, email, password)
 SELECT nextval('utilizadores_id_seq'), 'Entregador Tasca', 'courier@tascaeats.local', 'courier123'
 WHERE NOT EXISTS (SELECT 1

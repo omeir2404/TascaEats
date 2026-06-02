@@ -223,7 +223,25 @@ public class PedidoService {
 
         if (entregadorId != null) {
             pedido.setEntregadorId(entregadorId);
+
+            // Synchronize the driver's availability state inside the Monolith's DB
+            utilizadorRepository.findById(entregadorId).ifPresent(utilizador -> {
+                if (utilizador instanceof pt.ul.fc.css.tascaeats.domain.utilizador.Entregador) {
+                    pt.ul.fc.css.tascaeats.domain.utilizador.Entregador entregador = 
+                        (pt.ul.fc.css.tascaeats.domain.utilizador.Entregador) utilizador;
+                    
+                    // If the delivery is marked completed, the driver is free again. 
+                    // Otherwise, they are busy.
+                    if ("ENTREGUE".equalsIgnoreCase(estadoPedido) || "ENTREGUE".equalsIgnoreCase(estadoEntrega)) {
+                        entregador.setAvailable(true);
+                    } else {
+                        entregador.setAvailable(false);
+                    }
+                    utilizadorRepository.save(entregador);
+                }
+            });
         }
+        
         if (estadoEntrega != null && !estadoEntrega.isBlank()) {
             pedido.setEstadoEntregaReadOnly(estadoEntrega.trim().toUpperCase());
         }

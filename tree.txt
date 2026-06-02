@@ -1,0 +1,911 @@
+.
+├── backend
+│   ├── Dockerfile
+│   ├── pom.xml
+│   ├── src
+│   │   ├── main
+│   │   │   ├── java
+│   │   │   │   └── pt
+│   │   │   │       └── ul
+│   │   │   │           └── fc
+│   │   │   │               └── css
+│   │   │   │                   └── tascaeats
+│   │   │   │                       ├── config
+│   │   │   │                       │   └── OpenApiConfig.java
+│   │   │   │                       ├── controllers
+│   │   │   │                       │   ├── AvaliacaoController.java
+│   │   │   │                       │   ├── MenuController.java
+│   │   │   │                       │   ├── PagamentoController.java
+│   │   │   │                       │   ├── PedidoController.java
+│   │   │   │                       │   ├── ProdutoController.java
+│   │   │   │                       │   ├── RestauranteController.java
+│   │   │   │                       │   └── UtilizadorController.java
+│   │   │   │                       ├── domain
+│   │   │   │                       │   ├── avaliacao
+│   │   │   │                       │   │   └── Avaliacao.java
+│   │   │   │                       │   ├── menu
+│   │   │   │                       │   │   └── Menu.java
+│   │   │   │                       │   ├── pagamento
+│   │   │   │                       │   │   ├── PagamentoCartao.java
+│   │   │   │                       │   │   ├── PagamentoDinheiro.java
+│   │   │   │                       │   │   ├── Pagamento.java
+│   │   │   │                       │   │   ├── PagamentoMBWay.java
+│   │   │   │                       │   │   └── PagamentoMultibanco.java
+│   │   │   │                       │   ├── pedido
+│   │   │   │                       │   │   ├── EstadoPedido.java
+│   │   │   │                       │   │   └── Pedido.java
+│   │   │   │                       │   ├── produto
+│   │   │   │                       │   │   └── Produto.java
+│   │   │   │                       │   ├── restaurante
+│   │   │   │                       │   │   ├── CatalogoEntregas.java
+│   │   │   │                       │   │   ├── EstadoRestaurante.java
+│   │   │   │                       │   │   ├── Restaurante.java
+│   │   │   │                       │   │   └── TipoRestaurante.java
+│   │   │   │                       │   └── utilizador
+│   │   │   │                       │       ├── Cliente.java
+│   │   │   │                       │       ├── Entregador.java
+│   │   │   │                       │       ├── Morada.java
+│   │   │   │                       │       ├── RestauranteAdmin.java
+│   │   │   │                       │       └── Utilizador.java
+│   │   │   │                       ├── dto
+│   │   │   │                       │   ├── avaliacaoDTO
+│   │   │   │                       │   │   └── AvaliacaoDTO.java
+│   │   │   │                       │   ├── mensagensDTO
+│   │   │   │                       │   │   ├── ApiErrorDTO.java
+│   │   │   │                       │   │   └── ApiMessageDTO.java
+│   │   │   │                       │   ├── menuDTO
+│   │   │   │                       │   │   └── MenuDTO.java
+│   │   │   │                       │   ├── moradaDTO
+│   │   │   │                       │   │   ├── MoradaDTO.java
+│   │   │   │                       │   │   └── MoradaResponseDTO.java
+│   │   │   │                       │   ├── pagamentoDTO
+│   │   │   │                       │   │   └── ProcessarPagamentoDTO.java
+│   │   │   │                       │   ├── pedidoDTO
+│   │   │   │                       │   │   ├── AtualizarEstadoPedidoDTO.java
+│   │   │   │                       │   │   ├── CriarPedidoDTO.java
+│   │   │   │                       │   │   ├── ItemPedidoDTO.java
+│   │   │   │                       │   │   └── PedidoConfirmacaoDTO.java
+│   │   │   │                       │   ├── produtoDTO
+│   │   │   │                       │   │   ├── AtualizarDisponibilidadeProdutoDTO.java
+│   │   │   │                       │   │   ├── AtualizarProdutoDTO.java
+│   │   │   │                       │   │   ├── CriarProdutoDTO.java
+│   │   │   │                       │   │   └── ProdutoDTO.java
+│   │   │   │                       │   ├── restauranteDTO
+│   │   │   │                       │   │   ├── AtualizarEstadoRestauranteDTO.java
+│   │   │   │                       │   │   ├── AtualizarRestauranteDTO.java
+│   │   │   │                       │   │   ├── CriarRestauranteDTO.java
+│   │   │   │                       │   │   ├── RestauranteDTO.java
+│   │   │   │                       │   │   └── RestauranteResumoDTO.java
+│   │   │   │                       │   └── utilizadorDTO
+│   │   │   │                       │       ├── UtilizadorLoginDTO.java
+│   │   │   │                       │       ├── UtilizadorRegistoDTO.java
+│   │   │   │                       │       ├── UtilizadorRegistoRespostaDTO.java
+│   │   │   │                       │       ├── UtilizadorRespostaDTO.java
+│   │   │   │                       │       └── UtilizadorUpdateDTO.java
+│   │   │   │                       ├── events
+│   │   │   │                       │   ├── DeliveryCommandEvent.java
+│   │   │   │                       │   ├── EntregaAtualizadaConsumer.java
+│   │   │   │                       │   ├── EntregaAtualizadaEvent.java
+│   │   │   │                       │   └── PedidoPagoEvent.java
+│   │   │   │                       ├── grpc
+│   │   │   │                       │   ├── NativeGrpcServer.java
+│   │   │   │                       │   └── NativeGrpcService.java
+│   │   │   │                       ├── publishers
+│   │   │   │                       │   ├── DeliveryCommandPublisher.java
+│   │   │   │                       │   └── PedidoPagoPublisher.java
+│   │   │   │                       ├── repository
+│   │   │   │                       │   ├── avaliacaoRepository
+│   │   │   │                       │   │   └── IAvaliacaoRepository.java
+│   │   │   │                       │   ├── menuRepository
+│   │   │   │                       │   │   └── IMenuRepository.java
+│   │   │   │                       │   ├── pagamentoRepository
+│   │   │   │                       │   │   └── IPagamentoRepository.java
+│   │   │   │                       │   ├── pedidoRepository
+│   │   │   │                       │   │   └── IPedidoRepository.java
+│   │   │   │                       │   ├── produtoRepository
+│   │   │   │                       │   │   └── IProdutoRepository.java
+│   │   │   │                       │   ├── restauranteRepository
+│   │   │   │                       │   │   └── IRestauranteRepository.java
+│   │   │   │                       │   └── utilizadorRepository
+│   │   │   │                       │       ├── IClienteRepository.java
+│   │   │   │                       │       ├── IEntregadorRepository.java
+│   │   │   │                       │       ├── IRestauranteAdminRepository.java
+│   │   │   │                       │       └── IUtilizadorRepository.java
+│   │   │   │                       ├── service
+│   │   │   │                       │   ├── avaliacaoServices
+│   │   │   │                       │   │   └── AvaliacaoService.java
+│   │   │   │                       │   ├── menuService
+│   │   │   │                       │   │   └── MenuService.java
+│   │   │   │                       │   ├── pagamentoServices
+│   │   │   │                       │   │   ├── PagamentoFactory.java
+│   │   │   │                       │   │   └── PagamentoService.java
+│   │   │   │                       │   ├── pedidoService
+│   │   │   │                       │   │   └── PedidoService.java
+│   │   │   │                       │   ├── produtoService
+│   │   │   │                       │   │   └── ProdutoService.java
+│   │   │   │                       │   ├── restauranteServices
+│   │   │   │                       │   │   └── RestauranteService.java
+│   │   │   │                       │   └── utilizadorServices
+│   │   │   │                       │       ├── AutorService.java
+│   │   │   │                       │       └── UtilizadorService.java
+│   │   │   │                       └── TascaEatsApplication.java
+│   │   │   ├── proto
+│   │   │   │   └── native_app.proto
+│   │   │   └── resources
+│   │   │       ├── application.properties
+│   │   │       └── mockData.sql
+│   │   └── test
+│   │       ├── java
+│   │       │   └── pt
+│   │       │       └── ul
+│   │       │           └── fc
+│   │       │               └── css
+│   │       │                   └── tascaeats
+│   │       │                       ├── controllers
+│   │       │                       │   ├── PagamentoControllerTest.java
+│   │       │                       │   ├── PedidoControllerTest.java
+│   │       │                       │   ├── ProdutoControllerTest.java
+│   │       │                       │   ├── RestauranteControllerTest.java
+│   │       │                       │   └── UserControllerTest.java
+│   │       │                       ├── domain
+│   │       │                       │   ├── EstadoPedidoTest.java
+│   │       │                       │   ├── EstadoRestauranteTest.java
+│   │       │                       │   ├── PagamentoDinheiroTest.java
+│   │       │                       │   ├── PagamentoMBWayTest.java
+│   │       │                       │   ├── PagamentoMultibancoTest.java
+│   │       │                       │   ├── PagamentoTest.java
+│   │       │                       │   ├── PedidoTest.java
+│   │       │                       │   ├── ProdutoTest.java
+│   │       │                       │   └── RestauranteTest.java
+│   │       │                       ├── integration
+│   │       │                       │   └── GuiHappyPathIntegrationTest.java
+│   │       │                       ├── repositories
+│   │       │                       │   ├── IPagamentoRepositoryTest.java
+│   │       │                       │   ├── IPedidoRepositoryTest.java
+│   │       │                       │   ├── IProdutoRepositoryTest.java
+│   │       │                       │   ├── IRestauranteAdminRepositoryTest.java
+│   │       │                       │   └── IRestauranteRepositoryTest.java
+│   │       │                       └── services
+│   │       │                           ├── PagamentoFactoryTest.java
+│   │       │                           ├── PagamentoServiceTest.java
+│   │       │                           ├── PedidoServiceTest.java
+│   │       │                           ├── ProdutoServiceTest.java
+│   │       │                           ├── RestauranteServiceTest.java
+│   │       │                           └── UserServiceTest.java
+│   │       └── resources
+│   │           └── application.properties
+│   ├── target
+│   │   ├── classes
+│   │   │   ├── application.properties
+│   │   │   ├── mockData.sql
+│   │   │   ├── native_app.proto
+│   │   │   └── pt
+│   │   │       └── ul
+│   │   │           └── fc
+│   │   │               └── css
+│   │   │                   └── tascaeats
+│   │   │                       ├── config
+│   │   │                       │   └── OpenApiConfig.class
+│   │   │                       ├── controllers
+│   │   │                       │   ├── AvaliacaoController.class
+│   │   │                       │   ├── MenuController.class
+│   │   │                       │   ├── PagamentoController.class
+│   │   │                       │   ├── PedidoController.class
+│   │   │                       │   ├── ProdutoController.class
+│   │   │                       │   ├── RestauranteController.class
+│   │   │                       │   └── UtilizadorController.class
+│   │   │                       ├── domain
+│   │   │                       │   ├── avaliacao
+│   │   │                       │   │   └── Avaliacao.class
+│   │   │                       │   ├── menu
+│   │   │                       │   │   └── Menu.class
+│   │   │                       │   ├── pagamento
+│   │   │                       │   │   ├── PagamentoCartao.class
+│   │   │                       │   │   ├── Pagamento.class
+│   │   │                       │   │   ├── PagamentoDinheiro.class
+│   │   │                       │   │   ├── PagamentoMBWay.class
+│   │   │                       │   │   └── PagamentoMultibanco.class
+│   │   │                       │   ├── pedido
+│   │   │                       │   │   ├── EstadoPedido.class
+│   │   │                       │   │   └── Pedido.class
+│   │   │                       │   ├── produto
+│   │   │                       │   │   └── Produto.class
+│   │   │                       │   ├── restaurante
+│   │   │                       │   │   ├── CatalogoEntregas.class
+│   │   │                       │   │   ├── EstadoRestaurante.class
+│   │   │                       │   │   ├── Restaurante.class
+│   │   │                       │   │   └── TipoRestaurante.class
+│   │   │                       │   └── utilizador
+│   │   │                       │       ├── Cliente.class
+│   │   │                       │       ├── Entregador.class
+│   │   │                       │       ├── Morada.class
+│   │   │                       │       ├── RestauranteAdmin.class
+│   │   │                       │       └── Utilizador.class
+│   │   │                       ├── dto
+│   │   │                       │   ├── avaliacaoDTO
+│   │   │                       │   │   └── AvaliacaoDTO.class
+│   │   │                       │   ├── mensagensDTO
+│   │   │                       │   │   ├── ApiErrorDTO.class
+│   │   │                       │   │   └── ApiMessageDTO.class
+│   │   │                       │   ├── menuDTO
+│   │   │                       │   │   └── MenuDTO.class
+│   │   │                       │   ├── moradaDTO
+│   │   │                       │   │   ├── MoradaDTO.class
+│   │   │                       │   │   └── MoradaResponseDTO.class
+│   │   │                       │   ├── pagamentoDTO
+│   │   │                       │   │   └── ProcessarPagamentoDTO.class
+│   │   │                       │   ├── pedidoDTO
+│   │   │                       │   │   ├── AtualizarEstadoPedidoDTO.class
+│   │   │                       │   │   ├── CriarPedidoDTO.class
+│   │   │                       │   │   ├── ItemPedidoDTO.class
+│   │   │                       │   │   └── PedidoConfirmacaoDTO.class
+│   │   │                       │   ├── produtoDTO
+│   │   │                       │   │   ├── AtualizarDisponibilidadeProdutoDTO.class
+│   │   │                       │   │   ├── AtualizarProdutoDTO.class
+│   │   │                       │   │   ├── CriarProdutoDTO.class
+│   │   │                       │   │   └── ProdutoDTO.class
+│   │   │                       │   ├── restauranteDTO
+│   │   │                       │   │   ├── AtualizarEstadoRestauranteDTO.class
+│   │   │                       │   │   ├── AtualizarRestauranteDTO.class
+│   │   │                       │   │   ├── CriarRestauranteDTO.class
+│   │   │                       │   │   ├── RestauranteDTO.class
+│   │   │                       │   │   └── RestauranteResumoDTO.class
+│   │   │                       │   └── utilizadorDTO
+│   │   │                       │       ├── UtilizadorLoginDTO.class
+│   │   │                       │       ├── UtilizadorRegistoDTO.class
+│   │   │                       │       ├── UtilizadorRegistoRespostaDTO.class
+│   │   │                       │       ├── UtilizadorRespostaDTO.class
+│   │   │                       │       └── UtilizadorUpdateDTO.class
+│   │   │                       ├── events
+│   │   │                       │   ├── DeliveryCommandEvent.class
+│   │   │                       │   ├── EntregaAtualizadaConsumer.class
+│   │   │                       │   ├── EntregaAtualizadaEvent.class
+│   │   │                       │   └── PedidoPagoEvent.class
+│   │   │                       ├── grpc
+│   │   │                       │   ├── NativeGrpcServer.class
+│   │   │                       │   ├── NativeGrpcService$DeliveryCommand.class
+│   │   │                       │   └── NativeGrpcService.class
+│   │   │                       ├── publishers
+│   │   │                       │   ├── DeliveryCommandPublisher.class
+│   │   │                       │   └── PedidoPagoPublisher.class
+│   │   │                       ├── repository
+│   │   │                       │   ├── avaliacaoRepository
+│   │   │                       │   │   └── IAvaliacaoRepository.class
+│   │   │                       │   ├── menuRepository
+│   │   │                       │   │   └── IMenuRepository.class
+│   │   │                       │   ├── pagamentoRepository
+│   │   │                       │   │   └── IPagamentoRepository.class
+│   │   │                       │   ├── pedidoRepository
+│   │   │                       │   │   └── IPedidoRepository.class
+│   │   │                       │   ├── produtoRepository
+│   │   │                       │   │   └── IProdutoRepository.class
+│   │   │                       │   ├── restauranteRepository
+│   │   │                       │   │   └── IRestauranteRepository.class
+│   │   │                       │   └── utilizadorRepository
+│   │   │                       │       ├── IClienteRepository.class
+│   │   │                       │       ├── IEntregadorRepository.class
+│   │   │                       │       ├── IRestauranteAdminRepository.class
+│   │   │                       │       └── IUtilizadorRepository.class
+│   │   │                       ├── service
+│   │   │                       │   ├── avaliacaoServices
+│   │   │                       │   │   └── AvaliacaoService.class
+│   │   │                       │   ├── menuService
+│   │   │                       │   │   └── MenuService.class
+│   │   │                       │   ├── pagamentoServices
+│   │   │                       │   │   ├── PagamentoFactory.class
+│   │   │                       │   │   ├── PagamentoService$1.class
+│   │   │                       │   │   └── PagamentoService.class
+│   │   │                       │   ├── pedidoService
+│   │   │                       │   │   └── PedidoService.class
+│   │   │                       │   ├── produtoService
+│   │   │                       │   │   └── ProdutoService.class
+│   │   │                       │   ├── restauranteServices
+│   │   │                       │   │   └── RestauranteService.class
+│   │   │                       │   └── utilizadorServices
+│   │   │                       │       ├── AutorService.class
+│   │   │                       │       └── UtilizadorService.class
+│   │   │                       └── TascaEatsApplication.class
+│   │   ├── generated-sources
+│   │   │   ├── annotations
+│   │   │   └── protobuf
+│   │   │       ├── grpc-java
+│   │   │       └── java
+│   │   ├── generated-test-sources
+│   │   │   └── test-annotations
+│   │   ├── maven-archiver
+│   │   │   └── pom.properties
+│   │   ├── maven-status
+│   │   │   └── maven-compiler-plugin
+│   │   │       ├── compile
+│   │   │       │   └── default-compile
+│   │   │       │       ├── createdFiles.lst
+│   │   │       │       └── inputFiles.lst
+│   │   │       └── testCompile
+│   │   │           └── default-testCompile
+│   │   │               ├── createdFiles.lst
+│   │   │               └── inputFiles.lst
+│   │   ├── protoc-dependencies
+│   │   │   ├── 181bfc12e317fa04f2c20e6bb0aa3117
+│   │   │   │   └── google
+│   │   │   │       ├── api
+│   │   │   │       │   ├── annotations.proto
+│   │   │   │       │   ├── auth.proto
+│   │   │   │       │   ├── backend.proto
+│   │   │   │       │   ├── billing.proto
+│   │   │   │       │   ├── client.proto
+│   │   │   │       │   ├── config_change.proto
+│   │   │   │       │   ├── consumer.proto
+│   │   │   │       │   ├── context.proto
+│   │   │   │       │   ├── control.proto
+│   │   │   │       │   ├── distribution.proto
+│   │   │   │       │   ├── documentation.proto
+│   │   │   │       │   ├── endpoint.proto
+│   │   │   │       │   ├── error_reason.proto
+│   │   │   │       │   ├── field_behavior.proto
+│   │   │   │       │   ├── field_info.proto
+│   │   │   │       │   ├── httpbody.proto
+│   │   │   │       │   ├── http.proto
+│   │   │   │       │   ├── label.proto
+│   │   │   │       │   ├── launch_stage.proto
+│   │   │   │       │   ├── logging.proto
+│   │   │   │       │   ├── log.proto
+│   │   │   │       │   ├── metric.proto
+│   │   │   │       │   ├── monitored_resource.proto
+│   │   │   │       │   ├── monitoring.proto
+│   │   │   │       │   ├── policy.proto
+│   │   │   │       │   ├── quota.proto
+│   │   │   │       │   ├── resource.proto
+│   │   │   │       │   ├── routing.proto
+│   │   │   │       │   ├── service.proto
+│   │   │   │       │   ├── source_info.proto
+│   │   │   │       │   ├── system_parameter.proto
+│   │   │   │       │   ├── usage.proto
+│   │   │   │       │   └── visibility.proto
+│   │   │   │       ├── cloud
+│   │   │   │       │   ├── audit
+│   │   │   │       │   │   └── audit_log.proto
+│   │   │   │       │   ├── extended_operations.proto
+│   │   │   │       │   └── location
+│   │   │   │       │       └── locations.proto
+│   │   │   │       ├── geo
+│   │   │   │       │   └── type
+│   │   │   │       │       └── viewport.proto
+│   │   │   │       ├── logging
+│   │   │   │       │   └── type
+│   │   │   │       │       ├── http_request.proto
+│   │   │   │       │       └── log_severity.proto
+│   │   │   │       ├── longrunning
+│   │   │   │       │   └── operations.proto
+│   │   │   │       ├── rpc
+│   │   │   │       │   ├── code.proto
+│   │   │   │       │   ├── context
+│   │   │   │       │   │   ├── attribute_context.proto
+│   │   │   │       │   │   └── audit_context.proto
+│   │   │   │       │   ├── error_details.proto
+│   │   │   │       │   └── status.proto
+│   │   │   │       └── type
+│   │   │   │           ├── calendar_period.proto
+│   │   │   │           ├── color.proto
+│   │   │   │           ├── date.proto
+│   │   │   │           ├── datetime.proto
+│   │   │   │           ├── dayofweek.proto
+│   │   │   │           ├── decimal.proto
+│   │   │   │           ├── expr.proto
+│   │   │   │           ├── fraction.proto
+│   │   │   │           ├── interval.proto
+│   │   │   │           ├── latlng.proto
+│   │   │   │           ├── localized_text.proto
+│   │   │   │           ├── money.proto
+│   │   │   │           ├── month.proto
+│   │   │   │           ├── phone_number.proto
+│   │   │   │           ├── postal_address.proto
+│   │   │   │           ├── quaternion.proto
+│   │   │   │           └── timeofday.proto
+│   │   │   └── cf40c6a4c320807cee2ab7d3a42625ec
+│   │   │       └── google
+│   │   │           └── protobuf
+│   │   │               ├── any.proto
+│   │   │               ├── api.proto
+│   │   │               ├── descriptor.proto
+│   │   │               ├── duration.proto
+│   │   │               ├── empty.proto
+│   │   │               ├── field_mask.proto
+│   │   │               ├── source_context.proto
+│   │   │               ├── struct.proto
+│   │   │               ├── timestamp.proto
+│   │   │               ├── type.proto
+│   │   │               └── wrappers.proto
+│   │   ├── protoc-plugins
+│   │   │   ├── protoc-3.25.3-linux-x86_64.exe
+│   │   │   └── protoc-gen-grpc-java-1.63.0-linux-x86_64.exe
+│   │   ├── tascaeats-1.0.jar
+│   │   ├── tascaeats-1.0.jar.original
+│   │   └── test-classes
+│   │       ├── application.properties
+│   │       └── pt
+│   │           └── ul
+│   │               └── fc
+│   │                   └── css
+│   │                       └── tascaeats
+│   │                           ├── controllers
+│   │                           │   ├── PagamentoControllerTest.class
+│   │                           │   ├── PedidoControllerTest.class
+│   │                           │   ├── ProdutoControllerTest.class
+│   │                           │   ├── RestauranteControllerTest.class
+│   │                           │   └── UtilizadorControllerTest.class
+│   │                           ├── domain
+│   │                           │   ├── EstadoPedidoTest.class
+│   │                           │   ├── EstadoRestauranteTest.class
+│   │                           │   ├── PagamentoDinheiroTest.class
+│   │                           │   ├── PagamentoMBWayTest.class
+│   │                           │   ├── PagamentoMultibancoTest.class
+│   │                           │   ├── PagamentoTest.class
+│   │                           │   ├── PedidoTest.class
+│   │                           │   ├── ProdutoTest.class
+│   │                           │   └── RestauranteTest.class
+│   │                           ├── integration
+│   │                           │   ├── GuiHappyPathIntegrationTest$1.class
+│   │                           │   ├── GuiHappyPathIntegrationTest$2.class
+│   │                           │   ├── GuiHappyPathIntegrationTest$3.class
+│   │                           │   └── GuiHappyPathIntegrationTest.class
+│   │                           ├── repositories
+│   │                           │   ├── IPagamentoRepositoryTest.class
+│   │                           │   ├── IPedidoRepositoryTest.class
+│   │                           │   ├── IProdutoRepositoryTest.class
+│   │                           │   ├── IRestauranteAdminRepositoryTest.class
+│   │                           │   └── IRestauranteRepositoryTest.class
+│   │                           └── services
+│   │                               ├── PagamentoFactoryTest.class
+│   │                               ├── PagamentoServiceTest.class
+│   │                               ├── PedidoServiceTest.class
+│   │                               ├── ProdutoServiceTest.class
+│   │                               ├── RestauranteServiceTest.class
+│   │                               └── UtilizadorServiceTest.class
+│   └── testResult
+├── bootstrapdb.sql
+├── delivery-service
+│   ├── Dockerfile
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   ├── pom.xml
+│   ├── src
+│   │   ├── main
+│   │   │   ├── java
+│   │   │   │   └── pt
+│   │   │   │       └── ul
+│   │   │   │           └── fc
+│   │   │   │               └── css
+│   │   │   │                   └── delivery
+│   │   │   │                       ├── config
+│   │   │   │                       │   └── DeliveryDataInitializer.java
+│   │   │   │                       ├── controller
+│   │   │   │                       │   ├── EntregaController.java
+│   │   │   │                       │   └── EntregadorController.java
+│   │   │   │                       ├── DeliveryServiceApplication.java
+│   │   │   │                       ├── domain
+│   │   │   │                       │   ├── entrega
+│   │   │   │                       │   │   ├── Entrega.java
+│   │   │   │                       │   │   └── EstadoEntrega.java
+│   │   │   │                       │   └── entregador
+│   │   │   │                       │       └── Entregador.java
+│   │   │   │                       ├── dto
+│   │   │   │                       │   ├── entregadorDTO
+│   │   │   │                       │   │   ├── AtualizarEntregadorDTO.java
+│   │   │   │                       │   │   ├── CriarEntregadorDTO.java
+│   │   │   │                       │   │   └── EntregadorDTO.java
+│   │   │   │                       │   └── entregaDTO
+│   │   │   │                       │       ├── AtribuirEntregadorDTO.java
+│   │   │   │                       │       ├── AtualizarEstadoEntregaDTO.java
+│   │   │   │                       │       └── EntregaResumoDTO.java
+│   │   │   │                       ├── events
+│   │   │   │                       │   ├── DeliveryCommandConsumer.java
+│   │   │   │                       │   ├── DeliveryCommandEvent.java
+│   │   │   │                       │   ├── EntregaAtualizadaEvent.java
+│   │   │   │                       │   ├── EntregaAtualizadaPublisher.java
+│   │   │   │                       │   ├── PedidoPagoConsumer.java
+│   │   │   │                       │   └── PedidoPagoEvent.java
+│   │   │   │                       ├── repository
+│   │   │   │                       │   ├── EntregadorRepository.java
+│   │   │   │                       │   └── EntregaRepository.java
+│   │   │   │                       └── service
+│   │   │   │                           └── EntregaService.java
+│   │   │   └── resources
+│   │   │       └── application.properties
+│   │   └── test
+│   │       └── java
+│   │           └── pt
+│   │               └── ul
+│   │                   └── fc
+│   │                       └── css
+│   │                           └── delivery
+│   │                               ├── DeliveryServiceApplicationTests.java
+│   │                               └── service
+│   │                                   └── EntregaServiceSelectionTests.java
+│   └── target
+│       ├── classes
+│       │   ├── application.properties
+│       │   └── pt
+│       │       └── ul
+│       │           └── fc
+│       │               └── css
+│       │                   └── delivery
+│       │                       ├── config
+│       │                       │   └── DeliveryDataInitializer.class
+│       │                       ├── controller
+│       │                       │   ├── EntregaController.class
+│       │                       │   └── EntregadorController.class
+│       │                       ├── DeliveryServiceApplication.class
+│       │                       ├── domain
+│       │                       │   ├── entrega
+│       │                       │   │   ├── Entrega.class
+│       │                       │   │   └── EstadoEntrega.class
+│       │                       │   └── entregador
+│       │                       │       └── Entregador.class
+│       │                       ├── dto
+│       │                       │   ├── entregadorDTO
+│       │                       │   │   ├── AtualizarEntregadorDTO.class
+│       │                       │   │   ├── CriarEntregadorDTO.class
+│       │                       │   │   └── EntregadorDTO.class
+│       │                       │   └── entregaDTO
+│       │                       │       ├── AtribuirEntregadorDTO.class
+│       │                       │       ├── AtualizarEstadoEntregaDTO.class
+│       │                       │       └── EntregaResumoDTO.class
+│       │                       ├── events
+│       │                       │   ├── DeliveryCommandConsumer.class
+│       │                       │   ├── DeliveryCommandEvent.class
+│       │                       │   ├── EntregaAtualizadaEvent.class
+│       │                       │   ├── EntregaAtualizadaPublisher.class
+│       │                       │   ├── PedidoPagoConsumer.class
+│       │                       │   └── PedidoPagoEvent.class
+│       │                       ├── repository
+│       │                       │   ├── EntregadorRepository.class
+│       │                       │   └── EntregaRepository.class
+│       │                       └── service
+│       │                           ├── EntregaService$1.class
+│       │                           └── EntregaService.class
+│       ├── delivery-service-0.0.1-SNAPSHOT.jar
+│       ├── delivery-service-0.0.1-SNAPSHOT.jar.original
+│       ├── generated-sources
+│       │   └── annotations
+│       ├── generated-test-sources
+│       │   └── test-annotations
+│       ├── maven-archiver
+│       │   └── pom.properties
+│       ├── maven-status
+│       │   └── maven-compiler-plugin
+│       │       ├── compile
+│       │       │   └── default-compile
+│       │       │       ├── createdFiles.lst
+│       │       │       └── inputFiles.lst
+│       │       └── testCompile
+│       │           └── default-testCompile
+│       │               ├── createdFiles.lst
+│       │               └── inputFiles.lst
+│       └── test-classes
+│           └── pt
+│               └── ul
+│                   └── fc
+│                       └── css
+│                           └── delivery
+│                               ├── DeliveryServiceApplicationTests.class
+│                               └── service
+│                                   └── EntregaServiceSelectionTests.class
+├── docker-compose.yml
+├── docs
+│   ├── clean_docker.sh
+│   ├── CSS- Modelo de Domínio-Casos de Uso.jpg
+│   ├── CSS- Modelo de Domínio-Diagrama de Classes.jpg
+│   ├── CSS- Modelo de Domínio-Modelo de Domínio.jpg
+│   ├── fase2.pdf
+│   ├── fase3.pdf
+│   ├── p1.pdf
+│   ├── postman
+│   │   ├── TascaEats.postman_collection.json
+│   │   ├── TascaEats_video.postman_collection.json
+│   │   └── use_case_sequence.js
+│   ├── setup.sh
+│   ├── TascaEats_Fase3_Todo.md
+│   └── video_validation_queries.sql
+├── format-code.sh
+├── mvnw.cmd
+├── nginx.conf
+├── postgres.dockerfile
+├── README.md
+├── run.sh
+├── tree.txt
+└── web
+    ├── Dockerfile
+    ├── pom.xml
+    ├── src
+    │   └── main
+    │       ├── java
+    │       │   └── pt
+    │       │       └── ul
+    │       │           └── fc
+    │       │               └── css
+    │       │                   └── tascaeats
+    │       │                       ├── controllers
+    │       │                       │   ├── WebErrorMessages.java
+    │       │                       │   ├── WebMenuController.java
+    │       │                       │   ├── WebPedidoController.java
+    │       │                       │   ├── WebRestauranteController.java
+    │       │                       │   └── WebUtilizadorController.java
+    │       │                       ├── ui
+    │       │                       │   ├── AppState.java
+    │       │                       │   ├── LoginPane.java
+    │       │                       │   ├── MenusPane.java
+    │       │                       │   ├── NativeAppGUI.java
+    │       │                       │   ├── NativeGrpcClient.java
+    │       │                       │   ├── PedidosPane.java
+    │       │                       │   ├── ProdutosPane.java
+    │       │                       │   ├── RegisterPane.java
+    │       │                       │   ├── RestauranteApiClient.java
+    │       │                       │   ├── RestauranteResumo.java
+    │       │                       │   ├── RestaurantesPane.java
+    │       │                       │   ├── UiUtils.java
+    │       │                       │   ├── UtilizadorApiClient.java
+    │       │                       │   └── UtilizadoresPane.java
+    │       │                       └── WebApplication.java
+    │       ├── proto
+    │       │   └── native_app.proto
+    │       └── resources
+    │           ├── application.properties
+    │           ├── static
+    │           │   ├── css
+    │           │   │   └── style.css
+    │           │   ├── img
+    │           │   │   ├── cafe_local.jpg
+    │           │   │   ├── economico.jpeg
+    │           │   │   ├── italiano_local.jpg
+    │           │   │   ├── pizza.png
+    │           │   │   ├── sushi.jpeg
+    │           │   │   ├── sushi_local.png
+    │           │   │   ├── tasca.jpg
+    │           │   │   └── tasca_local.png
+    │           │   └── js
+    │           │       └── main.js
+    │           └── templates
+    │               ├── checkout.html
+    │               ├── error
+    │               │   └── 404.html
+    │               ├── fragments
+    │               │   ├── footer.html
+    │               │   ├── header.html
+    │               │   └── search-bar.html
+    │               ├── login.html
+    │               ├── menus.html
+    │               ├── meus_pedidos.html
+    │               ├── pedido_detalhe.html
+    │               ├── perfil.html
+    │               ├── pesquisa.html
+    │               ├── produtos.html
+    │               ├── registo.html
+    │               ├── restaurantes.html
+    │               └── utilizadores.html
+    └── target
+        ├── classes
+        │   ├── application.properties
+        │   ├── native_app.proto
+        │   ├── pt
+        │   │   └── ul
+        │   │       └── fc
+        │   │           └── css
+        │   │               └── tascaeats
+        │   │                   ├── controllers
+        │   │                   │   ├── WebErrorMessages.class
+        │   │                   │   ├── WebMenuController.class
+        │   │                   │   ├── WebPedidoController.class
+        │   │                   │   ├── WebRestauranteController.class
+        │   │                   │   └── WebUtilizadorController.class
+        │   │                   ├── grpc
+        │   │                   │   ├── NativeAppProto.class
+        │   │                   │   ├── NativeAppRequest$1.class
+        │   │                   │   ├── NativeAppRequest$Builder.class
+        │   │                   │   ├── NativeAppRequest.class
+        │   │                   │   ├── NativeAppRequestOrBuilder.class
+        │   │                   │   ├── NativeAppResponse$1.class
+        │   │                   │   ├── NativeAppResponse$Builder.class
+        │   │                   │   ├── NativeAppResponse.class
+        │   │                   │   ├── NativeAppResponseOrBuilder.class
+        │   │                   │   ├── NativeAppServiceGrpc$1.class
+        │   │                   │   ├── NativeAppServiceGrpc$2.class
+        │   │                   │   ├── NativeAppServiceGrpc$3.class
+        │   │                   │   ├── NativeAppServiceGrpc$AsyncService.class
+        │   │                   │   ├── NativeAppServiceGrpc$MethodHandlers.class
+        │   │                   │   ├── NativeAppServiceGrpc$NativeAppServiceBaseDescriptorSupplier.class
+        │   │                   │   ├── NativeAppServiceGrpc$NativeAppServiceBlockingStub.class
+        │   │                   │   ├── NativeAppServiceGrpc$NativeAppServiceFileDescriptorSupplier.class
+        │   │                   │   ├── NativeAppServiceGrpc$NativeAppServiceFutureStub.class
+        │   │                   │   ├── NativeAppServiceGrpc$NativeAppServiceImplBase.class
+        │   │                   │   ├── NativeAppServiceGrpc$NativeAppServiceMethodDescriptorSupplier.class
+        │   │                   │   ├── NativeAppServiceGrpc$NativeAppServiceStub.class
+        │   │                   │   └── NativeAppServiceGrpc.class
+        │   │                   ├── ui
+        │   │                   │   ├── AppState$1.class
+        │   │                   │   ├── AppState.class
+        │   │                   │   ├── LoginPane.class
+        │   │                   │   ├── MenusPane.class
+        │   │                   │   ├── NativeAppGUI$UseCaseRow.class
+        │   │                   │   ├── NativeAppGUI.class
+        │   │                   │   ├── NativeGrpcClient$1.class
+        │   │                   │   ├── NativeGrpcClient$2.class
+        │   │                   │   ├── NativeGrpcClient$GrpcResult.class
+        │   │                   │   ├── NativeGrpcClient.class
+        │   │                   │   ├── PedidosPane$1.class
+        │   │                   │   ├── PedidosPane$PedidoLoadResult.class
+        │   │                   │   ├── PedidosPane.class
+        │   │                   │   ├── ProdutosPane.class
+        │   │                   │   ├── RegisterPane.class
+        │   │                   │   ├── RestauranteApiClient$RestaurantSearchResult.class
+        │   │                   │   ├── RestauranteApiClient.class
+        │   │                   │   ├── RestauranteResumo.class
+        │   │                   │   ├── RestaurantesPane.class
+        │   │                   │   ├── UiUtils.class
+        │   │                   │   ├── UtilizadorApiClient$LoginResult.class
+        │   │                   │   ├── UtilizadorApiClient$RegistoResult.class
+        │   │                   │   ├── UtilizadorApiClient$SimpleResult.class
+        │   │                   │   ├── UtilizadorApiClient.class
+        │   │                   │   └── UtilizadoresPane.class
+        │   │                   └── WebApplication.class
+        │   ├── static
+        │   │   ├── css
+        │   │   │   └── style.css
+        │   │   ├── img
+        │   │   │   ├── cafe_local.jpg
+        │   │   │   ├── economico.jpeg
+        │   │   │   ├── italiano_local.jpg
+        │   │   │   ├── pizza.png
+        │   │   │   ├── sushi.jpeg
+        │   │   │   ├── sushi_local.png
+        │   │   │   ├── tasca.jpg
+        │   │   │   └── tasca_local.png
+        │   │   └── js
+        │   │       └── main.js
+        │   └── templates
+        │       ├── checkout.html
+        │       ├── error
+        │       │   └── 404.html
+        │       ├── fragments
+        │       │   ├── footer.html
+        │       │   ├── header.html
+        │       │   └── search-bar.html
+        │       ├── login.html
+        │       ├── menus.html
+        │       ├── meus_pedidos.html
+        │       ├── pedido_detalhe.html
+        │       ├── perfil.html
+        │       ├── pesquisa.html
+        │       ├── produtos.html
+        │       ├── registo.html
+        │       ├── restaurantes.html
+        │       └── utilizadores.html
+        ├── generated-sources
+        │   ├── annotations
+        │   └── protobuf
+        │       ├── grpc-java
+        │       │   └── pt
+        │       │       └── ul
+        │       │           └── fc
+        │       │               └── css
+        │       │                   └── tascaeats
+        │       │                       └── grpc
+        │       │                           └── NativeAppServiceGrpc.java
+        │       └── java
+        │           └── pt
+        │               └── ul
+        │                   └── fc
+        │                       └── css
+        │                           └── tascaeats
+        │                               └── grpc
+        │                                   ├── NativeAppProto.java
+        │                                   ├── NativeAppRequest.java
+        │                                   ├── NativeAppRequestOrBuilder.java
+        │                                   ├── NativeAppResponse.java
+        │                                   └── NativeAppResponseOrBuilder.java
+        ├── maven-archiver
+        │   └── pom.properties
+        ├── maven-status
+        │   └── maven-compiler-plugin
+        │       └── compile
+        │           └── default-compile
+        │               ├── createdFiles.lst
+        │               └── inputFiles.lst
+        ├── protoc-dependencies
+        │   ├── 181bfc12e317fa04f2c20e6bb0aa3117
+        │   │   └── google
+        │   │       ├── api
+        │   │       │   ├── annotations.proto
+        │   │       │   ├── auth.proto
+        │   │       │   ├── backend.proto
+        │   │       │   ├── billing.proto
+        │   │       │   ├── client.proto
+        │   │       │   ├── config_change.proto
+        │   │       │   ├── consumer.proto
+        │   │       │   ├── context.proto
+        │   │       │   ├── control.proto
+        │   │       │   ├── distribution.proto
+        │   │       │   ├── documentation.proto
+        │   │       │   ├── endpoint.proto
+        │   │       │   ├── error_reason.proto
+        │   │       │   ├── field_behavior.proto
+        │   │       │   ├── field_info.proto
+        │   │       │   ├── httpbody.proto
+        │   │       │   ├── http.proto
+        │   │       │   ├── label.proto
+        │   │       │   ├── launch_stage.proto
+        │   │       │   ├── logging.proto
+        │   │       │   ├── log.proto
+        │   │       │   ├── metric.proto
+        │   │       │   ├── monitored_resource.proto
+        │   │       │   ├── monitoring.proto
+        │   │       │   ├── policy.proto
+        │   │       │   ├── quota.proto
+        │   │       │   ├── resource.proto
+        │   │       │   ├── routing.proto
+        │   │       │   ├── service.proto
+        │   │       │   ├── source_info.proto
+        │   │       │   ├── system_parameter.proto
+        │   │       │   ├── usage.proto
+        │   │       │   └── visibility.proto
+        │   │       ├── cloud
+        │   │       │   ├── audit
+        │   │       │   │   └── audit_log.proto
+        │   │       │   ├── extended_operations.proto
+        │   │       │   └── location
+        │   │       │       └── locations.proto
+        │   │       ├── geo
+        │   │       │   └── type
+        │   │       │       └── viewport.proto
+        │   │       ├── logging
+        │   │       │   └── type
+        │   │       │       ├── http_request.proto
+        │   │       │       └── log_severity.proto
+        │   │       ├── longrunning
+        │   │       │   └── operations.proto
+        │   │       ├── rpc
+        │   │       │   ├── code.proto
+        │   │       │   ├── context
+        │   │       │   │   ├── attribute_context.proto
+        │   │       │   │   └── audit_context.proto
+        │   │       │   ├── error_details.proto
+        │   │       │   └── status.proto
+        │   │       └── type
+        │   │           ├── calendar_period.proto
+        │   │           ├── color.proto
+        │   │           ├── date.proto
+        │   │           ├── datetime.proto
+        │   │           ├── dayofweek.proto
+        │   │           ├── decimal.proto
+        │   │           ├── expr.proto
+        │   │           ├── fraction.proto
+        │   │           ├── interval.proto
+        │   │           ├── latlng.proto
+        │   │           ├── localized_text.proto
+        │   │           ├── money.proto
+        │   │           ├── month.proto
+        │   │           ├── phone_number.proto
+        │   │           ├── postal_address.proto
+        │   │           ├── quaternion.proto
+        │   │           └── timeofday.proto
+        │   └── cf40c6a4c320807cee2ab7d3a42625ec
+        │       └── google
+        │           └── protobuf
+        │               ├── any.proto
+        │               ├── api.proto
+        │               ├── descriptor.proto
+        │               ├── duration.proto
+        │               ├── empty.proto
+        │               ├── field_mask.proto
+        │               ├── source_context.proto
+        │               ├── struct.proto
+        │               ├── timestamp.proto
+        │               ├── type.proto
+        │               └── wrappers.proto
+        ├── protoc-plugins
+        │   ├── protoc-3.25.3-linux-x86_64.exe
+        │   └── protoc-gen-grpc-java-1.63.0-linux-x86_64.exe
+        ├── tascaeats-web-1.0.jar
+        ├── tascaeats-web-1.0.jar.original
+        └── test-classes
+
+300 directories, 609 files
