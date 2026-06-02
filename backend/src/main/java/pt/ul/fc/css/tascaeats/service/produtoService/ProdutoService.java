@@ -41,16 +41,10 @@ public class ProdutoService {
 
     //Criar Produto
     public Produto criarProduto(Long restauranteId, CriarProdutoDTO dto) {
-        if (dto == null) {
-            throw new IllegalArgumentException("Os dados do produto são obrigatórios.");
-        }
-
-        Restaurante restaurante = obterRestauranteComMenu(restauranteId);
-        Produto produto = new Produto(dto.getNome(), dto.getPreco(), dto.getDescricao(), restaurante);
-        restaurante.getMenu().adicionarProduto(produto);
-        return produtoRepository.save(produto);
+        throw new IllegalStateException("Produtos devem ser criados diretamente num menu.");
     }
 
+    @Transactional
     public Produto criarProdutoNoMenu(Long menuId, CriarProdutoDTO dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Os dados do produto são obrigatórios.");

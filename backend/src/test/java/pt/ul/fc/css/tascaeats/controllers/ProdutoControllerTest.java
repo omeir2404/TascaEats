@@ -57,14 +57,14 @@ class ProdutoControllerTest {
     private ProdutoService produtoService;
 
     @Test
-        @DisplayName("A: POST /api/restaurantes/{restauranteId}/produtos com payload válido retorna 201.")
+    @DisplayName("A: POST /api/menus/{menuId}/produtos com payload válido retorna 201.")
     void shouldCreateProdutoWhenPayloadIsValid() throws Exception {
         CriarProdutoDTO dto = criarProdutoDTO();
         Produto produto = produto(1L, "Massa", 10.0, "Massa fresca", true, false);
 
-        when(produtoService.criarProduto(eq(4L), any(CriarProdutoDTO.class))).thenReturn(produto);
+        when(produtoService.criarProdutoNoMenu(eq(4L), any(CriarProdutoDTO.class))).thenReturn(produto);
 
-        mockMvc.perform(post("/api/restaurantes/4/produtos")
+        mockMvc.perform(post("/api/menus/4/produtos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
@@ -76,16 +76,13 @@ class ProdutoControllerTest {
     }
 
     @Test
-    @DisplayName("B: POST /api/restaurantes/{restauranteId}/produtos com restaurante inexistente retorna 400.")
-    void shouldReturnBadRequestWhenCatalogoDoesNotExist() throws Exception {
-        when(produtoService.criarProduto(eq(99L), any(CriarProdutoDTO.class)))
-                .thenThrow(new IllegalArgumentException("O restaurante não foi encontrado."));
-
+    @DisplayName("B: POST /api/restaurantes/{restauranteId}/produtos retorna 400 porque produto deve pertencer a menu.")
+    void shouldReturnBadRequestWhenCreatingProductByRestaurant() throws Exception {
         mockMvc.perform(post("/api/restaurantes/99/produtos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(criarProdutoDTO())))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("O restaurante não foi encontrado."));
+                .andExpect(jsonPath("$.error").value("Produtos devem ser criados diretamente num menu. Use POST /api/menus/{menuId}/produtos."));
     }
 
     @Test

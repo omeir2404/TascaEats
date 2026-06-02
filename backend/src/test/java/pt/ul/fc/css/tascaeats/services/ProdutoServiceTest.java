@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import pt.ul.fc.css.tascaeats.domain.menu.Menu;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
@@ -22,6 +23,7 @@ import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarDisponibilidadeProdutoDTO;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.AtualizarProdutoDTO;
 import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
+import pt.ul.fc.css.tascaeats.repository.menuRepository.IMenuRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.service.produtoService.ProdutoService;
@@ -42,6 +44,8 @@ class ProdutoServiceTest {
     private IProdutoRepository produtoRepository;
     @Mock
     private IRestauranteRepository restauranteRepository;
+    @Mock
+    private IMenuRepository menuRepository;
     @InjectMocks
     private ProdutoService produtoService;
 
@@ -50,7 +54,7 @@ class ProdutoServiceTest {
     @DisplayName("A: Criar produto com DTO nulo deve falhar.")
     void criarProdutoWithNullDTO() {
         try {
-            produtoService.criarProduto(1L, null);
+            produtoService.criarProdutoNoMenu(1L, null);
             fail("O DTO não pode ser nulo.");
         } catch (IllegalArgumentException e) {
             assertEquals("Os dados do produto são obrigatórios.", e.getMessage());
@@ -58,18 +62,18 @@ class ProdutoServiceTest {
     }
 
 
-    //B) Criar produto com catálogo inexistente.
+    //B) Criar produto com menu inexistente.
     @Test
-    @DisplayName("B: Criar produto com restaurante inexistente.")
-    void criarProdutoWithRestauranteInexistente() {
+    @DisplayName("B: Criar produto com menu inexistente.")
+    void criarProdutoWithMenuInexistente() {
         CriarProdutoDTO dto = criarProdutoDTOValido();
-        when(restauranteRepository.findById(1L)).thenReturn(Optional.empty());
+        when(menuRepository.findById(1L)).thenReturn(Optional.empty());
 
         try {
-            produtoService.criarProduto(1L, dto);
-            fail("O restaurante não foi encontrado.");
+            produtoService.criarProdutoNoMenu(1L, dto);
+            fail("O menu não foi encontrado.");
         } catch (IllegalArgumentException e) {
-            assertEquals("O restaurante não foi encontrado.", e.getMessage());
+            assertEquals("O menu não foi encontrado.", e.getMessage());
         }
     }
 
@@ -79,16 +83,17 @@ class ProdutoServiceTest {
     @DisplayName("C: Criar produto com sucesso.")
     void criarProdutoSuccess() {
         CriarProdutoDTO dto = criarProdutoDTOValido();
-        Restaurante restaurante = restauranteValido();
+        Menu menu = new Menu("Menu Teste");
 
-        when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restaurante));
+        when(menuRepository.findById(1L)).thenReturn(Optional.of(menu));
         when(produtoRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        Produto produto = produtoService.criarProduto(1L, dto);
+        Produto produto = produtoService.criarProdutoNoMenu(1L, dto);
 
         assertEquals("Massa", produto.getNome());
         assertEquals(10.0, produto.getPreco());
         assertEquals("Massa deliciosa", produto.getDescricao());
+        assertSame(menu, produto.getMenu());
 
         assertTrue(produto.isDisponivel());
         assertFalse(produto.isApagado());

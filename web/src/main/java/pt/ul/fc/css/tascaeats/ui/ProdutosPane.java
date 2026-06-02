@@ -153,19 +153,22 @@ public class ProdutosPane {
         String rNome = restBox.getValue();
         Map<String, Object> preRest = "Todos".equals(rNome) ? null :
             state.restaurantes.stream().filter(r -> s(r, "nome").equals(rNome)).findFirst().orElse(null);
-        if (preRest == null) { warn("Selecione um restaurante específico para criar um produto.", owner); return; }
-        if (preRest.get("menuId") == null || s(preRest, "menuId").isBlank()) {
-            warn("Atribua um menu ao restaurante antes de criar produtos.", owner);
-            return;
-        }
+        ensureMenusLoaded(() -> criarProdutoNoMenu(preRest, applyFilter));
+    }
+
+    private void criarProdutoNoMenu(Map<String, Object> preRest, Runnable applyFilter) {
         Map<String, Object> novo = produtoDialog(null, preRest);
         if (novo == null) return;
-        Long restId = toLong(preRest.get("id"));
+        Long menuId = toLong(novo.get("menuId"));
+        if (menuId <= 0) {
+            warn("Selecione um menu válido para criar o produto.", owner);
+            return;
+        }
         NativeGrpcClient.GrpcResult res = state.grpc.invoke("createProduct",
-            Map.of("restauranteId", restId, "produto", buildCriarPayload(novo)));
+            Map.of("menuId", menuId, "produto", buildCriarPayload(novo)));
         if (res.success()) {
             info("✓ Produto criado.", owner);
-            syncProdutos(restId, applyFilter);
+            syncProdutos(preRest == null ? null : toLong(preRest.get("id")), applyFilter);
         } else { warn("✗ Erro ao criar produto: " + res.message(), owner); }
     }
 
@@ -226,19 +229,23 @@ public class ProdutosPane {
     private Map<String, Object> produtoDialog(Map<String, Object> ex, Map<String, Object> preRest) {
         Dialog<Map<String, Object>> dlg = dialog(ex == null ? "Criar Produto" : "Editar Produto", owner);
 
-        ObservableList<String> rNames = FXCollections.observableArrayList();
-        state.restaurantes.forEach(r -> rNames.add(s(r, "nome")));
-        ComboBox<String> restBox = new ComboBox<>(rNames);
-        if (ex != null)           restBox.setValue(s(ex, "restNome"));
-        else if (preRest != null) restBox.setValue(s(preRest, "nome"));
-        else restBox.getSelectionModel().selectFirst();
+        Map<String, Long> menuOptions = menuOptions(preRest);
+        ComboBox<String> menuBox = new ComboBox<>(FXCollections.observableArrayList(menuOptions.keySet()));
+        if (ex != null && ex.get("menuId") != null) {
+            menuBox.setValue(menuOption(toLong(ex.get("menuId")), s(ex, "menuNome")));
+        } else if (preRest != null && preRest.get("menuId") != null) {
+            menuBox.setValue(menuOption(toLong(preRest.get("menuId")), s(preRest, "menuNome")));
+        } else {
+            menuBox.getSelectionModel().selectFirst();
+        }
+        menuBox.setDisable(ex != null);
 
         TextField nomeF  = new TextField(s(ex, "nome"));
         TextField precoF = new TextField(ex != null ? String.valueOf(ex.getOrDefault("preco", "")) : "");
         TextField descF  = new TextField(s(ex, "descricao")); descF.setPromptText("Descrição do produto");
 
         GridPane g = formGrid();
-        g.add(lbl("Restaurante:"), 0, 0); g.add(restBox, 1, 0);
+        g.add(lbl("Menu:"),        0, 0); g.add(menuBox, 1, 0);
         g.add(lbl("Nome:"),        0, 1); g.add(nomeF,   1, 1);
         g.add(lbl("Preço (€):"),   0, 2); g.add(precoF,  1, 2);
         g.add(lbl("Descrição:"),   0, 3); g.add(descF,   1, 3);
@@ -247,14 +254,53 @@ public class ProdutosPane {
 
         dlg.setResultConverter(b -> {
             if (b != ButtonType.OK) return null;
-            String rn  = restBox.getValue();
-            Object rid = state.restaurantes.stream().filter(r -> s(r, "nome").equals(rn))
-                .findFirst().map(r -> r.get("id")).orElse(-1);
-            return row("restId", rid, "restNome", rn,
+            String mn  = menuBox.getValue();
+            Long menuId = menuOptions.getOrDefault(mn, -1L);
+            return row("menuId", menuId, "menuNome", mn,
                 "nome",      nomeF.getText().trim(),
                 "preco",     precoF.getText().trim(),
                 "descricao", descF.getText().trim());
         });
         return dlg.showAndWait().orElse(null);
+    }
+
+    private void ensureMenusLoaded(Runnable afterLoad) {
+        if (!state.menus.isEmpty()) {
+            afterLoad.run();
+            return;
+        }
+        setStatus(statusLabel, "A carregar menus...");
+        state.bg(() -> state.grpc.invoke("listMenus", Map.of()), result -> {
+            if (!result.success()) {
+                warn("Erro ao carregar menus: " + result.message(), owner);
+                setStatus(statusLabel, "Erro ao carregar menus.");
+                return;
+            }
+            List<Map<String, Object>> typed = state.grpc.readList(result.bodyJson());
+            state.menus.setAll(typed.stream().map(LinkedHashMap::new).toList());
+            afterLoad.run();
+        });
+    }
+
+    private Map<String, Long> menuOptions(Map<String, Object> preRest) {
+        Map<String, Long> options = new LinkedHashMap<>();
+        if (preRest != null && preRest.get("menuId") != null) {
+            Long menuId = toLong(preRest.get("menuId"));
+            if (menuId > 0) {
+                options.put(menuOption(menuId, s(preRest, "menuNome")), menuId);
+            }
+        }
+        for (Map<String, Object> menu : state.menus) {
+            Long menuId = toLong(menu.get("id"));
+            if (menuId > 0) {
+                options.putIfAbsent(menuOption(menuId, s(menu, "nome")), menuId);
+            }
+        }
+        return options;
+    }
+
+    private String menuOption(Long id, String nome) {
+        String label = nome == null || nome.isBlank() ? "Menu " + id : nome;
+        return id + " - " + label;
     }
 }

@@ -49,18 +49,10 @@ public class ProdutoController {
     //Criar produto
     @PostMapping("/restaurantes/{restauranteId}/produtos")
     public ResponseEntity<Map<String, Object>> criarProduto(@PathVariable Long restauranteId, @Valid @RequestBody CriarProdutoDTO dto) {
-        try {
-            Produto criado = produtoService.criarProduto(restauranteId, dto);
-            Map<String, Object> response = new HashMap<>();
-            response.put(MSG_FIELD, "Produto criado com sucesso");
-            response.put("id", criado.getId());
-            response.put("nome", criado.getNome());
-            response.put("preco", criado.getPreco());
-            response.put("descricao", criado.getDescricao());
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of(ERROR_FIELD, e.getMessage()));
-        }
+        return ResponseEntity.badRequest().body(Map.of(
+                ERROR_FIELD,
+                "Produtos devem ser criados diretamente num menu. Use POST /api/menus/{menuId}/produtos."
+        ));
     }
 
     @PostMapping("/menus/{menuId}/produtos")

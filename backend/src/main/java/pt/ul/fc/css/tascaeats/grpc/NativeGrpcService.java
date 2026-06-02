@@ -117,8 +117,8 @@ public class NativeGrpcService extends NativeAppServiceGrpc.NativeAppServiceImpl
                     optionalLong(payload.get("menuId")),
                     boolValue(payload.get("ativos")),
                     boolValue(payload.get("disponiveis"))));
-            case "createProduct" -> respond(produtoController.criarProduto(
-                    longValue(payload.get("restauranteId")),
+            case "createProduct" -> respond(produtoController.criarProdutoNoMenu(
+                    longValue(payload.get("menuId")),
                     map(requiredMap(payload.get("produto")), CriarProdutoDTO.class)));
             case "updateProduct" -> respond(produtoController.atualizarProduto(
                     longValue(payload.get("id")),
