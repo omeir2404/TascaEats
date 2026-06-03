@@ -27,7 +27,6 @@ import pt.ul.fc.css.tascaeats.dto.pedidoDTO.ItemPedidoDTO;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
-import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IEntregadorRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
 
 @Service
@@ -37,15 +36,12 @@ public class PedidoService {
     private final IUtilizadorRepository utilizadorRepository;
     private final IRestauranteRepository restauranteRepository;
     private final IProdutoRepository produtoRepository;
-    private final IEntregadorRepository entregadorRepository;
 
-    public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository, IEntregadorRepository entregadorRepository) {
+    public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository) {
         this.pedidoRepository = pedidoRepository;
         this.utilizadorRepository = utilizadorRepository;
         this.restauranteRepository = restauranteRepository;
         this.produtoRepository = produtoRepository;
-        this.entregadorRepository = entregadorRepository; 
-        
     }
 
     public void criarPedido(CriarPedidoDTO criarPedidoDto){
@@ -240,25 +236,6 @@ public class PedidoService {
 
         if (entregadorId != null) {
             pedido.setEntregadorId(entregadorId);
-
-            entregadorRepository.findById(entregadorId).ifPresentOrElse(entregador -> {
-                // Print to Docker logs to confirm the sync is triggering
-                System.out.println("[KAFKA SYNC] Updating Entregador " + entregadorId + 
-                                   " | estadoPedido: " + estadoPedido + 
-                                   " | estadoEntrega: " + estadoEntrega);
-                
-                if ("ENTREGUE".equalsIgnoreCase(estadoPedido) || "ENTREGUE".equalsIgnoreCase(estadoEntrega)) {
-                    entregador.setAvailable(true);
-                } else {
-                    entregador.setAvailable(false);
-                }
-                entregadorRepository.save(entregador);
-                
-            }, () -> {
-                // If this prints, your databases are desynchronized! 
-                // The Microservice assigned an ID that does not belong to an Entregador in the Monolith.
-                System.err.println("[KAFKA ERROR] Entregador ID " + entregadorId + " found in Microservice but missing in Monolith DB!");
-            });
         }
         
         if (estadoEntrega != null && !estadoEntrega.isBlank()) {
