@@ -31,13 +31,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * End-to-end HTTP integration test for the main JavaFX staff happy path.
- *
- * This class intentionally uses TestRestTemplate and dynamic Map payloads to
- * exercise the same backend endpoints consumed by the native GUI, without
- * importing application DTOs or changing production code.
- */
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
