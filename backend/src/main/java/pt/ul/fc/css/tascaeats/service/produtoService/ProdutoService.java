@@ -8,15 +8,8 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.service.produtoService;
 
-import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import pt.ul.fc.css.tascaeats.domain.menu.Menu;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
@@ -26,6 +19,12 @@ import pt.ul.fc.css.tascaeats.dto.produtoDTO.CriarProdutoDTO;
 import pt.ul.fc.css.tascaeats.repository.menuRepository.IMenuRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
+
+import java.time.LocalDate;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 @Service
 public class ProdutoService {
@@ -201,15 +200,4 @@ public class ProdutoService {
         return texto.trim().toLowerCase(Locale.ROOT);
     }
 
-    private Restaurante obterRestauranteComMenu(Long restauranteId) {
-        if (restauranteId == null || restauranteId <= 0) {
-            throw new IllegalArgumentException("O id do restaurante é obrigatório.");
-        }
-        Restaurante restaurante = restauranteRepository.findById(restauranteId)
-                .orElseThrow(() -> new IllegalArgumentException("O restaurante não foi encontrado."));
-        if (restaurante.getMenu() == null) {
-            throw new IllegalStateException("O restaurante não tem menu atribuído.");
-        }
-        return restaurante;
-    }
 }
