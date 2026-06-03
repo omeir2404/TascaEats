@@ -8,38 +8,38 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.services;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Fail.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.springframework.test.util.ReflectionTestUtils;
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 import pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
+import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IEntregadorRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
 import pt.ul.fc.css.tascaeats.service.pedidoService.PedidoService;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Fail.fail;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PedidoServiceTest {
@@ -56,6 +56,9 @@ public class PedidoServiceTest {
 	@Mock
 	private IProdutoRepository produtoRepository;
 
+	@Mock
+	private IEntregadorRepository entregadorRepository;
+
 	@InjectMocks
 	private PedidoService pedidoService;
 
@@ -67,7 +70,7 @@ public class PedidoServiceTest {
 			pedidoService.criarPedido(null);
 			fail("O pedido não pode ser nulo.");
 		} catch (IllegalArgumentException e) {
-			assertEquals("Pedido inválido.", e.getMessage());
+			assertEquals("Pedido invalido.", e.getMessage());
 		}
 	}
 
@@ -133,7 +136,7 @@ public class PedidoServiceTest {
 			pedidoService.criarPedido(dto);
 			fail("Restaurante inexistente.");
 		} catch (IllegalArgumentException e) {
-			assertEquals("Restaurante não encontrado: 10", e.getMessage());
+			assertEquals("Restaurante nao encontrado: 10", e.getMessage());
 		}
 	}
 
@@ -151,7 +154,7 @@ public class PedidoServiceTest {
 			pedidoService.criarPedido(dto);
 			fail("Produto inexistente.");
 		} catch (IllegalArgumentException e) {
-			assertEquals("Produto não encontrado: 100", e.getMessage());
+			assertEquals("Produto nao encontrado: 100", e.getMessage());
 		}
 	}
 
@@ -209,7 +212,7 @@ public class PedidoServiceTest {
 			pedidoService.cancelarPedido(null);
 			fail("ID do pedido inválido.");
 		} catch (IllegalArgumentException e) {
-			assertEquals("ID do pedido inválido.", e.getMessage());
+			assertEquals("ID do pedido invalido.", e.getMessage());
 		}
 	}
 
@@ -223,7 +226,7 @@ public class PedidoServiceTest {
 			pedidoService.cancelarPedido(99L);
 			fail("Pedido inexistente.");
 		} catch (IllegalArgumentException e) {
-			assertEquals("Pedido não encontrado: 99", e.getMessage());
+			assertEquals("Pedido nao encontrado: 99", e.getMessage());
 		}
 	}
 
@@ -269,7 +272,7 @@ public class PedidoServiceTest {
 			pedidoService.cancelarPedido(3L);
 			fail("Não pode cancelar pedido em preparação.");
 		} catch (IllegalStateException e) {
-			assertEquals("Pedido no estado A_PREPARAR não pode ser cancelado.", e.getMessage());
+			assertEquals("Pedido no estado A_PREPARAR nao pode ser cancelado.", e.getMessage());
 		}
 
 		verify(pedidoRepository, never()).save(any(Pedido.class));
@@ -287,7 +290,7 @@ public class PedidoServiceTest {
 			pedidoService.cancelarPedido(4L);
 			fail("Não pode cancelar pedido pronto para entrega.");
 		} catch (IllegalStateException e) {
-			assertEquals("Pedido no estado PRONTO_PARA_ENTREGA não pode ser cancelado.", e.getMessage());
+			assertEquals("Pedido no estado PRONTO_PARA_ENTREGA nao pode ser cancelado.", e.getMessage());
 		}
 
 		verify(pedidoRepository, never()).save(any(Pedido.class));
@@ -356,6 +359,66 @@ public class PedidoServiceTest {
 		verify(pedidoRepository).findAll();
 	}
 
+	@Test
+	@DisplayName("R: Atualizar estado do pedido valida entrada e executa transições.")
+	void atualizarEstadoPedidoTransicoesValidasEInvalidas() {
+		assertEquals("ID do pedido invalido.",
+				assertThrows(IllegalArgumentException.class,
+						() -> pedidoService.atualizarEstadoPedido(null, "PAGO")).getMessage());
+
+		Pedido pedido = new Pedido(31L, 1L, 10L);
+		when(pedidoRepository.findById(31L)).thenReturn(Optional.of(pedido));
+
+		assertEquals("Novo estado invalido.",
+				assertThrows(IllegalArgumentException.class,
+						() -> pedidoService.atualizarEstadoPedido(31L, "  ")).getMessage());
+		assertEquals("Estado do pedido invalido: DESCONHECIDO",
+				assertThrows(IllegalArgumentException.class,
+						() -> pedidoService.atualizarEstadoPedido(31L, "DESCONHECIDO")).getMessage());
+
+		pedido.setEstado(EstadoPedido.PAGO);
+		pedidoService.atualizarEstadoPedido(31L, " A_PREPARAR ");
+		pedidoService.atualizarEstadoPedido(31L, "PRONTO_PARA_ENTREGA");
+		pedidoService.atualizarEstadoPedido(31L, "ATRIBUIDO_ENTREGADOR");
+		pedidoService.atualizarEstadoPedido(31L, "ENTREGUE");
+
+		assertEquals(EstadoPedido.ENTREGUE, pedido.getEstado());
+		verify(pedidoRepository, times(4)).save(pedido);
+	}
+
+	@Test
+	@DisplayName("S: Aplicar atualização de entrega sincroniza pedido e entregador.")
+	void aplicarAtualizacaoEntregaSincronizaPedidoEEntregador() {
+		assertEquals("ID do pedido invalido.",
+				assertThrows(IllegalArgumentException.class,
+						() -> pedidoService.aplicarAtualizacaoEntrega(null, 50L, "ENTREGUE", "ENTREGUE")).getMessage());
+
+		when(pedidoRepository.findById(99L)).thenReturn(Optional.empty());
+		assertEquals("Pedido nao encontrado: 99",
+				assertThrows(IllegalArgumentException.class,
+						() -> pedidoService.aplicarAtualizacaoEntrega(99L, null, null, null)).getMessage());
+
+		Pedido pedido = new Pedido(40L, 1L, 10L);
+		Entregador entregador = new Entregador("Entregador", "entregador@tasca.com", "1234");
+		when(pedidoRepository.findById(40L)).thenReturn(Optional.of(pedido));
+		when(entregadorRepository.findById(50L)).thenReturn(Optional.of(entregador));
+
+		pedidoService.aplicarAtualizacaoEntrega(40L, 50L, "ATRIBUIDO_ENTREGADOR", "A_CAMINHO");
+
+		assertEquals(50L, pedido.getEntregadorId());
+		assertEquals(EstadoPedido.ATRIBUIDO_ENTREGADOR, pedido.getEstado());
+		assertEquals("A_CAMINHO", pedido.getEstadoEntregaReadOnly());
+		assertTrue(!entregador.isAvailable());
+
+		pedidoService.aplicarAtualizacaoEntrega(40L, 50L, "ENTREGUE", "ENTREGUE");
+
+		assertEquals(EstadoPedido.ENTREGUE, pedido.getEstado());
+		assertEquals("ENTREGUE", pedido.getEstadoEntregaReadOnly());
+		assertTrue(entregador.isAvailable());
+		verify(entregadorRepository, times(2)).save(entregador);
+		verify(pedidoRepository, times(2)).save(pedido);
+	}
+
 	private CriarPedidoDTO criarPedidoDTOValido() {
 		return new CriarPedidoDTO(1L, 10L, List.of(100L, 101L));
 	}
@@ -372,6 +435,7 @@ public class PedidoServiceTest {
 			adminValido(),
 			new CatalogoEntregas()
 		);
+		ReflectionTestUtils.setField(restaurante, "id", 10L);
 		restaurante.abrir();
 		return restaurante;
 	}

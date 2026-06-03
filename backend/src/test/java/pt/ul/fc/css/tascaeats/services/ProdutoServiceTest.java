@@ -14,7 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import pt.ul.fc.css.tascaeats.domain.menu.Menu;
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
@@ -28,9 +30,11 @@ import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.service.produtoService.ProdutoService;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -370,6 +374,99 @@ class ProdutoServiceTest {
         verify(produtoRepository).save(produto);
     }
 
+    @Test
+    @DisplayName("S: Criar produto pelo caminho antigo deve falhar.")
+    void criarProdutoLegacyFalha() {
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> produtoService.criarProduto(1L, criarProdutoDTOValido()));
+
+        assertEquals("Produtos devem ser criados diretamente num menu.", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("T: Listar produtos por restaurante junta produtos do menu e legados sem duplicar.")
+    void listarProdutosPorRestauranteCombinaMenuELegados() {
+        Menu menu = menuComId(7L);
+        Restaurante restaurante = restauranteValido();
+        restaurante.setMenu(menu);
+        Produto produtoMenu = produtoComId(1L, "Menu");
+        Produto produtoLegado = produtoComId(2L, "Legado");
+
+        when(restauranteRepository.findById(10L)).thenReturn(Optional.of(restaurante));
+        when(produtoRepository.findByMenuId(7L)).thenReturn(List.of(produtoMenu));
+        when(produtoRepository.findByRestauranteId(10L)).thenReturn(List.of(produtoMenu, produtoLegado));
+
+        List<Produto> result = produtoService.listarProdutosPorRestaurante(10L);
+
+        assertThat(result).containsExactly(produtoMenu, produtoLegado);
+    }
+
+    @Test
+    @DisplayName("U: Listar produtos por restaurante valida id e existência.")
+    void listarProdutosPorRestauranteValidaIdEExistencia() {
+        assertEquals("O id do restaurante é obrigatório.",
+                assertThrows(IllegalArgumentException.class,
+                        () -> produtoService.listarProdutosPorRestaurante(0L)).getMessage());
+
+        when(restauranteRepository.findById(99L)).thenReturn(Optional.empty());
+        assertEquals("O restaurante não foi encontrado.",
+                assertThrows(IllegalArgumentException.class,
+                        () -> produtoService.listarProdutosPorRestaurante(99L)).getMessage());
+    }
+
+    @Test
+    @DisplayName("V: Listar produtos por menu valida id e delega no repositório.")
+    void listarProdutosPorMenuValidaIdELista() {
+        assertEquals("O id do menu é obrigatório.",
+                assertThrows(IllegalArgumentException.class,
+                        () -> produtoService.listarProdutosPorMenu(null)).getMessage());
+
+        Produto produto = produtoValido();
+        when(produtoRepository.findByMenuId(7L)).thenReturn(List.of(produto));
+
+        assertThat(produtoService.listarProdutosPorMenu(7L)).containsExactly(produto);
+    }
+
+    @Test
+    @DisplayName("W: Pesquisar produtos aplica filtros de nome, preço, apagado e popularidade.")
+    void pesquisarProdutosFiltraPorNomePrecoAtivoEPopularidade() {
+        Produto baratoPopular = produtoComId(1L, "Massa");
+        baratoPopular.setPedidos(List.of(pedidoEm(LocalDate.of(2026, 6, 1))));
+        Produto caro = produtoComId(2L, "Massa cara");
+        caro.setPreco(99.0);
+        Produto apagado = produtoComId(3L, "Massa apagada");
+        apagado.apagar();
+
+        when(produtoRepository.findByNomeContainingIgnoreCase("massa"))
+                .thenReturn(List.of(baratoPopular, caro, apagado));
+
+        List<Produto> result = produtoService.pesquisarProdutos(
+                "  MASSA  ",
+                20.0,
+                null,
+                null,
+                LocalDate.of(2026, 5, 30),
+                LocalDate.of(2026, 6, 3));
+
+        assertThat(result).containsExactly(baratoPopular);
+    }
+
+    @Test
+    @DisplayName("X: Pesquisar produtos escolhe candidatos por menu, disponibilidade ou ativos.")
+    void pesquisarProdutosEscolheFonteDeCandidatos() {
+        Produto porMenu = produtoValido();
+        Produto disponivel = produtoValido();
+        Produto ativo = produtoValido();
+
+        when(produtoRepository.findByMenuId(7L)).thenReturn(List.of(porMenu));
+        when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(disponivel));
+        when(produtoRepository.findByApagadoFalse()).thenReturn(List.of(ativo));
+
+        assertThat(produtoService.pesquisarProdutos(null, null, 7L, null, null, null)).containsExactly(porMenu);
+        assertThat(produtoService.pesquisarProdutos(null, null, null, true, null, null)).containsExactly(disponivel);
+        assertThat(produtoService.pesquisarProdutos(null, null, null, false, null, null)).containsExactly(ativo);
+    }
+
 
     //**********Funções auxiliares************
 
@@ -393,6 +490,24 @@ class ProdutoServiceTest {
         return new Produto("Massa", 10.0, "Descrição", restauranteValido());
     }
 
+    private Produto produtoComId(Long id, String nome) {
+        Produto produto = new Produto(nome, 10.0, "Descrição", restauranteValido());
+        ReflectionTestUtils.setField(produto, "id", id);
+        return produto;
+    }
+
+    private Menu menuComId(Long id) {
+        Menu menu = new Menu("Menu");
+        ReflectionTestUtils.setField(menu, "id", id);
+        return menu;
+    }
+
+    private Pedido pedidoEm(LocalDate data) {
+        Pedido pedido = new Pedido(1L, 1L, 10L);
+        pedido.setData(data);
+        return pedido;
+    }
+
     private Restaurante restauranteValido() {
         Morada morada = new Morada();
         morada.setRua("Rua Teste");
@@ -402,13 +517,15 @@ class ProdutoServiceTest {
         morada.setDistrito("Lisboa");
         morada.setPais("Portugal");
 
-        return new Restaurante(
+        Restaurante restaurante = new Restaurante(
                 "Restaurante",
                 "123456789",
                 morada,
                 new RestauranteAdmin("Admin", "admin@test.pt", "pw"),
                 new CatalogoEntregas()
         );
+        ReflectionTestUtils.setField(restaurante, "id", 10L);
+        return restaurante;
     }
 
 }
