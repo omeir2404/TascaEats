@@ -11,10 +11,10 @@
 * [https://drive.google.com/drive/folders/13frYUwmqDdxDYaoB1LOq3DhkCax7dhJe?usp=sharing](https://drive.google.com/drive/folders/13frYUwmqDdxDYaoB1LOq3DhkCax7dhJe?usp=sharing)
 
 ## Ponto de Situação
-* **Interface Web:** é servida pelo Nginx em `http://localhost` (porta 80 no host).
-* **API pública do backend:** também é exposta pelo Nginx em `http://localhost`.
-* **GUI nativa (gRPC):** usa `http://localhost:8082` no host, via Nginx.
-* **Base de Dados:** PostgreSQL em contentores separados para o monólito e para o microserviço de entregas.
+* **Interface Web:** corre na porta 8081 (contentor) / 8081 no host usando o `docker-compose` predefinido.
+* **API de Backend:** corre na porta 8080.
+* **GUI nativa (gRPC):** usa a porta 8082 no host, via Nginx, por omissao.
+* **Base de Dados:** PostgreSQL (contentor).
 
 ## Limitações Notáveis
 * A interface gráfica (GUI) não pode alterar o estado dos pedidos. As alterações de estado são realizadas apenas pelo fluxo de trabalho do backend.
@@ -36,7 +36,7 @@ Estas alterações requerem uma migração na base de dados para adicionar as no
 * Java 17 e Maven (para *builds* locais sem Docker)
 
 ## Executar (Docker Compose)
-Construir e executar todos os serviços (monólito, web, microserviço de entregas, Kafka, bases de dados e Nginx):
+Construir e executar todos os serviços (backend, web, postgres):
 
 ```bash
 ./run.sh
@@ -44,14 +44,13 @@ Construir e executar todos os serviços (monólito, web, microserviço de entreg
 docker-compose up --build
 ```
 
-A Interface Web estará disponível em: http://localhost
-A API pública do backend estará disponível em: http://localhost
-A GUI nativa estará disponível em: http://localhost:8082
+A Interface Web estará disponível em: http://localhost:8081
+A API de Backend em: http://localhost:8080
 
 ## Executar localmente sem Docker
 * **Backend:** compilar com Maven em `backend/` e executar o ficheiro `.jar` gerado.
 * **Web:** compilar com Maven em `web/` e executar o ficheiro `.jar` gerado.
-* O `docker-compose.yml` já levanta as instâncias de PostgreSQL necessárias, o Kafka, o Nginx, o monólito e o microserviço de entregas.
+* Certifique-se de que uma instância de PostgreSQL está disponível e que as variáveis de ambiente no `docker-compose.yml` refletem os valores de ligação.
 
 ### JavaFX (GUI nativa)
 A GUI nativa em JavaFX é compilada juntamente com o módulo `web`. Para executar a aplicação JavaFX a partir do código-fonte:

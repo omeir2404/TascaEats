@@ -96,7 +96,7 @@ services:
 
   # Apache Kafka (KRaft mode)
   kafka:
-    image: apache/kafka:3.7.1
+    image: apache/kafka:latest
     ports:
       - "9092:9092"
     environment:
@@ -120,7 +120,7 @@ services:
     restart: unless-stopped
 
   kafka-init:
-    image: apache/kafka:3.7.1
+    image: apache/kafka:latest
     depends_on:
       - kafka
     networks:
