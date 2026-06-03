@@ -46,8 +46,8 @@ if "%HOME%" == "" (set "HOME=%HOMEDRIVE%%HOMEPATH%")
 @REM Execute a Utilizador defined script before this one
 if not "%MAVEN_SKIP_RC%" == "" goto skipRcPre
 @REM check for pre script, once with legacy .bat ending and once with .cmd ending
-if exist "%UtilizadorPROFILE%\mavenrc_pre.bat" call "%UtilizadorPROFILE%\mavenrc_pre.bat" %*
-if exist "%UtilizadorPROFILE%\mavenrc_pre.cmd" call "%UtilizadorPROFILE%\mavenrc_pre.cmd" %*
+if exist "%USERPROFILE%\mavenrc_pre.bat" call "%USERPROFILE%\mavenrc_pre.bat" %*
+if exist "%USERPROFILE%\mavenrc_pre.cmd" call "%USERPROFILE%\mavenrc_pre.cmd" %*
 :skipRcPre
 
 @setlocal
@@ -142,7 +142,7 @@ if exist %WRAPPER_JAR% (
     )
 
     powershell -Command "&{"^
-		"$webclient = new-object System.Net.WebCliente;"^
+		"$webclient = new-object System.Net.WebClient;"^
 		"if (-not ([string]::IsNullOrEmpty('%MVNW_UtilizadorNAME%') -and [string]::IsNullOrEmpty('%MVNW_PASSWORD%'))) {"^
 		"$webclient.Credentials = new-object System.Net.NetworkCredential('%MVNW_UtilizadorNAME%', '%MVNW_PASSWORD%');"^
 		"}"^
