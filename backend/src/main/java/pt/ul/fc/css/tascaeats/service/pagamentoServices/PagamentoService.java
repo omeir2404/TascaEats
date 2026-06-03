@@ -8,14 +8,12 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.service.pagamentoServices;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import pt.ul.fc.css.tascaeats.domain.pagamento.Pagamento;
+import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
@@ -24,6 +22,8 @@ import pt.ul.fc.css.tascaeats.publishers.PedidoPagoPublisher;
 import pt.ul.fc.css.tascaeats.repository.pagamentoRepository.IPagamentoRepository;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IClienteRepository;
+
+import java.util.Optional;
 
 
 @Service
@@ -60,6 +60,9 @@ public class PagamentoService {
 		}
 
 		Pedido pedido = pedidoOpcional.get();
+        if (pedido.getEstado() != EstadoPedido.CRIADO) {
+            throw new IllegalStateException("O pedido só pode ser pago se estiver no estado CRIADO.");
+        }
 
         Pagamento pagamento = pagamentoFactory.create(dto.getTipoPagamento(), pedido.getValorTotal(), dto.getDetalhes());
         if (pagamento == null) {
@@ -68,24 +71,36 @@ public class PagamentoService {
 
         pagamentoRepository.save(pagamento);
 
-        // publish event when payment is made
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                String endereco = clienteRepository.findById(pedido.getClienteId())
-                        .map(cliente -> formatarMorada(cliente.getAddress()))
-                        .orElse("ENDERECO_NAO_INFORMADO");
-                pedidoPagoPublisher.publicar(new PedidoPagoEvent(
-                        pedido.getId(),
-                        pedido.getClienteId(),
-                        endereco
-                ));
-            }
-        });
-
         pedido.setPagamento(pagamento);
         pedido.confirmarPagamento();
         pedidoRepository.save(pedido);
+
+        publicarDepoisDoCommit(pedido);
+    }
+
+    private void publicarDepoisDoCommit(Pedido pedido) {
+        Runnable publicar = () -> {
+            String endereco = clienteRepository.findById(pedido.getClienteId())
+                    .map(cliente -> formatarMorada(cliente.getAddress()))
+                    .orElse("ENDERECO_NAO_INFORMADO");
+            pedidoPagoPublisher.publicar(new PedidoPagoEvent(
+                    pedido.getId(),
+                    pedido.getClienteId(),
+                    endereco
+            ));
+        };
+
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            publicar.run();
+            return;
+        }
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                publicar.run();
+            }
+        });
     }
 
     private String formatarMorada(Morada morada) {
