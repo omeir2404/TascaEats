@@ -204,6 +204,33 @@ public class PedidoServiceTest {
 		assertEquals(EstadoPedido.CRIADO, pedidoGuardado.getEstado());
 	}
 
+	@Test
+	@DisplayName("G1: Criar pedido guarda uma cópia da morada de entrega selecionada.")
+	void criarPedidoGuardaMoradaEntregaSelecionada() {
+		CriarPedidoDTO dto = criarPedidoDTOValido();
+		dto.setMoradaId(77L);
+		Cliente cliente = clienteValido();
+		ReflectionTestUtils.setField(cliente.getAddress(), "id", 77L);
+		Produto produto1 = new Produto("Massa", 7.0, "Massa fresca", restauranteValido());
+		Produto produto2 = new Produto("Pizza", 3.0, "Pizza margherita", restauranteValido());
+
+		when(utilizadorRepository.findById(1L)).thenReturn(Optional.of(cliente));
+		when(restauranteRepository.findById(10L)).thenReturn(Optional.of(restauranteValido()));
+		when(produtoRepository.findById(100L)).thenReturn(Optional.of(produto1));
+		when(produtoRepository.findById(101L)).thenReturn(Optional.of(produto2));
+		when(pedidoRepository.save(any(Pedido.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		pedidoService.criarPedido(dto);
+
+		ArgumentCaptor<Pedido> pedidoCaptor = ArgumentCaptor.forClass(Pedido.class);
+		verify(pedidoRepository).save(pedidoCaptor.capture());
+		Pedido pedidoGuardado = pedidoCaptor.getValue();
+
+		assertEquals("Rua A 10, 1000-001, Lisboa, Portugal", pedidoGuardado.getEnderecoEntregaFormatado());
+		assertEquals("Rua A", pedidoGuardado.getMoradaEntrega().get("rua"));
+		assertEquals(10, pedidoGuardado.getMoradaEntrega().get("numero"));
+	}
+
 	// H) cancelarPedido com pedidoId nulo deve falhar.
 	@Test
 	@DisplayName("H: Cancelar pedido com pedidoId nulo deve falhar.")

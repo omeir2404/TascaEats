@@ -73,18 +73,18 @@ public class PedidoService {
             throw new IllegalArgumentException("Apenas uma das opcoes deve ser fornecida: moradaId OU moradaNova.");
         }
 
-        if (criarPedidoDto.getMoradaId() != null) {
-            boolean moradaValida = cliente.getAddresses().stream()
-                .anyMatch(m -> m.getId().equals(criarPedidoDto.getMoradaId()));
-            if (!moradaValida) {
-                throw new IllegalArgumentException("Morada nao encontrada ou nao pertence ao cliente: " + criarPedidoDto.getMoradaId());
-            }
-        }
-
+        Morada moradaEntrega = null;
         if (criarPedidoDto.getMoradaNova() != null) {
-            Morada nova = novaMoradaDeDTO(criarPedidoDto.getMoradaNova());
-            cliente.addAdresses(nova);
+            moradaEntrega = novaMoradaDeDTO(criarPedidoDto.getMoradaNova());
+            cliente.addAdresses(moradaEntrega);
             utilizadorRepository.save(cliente);
+        } else if (criarPedidoDto.getMoradaId() != null) {
+            moradaEntrega = cliente.getAddresses().stream()
+                .filter(m -> m.getId() != null && m.getId().equals(criarPedidoDto.getMoradaId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Morada nao encontrada ou nao pertence ao cliente: " + criarPedidoDto.getMoradaId()));
+        } else {
+            moradaEntrega = cliente.getAddress();
         }
 
         double valorTotal = 0;
@@ -135,6 +135,7 @@ public class PedidoService {
 
         Pedido pedido = new Pedido(null, criarPedidoDto.getClienteId());
         pedido.setValorTotal(valorTotal);
+        pedido.setMoradaEntrega(moradaEntrega);
         pedido.setTipoPagamentoSolicitado(normalizarTipoPagamento(criarPedidoDto.getTipoPagamentoSolicitado()));
         pedido.setDetalhesPagamentoSolicitado(normalizarDetalhesPagamento(criarPedidoDto.getDetalhesPagamentoSolicitado()));
 
@@ -181,6 +182,17 @@ public class PedidoService {
 
         pedidos.forEach(this::inicializarColecoesPedido);
         return pedidos;
+    }
+
+    @Transactional(readOnly = true)
+    public Pedido obterPedido(Long pedidoId) {
+        if (pedidoId == null) {
+            throw new IllegalArgumentException("ID do pedido invalido.");
+        }
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new IllegalArgumentException("Pedido nao encontrado: " + pedidoId));
+        inicializarColecoesPedido(pedido);
+        return pedido;
     }
 
     private void inicializarColecoesPedido(Pedido pedido) {

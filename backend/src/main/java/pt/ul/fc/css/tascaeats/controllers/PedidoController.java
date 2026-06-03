@@ -105,20 +105,7 @@ public class PedidoController {
 			List<Map<String, Object>> resposta = new ArrayList<>();
 
 			for (Pedido pedido : pedidos) {
-				Map<String, Object> item = new HashMap<>();
-				item.put("id", pedido.getId());
-				item.put("data", pedido.getData());
-				item.put("hora", pedido.getHora());
-				item.put("valorTotal", pedido.getValorTotal());
-				item.put("estado", pedido.getEstado());
-                item.put("clienteId", pedido.getClienteId());
-                item.put("entregadorId", pedido.getEntregadorId());
-                item.put("estadoEntregaReadOnly", pedido.getEstadoEntregaReadOnly());
-                item.put("restaurantesIds", pedido.getRestaurantesIds());
-                item.put("produtosIds", pedido.getProdutosIds());
-				item.put("tipoPagamentoSolicitado", pedido.getTipoPagamentoSolicitado());
-				item.put("detalhesPagamentoSolicitado", pedido.getDetalhesPagamentoSolicitado());
-				resposta.add(item);
+				resposta.add(respostaPedido(pedido));
 			}
 
 			return ResponseEntity.ok(resposta);
@@ -127,6 +114,35 @@ public class PedidoController {
 		} catch (IllegalStateException e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
 		}
+	}
+
+	@GetMapping("/{pedidoId}")
+	@Transactional(readOnly = true)
+	public ResponseEntity<Object> obterPedido(@PathVariable Long pedidoId) {
+		try {
+			return ResponseEntity.ok(respostaPedido(pedidoService.obterPedido(pedidoId)));
+		} catch (IllegalArgumentException e) {
+			return mapArgumentError(e);
+		}
+	}
+
+	private Map<String, Object> respostaPedido(Pedido pedido) {
+		Map<String, Object> item = new HashMap<>();
+		item.put("id", pedido.getId());
+		item.put("data", pedido.getData());
+		item.put("hora", pedido.getHora());
+		item.put("valorTotal", pedido.getValorTotal());
+		item.put("estado", pedido.getEstado());
+		item.put("clienteId", pedido.getClienteId());
+		item.put("entregadorId", pedido.getEntregadorId());
+		item.put("estadoEntregaReadOnly", pedido.getEstadoEntregaReadOnly());
+		item.put("moradaEntrega", pedido.getMoradaEntrega());
+		item.put("enderecoEntrega", pedido.getEnderecoEntregaFormatado());
+		item.put("restaurantesIds", pedido.getRestaurantesIds());
+		item.put("produtosIds", pedido.getProdutosIds());
+		item.put("tipoPagamentoSolicitado", pedido.getTipoPagamentoSolicitado());
+		item.put("detalhesPagamentoSolicitado", pedido.getDetalhesPagamentoSolicitado());
+		return item;
 	}
 
 	private ResponseEntity<Object> mapArgumentError(IllegalArgumentException e) {
