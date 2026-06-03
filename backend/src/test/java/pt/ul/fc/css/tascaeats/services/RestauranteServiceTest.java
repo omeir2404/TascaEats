@@ -14,17 +14,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.EstadoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
+import pt.ul.fc.css.tascaeats.domain.restaurante.TipoRestaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 import pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarEstadoRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.AtualizarRestauranteDTO;
 import pt.ul.fc.css.tascaeats.dto.restauranteDTO.CriarRestauranteDTO;
-import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
+import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IRestauranteAdminRepository;
 import pt.ul.fc.css.tascaeats.service.restauranteServices.RestauranteService;
 
@@ -585,6 +588,71 @@ public class RestauranteServiceTest {
         assertEquals(EstadoRestaurante.ABERTO, result.get(0).getEstado());
     }
 
+    @Test
+    @DisplayName("X: Procurar restaurante por cidade filtra ativos e trata pesquisa vazia.")
+    void procurarRestaurantePorCidade() {
+        Restaurante lisboa = restauranteSimples("Lisboa", "111111111");
+        Restaurante removido = restauranteSimples("Removido", "222222222");
+        removido.apagar();
+
+        when(restauranteRepository.findAll()).thenReturn(java.util.List.of(lisboa));
+        when(restauranteRepository.findByMoradaCidadeIgnoreCase("Lisboa"))
+                .thenReturn(java.util.List.of(lisboa, removido));
+
+        assertThat(restauranteService.procurarRestaurantePorCidade("  ")).containsExactly(lisboa);
+        assertThat(restauranteService.procurarRestaurantePorCidade(" Lisboa ")).containsExactly(lisboa);
+    }
+
+    @Test
+    @DisplayName("Y: Pesquisar restaurantes aplica filtros textuais, estatísticos e pedidos.")
+    void pesquisarRestaurantesAplicaFiltros() {
+        Restaurante tasca = restauranteComId(1L, "Tasca Lisboa", "111111111");
+        tasca.abrir();
+        tasca.setTipoRestaurante(TipoRestaurante.PORTUGUES);
+        tasca.setAvaliacaoMedia(4.5);
+        tasca.setNumeroAvaliacoes(20);
+        tasca.setPrecoMedio(15.0);
+
+        Restaurante caro = restauranteComId(2L, "Tasca Lisboa Cara", "222222222");
+        caro.abrir();
+        caro.setTipoRestaurante(TipoRestaurante.PORTUGUES);
+        caro.setAvaliacaoMedia(4.7);
+        caro.setNumeroAvaliacoes(30);
+        caro.setPrecoMedio(50.0);
+
+        Pedido pedido = new Pedido(1L, 1L, 1L);
+        when(restauranteRepository.findAll()).thenReturn(java.util.List.of(tasca, caro));
+        when(pedidoRepository.findAll()).thenReturn(java.util.List.of(pedido));
+
+        var result = restauranteService.pesquisarRestaurantes(
+                " TASCA ",
+                TipoRestaurante.PORTUGUES,
+                EstadoRestaurante.ABERTO,
+                1,
+                4.0,
+                10,
+                "lisboa",
+                20.0);
+
+        assertThat(result).containsExactly(tasca);
+    }
+
+    @Test
+    @DisplayName("Z: Pesquisar restaurantes exclui removidos e falha morada inexistente.")
+    void pesquisarRestaurantesExcluiRemovidosEMoradaInexistente() {
+        Restaurante semMorada = restauranteComId(1L, "Sem Morada", "111111111");
+        semMorada.setMorada(null);
+        Restaurante removido = restauranteComId(2L, "Removido", "222222222");
+        removido.apagar();
+
+        when(restauranteRepository.findAll()).thenReturn(java.util.List.of(semMorada, removido));
+
+        var result = restauranteService.pesquisarRestaurantes(
+                null, null, null, null, null, null, "lisboa", null);
+
+        assertThat(result).isEmpty();
+    }
+
 
     //**********Funções auxiliares************
 
@@ -626,5 +694,11 @@ public class RestauranteServiceTest {
 
     private Restaurante restauranteSimples(String nome, String nif) {
         return new Restaurante(nome, nif, morada("Rua Teste", 1, "1000-001", "Lisboa"), adminValido(), new CatalogoEntregas());
+    }
+
+    private Restaurante restauranteComId(Long id, String nome, String nif) {
+        Restaurante restaurante = restauranteSimples(nome, nif);
+        ReflectionTestUtils.setField(restaurante, "id", id);
+        return restaurante;
     }
 }
