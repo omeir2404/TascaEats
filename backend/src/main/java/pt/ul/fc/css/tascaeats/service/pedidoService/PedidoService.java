@@ -8,14 +8,8 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.service.pedidoService;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
@@ -29,6 +23,11 @@ import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IEntregadorRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class PedidoService {
@@ -104,11 +103,6 @@ public class PedidoService {
                 throw new IllegalArgumentException("Quantidade invalida no item: deve ser maior que 0.");
             }
 
-            Produto produto = produtoRepository.findById(item.getProdutoId())
-                .orElseThrow(() -> new IllegalArgumentException("Produto nao encontrado: " + item.getProdutoId()));
-
-            produto.validarDisponibilidadeParaPedido();
-
             Restaurante restaurante = restaurantesPorId.computeIfAbsent(item.getRestauranteId(), restauranteId ->
                     restauranteRepository.findById(restauranteId)
                     .orElseThrow(() -> new IllegalArgumentException("Restaurante nao encontrado: " + item.getRestauranteId()))
@@ -118,6 +112,11 @@ public class PedidoService {
                 restaurante.validarDisponibilidadeParaPedido();
                 restaurantesValidados.add(item.getRestauranteId());
             }
+
+            Produto produto = produtoRepository.findById(item.getProdutoId())
+                    .orElseThrow(() -> new IllegalArgumentException("Produto nao encontrado: " + item.getProdutoId()));
+
+            produto.validarDisponibilidadeParaPedido();
 
             boolean produtoDoMenuDoRestaurante = restaurante.getMenu() != null
                     && produto.getMenu() != null
