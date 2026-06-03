@@ -14,6 +14,9 @@ FROM docker.io/eclipse-temurin:17
 VOLUME /tmp
 RUN mkdir -p /app/
 RUN mkdir -p /app/logs/
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
 
 # O artifactId do teu web/pom.xml é tascaeats-web e a versão é 1.0
 COPY --from=builder /workspace/target/tascaeats-web-1.0.jar /app/app.jar
