@@ -22,19 +22,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
 import pt.ul.fc.css.tascaeats.publishers.DeliveryCommandPublisher;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
+import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IEntregadorRepository;
 
 @RestController
 @RequestMapping({"/entregas", "/api/entregas"})
 public class EntregaController {
 
     private final IPedidoRepository pedidoRepository;
+    private final IEntregadorRepository entregadorRepository;
     private final DeliveryCommandPublisher deliveryCommandPublisher;
 
     public EntregaController(IPedidoRepository pedidoRepository,
+                             IEntregadorRepository entregadorRepository,
                              DeliveryCommandPublisher deliveryCommandPublisher) {
         this.pedidoRepository = pedidoRepository;
+        this.entregadorRepository = entregadorRepository;
         this.deliveryCommandPublisher = deliveryCommandPublisher;
     }
 
@@ -58,7 +63,7 @@ public class EntregaController {
         resposta.put("entregadorId", pedido.getEntregadorId());
         resposta.put("estadoPedido", pedido.getEstado() == null ? null : pedido.getEstado().name());
         resposta.put("estadoEntrega", pedido.getEstadoEntregaReadOnly());
-        resposta.put("entregadorNome", null);
+        resposta.put("entregadorNome", obterNomeEntregador(pedido.getEntregadorId()));
         return ResponseEntity.ok(resposta);
     }
 
@@ -129,5 +134,13 @@ public class EntregaController {
                 "message", "Comando de entrega publicado.",
                 "pedidoId", pedidoId,
                 "action", action));
+    }
+
+    private String obterNomeEntregador(Long entregadorId) {
+        if (entregadorId == null) {
+            return null;
+        }
+        Entregador entregador = entregadorRepository.findById(entregadorId).orElse(null);
+        return entregador == null ? null : entregador.getName();
     }
 }

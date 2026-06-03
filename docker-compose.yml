@@ -35,12 +35,6 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-Utilizador}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 8080"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
 
   web:
     build:
@@ -48,8 +42,7 @@ services:
       network: host
     restart: unless-stopped
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     networks:
       - dbnet
     environment:
@@ -71,10 +64,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      backend:
-        condition: service_healthy
-      web:
-        condition: service_healthy
+      - backend
     networks:
       - dbnet
     healthcheck:
@@ -128,18 +118,11 @@ services:
     networks:
       - dbnet
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 30s
 
   kafka-init:
     image: apache/kafka:3.7.1
     depends_on:
-      kafka:
-        condition: service_healthy
+      - kafka
     networks:
       - dbnet
     command: >
@@ -170,12 +153,6 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-Utilizador}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 8080"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
 
 volumes:
   postgres-data:
