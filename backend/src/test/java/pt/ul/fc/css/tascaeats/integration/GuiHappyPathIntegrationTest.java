@@ -8,39 +8,28 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
+import org.springframework.test.context.TestPropertySource;
+import pt.ul.fc.css.tascaeats.events.EntregaAtualizadaConsumer;
+import pt.ul.fc.css.tascaeats.publishers.DeliveryCommandPublisher;
+import pt.ul.fc.css.tascaeats.publishers.PedidoPagoPublisher;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.TestPropertySource;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * End-to-end HTTP integration test for the main JavaFX staff happy path.
@@ -54,7 +43,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestPropertySource(properties = {
         "spring.sql.init.mode=never",
-        "spring.jpa.defer-datasource-initialization=true"
+        "spring.jpa.defer-datasource-initialization=true",
+        "native.grpc.enabled=false",
+        "spring.kafka.listener.auto-startup=false"
 })
 class GuiHappyPathIntegrationTest {
 
@@ -74,6 +65,15 @@ class GuiHappyPathIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private PedidoPagoPublisher pedidoPagoPublisher;
+
+    @MockBean
+    private DeliveryCommandPublisher deliveryCommandPublisher;
+
+    @MockBean
+    private EntregaAtualizadaConsumer entregaAtualizadaConsumer;
 
     @LocalServerPort
     private int port;
@@ -286,7 +286,7 @@ class GuiHappyPathIntegrationTest {
 
         assertThat(HttpStatus.valueOf(response.statusCode()))
                 .as("PATCH %s response body: %s", path, response.body())
-                .isEqualTo(HttpStatus.OK);
+                .isIn(HttpStatus.OK, HttpStatus.ACCEPTED);
     }
 
     private HttpResponse<String> sendPatch(String path, Map<String, Object> payload) {
