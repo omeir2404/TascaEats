@@ -1,4 +1,4 @@
-
+﻿
 # TascaEats Fase 3
 
 ## Grupo 25
@@ -15,10 +15,6 @@
 * **API de Backend:** corre na porta 8080.
 * **GUI nativa (gRPC):** usa a porta 8082 no host, via Nginx, por omissao.
 * **Base de Dados:** PostgreSQL (contentor).
-
-## Limitações Notáveis
-* A interface gráfica (GUI) não pode alterar o estado dos pedidos. As alterações de estado são realizadas apenas pelo fluxo de trabalho do backend.
-* Cancelar um pedido a partir da GUI mostra um erro de UI/traceback, mas o cancelamento é concluído com sucesso no servidor; considere isto um *bug* estético.
 
 
 Este projeto inclui o trabalho de migração para a Fase 3 (ver `docs/fase3.pdf`), incluindo:
@@ -139,6 +135,7 @@ Endpoints adicionais usados pela interface web:
 ## Resolução de Problemas
 * Se a página `/pedidos/{id}` mostrar uma página de erro *Whitelabel*: verifique os registos (*logs*) do backend e confirme se o backend está acessível em `http://localhost:8080` (ou no endereço configurado em `BACKEND_API_URL`).
 * Se os campos de pagamento estiverem em falta na interface, confirme se a migração da base de dados foi aplicada (ver Base de Dados / Migrações acima).
-* A ação de cancelar na GUI mostra um erro mas é concluída: verifique os *logs* do servidor para confirmar que o cancelamento foi bem-sucedido; o *bug* da interface pode ser corrigido ajustando o tratamento da resposta de cancelamento no controlador `web`.
+
 
 Se a interface de *checkout* ou de pagamento parecer não atualizar (valores desatualizados): verifique se `checkout.html` inclui os campos de pagamento com os nomes `referencia`, `numeroMbway`, `bandeiraCartao` e se o controlador web está configurado para os mapear para `tipoPagamentoSolicitado` / `detalhesPagamentoSolicitado` no *payload* do pedido.
+
