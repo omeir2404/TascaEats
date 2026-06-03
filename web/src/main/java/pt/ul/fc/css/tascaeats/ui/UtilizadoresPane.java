@@ -134,14 +134,14 @@ public class UtilizadoresPane {
         TextField     nomeF  = new TextField(s(ex, "nome"));
         TextField     emailF = new TextField(s(ex, "email"));
         PasswordField passF  = new PasswordField();
-        ComboBox<String> papelBox = combo("ADMIN", "COURIER");
-        if (ex != null) papelBox.setValue(s(ex, "papel"));
+        ComboBox<String> papelBox = ex == null ? combo("ADMIN", "COURIER") : null;
+        Label papelLabel = ex == null ? null : lbl(s(ex, "papel"));
 
         GridPane g = formGrid();
         g.add(lbl("Nome:"),     0, 0); g.add(nomeF,    1, 0);
         g.add(lbl("Email:"),    0, 1); g.add(emailF,   1, 1);
         g.add(lbl("Password:"), 0, 2); g.add(passF,    1, 2);
-        g.add(lbl("Papel:"),    0, 3); g.add(papelBox, 1, 3);
+        g.add(lbl("Papel:"),    0, 3); g.add(ex == null ? papelBox : papelLabel, 1, 3);
         dlg.getDialogPane().setContent(g);
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
@@ -149,7 +149,7 @@ public class UtilizadoresPane {
             "nome",     nomeF.getText().trim(),
             "email",    emailF.getText().trim(),
             "password", passF.getText().trim(),
-            "papel",    papelBox.getValue()
+            "papel",    ex == null ? papelBox.getValue() : s(ex, "papel")
         ) : null);
         return dlg.showAndWait().orElse(null);
     }
