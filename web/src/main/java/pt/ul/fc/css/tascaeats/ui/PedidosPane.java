@@ -153,7 +153,7 @@ public class PedidosPane {
             List<Map<String, Object>> typed = (List<Map<String, Object>>) (List<?>) load.pedidos();
             state.pedidos.setAll(typed.stream().map(this::normalizePedido).toList());
             if (afterUpdate != null) afterUpdate.run();
-            String source = load.fallbackUsado() ? " via REST" : "";
+            String source = load.fallbackUsado() ? " via proxy REST" : "";
             setStatus(statusLabel, "✓ " + state.pedidos.size() + " pedidos carregados" + source + ".");
         }, error -> setStatus(statusLabel, "✗ Erro ao carregar pedidos: " + error.getMessage()));
     }
@@ -193,8 +193,6 @@ public class PedidosPane {
             System.getenv().getOrDefault("BACKEND_API_URL", ""));
         List<String> urls = new java.util.ArrayList<>();
         addBaseUrl(urls, configured);
-        addBaseUrl(urls, "http://localhost:8080");
-        addBaseUrl(urls, "http://localhost:80");
         return urls;
     }
 
