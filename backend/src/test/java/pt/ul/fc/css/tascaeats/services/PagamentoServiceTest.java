@@ -8,6 +8,24 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.services;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import pt.ul.fc.css.tascaeats.domain.pagamento.Pagamento;
+import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoDinheiro;
+import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
+import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
+import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
+import pt.ul.fc.css.tascaeats.publishers.PedidoPagoPublisher;
+import pt.ul.fc.css.tascaeats.repository.pagamentoRepository.IPagamentoRepository;
+import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
+import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IClienteRepository;
+import pt.ul.fc.css.tascaeats.service.pagamentoServices.PagamentoFactory;
+import pt.ul.fc.css.tascaeats.service.pagamentoServices.PagamentoService;
+
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
@@ -15,26 +33,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import pt.ul.fc.css.tascaeats.domain.pagamento.Pagamento;
-import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoDinheiro;
-import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
-import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
-import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
-import pt.ul.fc.css.tascaeats.repository.pagamentoRepository.IPagamentoRepository;
-import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
-import pt.ul.fc.css.tascaeats.service.pagamentoServices.PagamentoFactory;
-import pt.ul.fc.css.tascaeats.service.pagamentoServices.PagamentoService;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("null")
@@ -48,6 +48,12 @@ public class PagamentoServiceTest {
 
     @Mock
     private PagamentoFactory pagamentoFactory;
+
+    @Mock
+    private IClienteRepository clienteRepository;
+
+    @Mock
+    private PedidoPagoPublisher pedidoPagoPublisher;
 
     @InjectMocks
     private PagamentoService pagamentoService;
@@ -114,6 +120,7 @@ public class PagamentoServiceTest {
         when(pagamentoFactory.create("DINHEIRO", 45.0, Map.of("valorRecebido", 50.0))).thenReturn(pagamento);
         when(pagamentoRepository.save(any(Pagamento.class))).thenAnswer(i -> i.getArgument(0));
         when(pedidoRepository.save(any(Pedido.class))).thenAnswer(i -> i.getArgument(0));
+        when(clienteRepository.findById(1L)).thenReturn(Optional.empty());
 
         pagamentoService.processarPagamento(dto);
 
@@ -131,10 +138,8 @@ public class PagamentoServiceTest {
         pedido.setEstado(EstadoPedido.PAGO);
 
         ProcessarPagamentoDTO dto = new ProcessarPagamentoDTO(12L, "DINHEIRO", Map.of("valorRecebido", 60.0));
-        Pagamento pagamento = new PagamentoDinheiro(null, 60.0, LocalDate.now(), "REF-002", 60.0);
 
         when(pedidoRepository.findById(12L)).thenReturn(Optional.of(pedido));
-        when(pagamentoFactory.create("DINHEIRO", 60.0, Map.of("valorRecebido", 60.0))).thenReturn(pagamento);
 
         try {
             pagamentoService.processarPagamento(dto);
