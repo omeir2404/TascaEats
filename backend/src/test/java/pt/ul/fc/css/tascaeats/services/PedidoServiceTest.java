@@ -35,12 +35,14 @@ import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
+import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 import pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
+import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IEntregadorRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
 import pt.ul.fc.css.tascaeats.service.pedidoService.PedidoService;
 
@@ -58,6 +60,9 @@ public class PedidoServiceTest {
 
 	@Mock
 	private IProdutoRepository produtoRepository;
+
+	@Mock
+	private IEntregadorRepository entregadorRepository;
 
 	@InjectMocks
 	private PedidoService pedidoService;
@@ -399,6 +404,7 @@ public class PedidoServiceTest {
 						() -> pedidoService.aplicarAtualizacaoEntrega(99L, null, null, null)).getMessage());
 
 		Pedido pedido = new Pedido(40L, 1L, 10L);
+		Entregador entregador = new Entregador("Entregador", "entregador@tasca.com", "1234");
 		when(pedidoRepository.findById(40L)).thenReturn(Optional.of(pedido));
 		when(entregadorRepository.findById(50L)).thenReturn(Optional.of(entregador));
 

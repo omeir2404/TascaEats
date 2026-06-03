@@ -28,7 +28,6 @@ import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IEntregadorRepository;
-import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IEntregadorRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
 
 @Service
@@ -38,8 +37,9 @@ public class PedidoService {
     private final IUtilizadorRepository utilizadorRepository;
     private final IRestauranteRepository restauranteRepository;
     private final IProdutoRepository produtoRepository;
+    private final IEntregadorRepository entregadorRepository;
 
-    public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository) {
+    public PedidoService(IEntregadorRepository entregadorRepository, IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository) {
         this.pedidoRepository = pedidoRepository;
         this.utilizadorRepository = utilizadorRepository;
         this.restauranteRepository = restauranteRepository;
