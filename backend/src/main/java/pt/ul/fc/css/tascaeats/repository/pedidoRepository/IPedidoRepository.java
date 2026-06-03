@@ -28,17 +28,6 @@ public interface IPedidoRepository extends JpaRepository<Pedido, Long> {
     boolean existsByIdAndEstado(Long id, EstadoPedido estado);
 
     @Query("""
-        SELECT COUNT(p) > 0
-        FROM Pedido p
-        WHERE p.entregadorId = :entregadorId
-          AND (
-            UPPER(COALESCE(p.estadoEntregaReadOnly, '')) IN ('ATRIBUIDA', 'A_CAMINHO')
-            OR p.estado = pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido.ATRIBUIDO_ENTREGADOR
-          )
-    """)
-    boolean existsEntregaAtivaByEntregadorId(@Param("entregadorId") Long entregadorId);
-
-    @Query("""
         SELECT p.clienteId
         FROM Pedido p
         WHERE p.data BETWEEN :dataInicio AND :dataFim

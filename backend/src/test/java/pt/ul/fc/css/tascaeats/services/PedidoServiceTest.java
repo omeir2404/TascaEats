@@ -35,14 +35,12 @@ import pt.ul.fc.css.tascaeats.domain.produto.Produto;
 import pt.ul.fc.css.tascaeats.domain.restaurante.CatalogoEntregas;
 import pt.ul.fc.css.tascaeats.domain.restaurante.Restaurante;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
-import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.domain.utilizador.RestauranteAdmin;
 import pt.ul.fc.css.tascaeats.dto.pedidoDTO.CriarPedidoDTO;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
-import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IEntregadorRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
 import pt.ul.fc.css.tascaeats.service.pedidoService.PedidoService;
 
@@ -60,9 +58,6 @@ public class PedidoServiceTest {
 
 	@Mock
 	private IProdutoRepository produtoRepository;
-
-	@Mock
-	private IEntregadorRepository entregadorRepository;
 
 	@InjectMocks
 	private PedidoService pedidoService;
@@ -392,8 +387,8 @@ public class PedidoServiceTest {
 	}
 
 	@Test
-	@DisplayName("S: Aplicar atualização de entrega sincroniza o pedido e disponibilidade do entregador.")
-	void aplicarAtualizacaoEntregaSincronizaPedidoEDisponibilidadeEntregador() {
+	@DisplayName("S: Aplicar atualização de entrega sincroniza apenas o espelho do pedido.")
+	void aplicarAtualizacaoEntregaSincronizaApenasPedido() {
 		assertEquals("ID do pedido invalido.",
 				assertThrows(IllegalArgumentException.class,
 						() -> pedidoService.aplicarAtualizacaoEntrega(null, 50L, "ENTREGUE", "ENTREGUE")).getMessage());
@@ -404,9 +399,7 @@ public class PedidoServiceTest {
 						() -> pedidoService.aplicarAtualizacaoEntrega(99L, null, null, null)).getMessage());
 
 		Pedido pedido = new Pedido(40L, 1L, 10L);
-		Entregador entregador = new Entregador("Courier", "courier@tascaeats.local", "secret");
 		when(pedidoRepository.findById(40L)).thenReturn(Optional.of(pedido));
-		when(entregadorRepository.findById(50L)).thenReturn(Optional.of(entregador));
 		when(entregadorRepository.findById(50L)).thenReturn(Optional.of(entregador));
 
 		pedidoService.aplicarAtualizacaoEntrega(40L, 50L, "ATRIBUIDO_ENTREGADOR", "A_CAMINHO");
@@ -414,15 +407,12 @@ public class PedidoServiceTest {
 		assertEquals(50L, pedido.getEntregadorId());
 		assertEquals(EstadoPedido.ATRIBUIDO_ENTREGADOR, pedido.getEstado());
 		assertEquals("A_CAMINHO", pedido.getEstadoEntregaReadOnly());
-		assertFalse(entregador.isAvailable());
 
 		pedidoService.aplicarAtualizacaoEntrega(40L, 50L, "ENTREGUE", "ENTREGUE");
 
 		assertEquals(EstadoPedido.ENTREGUE, pedido.getEstado());
 		assertEquals("ENTREGUE", pedido.getEstadoEntregaReadOnly());
-		assertTrue(entregador.isAvailable());
 		verify(pedidoRepository, times(2)).save(pedido);
-		verify(entregadorRepository, times(2)).save(entregador);
 	}
 
 	private CriarPedidoDTO criarPedidoDTOValido() {

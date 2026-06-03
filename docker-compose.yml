@@ -52,12 +52,6 @@ services:
       - 8081:8080
     environment:
       - BACKEND_API_URL=http://nginx
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 8080"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
 # --- NEW INFRASTRUCTURE ---
 
   # Nginx Reverse Proxy
@@ -73,7 +67,7 @@ services:
     networks:
       - dbnet
     healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 80 && nc -z 127.0.0.1 8080"]
+      test: ["CMD-SHELL", "nc -z localhost 80 && nc -z localhost 8080"]
       interval: 10s
       timeout: 5s
       retries: 10

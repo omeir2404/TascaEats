@@ -37,7 +37,6 @@ import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoRespostaDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRespostaDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
-import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService;
 
 @RestController
@@ -45,12 +44,10 @@ import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService;
 public class UtilizadorController {
 
     private final UtilizadorService UtilizadorService;
-    private final IPedidoRepository pedidoRepository;
     private static final String UTILIZADOR_NOT_FOUND = "Utilizador not found";
 
-    public UtilizadorController(UtilizadorService UtilizadorService, IPedidoRepository pedidoRepository) {
+    public UtilizadorController(UtilizadorService UtilizadorService) {
         this.UtilizadorService = UtilizadorService;
-        this.pedidoRepository = pedidoRepository;
     }
 
     @PostMapping("/register")
@@ -159,9 +156,7 @@ public class UtilizadorController {
         dto.setType(Utilizador.getClass().getSimpleName());
 
         if (Utilizador instanceof Entregador driver) {
-            boolean temEntregaAtiva = driver.getId() > 0
-                    && pedidoRepository.existsEntregaAtivaByEntregadorId(driver.getId());
-            dto.setAvailable(driver.isAvailable() && !temEntregaAtiva);
+            dto.setAvailable(driver.isAvailable());
         }
         if (Utilizador instanceof Cliente client) {
             // Vai buscar a primeira morada da lista (se existir) para manter a retrocompatibilidade com a API

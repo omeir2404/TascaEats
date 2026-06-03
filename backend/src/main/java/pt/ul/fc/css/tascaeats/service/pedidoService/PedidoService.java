@@ -38,16 +38,13 @@ public class PedidoService {
     private final IUtilizadorRepository utilizadorRepository;
     private final IRestauranteRepository restauranteRepository;
     private final IProdutoRepository produtoRepository;
-    private final IEntregadorRepository entregadorRepository;
 
-    public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository, IEntregadorRepository entregadorRepository) {
+    public PedidoService(IPedidoRepository pedidoRepository, IUtilizadorRepository utilizadorRepository, IRestauranteRepository restauranteRepository, IProdutoRepository produtoRepository) {
         this.pedidoRepository = pedidoRepository;
         this.utilizadorRepository = utilizadorRepository;
         this.restauranteRepository = restauranteRepository;
         this.produtoRepository = produtoRepository;
         this.entregadorRepository = entregadorRepository;
-        this.entregadorRepository = entregadorRepository; 
-        
     }
 
     public void criarPedido(CriarPedidoDTO criarPedidoDto){
@@ -258,49 +255,7 @@ public class PedidoService {
             pedido.setEstado(EstadoPedido.valueOf(estadoPedido.trim().toUpperCase()));
         }
 
-        sincronizarDisponibilidadeEntregador(entregadorId, estadoPedido, estadoEntrega);
-
         pedidoRepository.save(pedido);
-    }
-
-    private void sincronizarDisponibilidadeEntregador(Long entregadorId, String estadoPedido, String estadoEntrega) {
-        if (entregadorId == null) {
-            return;
-        }
-
-        Boolean disponivel = disponibilidadePorEstadoEntrega(estadoEntrega, estadoPedido);
-        if (disponivel == null) {
-            return;
-        }
-
-        entregadorRepository.findById(entregadorId).ifPresent(entregador -> {
-            entregador.setAvailable(disponivel);
-            entregadorRepository.save(entregador);
-        });
-    }
-
-    private Boolean disponibilidadePorEstadoEntrega(String estadoEntrega, String estadoPedido) {
-        String estadoEntregaNormalizado = normalizarEstado(estadoEntrega);
-        if ("ENTREGUE".equals(estadoEntregaNormalizado)) {
-            return true;
-        }
-        if ("ATRIBUIDA".equals(estadoEntregaNormalizado) || "A_CAMINHO".equals(estadoEntregaNormalizado)) {
-            return false;
-        }
-
-        String estadoPedidoNormalizado = normalizarEstado(estadoPedido);
-        if ("ENTREGUE".equals(estadoPedidoNormalizado)) {
-            return true;
-        }
-        if ("ATRIBUIDO_ENTREGADOR".equals(estadoPedidoNormalizado)) {
-            return false;
-        }
-
-        return null;
-    }
-
-    private String normalizarEstado(String estado) {
-        return estado == null ? null : estado.trim().toUpperCase();
     }
 
     private Morada novaMoradaDeDTO(pt.ul.fc.css.tascaeats.dto.moradaDTO.MoradaDTO dto) {

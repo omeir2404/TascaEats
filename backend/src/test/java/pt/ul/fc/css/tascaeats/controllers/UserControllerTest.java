@@ -17,12 +17,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Cliente;
-import pt.ul.fc.css.tascaeats.domain.utilizador.Entregador;
 import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorLoginDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorRegistoDTO;
 import pt.ul.fc.css.tascaeats.dto.utilizadorDTO.UtilizadorUpdateDTO;
-import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
 import pt.ul.fc.css.tascaeats.service.utilizadorServices.UtilizadorService;
 
 import java.util.List;
@@ -45,9 +43,6 @@ class UtilizadorControllerTest {
 
     @MockBean
     private UtilizadorService UtilizadorService;
-
-    @MockBean
-    private IPedidoRepository pedidoRepository;
 
     // Registration
     @Test
@@ -157,21 +152,6 @@ class UtilizadorControllerTest {
     }
 
     @Test
-    @DisplayName("Case: courier with active delivery is returned as unavailable")
-    void shouldReturnCourierUnavailableWhenActiveDeliveryExists() throws Exception {
-        Entregador entregador = new Entregador("Courier", "courier@tascaeats.local", "secret");
-        entregador.setId(50L);
-        entregador.setAvailable(true);
-        when(UtilizadorService.getAllUtilizadors()).thenReturn(List.of(entregador));
-        when(pedidoRepository.existsEntregaAtivaByEntregadorId(50L)).thenReturn(true);
-
-        mockMvc.perform(get("/api/Utilizadors"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].email").value("courier@tascaeats.local"))
-                .andExpect(jsonPath("$[0].available").value(false));
-    }
-
-    @Test
     @DisplayName("Case: manage Utilizadors get Utilizador by id returns dto when found")
     void shouldReturnUtilizadorDtoWhenGettingUtilizadorByIdAndFound() throws Exception {
         Cliente Utilizador = new Cliente();
@@ -248,3 +228,5 @@ class UtilizadorControllerTest {
                 .andExpect(jsonPath("$.error").value("Utilizador update conflict"));
     }
 }
+
+
