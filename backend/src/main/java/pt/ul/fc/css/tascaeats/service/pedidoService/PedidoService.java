@@ -8,8 +8,14 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.service.pedidoService;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
@@ -23,11 +29,6 @@ import pt.ul.fc.css.tascaeats.repository.produtoRepository.IProdutoRepository;
 import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IEntregadorRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class PedidoService {
@@ -215,7 +216,8 @@ public class PedidoService {
 
         pedidoRepository.save(pedido);
     }
-
+    
+    @Transactional
     public void aplicarAtualizacaoEntrega(Long pedidoId, Long entregadorId, String estadoPedido, String estadoEntrega) {
         if (pedidoId == null) {
             throw new IllegalArgumentException("ID do pedido invalido.");
@@ -227,15 +229,23 @@ public class PedidoService {
         if (entregadorId != null) {
             pedido.setEntregadorId(entregadorId);
 
-            // Procura diretamente no repositório de entregadores para contornar o Proxy do Hibernate
-            entregadorRepository.findById(entregadorId).ifPresent(entregador -> {
-                // Se o estado for ENTREGUE, liberta o estafeta, caso contrário (inclusive A_CAMINHO) fica ocupado
+            entregadorRepository.findById(entregadorId).ifPresentOrElse(entregador -> {
+                // Print to Docker logs to confirm the sync is triggering
+                System.out.println("[KAFKA SYNC] Updating Entregador " + entregadorId + 
+                                   " | estadoPedido: " + estadoPedido + 
+                                   " | estadoEntrega: " + estadoEntrega);
+                
                 if ("ENTREGUE".equalsIgnoreCase(estadoPedido) || "ENTREGUE".equalsIgnoreCase(estadoEntrega)) {
                     entregador.setAvailable(true);
                 } else {
                     entregador.setAvailable(false);
                 }
                 entregadorRepository.save(entregador);
+                
+            }, () -> {
+                // If this prints, your databases are desynchronized! 
+                // The Microservice assigned an ID that does not belong to an Entregador in the Monolith.
+                System.err.println("[KAFKA ERROR] Entregador ID " + entregadorId + " found in Microservice but missing in Monolith DB!");
             });
         }
         

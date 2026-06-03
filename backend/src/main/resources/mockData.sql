@@ -66,23 +66,30 @@ UPDATE produto
 SET restaurante_id = NULL
 WHERE menu_id IS NOT NULL;
 
+-- =========================================================================
+-- 1. FORÇAR IDs 1 e 2 PARA OS ENTREGADORES (Sincronização com Microserviço)
+-- =========================================================================
+INSERT INTO utilizadores (id, nome, email, password)
+SELECT 1, 'Entregador Tasca', 'courier@tascaeats.local', 'courier123'
+WHERE NOT EXISTS (SELECT 1 FROM utilizadores WHERE email = 'courier@tascaeats.local');
+
+INSERT INTO utilizadores (id, nome, email, password)
+SELECT 2, 'Entregador Dois', 'courier2@tascaeats.local', 'courier223'
+WHERE NOT EXISTS (SELECT 1 FROM utilizadores WHERE email = 'courier2@tascaeats.local');
+
+-- Avançar a sequência para evitar colisões com o ID 1 e 2
+SELECT setval('utilizadores_id_seq', 2, true);
+
+-- =========================================================================
+-- 2. INSERIR RESTANTES UTILIZADORES COM IDs DINÂMICOS
+-- =========================================================================
 INSERT INTO utilizadores (id, nome, email, password)
 SELECT nextval('utilizadores_id_seq'), 'Admin Tasca Eats', 'admin.restaurante@tascaeats.local', 'admin123'
-WHERE NOT EXISTS (SELECT 1
-                  FROM utilizadores
-                  WHERE email = 'admin.restaurante@tascaeats.local');
+WHERE NOT EXISTS (SELECT 1 FROM utilizadores WHERE email = 'admin.restaurante@tascaeats.local');
 
 INSERT INTO utilizadores (id, nome, email, password)
 SELECT nextval('utilizadores_id_seq'), 'Cliente Tasca', 'cliente@tascaeats.local', 'cliente123'
-WHERE NOT EXISTS (SELECT 1
-                  FROM utilizadores
-                  WHERE email = 'cliente@tascaeats.local');
-  
-INSERT INTO utilizadores (id, nome, email, password)
-SELECT nextval('utilizadores_id_seq'), 'Entregador Tasca', 'courier@tascaeats.local', 'courier123'
-WHERE NOT EXISTS (SELECT 1
-                  FROM utilizadores
-                  WHERE email = 'courier@tascaeats.local');
+WHERE NOT EXISTS (SELECT 1 FROM utilizadores WHERE email = 'cliente@tascaeats.local');
 
 INSERT INTO restaurante_admin (id)
 SELECT u.id
@@ -446,11 +453,7 @@ WHERE NOT EXISTS (SELECT 1
                   FROM utilizadores
                   WHERE email = 'cliente2@tascaeats.local');
 
-INSERT INTO utilizadores (id, nome, email, password)
-SELECT nextval('utilizadores_id_seq'), 'Entregador Dois', 'courier2@tascaeats.local', 'courier223'
-WHERE NOT EXISTS (SELECT 1
-                  FROM utilizadores
-                  WHERE email = 'courier2@tascaeats.local');
+
 
 INSERT INTO cliente (id)
 SELECT u.id
@@ -826,5 +829,5 @@ WHERE p.cliente_id = (SELECT cliente_id FROM client)
                     AND pr.restaurante_id = r.id)
 GROUP BY p.id, r.id;
 
-SELECT setval('utilizadores_seq', (SELECT COALESCE(MAX(id), 1) FROM utilizadores), true);
+SELECT setval('utilizadores_id_seq', (SELECT COALESCE(MAX(id), 1) FROM utilizadores), true);
 SELECT setval('morada_utilizador_seq', COALESCE((SELECT MAX(id) FROM morada_utilizador), 0) + 1, false);
