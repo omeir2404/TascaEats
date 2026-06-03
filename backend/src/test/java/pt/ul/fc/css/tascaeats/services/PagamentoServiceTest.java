@@ -11,7 +11,6 @@ package pt.ul.fc.css.tascaeats.services;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,9 +18,7 @@ import pt.ul.fc.css.tascaeats.domain.pagamento.Pagamento;
 import pt.ul.fc.css.tascaeats.domain.pagamento.PagamentoDinheiro;
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
-import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 import pt.ul.fc.css.tascaeats.dto.pagamentoDTO.ProcessarPagamentoDTO;
-import pt.ul.fc.css.tascaeats.events.PedidoPagoEvent;
 import pt.ul.fc.css.tascaeats.publishers.PedidoPagoPublisher;
 import pt.ul.fc.css.tascaeats.repository.pagamentoRepository.IPagamentoRepository;
 import pt.ul.fc.css.tascaeats.repository.pedidoRepository.IPedidoRepository;
@@ -133,27 +130,6 @@ public class PagamentoServiceTest {
         assertEquals(EstadoPedido.PAGO, pedido.getEstado());
     }
 
-    @Test
-    @DisplayName("F1: Processar pagamento publica o endereço de entrega guardado no pedido.")
-    void processarPagamentoPublicaEnderecoDoPedido() {
-        Pedido pedido = pedidoCriado(13L, 25.0);
-        pedido.setMoradaEntrega(morada("Rua Pedido", 12, "1200-001", "Lisboa"));
-        ProcessarPagamentoDTO dto = new ProcessarPagamentoDTO(13L, "DINHEIRO", Map.of("valorRecebido", 30.0));
-        Pagamento pagamento = new PagamentoDinheiro(null, 25.0, LocalDate.now(), "REF-002", 30.0);
-
-        when(pedidoRepository.findById(13L)).thenReturn(Optional.of(pedido));
-        when(pagamentoFactory.create("DINHEIRO", 25.0, Map.of("valorRecebido", 30.0))).thenReturn(pagamento);
-        when(pagamentoRepository.save(any(Pagamento.class))).thenAnswer(i -> i.getArgument(0));
-        when(pedidoRepository.save(any(Pedido.class))).thenAnswer(i -> i.getArgument(0));
-
-        pagamentoService.processarPagamento(dto);
-
-        ArgumentCaptor<PedidoPagoEvent> eventCaptor = ArgumentCaptor.forClass(PedidoPagoEvent.class);
-        verify(pedidoPagoPublisher).publicar(eventCaptor.capture());
-        assertEquals("Rua Pedido 12, 1200-001, Lisboa, Portugal", eventCaptor.getValue().enderecoEntrega());
-        verify(clienteRepository, never()).findById(any());
-    }
-
     // G) processarPagamento não deve permitir pagar pedido já pago (via regra de domínio)
     @Test
     @DisplayName("G: Processar pagamento não deve permitir pagar pedido já pago.")
@@ -180,15 +156,5 @@ public class PagamentoServiceTest {
         pedido.setEstado(EstadoPedido.CRIADO);
         pedido.setValorTotal(valorTotal);
         return pedido;
-    }
-
-    private Morada morada(String rua, int numero, String codigoPostal, String cidade) {
-        Morada morada = new Morada();
-        morada.setRua(rua);
-        morada.setNumero(numero);
-        morada.setCodigoPostal(codigoPostal);
-        morada.setCidade(cidade);
-        morada.setPais("Portugal");
-        return morada;
     }
 }

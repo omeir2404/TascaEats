@@ -88,7 +88,7 @@ public class WebRestauranteController {
             builder.queryParam("pedidosRealizados", pedidosRealizados);
         }
         if (avaliacaoMinima != null && avaliacaoMinima > 0) {
-            builder.queryParam("avaliacaoMinima", avaliacaoMinima);
+            builder.queryParam("numeroAvaliacoes", avaliacaoMinima.intValue());
         }
         if (morada != null && !morada.isBlank()) {
             builder.queryParam("morada", morada);

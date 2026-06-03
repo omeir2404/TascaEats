@@ -30,7 +30,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import pt.ul.fc.css.tascaeats.domain.pagamento.Pagamento;
-import pt.ul.fc.css.tascaeats.domain.utilizador.Morada;
 
 @Entity
 @Table(name = "pedidos")
@@ -61,27 +60,6 @@ public class Pedido {
 
     @Column(name = "cliente_id", nullable = false)
     private Long clienteId;
-
-    @Column(name = "entrega_rua")
-    private String entregaRua;
-
-    @Column(name = "entrega_numero")
-    private Integer entregaNumero;
-
-    @Column(name = "entrega_complemento")
-    private String entregaComplemento;
-
-    @Column(name = "entrega_pais")
-    private String entregaPais;
-
-    @Column(name = "entrega_distrito")
-    private String entregaDistrito;
-
-    @Column(name = "entrega_cidade")
-    private String entregaCidade;
-
-    @Column(name = "entrega_codigo_postal")
-    private String entregaCodigoPostal;
 
     //@Column(name = "restaurante_id")
     //private Long restauranteId;
@@ -251,48 +229,6 @@ public class Pedido {
 
     public void setClienteId(Long clienteId) {
         this.clienteId = clienteId;
-    }
-
-    public void setMoradaEntrega(Morada morada) {
-        if (morada == null) {
-            return;
-        }
-        this.entregaRua = morada.getRua();
-        this.entregaNumero = morada.getNumero();
-        this.entregaComplemento = morada.getComplemento();
-        this.entregaPais = morada.getPais();
-        this.entregaDistrito = morada.getDistrito();
-        this.entregaCidade = morada.getCidade();
-        this.entregaCodigoPostal = morada.getCodigoPostal();
-    }
-
-    public Map<String, Object> getMoradaEntrega() {
-        Map<String, Object> morada = new LinkedHashMap<>();
-        morada.put("rua", entregaRua);
-        morada.put("numero", entregaNumero);
-        morada.put("complemento", entregaComplemento);
-        morada.put("pais", entregaPais);
-        morada.put("distrito", entregaDistrito);
-        morada.put("cidade", entregaCidade);
-        morada.put("codigoPostal", entregaCodigoPostal);
-        return morada;
-    }
-
-    public String getEnderecoEntregaFormatado() {
-        if (entregaRua == null || entregaRua.isBlank()) {
-            return null;
-        }
-        return String.join(", ",
-                valorOuVazio(entregaRua) + " " + (entregaNumero == null ? "" : entregaNumero),
-                valorOuVazio(entregaCodigoPostal),
-                valorOuVazio(entregaCidade),
-                valorOuVazio(entregaDistrito),
-                valorOuVazio(entregaPais)
-        ).replaceAll("(,\\s*)+", ", ").replaceAll("^,\\s*|,\\s*$", "");
-    }
-
-    private String valorOuVazio(String valor) {
-        return valor == null ? "" : valor.trim();
     }
 
     public List<Long> getProdutosIds() {

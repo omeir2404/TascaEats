@@ -80,10 +80,7 @@ public class PagamentoService {
 
     private void publicarDepoisDoCommit(Pedido pedido) {
         Runnable publicar = () -> {
-            String enderecoPedido = pedido.getEnderecoEntregaFormatado();
-            String endereco = enderecoPedido != null && !enderecoPedido.isBlank()
-                    ? enderecoPedido
-                    : clienteRepository.findById(pedido.getClienteId())
+            String endereco = clienteRepository.findById(pedido.getClienteId())
                     .map(cliente -> formatarMorada(cliente.getAddress()))
                     .orElse("ENDERECO_NAO_INFORMADO");
             pedidoPagoPublisher.publicar(new PedidoPagoEvent(
