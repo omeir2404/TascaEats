@@ -15,7 +15,8 @@ import jakarta.persistence.*;
 @Table(name = "morada_utilizador")
 public class Morada {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "morada_utilizador_id_seq")
+    @SequenceGenerator(name = "morada_utilizador_id_seq", sequenceName = "morada_utilizador_id_seq", allocationSize = 1)
     private Long id;
 
     private String rua;

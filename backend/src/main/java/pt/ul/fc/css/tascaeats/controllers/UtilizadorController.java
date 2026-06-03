@@ -76,7 +76,7 @@ public class UtilizadorController {
         boolean ok = UtilizadorService.login(UtilizadorLoginDTO);
         if (!ok) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiMessageDTO("Invalid Utilizador"));
+                    .body(new ApiMessageDTO("Nao existe nenhuma conta com esse email."));
         }
         return ResponseEntity.ok(new ApiMessageDTO("Login successful (mock)"));
     }

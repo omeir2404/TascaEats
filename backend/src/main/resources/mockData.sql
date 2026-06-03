@@ -77,8 +77,8 @@ INSERT INTO utilizadores (id, nome, email, password)
 SELECT 2, 'Entregador Dois', 'courier2@tascaeats.local', 'courier223'
 WHERE NOT EXISTS (SELECT 1 FROM utilizadores WHERE email = 'courier2@tascaeats.local');
 
--- Avançar a sequência para evitar colisões com o ID 1 e 2
-SELECT setval('utilizadores_id_seq', 2, true);
+-- Avançar a sequência para evitar colisões com utilizadores já existentes.
+SELECT setval('utilizadores_id_seq', GREATEST((SELECT COALESCE(MAX(id), 0) FROM utilizadores), 2), true);
 
 -- =========================================================================
 -- 2. INSERIR RESTANTES UTILIZADORES COM IDs DINÂMICOS
@@ -830,4 +830,4 @@ WHERE p.cliente_id = (SELECT cliente_id FROM client)
 GROUP BY p.id, r.id;
 
 SELECT setval('utilizadores_id_seq', (SELECT COALESCE(MAX(id), 1) FROM utilizadores), true);
-SELECT setval('morada_utilizador_seq', COALESCE((SELECT MAX(id) FROM morada_utilizador), 0) + 1, false);
+SELECT setval('morada_utilizador_id_seq', COALESCE((SELECT MAX(id) FROM morada_utilizador), 0) + 1, false);

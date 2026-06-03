@@ -9,12 +9,18 @@
 
 package pt.ul.fc.css.tascaeats.controllers;
 
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -22,9 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-
-import pt.ul.fc.css.tascaeats.ui.AppState;
-import pt.ul.fc.css.tascaeats.ui.UtilizadorApiClient;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 @WebMvcTest(WebUtilizadorController.class)
 class WebUtilizadorControllerTest {
@@ -33,10 +38,7 @@ class WebUtilizadorControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private UtilizadorApiClient utilizadorApiClient;
-
-    @MockBean
-    private AppState appState;
+    private RestTemplate restTemplate;
 
     @Test
     void showLoginForm_ReturnsLoginView() throws Exception {
@@ -47,9 +49,15 @@ class WebUtilizadorControllerTest {
 
     @Test
     void processLogin_WithValidCredentials_RedirectsToHome() throws Exception {
-        // Mock do LoginResult real
-        UtilizadorApiClient.LoginResult sucesso = new UtilizadorApiClient.LoginResult(true, false, "Sucesso");
-        when(utilizadorApiClient.login(anyString(), anyString())).thenReturn(sucesso);
+        when(restTemplate.postForEntity(eq("http://localhost:80/api/login"), any(), eq(Map.class)))
+                .thenReturn(ResponseEntity.ok(Map.of("message", "Login successful")));
+        when(restTemplate.getForObject(eq("http://localhost:80/api/Utilizadors"), eq(List.class)))
+                .thenReturn(List.of(Map.of(
+                        "id", 1,
+                        "name", "Cliente",
+                        "email", "cliente@tascaeats.local",
+                        "type", "Cliente"
+                )));
 
         mockMvc.perform(post("/login")
                 .param("email", "cliente@tascaeats.local")
@@ -60,16 +68,21 @@ class WebUtilizadorControllerTest {
 
     @Test
     void processLogin_WithInvalidCredentials_ReturnsLoginViewWithError() throws Exception {
-        // Mock de falha
-        UtilizadorApiClient.LoginResult falha = new UtilizadorApiClient.LoginResult(false, false, "Credenciais invalidas");
-        when(utilizadorApiClient.login(anyString(), anyString())).thenReturn(falha);
+        when(restTemplate.postForEntity(eq("http://localhost:80/api/login"), any(), eq(Map.class)))
+                .thenThrow(HttpClientErrorException.create(
+                        HttpStatus.UNAUTHORIZED,
+                        "Unauthorized",
+                        null,
+                        null,
+                        null
+                ));
 
         mockMvc.perform(post("/login")
                 .param("email", "wrong@email.com")
                 .param("password", "wrongpass"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("login"))
-                .andExpect(model().attributeExists("error")); 
+                .andExpect(model().attribute("error", "Nao existe nenhuma conta com esse email."));
     }
 
     @Test
@@ -81,11 +94,12 @@ class WebUtilizadorControllerTest {
 
     @Test
     void processRegistration_WithValidData_RedirectsToLogin() throws Exception {
-        // Simular que o registo corre bem
-        UtilizadorApiClient.RegistoResult sucessoRegisto = new UtilizadorApiClient.RegistoResult(1L, "novo@tasca.local", "CLIENTE", false, "Sucesso");
-        
-        when(utilizadorApiClient.registarUtilizador(anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(sucessoRegisto);
+        when(restTemplate.postForEntity(eq("http://localhost:80/api/register"), any(), eq(Map.class)))
+                .thenReturn(ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                        "id", 1,
+                        "email", "novo@tasca.local",
+                        "type", "CLIENTE"
+                )));
 
         mockMvc.perform(post("/registo")
                 .param("nome", "Novo Cliente")

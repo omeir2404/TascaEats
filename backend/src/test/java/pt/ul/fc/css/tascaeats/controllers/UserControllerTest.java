@@ -114,7 +114,7 @@ class UtilizadorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value("Invalid Utilizador"));
+                .andExpect(jsonPath("$.message").value("Nao existe nenhuma conta com esse email."));
     }
 
     @Test
@@ -228,5 +228,3 @@ class UtilizadorControllerTest {
                 .andExpect(jsonPath("$.error").value("Utilizador update conflict"));
     }
 }
-
-

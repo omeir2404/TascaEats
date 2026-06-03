@@ -17,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 @Entity
@@ -26,7 +27,8 @@ public abstract class Utilizador {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "utilizadores_id_seq")
+    @SequenceGenerator(name = "utilizadores_id_seq", sequenceName = "utilizadores_id_seq", allocationSize = 1)
     private long id;
 
     private String nome;

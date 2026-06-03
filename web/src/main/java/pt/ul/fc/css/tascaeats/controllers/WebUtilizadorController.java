@@ -17,6 +17,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.servlet.http.HttpSession;
@@ -71,6 +73,13 @@ public class WebUtilizadorController {
                 return "redirect:/restaurantes";
             }
             model.addAttribute("error", "Login aceite pelo backend, mas nao encontrei os dados do utilizador para criar a sessao. Confirma se o utilizador existe na lista.");
+            return "login";
+        } catch (RestClientResponseException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                model.addAttribute("error", "Nao existe nenhuma conta com esse email.");
+                return "login";
+            }
+            model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel iniciar sessao", e, backendUrl));
             return "login";
         } catch (Exception e) {
             model.addAttribute("error", WebErrorMessages.backendFailure("Nao foi possivel iniciar sessao", e, backendUrl));
