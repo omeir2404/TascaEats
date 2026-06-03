@@ -8,14 +8,27 @@
 // ##############################################################
 package pt.ul.fc.css.tascaeats.services;
 
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Fail.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+
 import pt.ul.fc.css.tascaeats.domain.pedido.EstadoPedido;
 import pt.ul.fc.css.tascaeats.domain.pedido.Pedido;
 import pt.ul.fc.css.tascaeats.domain.produto.Produto;
@@ -32,14 +45,6 @@ import pt.ul.fc.css.tascaeats.repository.restauranteRepository.IRestauranteRepos
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IEntregadorRepository;
 import pt.ul.fc.css.tascaeats.repository.utilizadorRepository.IUtilizadorRepository;
 import pt.ul.fc.css.tascaeats.service.pedidoService.PedidoService;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Fail.fail;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PedidoServiceTest {
@@ -428,6 +433,7 @@ public class PedidoServiceTest {
 		Pedido pedido = new Pedido(40L, 1L, 10L);
 		Entregador entregador = new Entregador("Courier", "courier@tascaeats.local", "secret");
 		when(pedidoRepository.findById(40L)).thenReturn(Optional.of(pedido));
+		when(entregadorRepository.findById(50L)).thenReturn(Optional.of(entregador));
 		when(entregadorRepository.findById(50L)).thenReturn(Optional.of(entregador));
 
 		pedidoService.aplicarAtualizacaoEntrega(40L, 50L, "ATRIBUIDO_ENTREGADOR", "A_CAMINHO");
