@@ -1,16 +1,17 @@
 package pt.ul.fc.css.tascaeats.grpc;
 
-import java.io.IOException;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Component
+@ConditionalOnProperty(name = "native.grpc.enabled", havingValue = "true", matchIfMissing = true)
 public class NativeGrpcServer {
 
     private final NativeGrpcService service;
