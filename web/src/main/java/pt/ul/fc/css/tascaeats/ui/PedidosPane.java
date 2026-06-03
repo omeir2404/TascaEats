@@ -334,7 +334,7 @@ public class PedidosPane {
         Map<String, Object> sel = selected(table, owner); if (sel == null) return;
         if (!"PAGO".equals(s(sel, "estado"))) { warn("Só pedidos PAGO podem iniciar preparação.", owner); return; }
         try {
-            patch("/entregas/pedido/" + sel.get("id") + "/iniciar-preparacao");
+            updateOrderStatus(sel.get("id"), "A_PREPARAR");
             info("✓ Preparação iniciada.", owner);
             syncPedidos(applyFilter);
         } catch (Exception ex) { warn("✗ Erro ao iniciar preparação: " + ex.getMessage(), owner); }
@@ -345,8 +345,8 @@ public class PedidosPane {
         Map<String, Object> sel = selected(table, owner); if (sel == null) return;
         if (!"A_PREPARAR".equals(s(sel, "estado"))) { warn("Só pedidos em A_PREPARAR podem ser marcados prontos.", owner); return; }
         try {
-            patch("/entregas/pedido/" + sel.get("id") + "/marcar-pronto");
-            info("✓ Pedido pronto e entregador atribuído automaticamente.", owner);
+            updateOrderStatus(sel.get("id"), "PRONTO_PARA_ENTREGA");
+            info("✓ Pedido pronto para entrega.", owner);
             syncPedidos(applyFilter);
         } catch (Exception ex) { warn("✗ Erro ao marcar pronto: " + ex.getMessage(), owner); }
     }
@@ -416,6 +416,14 @@ public class PedidosPane {
             ? Map.of("pedidoId", path.split("/")[2])
             : Map.of("path", path);
         NativeGrpcClient.GrpcResult res = state.grpc.invoke(operation, payload);
+        if (!res.success()) {
+            throw new IllegalStateException(res.message());
+        }
+    }
+
+    private void updateOrderStatus(Object pedidoId, String novoEstado) {
+        NativeGrpcClient.GrpcResult res = state.grpc.invoke("updateOrderStatus",
+            Map.of("pedidoId", toLong(pedidoId), "novoEstado", novoEstado));
         if (!res.success()) {
             throw new IllegalStateException(res.message());
         }
