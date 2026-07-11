@@ -68,6 +68,9 @@ Se a execução do JavaFX falhar, certifique-se de que tem um JDK compatível (J
 * `web/src/main/java/.../ui/` — Componentes da GUI nativa em JavaFX usados separadamente.
 * `docs/`, `target/`, recursos de teste e outros artefactos do projeto.
 
+## Integração Contínua
+Existe um workflow em `.github/workflows/ci.yml` que executa `mvn test` nos três módulos (`backend`, `delivery-service` e `web`) em cada `push` para `main` e em `pull_request`.
+
 ## Estrutura do Projeto (Alinhamento com a Fase 1)
 A estrutura deste README segue as convenções de documentação da Fase 1 (ver `docs/p1.pdf`). Áreas principais:
 
