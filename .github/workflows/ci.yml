@@ -2,8 +2,15 @@ name: CI
 
 on:
   push:
+    branches: ["main"] # It's best to only deploy from your main/master branch
   pull_request:
   workflow_dispatch:
+
+# 1. ADD PERMISSIONS REQUIRED FOR GITHUB PAGES
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -38,3 +45,37 @@ jobs:
       - name: Run Maven tests
         working-directory: ${{ matrix.module.path }}
         run: mvn -B -ntp test
+
+  # 2. ADD THE DEPLOYMENT JOB
+  deploy:
+    name: Deploy Web Frontend to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build # This ensures we only deploy if the Maven tests pass!
+    if: github.ref == 'refs/heads/main' # Only run deploy on the main branch
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ---------------------------------------------------------
+      # IMPORTANT: Add your frontend build steps here!
+      # If your 'web' module requires npm run build to create HTML/JS, 
+      # you must run those commands here before uploading.
+      # ---------------------------------------------------------
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Change this path to exactly where your static files are generated 
+          # inside the web folder (e.g., 'web/dist', 'web/build', or 'web/target/classes/static')
+          path: 'web/dist' 
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
